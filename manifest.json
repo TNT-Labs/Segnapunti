@@ -1,6 +1,6 @@
 {
-  "name": "Nome App Completa Punteggi",
-  "short_name": "Punteggi",
+  "name": "Segnapunti - Partita e Impostazioni",
+  "short_name": "Segnapunti",
   "start_url": "index.html",
   "display": "standalone",
   "orientation": "portrait",
