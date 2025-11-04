@@ -70,16 +70,20 @@
     window.addEventListener('load', updateDarkModeIcon);
     document.getElementById('toggle-dark-mode').addEventListener('click', updateDarkModeIcon);
     
-    // Inizializza gli event listener specifici solo per questa pagina (settings)
+    // Inizializza gli event listener specifici per settings.html
     document.addEventListener('DOMContentLoaded', function() {
-        // Questi listener non sono più gestiti da segnapunti.js, ma qui:
+        
+        // 🚩 CORREZIONE BUG: Aggiorna lo stato E reindirizza subito alla pagina di gioco
         document.getElementById('modalita-vittoria').addEventListener('change', function() {
             setModalitaVittoria(this.value);
+            window.location.href = 'index.html'; 
         });
         
+        // 🚩 CORREZIONE BUG: Aggiorna lo stato E reindirizza subito alla pagina di gioco
         document.getElementById('punteggio-obiettivo').addEventListener('input', function() {
             const val = parseInt(this.value, 10);
             setPunteggioObiettivo(val > 0 ? val : 1);
+            window.location.href = 'index.html'; 
         });
         
         document.getElementById('btn-nuova-partita').addEventListener('click', resetPartita);
