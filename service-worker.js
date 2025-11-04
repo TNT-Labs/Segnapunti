@@ -1,8 +1,9 @@
-const CACHE_NAME = 'segnapunti-cache-v1.0.3';
+const CACHE_NAME = 'segnapunti-cache-v1.0.4'; // Versione aggiornata
 // Lista degli asset essenziali per il funzionamento offline
 const ASSETS_TO_CACHE = [
-  '/', // L'indirizzo base (utile per la modalità standalone)
+  '/', 
   'index.html',
+  'settings.html', // NUOVO: Inclusione della pagina di impostazioni
   'segnapunti.js',
   'segnapunti.css',
   'manifest.json',
@@ -53,24 +54,20 @@ self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request)
       .then(response => {
-        // Se l'asset è in cache, restituiscilo
         if (response) {
           // Opzionale: aggiorna la cache in background (Stale-While-Revalidate)
           fetch(event.request).then(
             networkResponse => {
-              // Non c'è bisogno di aspettare per questo aggiornamento
               caches.open(CACHE_NAME).then(cache => {
                 cache.put(event.request, networkResponse.clone());
               });
             }
-          ).catch(() => {}); // Ignora errori di aggiornamento di background
+          ).catch(() => {}); 
           
           return response;
         }
 
-        // Se non è in cache, prova a recuperarlo dalla rete
         return fetch(event.request).catch(() => {
-            // Se fallisce anche il network (offline), si potrebbe restituire una pagina offline (non implementata qui)
             console.log('[Service Worker] Richiesta fallita e non in cache:', event.request.url);
         });
       })
