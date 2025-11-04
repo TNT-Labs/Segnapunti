@@ -16,7 +16,7 @@
   <link rel="stylesheet" href="segnapunti.css">
 
   <style>
-      /* CRITICAL CSS: Assicurare che lo sfondo del corpo corrisponda al background_color del manifest per evitare il flash */
+      /* CRITICAL CSS: Assicurare che lo sfondo del corpo corrisponda al background_color del manifest per prevenire il 'flash' bianco (Sezione II.3) */
       body {
           background-color: #212121 !important; 
           margin: 0;
@@ -46,7 +46,8 @@
 
     <div id="winner-message" class="winner" style="display:none;" role="alert"></div>
 
-    <hr class="separator"> <div id="impostazioni-partita">
+    <hr class="separator"> 
+    <div id="impostazioni-partita">
       <h3>Configurazione Partita</h3>
       
       <label for="modalita-vittoria">Modalità di vittoria:</label>
