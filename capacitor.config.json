@@ -1,0 +1,19 @@
+{
+  "appId": "com.tuaazienda.scoretracker",
+  "appName": "Punteggi Completa",
+  "webDir": "www",
+  "bundledWebRuntime": false,
+  "npmClient": "npm",
+  "server": {
+    "cleartext": true
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 0
+    },
+    "Keyboard": {
+      "resize": "ionic"
+    }
+  },
+  "cordova": {}
+}
