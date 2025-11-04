@@ -3,7 +3,6 @@
 Segnapunti Carte è una web app moderna e leggera per gestire i punteggi dei giochi di carte, ottimizzata per dispositivi mobili e desktop, installabile come PWA (Progressive Web App).
 
 ## Funzionalità
-
 - Aggiungi e rimuovi giocatori dinamicamente
 - Modifica i punteggi in modo rapido
 - Scegli la modalità di vittoria (vince chi fa più o meno punti)
@@ -14,26 +13,21 @@ Segnapunti Carte è una web app moderna e leggera per gestire i punteggi dei gio
 - Installabile su smartphone, tablet e PC
 
 ## Come usare
-
-1. **Scarica tutti i file** di questo progetto nella stessa cartella.
+1. Scarica tutti i file nella stessa cartella.
 2. Apri `index.html` con il browser.
-3. Per installare la PWA, clicca su “Aggiungi a schermata Home” dal browser (Chrome, Edge, Safari mobile, ecc.).
+3. Per installare la PWA, clicca su “Aggiungi a schermata Home” dal browser.
 
 ## Personalizzazione
-
 - Modifica i colori e lo stile in `segnapunti.css`.
-- Puoi cambiare il nome dell’app e le icone modificando `manifest.json` e sostituendo le immagini PNG.
+- Cambia nome e icone in `manifest.json`.
 
 ## Requisiti
-
-- Un browser moderno (Chrome, Edge, Firefox, Safari)
-- Per la modalità PWA, la app deve essere servita tramite HTTPS (tranne che in localhost per sviluppo).
+- Browser moderno (Chrome, Edge, Firefox, Safari)
+- HTTPS per PWA (eccetto localhost)
 
 ## Sviluppo
-
-- Il codice JavaScript è in `segnapunti.js`.
-- La logica PWA è gestita da `manifest.json` e `service-worker.js`.
+- Logica: `segnapunti.js`
+- PWA: `manifest.json` e `service-worker.js`
 
 ## Credits
-
-Creato da [Il tuo nome o team].
+Creato da Tnt-Labs 2025.
