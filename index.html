@@ -1,98 +1,14 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <link rel="manifest" href="manifest.jsonontent="#2a4d69">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Segnapunti Carte</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', Arial, sans-serif;
-      background: #f4f6fb;
-      margin: 0;
-      padding: 0;
-      color: #222;
-    }
-    .container {
-      max-width: 500px;
-      margin: 40px auto;
-      background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 2px 16px rgba(0,0,0,0.08);
-      padding: 32px 24px 24px 24px;
-    }
-    h1 {
-      text-align: center;
-      color: #2a4d69;
-      margin-bottom: 8px;
-    }
-    h3 {
-      color: #4b86b4;
-      margin-top: 24px;
-      margin-bottom: 8px;
-    }
-    label {
-      display: block;
-      margin: 12px 0 6px 0;
-      font-weight: 500;
-    }
-    input, select, button {
-      font-size: 1em;
-      padding: 8px;
-      border-radius: 6px;
-      border: 1px solid #bfc9d1;
-      margin-bottom: 10px;
-      width: 100%;
-      box-sizing: border-box;
-    }
-    button {
-      background: #2a4d69;
-      color: #fff;
-      border: none;
-      cursor: pointer;
-      transition: background 0.2s;
-      margin-top: 10px;
-    }
-    button:hover {
-      background: #4b86b4;
-    }
-    .giocatori-lista {
-      margin: 16px 0;
-      padding: 0;
-      list-style: none;
-    }
-    .giocatore-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: #f0f4fa;
-      border-radius: 6px;
-      padding: 8px 12px;
-      margin-bottom: 8px;
-    }
-    .giocatore-nome {
-      font-weight: 500;
-    }
-    .punteggio-controls {
-      display: flex;
-      gap: 6px;
-    }
-    .winner {
-      background: #d4edda;
-      color: #155724;
-      border: 1px solid #c3e6cb;
-      padding: 10px;
-      border-radius: 6px;
-      margin-top: 16px;
-      text-align: center;
-      font-weight: bold;
-    }
-    @media (max-width: 600px) {
-      .container {
-        padding: 16px 4px;
-      }
-    }
-  </style>
+  <!-- Manifest PWA -->
+  <link rel="manifest" href=""theme-color" content="#2a4d69">
+  <!-- Icona per dispositivi -->
+  <link rel="icon" typerel="apple-touchS -->
+  segnapunti.css
 </head>
 <body>
   <div class="container">
@@ -115,98 +31,15 @@
     </div>
     <div id="winner-message" class="winner" style="display:none;"></div>
   </div>
+  <!-- JS principale -->
+  segnapunti.js</script>
+  <!-- Registrazione Service Worker PWA -->
   <script>
-    // Parametri di gioco
-    let modalitaVittoria = document.getElementById('modalita-vittoria').value;
-    let punteggioObiettivo = parseInt(document.getElementById('punteggio-obiettivo').value, 10);
-
-    document.getElementById('modalita-vittoria').addEventListener('change', function() {
-      modalitaVittoria = this.value;
-      controllaVittoria();
-    });
-    document.getElementById('punteggio-obiettivo').addEventListener('input', function() {
-      punteggioObiettivo = parseInt(this.value, 10);
-      controllaVittoria();
-    });
-
-    let giocatori = [];
-
-    function aggiornaListaGiocatori() {
-      const lista = document.getElementById('giocatori-lista');
-      lista.innerHTML = '';
-      giocatori.forEach((g, i) => {
-        const li = document.createElement('li');
-        li.className = 'giocatore-item';
-        li.innerHTML = `
-          <span class="giocatore-nome">${g.nome}</span>
-          <span>Punti: <strong>${g.punti}</strong></span>
-          <div class="punteggio-controls">
-            <button onclick="modificaPunteggio(${i}, 1)">+1</button>
-            <button onclick="modificaPunteggio(${i}, -1)">-1</button>
-            <button onclick="modificaPunteggio(${i}, 5)">+5</button>
-            <button onclick="modificaPunteggio(${i}, -5)">-5</button>
-            <button onclick="rimuoviGiocatore(${i})" style="background:#e57373;">🗑️</button>
-          </div>
-        `;
-        lista.appendChild(li);
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('service-worker.js');
       });
     }
-
-    function aggiungiGiocatore() {
-      const nomeInput = document.getElementById('nuovo-giocatore');
-      const nome = nomeInput.value.trim();
-      if (nome) {
-        giocatori.push({ nome: nome, punti: 0 });
-        nomeInput.value = '';
-        aggiornaListaGiocatori();
-      }
-    }
-
-    function rimuoviGiocatore(index) {
-      giocatori.splice(index, 1);
-      aggiornaListaGiocatori();
-      controllaVittoria();
-    }
-
-    function modificaPunteggio(index, delta) {
-      giocatori[index].punti += delta;
-      aggiornaListaGiocatori();
-      controllaVittoria();
-    }
-
-    function controllaVittoria() {
-      let vincitori = [];
-      if (giocatori.length === 0) {
-        document.getElementById('winner-message').style.display = 'none';
-        return;
-      }
-      if (modalitaVittoria === 'max') {
-        let maxPunti = Math.max(...giocatori.map(g => g.punti));
-        if (maxPunti >= punteggioObiettivo) {
-          vincitori = giocatori.filter(g => g.punti === maxPunti);
-        }
-      } else {
-        let minPunti = Math.min(...giocatori.map(g => g.punti));
-        if (minPunti <= punteggioObiettivo) {
-          vincitori = giocatori.filter(g => g.punti === minPunti);
-        }
-      }
-      const winnerDiv = document.getElementById('winner-message');
-      if (vincitori.length > 0) {
-        winnerDiv.style.display = 'block';
-        winnerDiv.textContent = `Partita terminata! Vince: ${vincitori.map(v => v.nome).join(', ')} (${vincitori[0].punti} punti)`;
-      } else {
-        winnerDiv.style.display = 'none';
-      }
-    }
-
-    // Per usabilità: aggiungi giocatore con Invio
-    document.getElementById('nuovo-giocatore').addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') aggiungiGiocatore();
-    });
-
-    // Inizializza lista vuota
-    aggiornaListaGiocatori();
   </script>
 </body>
 </html>
