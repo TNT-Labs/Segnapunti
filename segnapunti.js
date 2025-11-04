@@ -2,18 +2,18 @@ let modalitaVittoria = 'max';
 let punteggioObiettivo = 100;
 let giocatori = [];
 const STORAGE_KEY = 'segnapunti_stato';
-// Variabile per gestire il futuro passaggio a IndexedDB (mantiene l'MVP funzionante su LocalStorage per ora)
 const ASYNC_STORAGE_AVAILABLE = false; 
+
+// 🚩 NUOVO: Traccia lo stato della partita per bloccare le modifiche una volta raggiunto l'obiettivo
+let partitaTerminata = false; 
 
 document.addEventListener('DOMContentLoaded', async function() {
   if (ASYNC_STORAGE_AVAILABLE) {
-    // PASSAGGIO MMP: Sostituire con l'implementazione IndexedDB
     await caricaStatoAsync(); 
   } else {
-    caricaStato(); // Carica lo stato salvato (o i default) da LocalStorage
+    caricaStato(); 
   }
   
-  // CRITICAL: Richiedi lo stato persistente all'avvio per mitigare la perdita di dati (Sezione I.2)
   await requestPersistentStorage();
 
   // Inizializza i valori UI con i dati caricati
@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', async function() {
   
   nuovoGiocatoreInput.addEventListener('keydown', function(e) {
     if (e.key === 'Enter') {
-      e.preventDefault(); // Evita comportamenti indesiderati con 'Enter'
+      e.preventDefault(); 
       aggiungiGiocatore();
     }
   });
@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', async function() {
   document.getElementById('btn-nuova-partita').addEventListener('click', resetPartita);
   
   aggiornaListaGiocatori();
-  controllaVittoria(); // Chiamata critica all'avvio per verificare il vincitore
+  controllaVittoria(); 
   
   // Listener per la Modalità Scura
   document.getElementById('toggle-dark-mode').addEventListener('click', toggleDarkMode);
@@ -56,7 +56,6 @@ document.addEventListener('DOMContentLoaded', async function() {
 
 /**
  * Richiede lo storage persistente al browser. Cruciale per la stabilità MMP.
- * @returns {Promise<boolean>} Vero se la persistenza è garantita.
  */
 async function requestPersistentStorage() {
     if (navigator.storage && navigator.storage.persist) {
@@ -72,7 +71,6 @@ async function requestPersistentStorage() {
             return true;
         } else {
             console.warn("Storage persistente negato. I dati potrebbero essere cancellati (rischio su iOS).");
-            // NOTA: Implementare qui una notifica all'utente se la persistenza è negata.
             return false;
         }
     }
@@ -86,16 +84,17 @@ function salvaStato() {
     giocatori: giocatori,
     modalitaVittoria: modalitaVittoria,
     punteggioObiettivo: punteggioObiettivo,
-    darkMode: document.body.classList.contains('dark-mode')
+    darkMode: document.body.classList.contains('dark-mode'),
+    // 🚩 NUOVO: Salva anche lo stato di partitaTerminata
+    partitaTerminata: partitaTerminata 
   };
   localStorage.setItem(STORAGE_KEY, JSON.stringify(stato));
 }
 
 // Funzione di salvataggio dello stato (IndexedDB - Asincrona PLACEHOLDER)
 async function salvaStatoAsync() {
-    // Logica IndexedDB qui per salvare lo stato in modo robusto
     console.log("Saving state asynchronously (IndexedDB placeholder)...");
-    salvaStato(); // Fallback a LocalStorage finché l'implementazione IndexedDB non è completa
+    salvaStato(); 
 }
 
 // Funzione di caricamento dello stato (LocalStorage - Legacy/Sync)
@@ -106,6 +105,8 @@ function caricaStato() {
     giocatori = stato.giocatori || [];
     modalitaVittoria = stato.modalitaVittoria || 'max';
     punteggioObiettivo = stato.punteggioObiettivo || 100;
+    // 🚩 NUOVO: Carica anche lo stato di partitaTerminata
+    partitaTerminata = stato.partitaTerminata || false; 
     
     if (stato.darkMode) {
       document.body.classList.add('dark-mode');
@@ -115,9 +116,8 @@ function caricaStato() {
 
 // Funzione di caricamento dello stato (IndexedDB - Asincrona PLACEHOLDER)
 async function caricaStatoAsync() {
-    // Logica IndexedDB qui per caricare lo stato
     console.log("Loading state asynchronously (IndexedDB placeholder)...");
-    caricaStato(); // Fallback a LocalStorage finché l'implementazione IndexedDB non è completa
+    caricaStato(); 
 }
 
 
@@ -125,6 +125,8 @@ async function caricaStatoAsync() {
 function resetPartita() {
   if (confirm("Sei sicuro di voler iniziare una nuova partita? Tutti i punteggi attuali verranno azzerati.")) {
     giocatori = giocatori.map(g => ({ nome: g.nome, punti: 0 }));
+    // 🚩 NUOVO: Reset dello stato
+    partitaTerminata = false;
     (ASYNC_STORAGE_AVAILABLE ? salvaStatoAsync() : salvaStato());
     aggiornaListaGiocatori();
     controllaVittoria();
@@ -139,32 +141,47 @@ function aggiornaListaGiocatori() {
   if (giocatori.length === 0) {
       lista.innerHTML = '<p class="empty-state">Nessun giocatore. Aggiungi i partecipanti qui sopra per iniziare!</p>';
   }
+  
+  // 🚩 NUOVO: Gestione dello stato bloccato
+  const isGameFinished = partitaTerminata;
 
   giocatori.forEach((g, i) => {
     const li = document.createElement('li');
-    // Aggiunto highlight del vincitore
-    li.className = `giocatore-item ${vincitoriNomi.includes(g.nome) ? 'winner-highlight' : ''}`;
+    li.className = `giocatore-item ${vincitoriNomi.includes(g.nome) ? 'winner-highlight' : ''} ${isGameFinished ? 'game-over' : ''}`;
     
-    // NOTA: I pulsanti richiedono uno stile in segnapunti.css per raggiungere il target minimo di 48x48px (DIP)
     li.innerHTML = `
       <span class="giocatore-nome">${g.nome}</span>
       <div class="punti-e-controlli">
         <span class="giocatore-punti" id="punti-${i}"><strong>${g.punti}</strong> Punti</span>
         <div class="punteggio-controls">
-          <button title="Aggiungi 1 punto" onclick="modificaPunteggio(${i}, 1)">+1</button>
-          <button title="Rimuovi 1 punto" onclick="modificaPunteggio(${i}, -1)">-1</button>
-          <button title="Aggiungi 5 punti" onclick="modificaPunteggio(${i}, 5)">+5</button>
-          <button title="Rimuovi 5 punti" onclick="modificaPunteggio(${i}, -5)">-5</button>
-          <button title="Aggiungi Punti Personalizzati" onclick="chiediPunteggioPersonalizzato(${i})" class="btn-custom-score">±</button>
-          <button title="Rimuovi giocatore" onclick="rimuoviGiocatore(${i})" class="btn-rimuovi">🗑️</button>
+          <button title="Aggiungi 1 punto" onclick="modificaPunteggio(${i}, 1)" ${isGameFinished ? 'disabled' : ''}>+1</button>
+          <button title="Rimuovi 1 punto" onclick="modificaPunteggio(${i}, -1)" ${isGameFinished ? 'disabled' : ''}>-1</button>
+          <button title="Aggiungi 5 punti" onclick="modificaPunteggio(${i}, 5)" ${isGameFinished ? 'disabled' : ''}>+5</button>
+          <button title="Rimuovi 5 punti" onclick="modificaPunteggio(${i}, -5)" ${isGameFinished ? 'disabled' : ''}>-5</button>
+          <button title="Aggiungi Punti Personalizzati" onclick="chiediPunteggioPersonalizzato(${i})" class="btn-custom-score" ${isGameFinished ? 'disabled' : ''}>±</button>
+          <button title="Rimuovi giocatore" onclick="rimuoviGiocatore(${i})" class="btn-rimuovi" ${isGameFinished ? 'disabled' : ''}>🗑️</button>
         </div>
       </div>
     `;
     lista.appendChild(li);
   });
+  
+  // Blocca/Sblocca il form di aggiunta giocatore
+  const btnAggiungi = document.getElementById('btn-aggiungi-giocatore');
+  const inputAggiungi = document.getElementById('nuovo-giocatore');
+  if (isGameFinished) {
+      btnAggiungi.disabled = true;
+      inputAggiungi.disabled = true;
+  } else {
+      btnAggiungi.disabled = false;
+      inputAggiungi.disabled = false;
+  }
 }
 
 function aggiungiGiocatore() {
+  // 🚩 NUOVO: Blocca se la partita è terminata
+  if (partitaTerminata) return; 
+
   const nomeInput = document.getElementById('nuovo-giocatore');
   const nome = nomeInput.value.trim();
   if (nome) {
@@ -176,6 +193,9 @@ function aggiungiGiocatore() {
 }
 
 function rimuoviGiocatore(index) {
+  // 🚩 NUOVO: Blocca se la partita è terminata
+  if (partitaTerminata) return; 
+  
   giocatori.splice(index, 1);
   (ASYNC_STORAGE_AVAILABLE ? salvaStatoAsync() : salvaStato());
   aggiornaListaGiocatori();
@@ -183,18 +203,19 @@ function rimuoviGiocatore(index) {
 }
 
 function modificaPunteggio(index, delta) {
+  // 🚩 NUOVO: Blocca se la partita è terminata
+  if (partitaTerminata) return; 
+
   giocatori[index].punti += delta;
   
-  // Feedback visivo immediato (animazione) - CRITICO per UX (Sezione II.2)
+  // Feedback visivo immediato (animazione) 
   const puntiElement = document.getElementById(`punti-${index}`);
   if (puntiElement) {
     puntiElement.classList.add(delta > 0 ? 'anim-up' : 'anim-down');
-    // Rimuove la classe dopo l'animazione per permettere replay
     puntiElement.addEventListener('animationend', () => {
       puntiElement.classList.remove('anim-up', 'anim-down');
     }, { once: true });
     
-    // Aggiorna immediatamente il testo per la reattività percepita
     puntiElement.querySelector('strong').textContent = giocatori[index].punti;
   }
 
@@ -204,6 +225,9 @@ function modificaPunteggio(index, delta) {
 }
 
 function chiediPunteggioPersonalizzato(index) {
+  // 🚩 NUOVO: Blocca se la partita è terminata
+  if (partitaTerminata) return; 
+  
   const nomeGiocatore = giocatori[index].nome;
   const punteggioAttuale = giocatori[index].punti;
   
@@ -241,14 +265,17 @@ function getVincitoriNomi() {
   const puntiMappa = giocatori.map(g => g.punti);
   let vincitori = [];
 
+  // La logica di base per identificare chi è "in testa"
   if (modalitaVittoria === 'max') {
     const maxPunti = Math.max(...puntiMappa);
-    if (maxPunti >= punteggioObiettivo) {
+    // 🚩 NUOVO: L'highlight avviene solo se il punteggio MAX ha raggiunto l'obiettivo (o se la partita è già terminata)
+    if (maxPunti >= punteggioObiettivo || partitaTerminata) {
       vincitori = giocatori.filter(g => g.punti === maxPunti);
     }
   } else {
     const minPunti = Math.min(...puntiMappa);
-    if (minPunti <= punteggioObiettivo) {
+    // 🚩 NUOVO: L'highlight avviene solo se il punteggio MIN ha raggiunto l'obiettivo (o se la partita è già terminata)
+    if (minPunti <= punteggioObiettivo || partitaTerminata) {
       vincitori = giocatori.filter(g => g.punti === minPunti);
     }
   }
@@ -259,6 +286,7 @@ function controllaVittoria() {
   const winnerDiv = document.getElementById('winner-message');
   
   if (giocatori.length === 0) {
+    partitaTerminata = false;
     winnerDiv.style.display = 'none';
     aggiornaListaGiocatori();
     return;
@@ -280,12 +308,34 @@ function controllaVittoria() {
   }
   
   if (vincitori.length > 0) {
+    // 🚩 NUOVO: Aggiorna lo stato di blocco
+    partitaTerminata = true;
+    
+    // Aggiorna l'UI
     aggiornaListaGiocatori(); 
     winnerDiv.style.display = 'block';
-    winnerDiv.textContent = `🎉 Partita terminata! Vince: ${vincitori.map(v => v.nome).join(', ')} (${vincitori[0].punti} punti)`;
+    winnerDiv.classList.add('finished'); // Aggiunge una classe per lo stile del messaggio
+    winnerDiv.innerHTML = `
+        <span class="fireworks">🎉</span>
+        <div class="winner-text">
+            <strong>PARTITA TERMINATA!</strong><br>
+            Vince: ${vincitori.map(v => v.nome).join(', ')} (${vincitori[0].punti} punti)
+        </div>
+        <span class="fireworks">🎉</span>
+    `;
+    
+    // Assicurati che lo stato sia salvato (partitaTerminata = true)
+    (ASYNC_STORAGE_AVAILABLE ? salvaStatoAsync() : salvaStato());
+    
   } else {
+    // 🚩 NUOVO: Se non ci sono vincitori, assicurati che la partita non sia bloccata
+    if (partitaTerminata) {
+        partitaTerminata = false; // Rimuove il blocco se i punti sono stati modificati sotto l'obiettivo
+        (ASYNC_STORAGE_AVAILABLE ? salvaStatoAsync() : salvaStato());
+    }
     winnerDiv.style.display = 'none';
-    aggiornaListaGiocatori();
+    winnerDiv.classList.remove('finished');
+    aggiornaListaGiocatori(); // Aggiorna per rimuovere i pulsanti disabilitati
   }
 }
 
