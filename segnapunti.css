@@ -1,6 +1,452 @@
-/* ... (Stili precedenti, Dark Mode, Header Fisso, etc.) ... */
+:root {
+  --colore-primario: #2a4d69;
+  --colore-secondario: #4b86b4;
+  --colore-sfondo: #f4f6fb;
+  --colore-card: #ffffff;
+  --colore-testo: #222;
+  --colore-vincitore: #155724;
+  --sfondo-vincitore: #d4edda;
+  --bordo-vincitore: #c3e6cb;
+  --colore-rimuovi: #e57373;
+  --sfondo-rimuovi: #c62828;
+  --colore-pulsante-custom: #008CBA;
+  --colore-reset: #c62828; 
+  --colore-blocco: rgba(0, 0, 0, 0.6); 
+  --colore-header-bordo: #e0e0e0;
+}
 
-/* 🚩 NUOVO: Stili per Modal Overlay */
+/* --- Dark Mode Variables --- */
+body.dark-mode {
+  --colore-sfondo: #121212;
+  --colore-card: #1e1e1e;
+  --colore-testo: #f5f5f5;
+  --colore-primario: #7aaed6;
+  --colore-secondario: #4a6c8e;
+  --colore-vincitore: #b8e0b8;
+  --sfondo-vincitore: #203a20;
+  --bordo-vincitore: #305030;
+  --colore-reset: #a02020;
+  --colore-blocco: rgba(0, 0, 0, 0.8);
+  --colore-header-bordo: #333;
+}
+body.dark-mode h1, body.dark-mode .giocatore-nome {
+  color: var(--colore-primario);
+}
+body.dark-mode h3 {
+  color: var(--colore-secondario);
+  border-bottom-color: #333;
+}
+body.dark-mode input, body.dark-mode select {
+  background: #2a2a2a;
+  color: var(--colore-testo);
+  border-color: #444;
+}
+body.dark-mode input:focus, body.dark-mode select:focus {
+  box-shadow: 0 0 0 2px rgba(122, 174, 214, 0.4);
+}
+body.dark-mode .giocatore-item {
+  background: #2a2a2a;
+}
+body.dark-mode .giocatore-item.winner-highlight {
+  background: #2a4a2a;
+  border-color: var(--bordo-vincitore);
+  box-shadow: 0 0 10px rgba(32, 58, 32, 0.8);
+}
+body.dark-mode .giocatore-punti strong {
+  color: var(--colore-primario);
+}
+body.dark-mode button:not(.btn-rimuovi, .btn-custom-score, #toggle-dark-mode, .btn-reset, .btn-primary, .top-buttons button) {
+  background: var(--colore-secondario);
+}
+body.dark-mode button:hover:not(.btn-rimuovi, .btn-custom-score, #toggle-dark-mode, .btn-reset, .btn-primary, .top-buttons button) {
+  background: var(--colore-primario);
+}
+body.dark-mode .winner {
+  color: var(--colore-vincitore);
+}
+body.dark-mode .separator {
+    border-top: 1px dashed #333;
+}
+body.dark-mode .storico-item {
+    border-color: #333;
+    box-shadow: 0 2px 4px rgba(255, 255, 255, 0.05);
+}
+body.dark-mode .storico-header {
+    border-bottom: 1px solid #333;
+}
+body.dark-mode .modal-content {
+    background: #2a2a2a;
+}
+/* --- Fine Dark Mode Variables --- */
+
+/* Stili Generali */
+body {
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif; 
+  background: var(--colore-sfondo);
+  margin: 0;
+  padding: 0;
+  color: var(--colore-testo);
+  line-height: 1.6;
+  transition: background-color 0.3s;
+}
+
+.container {
+  max-width: 550px; 
+  margin: 0 auto; 
+  background: var(--colore-card);
+  border-radius: 0;
+  box-shadow: none; 
+  padding: 32px 24px;
+  transition: background-color 0.3s, box-shadow 0.3s;
+  padding-top: 80px; /* Spazio per l'header fisso */
+}
+
+/* Header e Titoli */
+.header-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+/* Stili per Header Fissato */
+.header-controls.fixed-header {
+    position: fixed; 
+    top: 0;
+    left: 0;
+    right: 0;
+    max-width: 550px; 
+    margin: 0 auto;
+    z-index: 100; 
+    background: var(--colore-card); 
+    padding: 15px 24px 10px 24px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid var(--colore-header-bordo);
+    border-radius: 0 0 16px 16px; 
+}
+body.dark-mode .header-controls.fixed-header {
+    box-shadow: 0 2px 5px rgba(255, 255, 255, 0.05);
+}
+
+h1 {
+  flex-grow: 1;
+  text-align: left; 
+  color: var(--colore-primario);
+  font-weight: 800; 
+  font-size: 1.8em;
+  margin: 0;
+}
+
+/* 🚩 Stili per i pulsanti di navigazione */
+.top-buttons {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+}
+.top-buttons button {
+    background: var(--colore-secondario);
+    color: white;
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-weight: 500;
+    min-width: 48px;
+    min-height: 48px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.top-buttons button:hover {
+    background: var(--colore-primario);
+}
+#toggle-dark-mode {
+    background: none !important;
+    border: 1px solid var(--colore-primario) !important;
+    color: var(--colore-primario) !important;
+    width: 48px; 
+    height: 48px; 
+    padding: 0;
+    border-radius: 50% !important;
+    font-size: 1.2em;
+    line-height: 1;
+    flex-shrink: 0;
+}
+body.dark-mode #toggle-dark-mode {
+    color: var(--colore-testo) !important;
+    border-color: var(--colore-testo) !important;
+}
+#toggle-dark-mode:hover {
+  background: var(--colore-primario) !important;
+  color: var(--colore-card) !important;
+}
+
+/* Separatore */
+.separator {
+    border: none;
+    border-top: 1px dashed #ccc;
+    margin: 30px 0;
+}
+
+/* Pulsanti Generici */
+button {
+  font-size: 0.9em;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+  color: #fff;
+  background: var(--colore-secondario);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+button:hover {
+  background: var(--colore-primario);
+}
+button:active {
+  transform: translateY(1px);
+}
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+
+/* Pulsanti Specifici */
+.btn-primary { 
+    background: var(--colore-primario);
+}
+.btn-primary:hover {
+    background: var(--colore-secondario);
+}
+.btn-reset { 
+    background: var(--colore-reset);
+}
+.btn-reset:hover {
+    background: var(--sfondo-rimuovi);
+}
+
+h3 {
+  color: var(--colore-secondario);
+  margin-top: 28px;
+  margin-bottom: 12px;
+  border-bottom: 2px solid #e0e0e0;
+  padding-bottom: 5px;
+  font-weight: 600;
+}
+body.dark-mode h3 {
+    border-bottom-color: #333;
+}
+
+/* Form Aggiungi Giocatore */
+.aggiungi-giocatore-form {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+.aggiungi-giocatore-form input {
+    flex-grow: 1;
+    margin-bottom: 0; 
+}
+
+label {
+  display: block;
+  margin: 15px 0 8px 0;
+  font-weight: 500;
+  color: #555;
+}
+body.dark-mode label {
+    color: #bbb;
+}
+input[type="text"], input[type="number"], select {
+  font-size: 1em;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #bfc9d1;
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color 0.3s;
+  min-height: 48px; 
+}
+
+/* Bottoni principali */
+.action-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+.action-buttons button {
+  flex-grow: 1;
+  font-weight: 600;
+  padding: 10px;
+}
+
+/* Lista Giocatori */
+.giocatori-lista {
+  margin: 0 0 20px 0;
+  padding: 0;
+  list-style: none;
+}
+.giocatore-item {
+  display: flex;
+  flex-direction: column; 
+  align-items: flex-start;
+  background: #f0f4fa;
+  border-radius: 8px;
+  padding: 12px 15px;
+  margin-bottom: 10px;
+  position: relative;
+}
+/* Overlay Partita Terminata */
+.giocatore-item.game-over::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--colore-blocco); 
+    border-radius: 8px;
+    pointer-events: none; 
+    z-index: 10;
+}
+.giocatore-item.game-over.winner-highlight::after {
+    display: none; 
+}
+
+/* Highlight Vincitore */
+.giocatore-item.winner-highlight {
+  background: var(--sfondo-vincitore); 
+  border: 2px solid var(--bordo-vincitore);
+  box-shadow: 0 0 10px rgba(212, 237, 218, 0.8);
+}
+body.dark-mode .giocatore-item.winner-highlight {
+    box-shadow: 0 0 10px rgba(32, 58, 32, 0.8);
+}
+
+.giocatore-punti {
+  font-size: 1.1em;
+  color: #555;
+  font-weight: 500;
+  min-width: 100px;
+  position: relative;
+}
+body.dark-mode .giocatore-punti {
+    color: #bbb;
+}
+/* Punteggio in Primo Piano */
+.giocatore-punti strong {
+  font-weight: 800; 
+  color: var(--colore-primario);
+  font-size: 1.8em; 
+  display: inline-block;
+  margin-right: 5px;
+  line-height: 1;
+}
+
+.punti-e-controlli {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 5px;
+}
+/* Layout Controlli (Grid per mobile) */
+.punteggio-controls {
+  display: grid; 
+  grid-template-columns: repeat(3, 1fr); 
+  gap: 6px; 
+  flex-grow: 1; 
+}
+.punteggio-controls button {
+  padding: 8px 10px; 
+  font-size: 1em; 
+  min-width: 48px; 
+  min-height: 48px; 
+  box-sizing: border-box; 
+}
+.punteggio-controls .btn-rimuovi {
+  background: var(--colore-rimuovi);
+}
+.punteggio-controls .btn-rimuovi:hover {
+  background: var(--sfondo-rimuovi);
+}
+.punteggio-controls .btn-custom-score {
+  background: var(--colore-pulsante-custom);
+  font-weight: 700;
+}
+.punteggio-controls .btn-custom-score:hover {
+  background: #006b8c;
+}
+.punteggio-controls .btn-custom-score {
+    grid-column: span 3; 
+    font-size: 1.1em;
+}
+#giocatori-lista-settings .punteggio-controls {
+    grid-template-columns: 1fr;
+}
+
+/* Stile Messaggio Vincitore */
+.winner {
+    text-align: center;
+    padding: 15px;
+    margin-top: 20px;
+    border-radius: 12px;
+    background-color: var(--sfondo-vincitore);
+    border: 2px solid var(--bordo-vincitore);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1em;
+    color: var(--colore-vincitore);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+.winner .fireworks {
+    font-size: 1.8em;
+    margin: 0 10px;
+}
+.winner .winner-text strong {
+    font-size: 1.3em;
+    display: block;
+    margin-bottom: 5px;
+}
+body.dark-mode .winner {
+    background-color: var(--sfondo-vincitore);
+    color: var(--colore-vincitore);
+}
+
+
+/* Animazioni Punti (Feedback Visivo) */
+@keyframes scaleBounce {
+    0% { transform: scale(1.0); }
+    50% { transform: scale(1.15); }
+    100% { transform: scale(1.0); }
+}
+.giocatore-punti.anim-up strong {
+  color: #4CAF50 !important; 
+  animation: scaleBounce 0.3s ease-in-out;
+}
+.giocatore-punti.anim-down strong {
+  color: #F44336 !important; 
+  animation: scaleBounce 0.3s ease-in-out;
+}
+
+/* Stili per la Lista Storico */
+.storico-lista {
+    list-style: none;
+    padding: 0;
+}
+.storico-item {
+    background: var(--colore-card);
+    border: 1px solid #ddd;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    transition: background-color 0.3s;
+}
+
+/* NUOVO: Stili per Modal Overlay */
 .modal-overlay, .loader-overlay {
     position: fixed;
     top: 0;
@@ -68,8 +514,7 @@
     flex-grow: 1;
 }
 
-
-/* 🚩 NUOVO: Stili per Loader */
+/* Stili per Loader */
 .loader-overlay p {
     color: white;
     margin-top: 20px;
@@ -87,6 +532,77 @@
     100% { transform: rotate(360deg); }
 }
 
-body.dark-mode .modal-content h2 {
-    color: var(--colore-primario);
+
+/* Media Query per Mobile (Controlli ottimizzati) */
+@media (max-width: 500px) {
+  .container {
+    padding-top: 90px; 
+  }
+  .giocatore-item {
+      padding: 10px 15px;
+  }
+  .giocatore-punti {
+      margin-bottom: 10px;
+  }
+  .punti-e-controlli {
+      flex-direction: column;
+      align-items: flex-start;
+  }
+  
+  /* Nascondi +/- 5 e adatta la griglia a 2 colonne per +1/-1 e ± */
+  .punteggio-controls {
+      grid-template-columns: repeat(2, 1fr);
+  }
+  .punteggio-controls button:nth-child(3),
+  .punteggio-controls button:nth-child(4) {
+      display: none;
+  }
+  .punteggio-controls button:nth-child(1),
+  .punteggio-controls button:nth-child(2) {
+      grid-column: span 1;
+  }
+  .punteggio-controls .btn-custom-score {
+      grid-column: span 2; 
+  }
+  .header-controls.fixed-header {
+    border-radius: 0; /* Su mobile full-width, nessun bordo arrotondato */
+  }
+}
+
+/* Media Query per Desktop/Tablet (Layout Orizzontale) */
+@media (min-width: 501px) {
+  .giocatore-item {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 20px;
+  }
+  .giocatore-nome {
+    margin-bottom: 0;
+    flex-basis: 25%; 
+  }
+  .punti-e-controlli {
+    width: auto;
+    flex-grow: 1;
+    justify-content: flex-end; 
+  }
+  .giocatore-punti {
+    margin-right: 20px;
+    text-align: right;
+    min-width: 120px;
+  }
+  /* Layout pulsanti in desktop (5 pulsanti in linea) */
+  .punteggio-controls {
+    display: flex;
+    gap: 8px;
+    grid-template-columns: none; /* Disabilita grid per tornare a flex/inline */
+  }
+  .punteggio-controls .btn-custom-score {
+      grid-column: span 1; /* Torna a dimensione normale */
+      font-size: 1em;
+  }
+  .punteggio-controls button:nth-child(3),
+  .punteggio-controls button:nth-child(4) {
+      display: block; /* Riattiva +/- 5 */
+  }
 }
