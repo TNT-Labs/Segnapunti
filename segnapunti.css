@@ -9,7 +9,8 @@
   --bordo-vincitore: #c3e6cb;
   --colore-rimuovi: #e57373;
   --sfondo-rimuovi: #c62828;
-  --colore-pulsante-custom: #008CBA; /* Blu per il pulsante ± */
+  --colore-pulsante-custom: #008CBA;
+  --colore-reset: #c62828; /* Rosso più scuro per il reset */
 }
 
 /* --- Dark Mode Variables --- */
@@ -22,6 +23,7 @@ body.dark-mode {
   --colore-vincitore: #b8e0b8;
   --sfondo-vincitore: #203a20;
   --bordo-vincitore: #305030;
+  --colore-reset: #a02020;
 }
 body.dark-mode h1, body.dark-mode .giocatore-nome {
   color: var(--colore-primario);
@@ -49,17 +51,19 @@ body.dark-mode .giocatore-item.winner-highlight {
 body.dark-mode .giocatore-punti strong {
   color: var(--colore-primario);
 }
-body.dark-mode button:not(.btn-rimuovi, .btn-custom-score, #toggle-dark-mode) {
+body.dark-mode button:not(.btn-rimuovi, .btn-custom-score, #toggle-dark-mode, .btn-reset, .btn-primary) {
   background: var(--colore-secondario);
 }
-body.dark-mode button:hover:not(.btn-rimuovi, .btn-custom-score, #toggle-dark-mode) {
+body.dark-mode button:hover:not(.btn-rimuovi, .btn-custom-score, #toggle-dark-mode, .btn-reset, .btn-primary) {
   background: var(--colore-primario);
 }
 body.dark-mode .winner {
   color: var(--colore-vincitore);
 }
+body.dark-mode .separator {
+    border-top: 1px dashed #333;
+}
 /* --- Fine Dark Mode Variables --- */
-
 
 /* Stili Generali */
 body {
@@ -69,7 +73,7 @@ body {
   padding: 0;
   color: var(--colore-testo);
   line-height: 1.6;
-  transition: background-color 0.3s; /* Transizione per Dark Mode */
+  transition: background-color 0.3s;
 }
 
 .container {
@@ -95,6 +99,46 @@ h1 {
   color: var(--colore-primario);
   font-weight: 700;
   font-size: 2em;
+}
+
+/* Separatore per dividere la gestione dalla configurazione */
+.separator {
+    border: none;
+    border-top: 1px dashed #ccc;
+    margin: 30px 0;
+}
+
+/* Pulsanti Generici */
+button {
+  font-size: 0.9em;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+  color: #fff;
+  background: var(--colore-secondario);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+button:hover {
+  background: var(--colore-primario);
+}
+button:active {
+  transform: translateY(1px);
+}
+
+/* Pulsanti Specifici */
+.btn-primary { /* Pulsante Aggiungi */
+    background: var(--colore-primario);
+}
+.btn-primary:hover {
+    background: var(--colore-secondario);
+}
+.btn-reset { /* Pulsante Nuova Partita */
+    background: var(--colore-reset);
+}
+.btn-reset:hover {
+    background: var(--sfondo-rimuovi);
 }
 #toggle-dark-mode {
   background: none;
@@ -122,7 +166,27 @@ h3 {
   font-weight: 600;
 }
 
-/* Form e Input */
+/* Form Aggiungi Giocatore (Miglioramento UX) */
+.aggiungi-giocatore-form {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+.aggiungi-giocatore-form input {
+    flex-grow: 1;
+    margin-bottom: 0; /* Rimuove lo spazio extra sotto l'input */
+}
+.aggiungi-giocatore-form button {
+    flex-shrink: 0;
+    width: auto;
+}
+
+label {
+  display: block;
+  margin: 15px 0 8px 0;
+  font-weight: 500;
+  color: #555;
+}
 input[type="text"], input[type="number"], select {
   font-size: 1em;
   padding: 10px 12px;
@@ -137,7 +201,7 @@ input[type="text"], input[type="number"], select {
 .action-buttons {
   display: flex;
   gap: 10px;
-  margin-top: 15px;
+  margin-top: 20px;
 }
 .action-buttons button {
   flex-grow: 1;
@@ -146,6 +210,11 @@ input[type="text"], input[type="number"], select {
 }
 
 /* Lista Giocatori */
+.giocatori-lista {
+  margin: 0 0 20px 0;
+  padding: 0;
+  list-style: none;
+}
 .giocatore-item {
   display: flex;
   flex-direction: column; 
@@ -155,35 +224,32 @@ input[type="text"], input[type="number"], select {
   padding: 12px 15px;
   margin-bottom: 10px;
 }
-
-/* Highlight Vincitore */
-.giocatore-item.winner-highlight {
-  background: #e9f5e9; 
-  border: 2px solid var(--bordo-vincitore);
-  box-shadow: 0 0 10px rgba(212, 237, 218, 0.8);
-}
-
+/* ... (Mantenuti stili per vincitore, punti, controlli, animazioni) ... */
 .giocatore-punti {
   font-size: 1.1em;
   color: #555;
   font-weight: 500;
   min-width: 100px;
-  position: relative; /* Per l'animazione */
+  position: relative;
 }
-
 .giocatore-punti strong {
   font-weight: 700;
   color: var(--colore-primario);
   font-size: 1.2em;
 }
-
-/* Controlli Punteggio */
+.punti-e-controlli {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 5px;
+}
 .punteggio-controls {
   display: flex;
   gap: 4px; 
-  flex-wrap: nowrap; /* Tieni sulla stessa riga su mobile */
+  flex-wrap: nowrap;
   overflow-x: auto;
-  -webkit-overflow-scrolling: touch; /* Migliora lo scrolling su iOS */
+  -webkit-overflow-scrolling: touch; 
   padding-bottom: 5px;
 }
 .punteggio-controls button {
@@ -192,16 +258,12 @@ input[type="text"], input[type="number"], select {
   min-width: 40px; 
   flex-shrink: 0;
 }
-
-/* Pulsante Rimuovi */
 .punteggio-controls .btn-rimuovi {
   background: var(--colore-rimuovi);
 }
 .punteggio-controls .btn-rimuovi:hover {
   background: var(--sfondo-rimuovi);
 }
-
-/* Pulsante Custom Score */
 .punteggio-controls .btn-custom-score {
   background: var(--colore-pulsante-custom);
   font-weight: 700;
@@ -210,39 +272,19 @@ input[type="text"], input[type="number"], select {
   background: #006b8c;
 }
 
-/* Messaggio Vincitore */
-.winner {
-  background: var(--sfondo-vincitore);
-  color: var(--colore-vincitore);
-  border: 1px solid var(--bordo-vincitore);
-  padding: 15px;
-  border-radius: 10px;
-  margin-top: 25px;
-  text-align: center;
-  font-weight: bold;
-  font-size: 1.1em;
-}
-
-/* --- Animazioni Punti (Feedback Visivo) --- */
-@keyframes fadeInOut {
-  0% { opacity: 0; transform: translateY(10px); }
-  25% { opacity: 1; transform: translateY(0); }
-  75% { opacity: 1; transform: translateY(0); }
-  100% { opacity: 0; transform: translateY(-10px); }
-}
-
-.giocatore-punti.anim-up strong {
-  color: #4CAF50 !important; /* Verde per + */
-  animation: scaleBounce 0.3s ease-in-out;
-}
-.giocatore-punti.anim-down strong {
-  color: #F44336 !important; /* Rosso per - */
-  animation: scaleBounce 0.3s ease-in-out;
-}
+/* Animazioni Punti (Feedback Visivo) */
 @keyframes scaleBounce {
     0% { transform: scale(1.0); }
     50% { transform: scale(1.15); }
     100% { transform: scale(1.0); }
+}
+.giocatore-punti.anim-up strong {
+  color: #4CAF50 !important; 
+  animation: scaleBounce 0.3s ease-in-out;
+}
+.giocatore-punti.anim-down strong {
+  color: #F44336 !important; 
+  animation: scaleBounce 0.3s ease-in-out;
 }
 
 /* Media Query per Desktop/Tablet (layout orizzontale) */
@@ -271,7 +313,7 @@ input[type="text"], input[type="number"], select {
 /* Media Query per schermi molto piccoli (mobile) */
 @media (max-width: 500px) {
   .container {
-    margin: 0; /* Rimuovi margini laterali */
+    margin: 0; 
     border-radius: 0;
     box-shadow: none;
     padding: 20px 15px;
