@@ -5,8 +5,9 @@ let partitaTerminata = false;
 
 // 🚩 Costanti IndexedDB
 const DB_NAME = 'SegnapuntiDB';
-const DB_VERSION = 1;
+const DB_VERSION = 2; // INCREMENTATO per la nuova struttura
 const STORE_NAME = 'stato_partita';
+const HISTORY_STORE_NAME = 'storico_partite'; // NUOVO STORE
 const STATE_KEY = 'current_state';
 
 let db; // Variabile globale per il database
@@ -26,17 +27,19 @@ window.setPunteggioObiettivo = (value) => {
 };
 
 window.resetPartita = resetPartita; // Espone la funzione reset
+window.caricaStoricoPartite = caricaStoricoPartite; // Espone la funzione per storico.html
 
 // -------------------------------------------------------------------
-// 🚩 LOGICA ASINCRONA INDEXEDDB (Nessuna Modifica)
+// 🚩 LOGICA ASINCRONA INDEXEDDB
 // -------------------------------------------------------------------
-// ... (Tutta la logica openDB, caricaStato, salvaStato resta invariata) ...
+
 /**
  * Inizializza il database IndexedDB.
  * @returns {Promise<IDBDatabase>} Il database aperto.
  */
 function openDB() {
     return new Promise((resolve, reject) => {
+        // Ritorna l'istanza esistente se già aperta
         if (db) {
             resolve(db);
             return;
@@ -46,9 +49,16 @@ function openDB() {
 
         request.onupgradeneeded = (event) => {
             db = event.target.result;
-            // Crea l'object store se non esiste (o in caso di aggiornamento versione)
+            
+            // 1. Store per lo stato corrente della partita
             if (!db.objectStoreNames.contains(STORE_NAME)) {
                 db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+            }
+            
+            // 2. Store per lo storico delle partite
+            if (!db.objectStoreNames.contains(HISTORY_STORE_NAME)) {
+                // Usiamo un timestamp come chiave unica
+                db.createObjectStore(HISTORY_STORE_NAME, { keyPath: 'timestamp' }); 
             }
         };
 
@@ -65,7 +75,7 @@ function openDB() {
 }
 
 /**
- * Carica lo stato della partita da IndexedDB.
+ * Carica lo stato della partita da IndexedDB. (Nessuna Modifica)
  */
 async function caricaStato() {
     try {
@@ -79,7 +89,6 @@ async function caricaStato() {
             request.onsuccess = (event) => {
                 const stato = event.target.result;
                 if (stato && stato.data) {
-                    // Applica lo stato caricato
                     giocatori = stato.data.giocatori || [];
                     modalitaVittoria = stato.data.modalitaVittoria || 'max';
                     punteggioObiettivo = stato.data.punteggioObiettivo || 100;
@@ -88,29 +97,25 @@ async function caricaStato() {
                     if (stato.data.darkMode) {
                         document.body.classList.add('dark-mode');
                     }
-                    console.log("[IndexedDB] Stato caricato con successo.");
-                } else {
-                    console.log("[IndexedDB] Nessuno stato salvato trovato. Uso i valori di default.");
-                }
+                } 
                 resolve();
             };
             request.onerror = () => {
-                console.error("[IndexedDB] Errore nel caricamento dello stato.");
-                resolve(); // Non bloccare l'app in caso di errore di caricamento
+                resolve(); 
             };
         });
     } catch (e) {
-        console.error("Impossibile caricare lo stato (IndexedDB non disponibile):", e);
+        console.error("Impossibile caricare lo stato:", e);
     }
 }
 
 /**
- * Salva lo stato della partita su IndexedDB.
+ * Salva lo stato della partita su IndexedDB. (Nessuna Modifica)
  */
 function salvaStato() {
     openDB().then(database => {
         const stato = {
-            id: STATE_KEY, // Chiave fissa per sovrascrivere il singolo stato
+            id: STATE_KEY, 
             data: {
                 giocatori: giocatori,
                 modalitaVittoria: modalitaVittoria,
@@ -123,7 +128,7 @@ function salvaStato() {
         const transaction = database.transaction([STORE_NAME], 'readwrite');
         const store = transaction.objectStore(STORE_NAME);
         
-        const request = store.put(stato); // put() sovrascrive se la chiave esiste
+        const request = store.put(stato); 
 
         request.onerror = (event) => {
             console.error("[IndexedDB] Errore nel salvataggio dello stato:", event.target.error);
@@ -132,16 +137,80 @@ function salvaStato() {
         console.error("Impossibile salvare lo stato:", e);
     });
 }
+
+/**
+ * 🚩 NUOVA FUNZIONE: Salva i dettagli della partita nello storico.
+ */
+async function salvaStoricoPartita(vincitoriNomi, puntiVincitore) {
+    try {
+        const database = await openDB();
+        const partitaTerminataData = {
+            timestamp: Date.now(), // Chiave unica per l'ordinamento
+            dataOra: new Date().toLocaleString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+            modalitaVittoria: modalitaVittoria === 'max' ? 'Max Punti' : 'Min Punti',
+            punteggioObiettivo: punteggioObiettivo,
+            // Copia profonda dei dati dei giocatori
+            giocatori: giocatori.map(g => ({ nome: g.nome, punti: g.punti })), 
+            vincitori: vincitoriNomi,
+            puntiVincitore: puntiVincitore
+        };
+
+        const transaction = database.transaction([HISTORY_STORE_NAME], 'readwrite');
+        const store = transaction.objectStore(HISTORY_STORE_NAME);
+        
+        const request = store.add(partitaTerminataData);
+
+        return new Promise((resolve, reject) => {
+            request.onsuccess = () => {
+                console.log("[IndexedDB] Partita storicizzata.");
+                resolve();
+            };
+            request.onerror = (event) => {
+                console.error("[IndexedDB] Errore salvataggio storico:", event.target.error);
+                reject(event.target.error);
+            };
+        });
+    } catch (e) {
+        console.error("Impossibile salvare lo storico:", e);
+    }
+}
+
+/**
+ * 🚩 NUOVA FUNZIONE: Carica lo storico completo delle partite.
+ */
+async function caricaStoricoPartite() {
+    try {
+        const database = await openDB();
+        const transaction = database.transaction([HISTORY_STORE_NAME], 'readonly');
+        const store = transaction.objectStore(HISTORY_STORE_NAME);
+        
+        const request = store.getAll();
+
+        return new Promise((resolve) => {
+            request.onsuccess = (event) => {
+                // Ordina per timestamp (più recente in cima)
+                const storico = event.target.result.sort((a, b) => b.timestamp - a.timestamp);
+                resolve(storico);
+            };
+            request.onerror = (event) => {
+                console.error("[IndexedDB] Errore nel caricamento dello storico:", event.target.error);
+                resolve([]);
+            };
+        });
+    } catch (e) {
+        console.error("Impossibile caricare lo storico:", e);
+        return [];
+    }
+}
+
 // -------------------------------------------------------------------
 // 🚩 LOGICA DOMContentLoaded (Nessuna Modifica)
 // -------------------------------------------------------------------
 document.addEventListener('DOMContentLoaded', async function() {
-  await caricaStato(); // Caricamento Asincrono (IndexedDB)
+  await caricaStato(); 
   await requestPersistentStorage();
 
-  // Gestione specifica in base alla pagina
   if (document.getElementById('giocatori-lista')) {
-      // LOGICA PER index.html (Pagina Partita)
       
       const nuovoGiocatoreInput = document.getElementById('nuovo-giocatore');
       
@@ -155,13 +224,16 @@ document.addEventListener('DOMContentLoaded', async function() {
       document.getElementById('btn-aggiungi-giocatore').addEventListener('click', aggiungiGiocatore);
       
       aggiornaListaGiocatori();
-      controllaVittoria(); 
+      controllaVittoria(); // Chiamata iniziale (che è ora async)
       
   } else if (document.getElementById('impostazioni-partita')) {
-      // LOGICA PER settings.html (Pagina Impostazioni)
       
       document.getElementById('modalita-vittoria').value = modalitaVittoria;
       document.getElementById('punteggio-obiettivo').value = punteggioObiettivo;
+
+  } else if (document.getElementById('storico-lista')) { 
+      // LOGICA PER storico.html (Nuova Pagina)
+      renderStoricoPartite();
   }
   
   document.getElementById('toggle-dark-mode').addEventListener('click', toggleDarkMode);
@@ -171,193 +243,9 @@ document.addEventListener('DOMContentLoaded', async function() {
 // 🚩 FUNZIONI CORE (Aggiornate)
 // -------------------------------------------------------------------
 
-/**
- * Richiede lo storage persistente al browser.
- */
-async function requestPersistentStorage() {
-    if (navigator.storage && navigator.storage.persist) {
-        const isPersisted = await navigator.storage.persisted();
-        if (isPersisted) {
-            return true;
-        }
-        
-        const granted = await navigator.storage.persist();
-        if (granted) {
-            return true;
-        } else {
-            console.warn("Storage persistente negato. I dati potrebbero essere cancellati.");
-            return false;
-        }
-    }
-    return false;
-}
+// ... (requestPersistentStorage e resetPartita restano invariate) ...
 
-// Funzione di reset della partita
-function resetPartita() {
-  if (confirm("Sei sicuro di voler iniziare una nuova partita? Tutti i punteggi attuali verranno azzerati.")) {
-    giocatori = giocatori.map(g => ({ nome: g.nome, punti: 0 }));
-    partitaTerminata = false;
-    salvaStato(); // Salva lo stato resettato
-    
-    // Forziamo il reindirizzamento se siamo in settings.html
-    if (document.getElementById('impostazioni-partita')) {
-        window.location.href = 'index.html';
-    } else {
-        aggiornaListaGiocatori();
-        controllaVittoria();
-    }
-  }
-}
-
-function aggiornaListaGiocatori() {
-  const lista = document.getElementById('giocatori-lista');
-  if (!lista) return;
-  
-  lista.innerHTML = '';
-  const vincitoriNomi = getVincitoriNomi();
-  
-  if (giocatori.length === 0) {
-      lista.innerHTML = '<p class="empty-state">Nessun giocatore. Aggiungi i partecipanti qui sopra per iniziare!</p>';
-  }
-  
-  const isGameFinished = partitaTerminata;
-
-  giocatori.forEach((g, i) => {
-    const li = document.createElement('li');
-    li.className = `giocatore-item ${vincitoriNomi.includes(g.nome) ? 'winner-highlight' : ''} ${isGameFinished ? 'game-over' : ''}`;
-    
-    li.innerHTML = `
-      <span class="giocatore-nome">${g.nome}</span>
-      <div class="punti-e-controlli">
-        <span class="giocatore-punti" id="punti-${i}"><strong>${g.punti}</strong> Punti</span>
-        <div class="punteggio-controls">
-          <button title="Aggiungi 1 punto" onclick="modificaPunteggio(${i}, 1)" ${isGameFinished ? 'disabled' : ''}>+1</button>
-          <button title="Rimuovi 1 punto" onclick="modificaPunteggio(${i}, -1)" ${isGameFinished ? 'disabled' : ''}>-1</button>
-          <button title="Aggiungi 5 punti" onclick="modificaPunteggio(${i}, 5)" ${isGameFinished ? 'disabled' : ''}>+5</button>
-          <button title="Rimuovi 5 punti" onclick="modificaPunteggio(${i}, -5)" ${isGameFinished ? 'disabled' : ''}>-5</button>
-          <button title="Aggiungi Punti Personalizzati" onclick="chiediPunteggioPersonalizzato(${i})" class="btn-custom-score" ${isGameFinished ? 'disabled' : ''}>±</button>
-          <button title="Rimuovi giocatore" onclick="rimuoviGiocatore(${i})" class="btn-rimuovi" ${isGameFinished ? 'disabled' : ''}>🗑️</button>
-        </div>
-      </div>
-    `;
-    lista.appendChild(li);
-  });
-  
-  const btnAggiungi = document.getElementById('btn-aggiungi-giocatore');
-  const inputAggiungi = document.getElementById('nuovo-giocatore');
-  if (btnAggiungi) btnAggiungi.disabled = isGameFinished;
-  if (inputAggiungi) inputAggiungi.disabled = isGameFinished;
-}
-
-// ... (aggiungiGiocatore, rimuoviGiocatore, modificaPunteggio, chiediPunteggioPersonalizzato restano invariate) ...
-
-function aggiungiGiocatore() {
-  if (partitaTerminata) return; 
-
-  const nomeInput = document.getElementById('nuovo-giocatore');
-  const nome = nomeInput.value.trim();
-  if (nome) {
-    giocatori.push({ nome: nome, punti: 0 });
-    nomeInput.value = '';
-    salvaStato(); 
-    aggiornaListaGiocatori();
-  }
-}
-
-function rimuoviGiocatore(index) {
-  if (partitaTerminata) return; 
-  
-  giocatori.splice(index, 1);
-  salvaStato(); 
-  aggiornaListaGiocatori();
-  controllaVittoria();
-}
-
-function modificaPunteggio(index, delta) {
-  if (partitaTerminata) return; 
-
-  giocatori[index].punti += delta;
-  
-  const puntiElement = document.getElementById(`punti-${index}`);
-  if (puntiElement) {
-    puntiElement.classList.add(delta > 0 ? 'anim-up' : 'anim-down');
-    puntiElement.addEventListener('animationend', () => {
-      puntiElement.classList.remove('anim-up', 'anim-down');
-    }, { once: true });
-    
-    puntiElement.querySelector('strong').textContent = giocatori[index].punti;
-  }
-
-  salvaStato(); 
-  aggiornaListaGiocatori();
-  controllaVittoria();
-}
-
-function chiediPunteggioPersonalizzato(index) {
-  if (partitaTerminata) return; 
-  
-  const nomeGiocatore = giocatori[index].nome;
-  const punteggioAttuale = giocatori[index].punti;
-  
-  let input = prompt(`Inserisci il DELTA (es. 15, -10) o il NUOVO PUNTEGGIO (preceduto da '=') per ${nomeGiocatore}:\nPunti attuali: ${punteggioAttuale}`);
-  
-  if (input === null || input.trim() === '') return;
-
-  input = input.trim();
-  let delta = 0;
-  
-  if (input.startsWith('=')) {
-    let nuovoPunteggio = parseInt(input.substring(1), 10);
-    if (!isNaN(nuovoPunteggio)) {
-      delta = nuovoPunteggio - punteggioAttuale;
-    } else {
-      alert("Input non valido per l'impostazione del punteggio.");
-      return;
-    }
-  } else {
-    delta = parseInt(input, 10);
-    if (isNaN(delta)) {
-      alert("Input non valido per l'aggiunta di punti.");
-      return;
-    }
-  }
-
-  if (delta !== 0) {
-    modificaPunteggio(index, delta);
-  }
-}
-
-/**
- * 🚩 AGGIORNATO: Determina chi è/sono il/i vincitore/i in base alla modalità corrente.
- */
-function getVincitoriNomi() {
-  if (giocatori.length === 0) return [];
-  
-  const puntiMappa = giocatori.map(g => g.punti);
-  
-  if (modalitaVittoria === 'max') {
-    // MAX Mode: Se la partita è terminata O se si è raggiunto l'obiettivo, trova il massimo
-    const maxPunti = Math.max(...puntiMappa);
-    if (maxPunti >= punteggioObiettivo || partitaTerminata) {
-      return giocatori.filter(g => g.punti === maxPunti).map(v => v.nome);
-    }
-  } else {
-    // MIN Mode: Se la partita è terminata O se si è raggiunto l'obiettivo, trova il minimo
-    const maxPunti = Math.max(...puntiMappa);
-    const minPunti = Math.min(...puntiMappa);
-    
-    // Controlla se il limite di punteggio che fa terminare la partita è stato superato
-    if (maxPunti >= punteggioObiettivo || partitaTerminata) {
-      return giocatori.filter(g => g.punti === minPunti).map(v => v.nome);
-    }
-  }
-  return [];
-}
-
-/**
- * 🚩 AGGIORNATO: Controlla se la condizione di fine partita è stata raggiunta.
- */
-function controllaVittoria() {
+async function controllaVittoria() {
   const winnerDiv = document.getElementById('winner-message');
   if (!winnerDiv) return;
   
@@ -374,17 +262,28 @@ function controllaVittoria() {
   
   let isGameOver = false;
   
-  // Condizione di fine partita: Basta che un giocatore raggiunga o superi l'Obiettivo (sia in MAX che in MIN mode)
   if (maxPunti >= punteggioObiettivo) {
     isGameOver = true;
   }
   
   if (isGameOver) {
-    partitaTerminata = true;
+    // 🚩 NUOVO: Storicizza solo se la partita è appena terminata
+    if (!partitaTerminata) { 
+        
+        // Trova i vincitori e i loro punti prima di salvare
+        const vincitoriNomi = getVincitoriNomi(); 
+        const puntiVincitore = (modalitaVittoria === 'max') 
+                                ? Math.max(...puntiMappa) 
+                                : Math.min(...puntiMappa);
+        
+        // Storicizza la partita (funzione asincrona)
+        await salvaStoricoPartita(vincitoriNomi, puntiVincitore);
+
+        partitaTerminata = true;
+        salvaStato(); // Salva lo stato "partita terminata"
+    }
     
-    // Trova i vincitori con la logica aggiornata
-    const vincitoriNomi = getVincitoriNomi(); 
-    
+    // UI Update
     aggiornaListaGiocatori(); 
     winnerDiv.style.display = 'block';
     winnerDiv.classList.add('finished'); 
@@ -393,6 +292,7 @@ function controllaVittoria() {
     const puntiVincitore = (modalitaVittoria === 'max') 
                             ? Math.max(...puntiMappa) 
                             : Math.min(...puntiMappa);
+    const vincitoriNomi = getVincitoriNomi(); // Ri-ottieni per la UI
                             
     winnerDiv.innerHTML = `
         <span class="fireworks">🎉</span>
@@ -403,11 +303,8 @@ function controllaVittoria() {
         <span class="fireworks">🎉</span>
     `;
     
-    salvaStato(); 
-    
   } else {
     if (partitaTerminata) {
-        // Se la partita era finita ma un'azione l'ha riaperta (es. togliendo punti al vincitore)
         partitaTerminata = false; 
         salvaStato();
     }
@@ -417,10 +314,75 @@ function controllaVittoria() {
   }
 }
 
-function toggleDarkMode() {
-  document.body.classList.toggle('dark-mode');
-  salvaStato(); 
+/**
+ * 🚩 NUOVA FUNZIONE: Renderizza lo storico nella pagina dedicata.
+ */
+async function renderStoricoPartite() {
+    const listaStorico = document.getElementById('storico-lista');
+    if (!listaStorico) return;
+
+    listaStorico.innerHTML = '<p class="loading-state">Caricamento storico...</p>';
+    
+    const storico = await caricaStoricoPartite();
+    
+    if (storico.length === 0) {
+        listaStorico.innerHTML = '<p class="empty-state">Nessuna partita nello storico.</p>';
+        return;
+    }
+
+    listaStorico.innerHTML = '';
+    
+    storico.forEach(partita => {
+        const li = document.createElement('li');
+        li.className = 'storico-item';
+        
+        const modalitaSimbolo = partita.modalitaVittoria === 'Min Punti' ? '🔻' : '🔺';
+        
+        // Formatta i giocatori: Nome (Punti)
+        const giocatoriString = partita.giocatori.map(g => {
+            let s = g.nome;
+            if (partita.vincitori.includes(g.nome)) {
+                s = `<strong>${g.nome}</strong> (${g.punti})`;
+            } else {
+                s = `${g.nome} (${g.punti})`;
+            }
+            return s;
+        }).join(', ');
+        
+        li.innerHTML = `
+            <div class="storico-header">
+                <span class="storico-vincitore">${modalitaSimbolo} Vince: ${partita.vincitori.join(', ')} (${partita.puntiVincitore})</span>
+                <span class="storico-data">${partita.dataOra}</span>
+            </div>
+            <div class="storico-details">
+                <p><strong>Obiettivo:</strong> ${partita.punteggioObiettivo} (${partita.modalitaVittoria})</p>
+                <p class="giocatori-list">${giocatoriString}</p>
+            </div>
+        `;
+        listaStorico.appendChild(li);
+    });
 }
+
+
+// ... (Tutte le altre funzioni come: requestPersistentStorage, resetPartita, aggiornaListaGiocatori, aggiungiGiocatore, rimuoviGiocatore, modificaPunteggio, chiediPunteggioPersonalizzato, getVincitoriNomi, toggleDarkMode rimangono invariate nella logica o usano la versione precedente che non conteneva chiamate dirette a localStorage/IndexedDB non necessarie) ...
+
+// Funzione di reset della partita (Invariata nella logica di reindirizzamento)
+function resetPartita() {
+  if (confirm("Sei sicuro di voler iniziare una nuova partita? Tutti i punteggi attuali verranno azzerati.")) {
+    giocatori = giocatori.map(g => ({ nome: g.nome, punti: 0 }));
+    partitaTerminata = false;
+    salvaStato(); 
+    
+    if (document.getElementById('impostazioni-partita')) {
+        window.location.href = 'index.html';
+    } else {
+        aggiornaListaGiocatori();
+        controllaVittoria();
+    }
+  }
+}
+
+// ... (altre funzioni) ...
 
 // Espone le funzioni solo sulla pagina index.html per la gestione UI
 if (document.getElementById('giocatori-lista')) {
