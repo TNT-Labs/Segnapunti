@@ -2,9 +2,18 @@ let modalitaVittoria = 'max';
 let punteggioObiettivo = 100;
 let giocatori = [];
 const STORAGE_KEY = 'segnapunti_stato';
+// Simula la futura migrazione a IndexedDB
+const ASYNC_STORAGE_AVAILABLE = false; 
 
-document.addEventListener('DOMContentLoaded', function() {
-  caricaStato(); // Carica lo stato salvato (o i default)
+document.addEventListener('DOMContentLoaded', async function() {
+  if (ASYNC_STORAGE_AVAILABLE) {
+    await caricaStatoAsync(); // Futura carica asincrona da IndexedDB
+  } else {
+    caricaStato(); // Carica lo stato salvato (o i default) da LocalStorage
+  }
+  
+  // CRITICAL: Richiedi lo stato persistente all'avvio per mitigare la perdita di dati (Sezione I.2)
+  await requestPersistentStorage();
 
   // Inizializza i valori UI con i dati caricati
   document.getElementById('modalita-vittoria').value = modalitaVittoria;
@@ -13,14 +22,14 @@ document.addEventListener('DOMContentLoaded', function() {
   // Event Listeners per le impostazioni
   document.getElementById('modalita-vittoria').addEventListener('change', function() {
     modalitaVittoria = this.value;
-    salvaStato();
+    (ASYNC_STORAGE_AVAILABLE ? salvaStatoAsync() : salvaStato());
     controllaVittoria();
   });
   
   document.getElementById('punteggio-obiettivo').addEventListener('input', function() {
     const val = parseInt(this.value, 10);
     punteggioObiettivo = val > 0 ? val : 1;
-    salvaStato();
+    (ASYNC_STORAGE_AVAILABLE ? salvaStatoAsync() : salvaStato());
     controllaVittoria();
   });
   
@@ -44,7 +53,33 @@ document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('toggle-dark-mode').addEventListener('click', toggleDarkMode);
 });
 
-// Funzione di salvataggio dello stato
+/**
+ * Richiede lo storage persistente al browser. Cruciale per la stabilità MMP.
+ * @returns {Promise<boolean>} Vero se la persistenza è garantita.
+ */
+async function requestPersistentStorage() {
+    if (navigator.storage && navigator.storage.persist) {
+        const isPersisted = await navigator.storage.persisted();
+        if (isPersisted) {
+            console.log("Storage già persistente.");
+            return true;
+        }
+        
+        const granted = await navigator.storage.persist();
+        if (granted) {
+            console.log("Persistenza storage garantita.");
+            return true;
+        } else {
+            console.warn("Storage persistente negato. I dati potrebbero essere cancellati (rischio su iOS).");
+            // NOTA: Implementare qui una notifica all'utente se la persistenza è negata.
+            return false;
+        }
+    }
+    return false;
+}
+
+
+// Funzione di salvataggio dello stato (LocalStorage - Legacy/Sync)
 function salvaStato() {
   const stato = {
     giocatori: giocatori,
@@ -55,7 +90,14 @@ function salvaStato() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(stato));
 }
 
-// Funzione di caricamento dello stato
+// Funzione di salvataggio dello stato (IndexedDB - Asincrona)
+async function salvaStatoAsync() {
+    // Implementazione IndexedDB qui
+    console.log("Saving state asynchronously (IndexedDB placeholder)...");
+    salvaStato(); // Fallback
+}
+
+// Funzione di caricamento dello stato (LocalStorage - Legacy/Sync)
 function caricaStato() {
   const statoSalvato = localStorage.getItem(STORAGE_KEY);
   if (statoSalvato) {
@@ -70,11 +112,19 @@ function caricaStato() {
   }
 }
 
+// Funzione di caricamento dello stato (IndexedDB - Asincrona)
+async function caricaStatoAsync() {
+    // Implementazione IndexedDB qui
+    console.log("Loading state asynchronously (IndexedDB placeholder)...");
+    caricaStato(); // Fallback
+}
+
+
 // Funzione di reset della partita
 function resetPartita() {
   if (confirm("Sei sicuro di voler iniziare una nuova partita? Tutti i punteggi attuali verranno azzerati.")) {
     giocatori = giocatori.map(g => ({ nome: g.nome, punti: 0 }));
-    salvaStato();
+    (ASYNC_STORAGE_AVAILABLE ? salvaStatoAsync() : salvaStato());
     aggiornaListaGiocatori();
     controllaVittoria();
   }
@@ -94,6 +144,7 @@ function aggiornaListaGiocatori() {
     // Aggiunto highlight del vincitore
     li.className = `giocatore-item ${vincitoriNomi.includes(g.nome) ? 'winner-highlight' : ''}`;
     
+    // NOTA: I pulsanti hanno bisogno di un dimensionamento minimo 48x48px (DIP) via CSS per UX mobile
     li.innerHTML = `
       <span class="giocatore-nome">${g.nome}</span>
       <div class="punti-e-controlli">
@@ -118,14 +169,14 @@ function aggiungiGiocatore() {
   if (nome) {
     giocatori.push({ nome: nome, punti: 0 });
     nomeInput.value = '';
-    salvaStato();
+    (ASYNC_STORAGE_AVAILABLE ? salvaStatoAsync() : salvaStato());
     aggiornaListaGiocatori();
   }
 }
 
 function rimuoviGiocatore(index) {
   giocatori.splice(index, 1);
-  salvaStato();
+  (ASYNC_STORAGE_AVAILABLE ? salvaStatoAsync() : salvaStato());
   aggiornaListaGiocatori();
   controllaVittoria();
 }
@@ -133,16 +184,19 @@ function rimuoviGiocatore(index) {
 function modificaPunteggio(index, delta) {
   giocatori[index].punti += delta;
   
-  // Feedback visivo (animazione)
+  // Feedback visivo immediato (animazione) - CRITICO per UX (Sezione II.2)
   const puntiElement = document.getElementById(`punti-${index}`);
   if (puntiElement) {
     puntiElement.classList.add(delta > 0 ? 'anim-up' : 'anim-down');
     puntiElement.addEventListener('animationend', () => {
       puntiElement.classList.remove('anim-up', 'anim-down');
     }, { once: true });
+    
+    // Aggiorna immediatamente il testo per la reattività percepita
+    puntiElement.querySelector('strong').textContent = giocatori[index].punti;
   }
 
-  salvaStato();
+  (ASYNC_STORAGE_AVAILABLE ? salvaStatoAsync() : salvaStato());
   aggiornaListaGiocatori();
   controllaVittoria();
 }
@@ -235,7 +289,7 @@ function controllaVittoria() {
 
 function toggleDarkMode() {
   document.body.classList.toggle('dark-mode');
-  salvaStato(); 
+  (ASYNC_STORAGE_AVAILABLE ? salvaStatoAsync() : salvaStato());
 }
 
 window.aggiungiGiocatore = aggiungiGiocatore;
