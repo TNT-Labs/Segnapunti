@@ -1,9 +1,8 @@
-// Parametri di gioco
 let modalitaVittoria = 'max';
 let punteggioObiettivo = 100;
+let giocatori = [];
 
 document.addEventListener('DOMContentLoaded', function() {
-  // Imposta i listener per le impostazioni
   document.getElementById('modalita-vittoria').addEventListener('change', function() {
     modalitaVittoria = this.value;
     controllaVittoria();
@@ -12,16 +11,11 @@ document.addEventListener('DOMContentLoaded', function() {
     punteggioObiettivo = parseInt(this.value, 10);
     controllaVittoria();
   });
-
-  // Per usabilità: aggiungi giocatore con Invio
   document.getElementById('nuovo-giocatore').addEventListener('keydown', function(e) {
     if (e.key === 'Enter') aggiungiGiocatore();
   });
-
   aggiornaListaGiocatori();
 });
-
-let giocatori = [];
 
 function aggiornaListaGiocatori() {
   const lista = document.getElementById('giocatori-lista');
@@ -92,7 +86,6 @@ function controllaVittoria() {
   }
 }
 
-// Rendi le funzioni globali per l'HTML inline
 window.aggiungiGiocatore = aggiungiGiocatore;
 window.rimuoviGiocatore = rimuoviGiocatore;
 window.modificaPunteggio = modificaPunteggio;
