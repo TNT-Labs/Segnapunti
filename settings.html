@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Nome App Completa - Impostazioni</title>
+  <title>Segnapunti - Impostazioni</title>
   
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#4A148C">
@@ -32,6 +32,19 @@
           <button id="toggle-dark-mode" title="Attiva/Disattiva Modalità Scura">🌙</button>
       </div>
     </div>
+    
+    <div id="giocatori-management"> 
+        <h3>Gestione Giocatori</h3>
+        <div class="aggiungi-giocatore-form">
+            <input type="text" id="nuovo-giocatore" placeholder="Nome nuovo giocatore" aria-label="Nome nuovo giocatore">
+            <button id="btn-aggiungi-giocatore" class="btn-primary">Aggiungi</button>
+        </div>
+        
+        <ul class="giocatori-lista" id="giocatori-lista-settings">
+            </ul>
+    </div>
+    
+    <hr class="separator">
 
     <div id="impostazioni-partita">
       <h3>Configurazione Partita</h3>
@@ -69,25 +82,6 @@
     }
     window.addEventListener('load', updateDarkModeIcon);
     document.getElementById('toggle-dark-mode').addEventListener('click', updateDarkModeIcon);
-    
-    document.addEventListener('DOMContentLoaded', function() {
-        
-        // 🚩 CORREZIONE: Ora salva lo stato MA NON reindirizza
-        document.getElementById('modalita-vittoria').addEventListener('change', function() {
-            setModalitaVittoria(this.value);
-            // Il reindirizzamento avverrà solo quando l'utente clicca '◀️ Partita'
-        });
-        
-        // 🚩 CORREZIONE: Ora salva lo stato MA NON reindirizza
-        document.getElementById('punteggio-obiettivo').addEventListener('input', function() {
-            const val = parseInt(this.value, 10);
-            setPunteggioObiettivo(val > 0 ? val : 1);
-            // Il reindirizzamento avverrà solo quando l'utente clicca '◀️ Partita'
-        });
-        
-        document.getElementById('btn-nuova-partita').addEventListener('click', resetPartita);
-    });
-    
   </script>
 </body>
 </html>
