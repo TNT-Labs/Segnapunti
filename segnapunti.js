@@ -1,5 +1,5 @@
 let modalitaVittoria = 'max';
-let punteggioObiettivo = 101;
+let punteggioObiettivo = 100;
 let giocatori = [];
 let partitaTerminata = false; 
 
@@ -28,9 +28,9 @@ window.setPunteggioObiettivo = (value) => {
 window.resetPartita = resetPartita; // Espone la funzione reset
 
 // -------------------------------------------------------------------
-// 🚩 LOGICA ASINCRONA INDEXEDDB
+// 🚩 LOGICA ASINCRONA INDEXEDDB (Nessuna Modifica)
 // -------------------------------------------------------------------
-
+// ... (Tutta la logica openDB, caricaStato, salvaStato resta invariata) ...
 /**
  * Inizializza il database IndexedDB.
  * @returns {Promise<IDBDatabase>} Il database aperto.
@@ -132,11 +132,9 @@ function salvaStato() {
         console.error("Impossibile salvare lo stato:", e);
     });
 }
-
 // -------------------------------------------------------------------
-// 🚩 LOGICA DOMContentLoaded (Inizializzazione)
+// 🚩 LOGICA DOMContentLoaded (Nessuna Modifica)
 // -------------------------------------------------------------------
-
 document.addEventListener('DOMContentLoaded', async function() {
   await caricaStato(); // Caricamento Asincrono (IndexedDB)
   await requestPersistentStorage();
@@ -170,7 +168,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 });
 
 // -------------------------------------------------------------------
-// 🚩 FUNZIONI CORE
+// 🚩 FUNZIONI CORE (Aggiornate)
 // -------------------------------------------------------------------
 
 /**
@@ -251,6 +249,8 @@ function aggiornaListaGiocatori() {
   if (inputAggiungi) inputAggiungi.disabled = isGameFinished;
 }
 
+// ... (aggiungiGiocatore, rimuoviGiocatore, modificaPunteggio, chiediPunteggioPersonalizzato restano invariate) ...
+
 function aggiungiGiocatore() {
   if (partitaTerminata) return; 
 
@@ -327,26 +327,36 @@ function chiediPunteggioPersonalizzato(index) {
   }
 }
 
+/**
+ * 🚩 AGGIORNATO: Determina chi è/sono il/i vincitore/i in base alla modalità corrente.
+ */
 function getVincitoriNomi() {
   if (giocatori.length === 0) return [];
   
   const puntiMappa = giocatori.map(g => g.punti);
-  let vincitori = [];
-
+  
   if (modalitaVittoria === 'max') {
+    // MAX Mode: Se la partita è terminata O se si è raggiunto l'obiettivo, trova il massimo
     const maxPunti = Math.max(...puntiMappa);
     if (maxPunti >= punteggioObiettivo || partitaTerminata) {
-      vincitori = giocatori.filter(g => g.punti === maxPunti);
+      return giocatori.filter(g => g.punti === maxPunti).map(v => v.nome);
     }
   } else {
+    // MIN Mode: Se la partita è terminata O se si è raggiunto l'obiettivo, trova il minimo
+    const maxPunti = Math.max(...puntiMappa);
     const minPunti = Math.min(...puntiMappa);
-    if (minPunti <= punteggioObiettivo || partitaTerminata) {
-      vincitori = giocatori.filter(g => g.punti === minPunti);
+    
+    // Controlla se il limite di punteggio che fa terminare la partita è stato superato
+    if (maxPunti >= punteggioObiettivo || partitaTerminata) {
+      return giocatori.filter(g => g.punti === minPunti).map(v => v.nome);
     }
   }
-  return vincitori.map(v => v.nome);
+  return [];
 }
 
+/**
+ * 🚩 AGGIORNATO: Controlla se la condizione di fine partita è stata raggiunta.
+ */
 function controllaVittoria() {
   const winnerDiv = document.getElementById('winner-message');
   if (!winnerDiv) return;
@@ -360,31 +370,35 @@ function controllaVittoria() {
   }
   
   const puntiMappa = giocatori.map(g => g.punti);
-  let vincitori = [];
+  const maxPunti = Math.max(...puntiMappa);
   
-  if (modalitaVittoria === 'max') {
-    const maxPunti = Math.max(...puntiMappa);
-    if (maxPunti >= punteggioObiettivo) {
-      vincitori = giocatori.filter(g => g.punti === maxPunti);
-    }
-  } else {
-    const minPunti = Math.min(...puntiMappa);
-    if (minPunti <= punteggioObiettivo) {
-      vincitori = giocatori.filter(g => g.punti === minPunti);
-    }
+  let isGameOver = false;
+  
+  // Condizione di fine partita: Basta che un giocatore raggiunga o superi l'Obiettivo (sia in MAX che in MIN mode)
+  if (maxPunti >= punteggioObiettivo) {
+    isGameOver = true;
   }
   
-  if (vincitori.length > 0) {
+  if (isGameOver) {
     partitaTerminata = true;
+    
+    // Trova i vincitori con la logica aggiornata
+    const vincitoriNomi = getVincitoriNomi(); 
     
     aggiornaListaGiocatori(); 
     winnerDiv.style.display = 'block';
     winnerDiv.classList.add('finished'); 
+    
+    // Trova il punteggio del vincitore per la visualizzazione corretta
+    const puntiVincitore = (modalitaVittoria === 'max') 
+                            ? Math.max(...puntiMappa) 
+                            : Math.min(...puntiMappa);
+                            
     winnerDiv.innerHTML = `
         <span class="fireworks">🎉</span>
         <div class="winner-text">
             <strong>PARTITA TERMINATA!</strong><br>
-            Vince: ${vincitori.map(v => v.nome).join(', ')} (${vincitori[0].punti} punti)
+            Vince: ${vincitoriNomi.join(', ')} (${puntiVincitore} punti)
         </div>
         <span class="fireworks">🎉</span>
     `;
@@ -393,6 +407,7 @@ function controllaVittoria() {
     
   } else {
     if (partitaTerminata) {
+        // Se la partita era finita ma un'azione l'ha riaperta (es. togliendo punti al vincitore)
         partitaTerminata = false; 
         salvaStato();
     }
