@@ -18,15 +18,7 @@
   
   <link rel="stylesheet" href="segnapunti.css">
 
-  <style>
-      body {
-          background-color: #212121 !important; 
-          margin: 0;
-          padding: 0;
-          font-family: 'Inter', sans-serif; 
-      }
-  </style>
-</head>
+  </head>
 <body>
   <div class="container">
     <div class="header-controls fixed-header"> 
@@ -34,26 +26,23 @@
       <div class="top-buttons">
           <button id="btn-history" title="Storico Partite" onclick="window.location.href='storico.html'">📜</button>
           <button id="btn-settings" title="Impostazioni Partita" onclick="window.location.href='settings.html'">⚙️</button>
-          <button id="toggle-dark-mode" title="Attiva/Disattiva Modalità Scura">🌙</button>
+          <button id="toggle-dark-mode" title="Attiva/Disattiva Modalità Scura" onclick="toggleDarkMode()">🌙</button>
       </div>
     </div>
     
-    <div id="giocatori-section">
-      <h3>Giocatori in Partita</h3>
-      
-      <ul class="giocatori-lista" id="giocatori-lista-partita">
-        </ul>
-    </div>
+    <div class="winner-message" id="winner-message" style="display: none;">
+      </div>
+    
+    <ul class="giocatori-lista" id="giocatori-lista-partita">
+      </ul>
+    
+    <hr class="separator">
 
-    <div id="winner-message" class="winner" style="display:none;" role="alert"></div>
-
-  </div>
-  
-  <div id="modal-overlay" class="modal-overlay" style="display: none;">
+    <div id="modal-overlay" class="modal-overlay">
       <div class="modal-content">
           <h2 id="modal-title-player-name">Aggiungi Punti</h2>
           <form id="modal-input-form">
-              <input type="number" id="punteggio-input-custom" placeholder="Inserisci +20, -15, 50..." required inputmode="numeric">
+              <input type="number" id="punteggio-input-custom" placeholder="Inserisci punti (es. 20 o -5)" required inputmode="numeric">
               
               <div class="quick-score-buttons">
                   <button type="button" id="btn-quick-plus10" class="btn-primary">+10</button>
@@ -81,11 +70,17 @@
   <script src="segnapunti.js"></script>
   
   <script>
-    // 🚩 SOLO LOGICA SERVICE WORKER (la logica Dark Mode è stata spostata in segnapunti.js)
+    // CORREZIONE 3: Aggiunta della logica di registrazione del Service Worker
     if ('serviceWorker' in navigator) {
-      window.addEventListener('load', function() {
-        navigator.serviceWorker.register('service-worker.js');
-      });
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('service-worker.js')
+                .then(registration => {
+                    console.log('Service Worker registrato con successo:', registration.scope);
+                })
+                .catch(error => {
+                    console.error('Registrazione Service Worker fallita:', error);
+                });
+        });
     }
   </script>
 </body>
