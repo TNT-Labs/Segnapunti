@@ -2,45 +2,58 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <title>Segnapunti Carte</title>
-  <!-- Manifest PWA -->
-  manifest.json
+  <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#2a4d69">
-  <!-- Icone -->
-  icon-192.png
-  icon-512.png
-  <!-- CSS -->
-  segnapunti.css
+  <link rel="apple-touch-icon" href="icon-192.png"> 
+  <link rel="stylesheet" href="segnapunti.css">
 </head>
 <body>
   <div class="container">
     <h1>🂠 Segnapunti Carte</h1>
+    
     <div id="impostazioni-partita">
       <h3>Impostazioni Partita</h3>
+      
       <label for="modalita-vittoria">Modalità di vittoria:</label>
       <select id="modalita-vittoria">
-        <option value="max">Vince chi fa più punti</option>
-        <option value="min">Vince chi fa meno punti</option>
+        <option value="max">Vince chi fa **più** punti</option>
+        <option value="min">Vince chi fa **meno** punti</option>
       </select>
-      <label for="punteggio-obiettivo">Punteggio obiettivo:</label>
+      
+      <label for="punteggio-obiettivo">Punteggio obiettivo (stop partita):</label>
       <input type="number" id="punteggio-obiettivo" min="1" value="100">
     </div>
+    
     <div id="giocatori-section">
       <h3>Giocatori</h3>
-      <ul class="giocatori-lista" id="giocatori-lista"></ul>
-      <input type="text" id="nuovo-giocatore" placeholder="Nome nuovo giocatore">
-      <button onclick="aggiungiGiocatore()">Aggiungi Giocatore</button>
+      
+      <div class="aggiungi-giocatore-form">
+        <input type="text" id="nuovo-giocatore" placeholder="Nome nuovo giocatore" aria-label="Nome nuovo giocatore">
+        <button id="btn-aggiungi-giocatore">Aggiungi Giocatore</button>
+      </div>
+      
+      <ul class="giocatori-lista" id="giocatori-lista">
+        </ul>
     </div>
-    <div id="winner-message" class="winner" style="display:none;"></div>
+    
+    <div id="winner-message" class="winner" style="display:none;" role="alert"></div>
   </div>
-  <!-- JS -->
-  segnapunti.js</script>
-  <!-- Service Worker -->
+  
+  <script src="segnapunti.js"></script>
+  
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function() {
-        navigator.serviceWorker.register('service-worker.js');
+        navigator.serviceWorker.register('service-worker.js').then(
+          registration => {
+            console.log('Service Worker registrato con successo:', registration);
+          },
+          error => {
+            console.log('Registrazione Service Worker fallita:', error);
+          }
+        );
       });
     }
   </script>
