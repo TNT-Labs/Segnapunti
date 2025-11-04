@@ -4,7 +4,11 @@ let giocatori = [];
 const STORAGE_KEY = 'segnapunti_stato';
 
 document.addEventListener('DOMContentLoaded', function() {
-  caricaStato(); // Carica lo stato all'avvio
+  caricaStato(); // Carica lo stato salvato (o i default)
+
+  // Inizializza i valori UI con i dati caricati
+  document.getElementById('modalita-vittoria').value = modalitaVittoria;
+  document.getElementById('punteggio-obiettivo').value = punteggioObiettivo;
 
   // Event Listeners per le impostazioni
   document.getElementById('modalita-vittoria').addEventListener('change', function() {
@@ -25,17 +29,16 @@ document.addEventListener('DOMContentLoaded', function() {
   
   nuovoGiocatoreInput.addEventListener('keydown', function(e) {
     if (e.key === 'Enter') {
-      e.preventDefault();
+      e.preventDefault(); // Evita comportamenti indesiderati con 'Enter'
       aggiungiGiocatore();
     }
   });
   
-  // Utilizza l'ID del nuovo pulsante 'Aggiungi'
   document.getElementById('btn-aggiungi-giocatore').addEventListener('click', aggiungiGiocatore);
   document.getElementById('btn-nuova-partita').addEventListener('click', resetPartita);
   
   aggiornaListaGiocatori();
-  controllaVittoria();
+  controllaVittoria(); // Chiamata critica all'avvio per verificare il vincitore
   
   // Listener per la Modalità Scura
   document.getElementById('toggle-dark-mode').addEventListener('click', toggleDarkMode);
@@ -60,12 +63,7 @@ function caricaStato() {
     giocatori = stato.giocatori || [];
     modalitaVittoria = stato.modalitaVittoria || 'max';
     punteggioObiettivo = stato.punteggioObiettivo || 100;
-
-    // Applica stato alle impostazioni UI
-    document.getElementById('modalita-vittoria').value = modalitaVittoria;
-    document.getElementById('punteggio-obiettivo').value = punteggioObiettivo;
     
-    // Applica modalità scura
     if (stato.darkMode) {
       document.body.classList.add('dark-mode');
     }
@@ -93,6 +91,7 @@ function aggiornaListaGiocatori() {
 
   giocatori.forEach((g, i) => {
     const li = document.createElement('li');
+    // Aggiunto highlight del vincitore
     li.className = `giocatore-item ${vincitoriNomi.includes(g.nome) ? 'winner-highlight' : ''}`;
     
     li.innerHTML = `
