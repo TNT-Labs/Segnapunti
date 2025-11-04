@@ -1,7 +1,7 @@
 {
   "name": "Segnapunti Carte",
   "short_name": "Segnapunti",
-  "start_url": ".",
+  "start_url": "index.html",
   "display": "standalone",
   "background_color": "#f4f6fb",
   "theme_color": "#2a4d69",
