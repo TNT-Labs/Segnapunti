@@ -171,7 +171,7 @@ async function requestPersistentStorage() {
 }
 
 // -------------------------------------------------------------------
-// LOGICA MODALE PUNTI PERSONALIZZATI (NUOVA)
+// LOGICA MODALE PUNTI PERSONALIZZATI 
 // -------------------------------------------------------------------
 
 /**
@@ -249,7 +249,7 @@ function applicaPunteggioPersonalizzato(punti = null) {
 
 
 // -------------------------------------------------------------------
-// LOGICA DOMContentLoaded (AGGIORNATA con Loader e Modal)
+// LOGICA DOMContentLoaded (AGGIORNATA con chiamata a updateDarkModeIcon)
 // -------------------------------------------------------------------
 document.addEventListener('DOMContentLoaded', async function() {
   
@@ -259,6 +259,9 @@ document.addEventListener('DOMContentLoaded', async function() {
 
   await caricaStato(); 
   await requestPersistentStorage();
+
+  // 🚩 CORREZIONE DARK MODE: Chiama l'update dopo il caricamento dello stato
+  updateDarkModeIcon(); 
 
   // Nasconde il loader dopo il caricamento dello stato
   if (loader) loader.style.display = 'none'; 
@@ -339,7 +342,8 @@ document.addEventListener('DOMContentLoaded', async function() {
   // La modalità scura è su tutte le pagine
   const toggleDarkModeBtn = document.getElementById('toggle-dark-mode');
   if(toggleDarkModeBtn) {
-    toggleDarkModeBtn.addEventListener('click', toggleDarkMode);
+    // 🚩 CORREZIONE DARK MODE: Usa la funzione toggleDarkMode (che ora aggiorna anche l'icona)
+    toggleDarkModeBtn.addEventListener('click', toggleDarkMode); 
   }
 });
 
@@ -368,13 +372,20 @@ function aggiungiGiocatore() {
   const nome = nomeInput ? nomeInput.value.trim() : '';
 
   if (nome) {
-    if (giocatori.some(g => g.nome.toLowerCase() === nome.toLowerCase())) {
+    // 🚩 CORREZIONE TYPO: g.gome -> g.nome
+    const nomeNormalizzato = nome.replace(/\s+/g, ' ').toLowerCase();
+
+    if (giocatori.some(g => g.nome.replace(/\s+/g, ' ').toLowerCase() === nomeNormalizzato)) { 
         alert("Questo nome esiste già!");
+        if (nomeInput) nomeInput.value = ''; 
         return;
     }
 
+    // Aggiunge il giocatore all'array in memoria
     giocatori.push({ nome: nome, punti: 0 });
-    if (nomeInput) nomeInput.value = '';
+    
+    if (nomeInput) nomeInput.value = ''; // Pulisce l'input DOPO l'aggiunta
+
     salvaStato(); 
     
     // Aggiorniamo la lista in settings (se siamo lì)
@@ -602,10 +613,20 @@ async function renderStoricoPartite() {
     });
 }
 
+// 🚩 NUOVA FUNZIONE HELPER DARK MODE
+function updateDarkModeIcon() {
+  const iconBtn = document.getElementById('toggle-dark-mode');
+  if (iconBtn) {
+    iconBtn.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
+  }
+}
+
 function toggleDarkMode() {
   document.body.classList.toggle('dark-mode');
+  updateDarkModeIcon(); // Aggiorna l'icona
   salvaStato(); 
 }
+
 
 // Espone le funzioni al Global Scope per l'uso negli onclick
 window.aggiungiGiocatore = aggiungiGiocatore;
@@ -613,3 +634,4 @@ window.rimuoviGiocatore = rimuoviGiocatore;
 window.modificaPunteggio = modificaPunteggio;
 window.mostraModalPunteggio = mostraModalPunteggio;
 window.getVincitoriNomi = getVincitoriNomi;
+window.toggleDarkMode = toggleDarkMode; // Espone la funzione
