@@ -1,5 +1,5 @@
 let modalitaVittoria = 'max';
-let punteggioObiettivo = 100;
+let punteggioObiettivo = 101;
 let giocatori = [];
 let partitaTerminata = false; 
 
