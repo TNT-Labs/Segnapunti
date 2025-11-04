@@ -18,35 +18,25 @@
   
   <link rel="stylesheet" href="segnapunti.css">
 
-  <style>
-      body {
-          background-color: #212121 !important; 
-          margin: 0;
-          padding: 0;
-          font-family: 'Inter', sans-serif; 
-      }
-  </style>
-</head>
+  </head>
 <body>
   <div class="container">
     <div class="header-controls fixed-header">
       <h1>⚙️ Impostazioni</h1>
       <div class="top-buttons">
           <button id="btn-back" title="Torna alla Partita" onclick="window.location.href='index.html'">◀️ Partita</button>
-          <button id="toggle-dark-mode" title="Attiva/Disattiva Modalità Scura">🌙</button>
+          <button id="toggle-dark-mode" title="Attiva/Disattiva Modalità Scura" onclick="toggleDarkMode()">🌙</button>
       </div>
     </div>
     
-    <div id="giocatori-management"> 
-        <h3>Gestione Giocatori</h3>
-        <div class="aggiungi-giocatore-form">
-            <input type="text" id="nuovo-giocatore" placeholder="Nome nuovo giocatore" aria-label="Nome nuovo giocatore">
-            <button id="btn-aggiungi-giocatore" class="btn-primary">Aggiungi</button>
-        </div>
-        
-        <ul class="giocatori-lista" id="giocatori-lista-settings">
-            </ul>
+    <h3>Gestione Giocatori</h3>
+    <div class="aggiungi-giocatore-form">
+        <input type="text" id="nuovo-giocatore" placeholder="Nome nuovo giocatore" aria-label="Nome nuovo giocatore">
+        <button id="btn-aggiungi-giocatore" class="btn-primary">Aggiungi</button>
     </div>
+    
+    <ul class="giocatori-lista" id="giocatori-lista-settings">
+        </ul>
     
     <hr class="separator">
 
@@ -72,14 +62,25 @@
 
   </div>
   
+  <div id="loader-overlay" class="loader-overlay" style="display: flex;">
+      <div class="loader-spinner"></div>
+      <p>Caricamento dati...</p>
+  </div>
+  
   <script src="segnapunti.js"></script>
   
   <script>
-    // 🚩 SOLO LOGICA SERVICE WORKER (la logica Dark Mode è stata spostata in segnapunti.js)
+    // CORREZIONE 3: Aggiunta della logica di registrazione del Service Worker
     if ('serviceWorker' in navigator) {
-      window.addEventListener('load', function() {
-        navigator.serviceWorker.register('service-worker.js');
-      });
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('service-worker.js')
+                .then(registration => {
+                    console.log('Service Worker registrato con successo:', registration.scope);
+                })
+                .catch(error => {
+                    console.error('Registrazione Service Worker fallita:', error);
+                });
+        });
     }
   </script>
 </body>
