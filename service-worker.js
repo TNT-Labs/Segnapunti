@@ -1,9 +1,10 @@
-const CACHE_NAME = 'segnapunti-cache-v1.0.4'; // Versione aggiornata
+const CACHE_NAME = 'segnapunti-cache-v1.0.5'; // Versione incrementata
 // Lista degli asset essenziali per il funzionamento offline
 const ASSETS_TO_CACHE = [
   '/', 
   'index.html',
-  'settings.html', // NUOVO: Inclusione della pagina di impostazioni
+  'settings.html',
+  'storico.html', // NUOVO: Inclusione della pagina storico
   'segnapunti.js',
   'segnapunti.css',
   'manifest.json',
