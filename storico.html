@@ -45,17 +45,12 @@
   <script src="segnapunti.js"></script>
   
   <script>
+    // 🚩 SOLO LOGICA SERVICE WORKER (la logica Dark Mode è stata spostata in segnapunti.js)
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function() {
         navigator.serviceWorker.register('service-worker.js');
       });
     }
-    function updateDarkModeIcon() {
-      document.getElementById('toggle-dark-mode').textContent = 
-        document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
-    }
-    window.addEventListener('load', updateDarkModeIcon);
-    document.getElementById('toggle-dark-mode').addEventListener('click', updateDarkModeIcon);
   </script>
 </body>
 </html>
