@@ -1,40 +1,150 @@
 let modalitaVittoria = 'max';
 let punteggioObiettivo = 100;
 let giocatori = [];
-const STORAGE_KEY = 'segnapunti_stato';
-const ASYNC_STORAGE_AVAILABLE = false; 
 let partitaTerminata = false; 
 
-// Funzioni pubbliche esposte a settings.html
+// 🚩 NUOVO: Costanti IndexedDB
+const DB_NAME = 'SegnapuntiDB';
+const DB_VERSION = 1;
+const STORE_NAME = 'stato_partita';
+const STATE_KEY = 'current_state';
+
+let db; // Variabile globale per il database
+
+// Le funzioni pubbliche per settings.html rimangono invariate nel loro scopo
 window.setModalitaVittoria = (value) => {
     modalitaVittoria = value;
-    (ASYNC_STORAGE_AVAILABLE ? salvaStatoAsync() : salvaStato());
-    // Non possiamo chiamare controllaVittoria da settings, deve avvenire sulla pagina di gioco
+    salvaStato();
 };
 
 window.setPunteggioObiettivo = (value) => {
     punteggioObiettivo = value;
-    (ASYNC_STORAGE_AVAILABLE ? salvaStatoAsync() : salvaStato());
-    // Non possiamo chiamare controllaVittoria da settings, deve avvenire sulla pagina di gioco
+    salvaStato();
 };
 
 window.resetPartita = resetPartita; // Espone la funzione reset
 
+// -------------------------------------------------------------------
+// 🚩 IMPLEMENTAZIONE CRITICA: LOGICA ASINCRONA INDEXEDDB
+// -------------------------------------------------------------------
+
+/**
+ * Inizializza il database IndexedDB.
+ * @returns {Promise<IDBDatabase>} Il database aperto.
+ */
+function openDB() {
+    return new Promise((resolve, reject) => {
+        if (db) {
+            resolve(db);
+            return;
+        }
+
+        const request = indexedDB.open(DB_NAME, DB_VERSION);
+
+        request.onupgradeneeded = (event) => {
+            db = event.target.result;
+            // Crea l'object store se non esiste (o in caso di aggiornamento versione)
+            if (!db.objectStoreNames.contains(STORE_NAME)) {
+                db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+            }
+        };
+
+        request.onsuccess = (event) => {
+            db = event.target.result;
+            resolve(db);
+        };
+
+        request.onerror = (event) => {
+            console.error("Errore IndexedDB:", event.target.errorCode);
+            reject(new Error("Errore nell'apertura del database IndexedDB."));
+        };
+    });
+}
+
+/**
+ * Carica lo stato della partita da IndexedDB.
+ */
+async function caricaStato() {
+    try {
+        const database = await openDB();
+        const transaction = database.transaction([STORE_NAME], 'readonly');
+        const store = transaction.objectStore(STORE_NAME);
+        
+        const request = store.get(STATE_KEY);
+        
+        return new Promise((resolve) => {
+            request.onsuccess = (event) => {
+                const stato = event.target.result;
+                if (stato && stato.data) {
+                    // Applica lo stato caricato
+                    giocatori = stato.data.giocatori || [];
+                    modalitaVittoria = stato.data.modalitaVittoria || 'max';
+                    punteggioObiettivo = stato.data.punteggioObiettivo || 100;
+                    partitaTerminata = stato.data.partitaTerminata || false;
+                    
+                    if (stato.data.darkMode) {
+                        document.body.classList.add('dark-mode');
+                    }
+                    console.log("[IndexedDB] Stato caricato con successo.");
+                } else {
+                    console.log("[IndexedDB] Nessuno stato salvato trovato. Uso i valori di default.");
+                }
+                resolve();
+            };
+            request.onerror = () => {
+                console.error("[IndexedDB] Errore nel caricamento dello stato.");
+                resolve(); // Non bloccare l'app in caso di errore di caricamento
+            };
+        });
+    } catch (e) {
+        console.error("Impossibile caricare lo stato (IndexedDB non disponibile):", e);
+    }
+}
+
+/**
+ * Salva lo stato della partita su IndexedDB.
+ */
+function salvaStato() {
+    openDB().then(database => {
+        const stato = {
+            id: STATE_KEY, // Chiave fissa per sovrascrivere il singolo stato
+            data: {
+                giocatori: giocatori,
+                modalitaVittoria: modalitaVittoria,
+                punteggioObiettivo: punteggioObiettivo,
+                darkMode: document.body.classList.contains('dark-mode'),
+                partitaTerminata: partitaTerminata 
+            }
+        };
+
+        const transaction = database.transaction([STORE_NAME], 'readwrite');
+        const store = transaction.objectStore(STORE_NAME);
+        
+        const request = store.put(stato); // put() sovrascrive se la chiave esiste
+
+        request.onsuccess = () => {
+            // console.log("[IndexedDB] Stato salvato con successo.");
+        };
+        request.onerror = (event) => {
+            console.error("[IndexedDB] Errore nel salvataggio dello stato:", event.target.error);
+        };
+    }).catch(e => {
+        console.error("Impossibile salvare lo stato:", e);
+    });
+}
+
+// -------------------------------------------------------------------
+// 🚩 LOGICA DOMContentLoaded
+// -------------------------------------------------------------------
 
 document.addEventListener('DOMContentLoaded', async function() {
-  if (ASYNC_STORAGE_AVAILABLE) {
-    await caricaStatoAsync(); 
-  } else {
-    caricaStato(); 
-  }
-  
+  await caricaStato(); // Caricamento Asincrono (IndexedDB)
   await requestPersistentStorage();
 
   // 🚩 NUOVO: Gestione specifica in base alla pagina
   if (document.getElementById('giocatori-lista')) {
       // LOGICA PER index.html (Pagina Partita)
       
-      // Event Listeners per i giocatori
       const nuovoGiocatoreInput = document.getElementById('nuovo-giocatore');
       
       nuovoGiocatoreInput.addEventListener('keydown', function(e) {
@@ -46,27 +156,25 @@ document.addEventListener('DOMContentLoaded', async function() {
       
       document.getElementById('btn-aggiungi-giocatore').addEventListener('click', aggiungiGiocatore);
       
-      // Inizializzazione UI Partita
       aggiornaListaGiocatori();
       controllaVittoria(); 
       
   } else if (document.getElementById('impostazioni-partita')) {
       // LOGICA PER settings.html (Pagina Impostazioni)
       
-      // Inizializza i valori UI con i dati caricati
       document.getElementById('modalita-vittoria').value = modalitaVittoria;
       document.getElementById('punteggio-obiettivo').value = punteggioObiettivo;
   }
   
-  // Listener per la Modalità Scura (presente su entrambe le pagine)
   document.getElementById('toggle-dark-mode').addEventListener('click', toggleDarkMode);
 });
 
-// [requestPersistentStorage, salvaStato, salvaStatoAsync, caricaStato, caricaStatoAsync] NON SONO MODIFICATI
-// ... (mantenere le implementazioni precedenti di queste funzioni) ...
+// -------------------------------------------------------------------
+// 🚩 FUNZIONI CORE (Aggiornate per usare salvaStato())
+// -------------------------------------------------------------------
 
 /**
- * Richiede lo storage persistente al browser. Cruciale per la stabilità MMP.
+ * Richiede lo storage persistente al browser.
  */
 async function requestPersistentStorage() {
     if (navigator.storage && navigator.storage.persist) {
@@ -88,54 +196,16 @@ async function requestPersistentStorage() {
     return false;
 }
 
-function salvaStato() {
-  const stato = {
-    giocatori: giocatori,
-    modalitaVittoria: modalitaVittoria,
-    punteggioObiettivo: punteggioObiettivo,
-    darkMode: document.body.classList.contains('dark-mode'),
-    partitaTerminata: partitaTerminata 
-  };
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(stato));
-}
-
-async function salvaStatoAsync() {
-    console.log("Saving state asynchronously (IndexedDB placeholder)...");
-    salvaStato(); 
-}
-
-function caricaStato() {
-  const statoSalvato = localStorage.getItem(STORAGE_KEY);
-  if (statoSalvato) {
-    const stato = JSON.parse(statoSalvato);
-    giocatori = stato.giocatori || [];
-    modalitaVittoria = stato.modalitaVittoria || 'max';
-    punteggioObiettivo = stato.punteggioObiettivo || 100;
-    partitaTerminata = stato.partitaTerminata || false; 
-    
-    if (stato.darkMode) {
-      document.body.classList.add('dark-mode');
-    }
-  }
-}
-
-async function caricaStatoAsync() {
-    console.log("Loading state asynchronously (IndexedDB placeholder)...");
-    caricaStato(); 
-}
-// --------------------------------------------------------------------------
-
-// Funzione di reset della partita (Ora esposta anche a settings.html)
+// Funzione di reset della partita
 function resetPartita() {
   if (confirm("Sei sicuro di voler iniziare una nuova partita? Tutti i punteggi attuali verranno azzerati.")) {
     giocatori = giocatori.map(g => ({ nome: g.nome, punti: 0 }));
     partitaTerminata = false;
-    (ASYNC_STORAGE_AVAILABLE ? salvaStatoAsync() : salvaStato());
-    // Se siamo su settings.html, reindirizza l'utente alla pagina di gioco
+    salvaStato(); // Salva lo stato resettato
+    
     if (document.getElementById('impostazioni-partita')) {
         window.location.href = 'index.html';
     } else {
-        // Se siamo su index.html, aggiorna la lista
         aggiornaListaGiocatori();
         controllaVittoria();
     }
@@ -144,7 +214,7 @@ function resetPartita() {
 
 function aggiornaListaGiocatori() {
   const lista = document.getElementById('giocatori-lista');
-  if (!lista) return; // Non eseguire se non siamo nella pagina della lista
+  if (!lista) return;
   
   lista.innerHTML = '';
   const vincitoriNomi = getVincitoriNomi();
@@ -159,7 +229,6 @@ function aggiornaListaGiocatori() {
     const li = document.createElement('li');
     li.className = `giocatore-item ${vincitoriNomi.includes(g.nome) ? 'winner-highlight' : ''} ${isGameFinished ? 'game-over' : ''}`;
     
-    // ... (Il resto del codice di aggiornamento della lista rimane invariato) ...
     li.innerHTML = `
       <span class="giocatore-nome">${g.nome}</span>
       <div class="punti-e-controlli">
@@ -177,7 +246,6 @@ function aggiornaListaGiocatori() {
     lista.appendChild(li);
   });
   
-  // Blocca/Sblocca il form di aggiunta giocatore
   const btnAggiungi = document.getElementById('btn-aggiungi-giocatore');
   const inputAggiungi = document.getElementById('nuovo-giocatore');
   if (btnAggiungi) btnAggiungi.disabled = isGameFinished;
@@ -192,7 +260,7 @@ function aggiungiGiocatore() {
   if (nome) {
     giocatori.push({ nome: nome, punti: 0 });
     nomeInput.value = '';
-    (ASYNC_STORAGE_AVAILABLE ? salvaStatoAsync() : salvaStato());
+    salvaStato(); // Salva
     aggiornaListaGiocatori();
   }
 }
@@ -201,7 +269,7 @@ function rimuoviGiocatore(index) {
   if (partitaTerminata) return; 
   
   giocatori.splice(index, 1);
-  (ASYNC_STORAGE_AVAILABLE ? salvaStatoAsync() : salvaStato());
+  salvaStato(); // Salva
   aggiornaListaGiocatori();
   controllaVittoria();
 }
@@ -221,7 +289,7 @@ function modificaPunteggio(index, delta) {
     puntiElement.querySelector('strong').textContent = giocatori[index].punti;
   }
 
-  (ASYNC_STORAGE_AVAILABLE ? salvaStatoAsync() : salvaStato());
+  salvaStato(); // Salva
   aggiornaListaGiocatori();
   controllaVittoria();
 }
@@ -282,12 +350,13 @@ function getVincitoriNomi() {
 
 function controllaVittoria() {
   const winnerDiv = document.getElementById('winner-message');
-  if (!winnerDiv) return; // Non eseguire se non siamo nella pagina di gioco
+  if (!winnerDiv) return;
   
   if (giocatori.length === 0) {
     partitaTerminata = false;
     winnerDiv.style.display = 'none';
     aggiornaListaGiocatori();
+    salvaStato();
     return;
   }
   
@@ -321,12 +390,12 @@ function controllaVittoria() {
         <span class="fireworks">🎉</span>
     `;
     
-    (ASYNC_STORAGE_AVAILABLE ? salvaStatoAsync() : salvaStato());
+    salvaStato(); // Salva lo stato "partita terminata"
     
   } else {
     if (partitaTerminata) {
         partitaTerminata = false; 
-        (ASYNC_STORAGE_AVAILABLE ? salvaStatoAsync() : salvaStato());
+        salvaStato();
     }
     winnerDiv.style.display = 'none';
     winnerDiv.classList.remove('finished');
@@ -336,7 +405,7 @@ function controllaVittoria() {
 
 function toggleDarkMode() {
   document.body.classList.toggle('dark-mode');
-  (ASYNC_STORAGE_AVAILABLE ? salvaStatoAsync() : salvaStato());
+  salvaStato(); // Salva la preferenza Dark Mode
 }
 
 // Esponi le funzioni solo sulla pagina index.html per la gestione UI
