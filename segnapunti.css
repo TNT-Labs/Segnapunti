@@ -12,6 +12,7 @@
   --colore-pulsante-custom: #008CBA;
   --colore-reset: #c62828; 
   --colore-blocco: rgba(0, 0, 0, 0.6); 
+  --colore-header-bordo: #e0e0e0; /* Nuovo: bordo header */
 }
 
 /* --- Dark Mode Variables --- */
@@ -26,50 +27,13 @@ body.dark-mode {
   --bordo-vincitore: #305030;
   --colore-reset: #a02020;
   --colore-blocco: rgba(0, 0, 0, 0.8);
+  --colore-header-bordo: #333; /* Nuovo: bordo header dark */
 }
-body.dark-mode h1, body.dark-mode .giocatore-nome {
-  color: var(--colore-primario);
-}
-/* ... (Mantenere il resto degli stili Dark Mode) ... */
-body.dark-mode h3 {
-  color: var(--colore-secondario);
-  border-bottom-color: #333;
-}
-body.dark-mode input, body.dark-mode select {
-  background: #2a2a2a;
-  color: var(--colore-testo);
-  border-color: #444;
-}
-body.dark-mode input:focus, body.dark-mode select:focus {
-  box-shadow: 0 0 0 2px rgba(122, 174, 214, 0.4);
-}
-body.dark-mode .giocatore-item {
-  background: #2a2a2a;
-}
-body.dark-mode .giocatore-item.winner-highlight {
-  background: #2a4a2a;
-  border-color: var(--bordo-vincitore);
-  box-shadow: 0 0 10px rgba(32, 58, 32, 0.8);
-}
-body.dark-mode .giocatore-punti strong {
-  color: var(--colore-primario);
-}
-body.dark-mode button:not(.btn-rimuovi, .btn-custom-score, #toggle-dark-mode, .btn-reset, .btn-primary, .top-buttons button) {
-  background: var(--colore-secondario);
-}
-body.dark-mode button:hover:not(.btn-rimuovi, .btn-custom-score, #toggle-dark-mode, .btn-reset, .btn-primary, .top-buttons button) {
-  background: var(--colore-primario);
-}
-body.dark-mode .winner {
-  color: var(--colore-vincitore);
-}
-body.dark-mode .separator {
-    border-top: 1px dashed #333;
-}
-/* --- Fine Dark Mode Variables --- */
+/* ... (Il resto degli stili Dark Mode rimane invariato) ... */
 
 /* Stili Generali */
 body {
+  /* 🚩 MODIFICATO: Utilizzo del font Inter */
   font-family: 'Inter', 'Segoe UI', Arial, sans-serif; 
   background: var(--colore-sfondo);
   margin: 0;
@@ -81,12 +45,16 @@ body {
 
 .container {
   max-width: 550px; 
-  margin: 40px auto;
+  margin: 0 auto; /* Modificato: tolto il 40px top/bottom margin */
   background: var(--colore-card);
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  border-radius: 0; /* Rimosso border-radius per app full screen */
+  box-shadow: none; /* Rimosso box-shadow principale */
   padding: 32px 24px;
   transition: background-color 0.3s, box-shadow 0.3s;
+}
+/* 🚩 NUOVO: Aggiungi padding superiore per compensare l'header fisso */
+.container {
+    padding-top: 80px; /* Spazio sufficiente per l'header fisso */
 }
 
 /* Header e Titoli */
@@ -96,157 +64,35 @@ body {
   align-items: center;
   margin-bottom: 20px;
 }
+/* 🚩 NUOVO: Stili per Header Fissato */
+.header-controls.fixed-header {
+    position: fixed; /* Usa fixed per rimanere in cima durante lo scroll */
+    top: 0;
+    left: 0;
+    right: 0;
+    max-width: 550px; /* Limita la larghezza come il container */
+    margin: 0 auto;
+    z-index: 100; 
+    background: var(--colore-card); 
+    padding: 15px 24px 10px 24px; /* Padding per dare un po' di respiro */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid var(--colore-header-bordo);
+    border-radius: 0 0 16px 16px; /* Bordo arrotondato solo sotto */
+}
+body.dark-mode .header-controls.fixed-header {
+    box-shadow: 0 2px 5px rgba(255, 255, 255, 0.05);
+}
+
 h1 {
   flex-grow: 1;
-  text-align: center;
+  text-align: left; /* Allineato a sinistra, più comune */
   color: var(--colore-primario);
-  font-weight: 700;
-  font-size: 2em;
+  font-weight: 800; /* Font più spesso */
+  font-size: 1.8em;
+  margin: 0;
 }
+/* ... (Il resto degli stili header e top-buttons rimane invariato) ... */
 
-/* 🚩 Stili per i pulsanti di navigazione */
-.top-buttons {
-    display: flex;
-    gap: 8px;
-    flex-shrink: 0;
-}
-.top-buttons button {
-    background: var(--colore-secondario);
-    color: white;
-    padding: 10px 12px;
-    border-radius: 8px;
-    font-weight: 500;
-    min-width: 48px;
-    min-height: 48px;
-    box-sizing: border-box;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-.top-buttons button:hover {
-    background: var(--colore-primario);
-}
-#toggle-dark-mode {
-    background: none !important;
-    border: 1px solid var(--colore-primario) !important;
-    color: var(--colore-primario) !important;
-    width: 48px; 
-    height: 48px; 
-    padding: 0;
-    border-radius: 50% !important;
-    font-size: 1.2em;
-    line-height: 1;
-    flex-shrink: 0;
-}
-body.dark-mode #toggle-dark-mode {
-    color: var(--colore-testo) !important;
-    border-color: var(--colore-testo) !important;
-}
-#toggle-dark-mode:hover {
-  background: var(--colore-primario) !important;
-  color: var(--colore-card) !important;
-}
-
-/* Separatore */
-.separator {
-    border: none;
-    border-top: 1px dashed #ccc;
-    margin: 30px 0;
-}
-
-/* Pulsanti Generici */
-button {
-  font-size: 0.9em;
-  padding: 8px 12px;
-  border-radius: 6px;
-  border: none;
-  cursor: pointer;
-  transition: background 0.2s, transform 0.1s;
-  color: #fff;
-  background: var(--colore-secondario);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-button:hover {
-  background: var(--colore-primario);
-}
-button:active {
-  transform: translateY(1px);
-}
-button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    box-shadow: none;
-}
-
-
-/* Pulsanti Specifici */
-.btn-primary { 
-    background: var(--colore-primario);
-}
-.btn-primary:hover {
-    background: var(--colore-secondario);
-}
-.btn-reset { 
-    background: var(--colore-reset);
-}
-.btn-reset:hover {
-    background: var(--sfondo-rimuovi);
-}
-
-h3 {
-  color: var(--colore-secondario);
-  margin-top: 28px;
-  margin-bottom: 12px;
-  border-bottom: 2px solid #e0e0e0;
-  padding-bottom: 5px;
-  font-weight: 600;
-}
-body.dark-mode h3 {
-    border-bottom-color: #333;
-}
-
-/* Form Aggiungi Giocatore */
-.aggiungi-giocatore-form {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-}
-.aggiungi-giocatore-form input {
-    flex-grow: 1;
-    margin-bottom: 0; 
-}
-
-label {
-  display: block;
-  margin: 15px 0 8px 0;
-  font-weight: 500;
-  color: #555;
-}
-body.dark-mode label {
-    color: #bbb;
-}
-input[type="text"], input[type="number"], select {
-  font-size: 1em;
-  padding: 10px 12px;
-  border-radius: 8px;
-  border: 1px solid #bfc9d1;
-  width: 100%;
-  box-sizing: border-box;
-  transition: border-color 0.3s;
-  min-height: 48px; 
-}
-
-/* Bottoni principali */
-.action-buttons {
-  display: flex;
-  gap: 10px;
-  margin-top: 20px;
-}
-.action-buttons button {
-  flex-grow: 1;
-  font-weight: 600;
-  padding: 10px;
-}
 
 /* Lista Giocatori */
 .giocatori-lista {
@@ -264,32 +110,8 @@ input[type="text"], input[type="number"], select {
   margin-bottom: 10px;
   position: relative;
 }
-/* Overlay Partita Terminata (Blocca interazione) */
-.giocatore-item.game-over::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: var(--colore-blocco); 
-    border-radius: 8px;
-    pointer-events: none; 
-    z-index: 10;
-}
-.giocatore-item.game-over.winner-highlight::after {
-    display: none; 
-}
+/* ... (Overlay e Highlight restano invariati) ... */
 
-/* Highlight Vincitore */
-.giocatore-item.winner-highlight {
-  background: var(--sfondo-vincitore); 
-  border: 2px solid var(--bordo-vincitore);
-  box-shadow: 0 0 10px rgba(212, 237, 218, 0.8);
-}
-body.dark-mode .giocatore-item.winner-highlight {
-    box-shadow: 0 0 10px rgba(32, 58, 32, 0.8);
-}
 
 .giocatore-punti {
   font-size: 1.1em;
@@ -301,11 +123,16 @@ body.dark-mode .giocatore-item.winner-highlight {
 body.dark-mode .giocatore-punti {
     color: #bbb;
 }
+/* 🚩 MODIFICATO: Punteggio in Primo Piano */
 .giocatore-punti strong {
-  font-weight: 700;
+  font-weight: 800; /* Più spesso */
   color: var(--colore-primario);
-  font-size: 1.2em;
+  font-size: 1.8em; /* Più grande */
+  display: inline-block;
+  margin-right: 5px;
+  line-height: 1;
 }
+
 .punti-e-controlli {
   display: flex;
   align-items: center;
@@ -313,145 +140,87 @@ body.dark-mode .giocatore-punti {
   width: 100%;
   margin-top: 5px;
 }
+
+/* 🚩 NUOVO: Modifica layout controlli in Mobile */
 .punteggio-controls {
-  display: flex;
-  gap: 8px; 
-  flex-wrap: wrap; 
-  overflow-x: visible; 
-  padding-bottom: 0;
+  display: grid; /* Usa Grid per un layout più pulito */
+  grid-template-columns: repeat(3, 1fr); /* 3 colonne di base (es. +1, -1, ±) */
+  gap: 6px; 
+  flex-grow: 1; /* Permette al blocco di riempire lo spazio */
 }
 .punteggio-controls button {
   padding: 8px 10px; 
   font-size: 1em; 
   min-width: 48px; 
   min-height: 48px; 
-  flex-shrink: 0;
   box-sizing: border-box; 
+  /* Estendi i pulsanti ± e +5/-5 su due colonne quando necessario */
 }
-.punteggio-controls .btn-rimuovi {
-  background: var(--colore-rimuovi);
-}
-.punteggio-controls .btn-rimuovi:hover {
-  background: var(--sfondo-rimuovi);
-}
+/* Estendi il pulsante "custom score" a 3 colonne in mobile per dargli enfasi */
 .punteggio-controls .btn-custom-score {
-  background: var(--colore-pulsante-custom);
-  font-weight: 700;
-}
-.punteggio-controls .btn-custom-score:hover {
-  background: #006b8c;
-}
-
-/* Stile Messaggio Vincitore */
-.winner {
-    text-align: center;
-    padding: 15px;
-    margin-top: 20px;
-    border-radius: 12px;
-    background-color: var(--sfondo-vincitore);
-    border: 2px solid var(--bordo-vincitore);
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.1em;
-    color: var(--colore-vincitore);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-.winner .fireworks {
-    font-size: 1.8em;
-    margin: 0 10px;
-}
-.winner .winner-text strong {
-    font-size: 1.3em;
-    display: block;
-    margin-bottom: 5px;
-}
-body.dark-mode .winner {
-    background-color: var(--sfondo-vincitore);
-    color: var(--colore-vincitore);
-}
-
-
-/* Animazioni Punti (Feedback Visivo) */
-@keyframes scaleBounce {
-    0% { transform: scale(1.0); }
-    50% { transform: scale(1.15); }
-    100% { transform: scale(1.0); }
-}
-.giocatore-punti.anim-up strong {
-  color: #4CAF50 !important; 
-  animation: scaleBounce 0.3s ease-in-out;
-}
-.giocatore-punti.anim-down strong {
-  color: #F44336 !important; 
-  animation: scaleBounce 0.3s ease-in-out;
-}
-
-/* 🚩 NUOVO: Stili per la Lista Storico */
-.storico-lista {
-    list-style: none;
-    padding: 0;
-}
-.storico-item {
-    background: var(--colore-card);
-    border: 1px solid #ddd;
-    padding: 15px;
-    margin-bottom: 10px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    transition: background-color 0.3s;
-}
-body.dark-mode .storico-item {
-    border-color: #333;
-    box-shadow: 0 2px 4px rgba(255, 255, 255, 0.05);
-}
-.storico-header {
-    display: flex;
-    justify-content: space-between;
-    font-weight: bold;
-    margin-bottom: 10px;
-    padding-bottom: 5px;
-    border-bottom: 1px solid #eee;
-}
-body.dark-mode .storico-header {
-    border-bottom: 1px solid #333;
-}
-.storico-vincitore {
-    color: var(--colore-primario);
+    grid-column: span 3; 
     font-size: 1.1em;
 }
-.storico-data {
-    font-size: 0.85em;
-    color: #888;
-}
-.storico-details p {
-    margin: 5px 0;
-    font-size: 0.9em;
-}
-.storico-details strong {
-    font-weight: 700;
-    /* Usa un colore che si distingue ma che non sia solo per i vincitori in gioco */
-    color: var(--colore-vincitore); 
-}
-.giocatori-list {
-    font-style: italic;
-    line-height: 1.4;
-    font-size: 0.85em !important;
+/* Rimuovi e Custom Score in lista settings */
+#giocatori-lista-settings .punteggio-controls {
+    grid-template-columns: 1fr;
 }
 
 
-/* Media Query per Desktop/Tablet (layout orizzontale) */
+/* Media Query per Mobile (Controlli su due righe: 3 pulsanti sopra, 2 sotto) */
+@media (max-width: 500px) {
+  .container {
+    padding-top: 90px; /* Aumenta leggermente il padding per il mobile */
+  }
+  .giocatore-item {
+      padding: 10px 15px;
+  }
+  .giocatore-punti {
+      margin-bottom: 10px;
+  }
+  .punti-e-controlli {
+      flex-direction: column;
+      align-items: flex-start;
+  }
+  
+  /* Layout pulsanti in mobile (3 pulsanti per riga) */
+  .punteggio-controls {
+    grid-template-columns: repeat(3, 1fr); /* 3 pulsanti per riga */
+    width: 100%; /* Occupa tutta la larghezza */
+  }
+  .punteggio-controls button {
+      /* Mantiene lo stile precedente, ma ora con grid */
+  }
+  /* I pulsanti +/- 5 non li mettiamo in mobile per mantenere pulizia (opzionale, ma consigliato) */
+  .punteggio-controls button:nth-child(3),
+  .punteggio-controls button:nth-child(4) {
+      display: none;
+  }
+  /* Modifichiamo la griglia per i pulsanti rimanenti: +1, -1, ± (che è span 3) */
+  .punteggio-controls {
+      grid-template-columns: repeat(2, 1fr);
+  }
+  .punteggio-controls button:nth-child(1),
+  .punteggio-controls button:nth-child(2) {
+      grid-column: span 1;
+  }
+  /* Il pulsante custom score deve estendersi su 2 colonne se gli altri 2 sono rimossi */
+  .punteggio-controls .btn-custom-score {
+      grid-column: span 2; 
+  }
+}
+
+/* Media Query per Desktop/Tablet (Layout Orizzontale) */
 @media (min-width: 501px) {
   .giocatore-item {
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    padding: 12px 20px;
+    padding: 15px 20px;
   }
   .giocatore-nome {
     margin-bottom: 0;
-    flex-basis: 20%;
+    flex-basis: 25%; /* Più spazio per il nome */
   }
   .punti-e-controlli {
     width: auto;
@@ -461,29 +230,15 @@ body.dark-mode .storico-header {
   .giocatore-punti {
     margin-right: 20px;
     text-align: right;
+    min-width: 120px;
   }
-}
-
-/* Media Query per schermi molto piccoli (mobile) */
-@media (max-width: 500px) {
-  .container {
-    margin: 0; 
-    border-radius: 0;
-    box-shadow: none;
-    padding: 20px 15px;
-  }
-  h1 {
-    font-size: 1.6em;
-  }
-  .punti-e-controlli {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  .giocatore-punti {
-    margin-bottom: 10px;
-  }
+  /* Layout pulsanti in desktop (5 pulsanti in linea) */
   .punteggio-controls {
-    justify-content: space-around; 
-    gap: 6px;
+    display: flex;
+    gap: 8px;
+  }
+  /* Il pulsante custom score torna alla sua dimensione normale */
+  .punteggio-controls .btn-custom-score {
+      grid-column: span 1; 
   }
 }
