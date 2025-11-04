@@ -140,12 +140,13 @@ button:active {
 .btn-reset:hover {
     background: var(--sfondo-rimuovi);
 }
+/* Target Tattile Critico (48x48px DIP) */
 #toggle-dark-mode {
   background: none;
   border: 1px solid var(--colore-primario);
   color: var(--colore-primario);
-  width: 40px;
-  height: 40px;
+  width: 48px; /* Aumentato da 40px */
+  height: 48px; /* Aumentato da 40px */
   padding: 0;
   border-radius: 50%;
   font-size: 1.2em;
@@ -195,6 +196,7 @@ input[type="text"], input[type="number"], select {
   width: 100%;
   box-sizing: border-box;
   transition: border-color 0.3s;
+  min-height: 48px; /* Nuovo: Target minimo per l'usabilità mobile */
 }
 
 /* Bottoni principali */
@@ -251,17 +253,18 @@ input[type="text"], input[type="number"], select {
 }
 .punteggio-controls {
   display: flex;
-  gap: 4px; 
-  flex-wrap: nowrap;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch; 
-  padding-bottom: 5px;
+  gap: 8px; /* Aumentato il gap */
+  flex-wrap: wrap; /* CRITICAL FIX: I pulsanti si avvolgono, eliminando lo scroll orizzontale (UX PWA/Mobile) */
+  overflow-x: visible; 
+  padding-bottom: 0;
 }
 .punteggio-controls button {
-  padding: 6px 8px;
-  font-size: 0.85em;
-  min-width: 40px; 
+  padding: 8px 10px; /* Aumentato padding */
+  font-size: 1em; /* Aumentato font size */
+  min-width: 48px; /* CRITICAL FIX: Target tattile 48px DIP */
+  min-height: 48px; /* CRITICAL FIX: Target tattile 48px DIP */
   flex-shrink: 0;
+  box-sizing: border-box; 
 }
 .punteggio-controls .btn-rimuovi {
   background: var(--colore-rimuovi);
@@ -332,5 +335,9 @@ input[type="text"], input[type="number"], select {
   }
   .giocatore-punti {
     margin-bottom: 10px;
+  }
+  .punteggio-controls {
+    justify-content: space-around; /* Distribuzione migliore su schermi piccoli */
+    gap: 6px;
   }
 }
