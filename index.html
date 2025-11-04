@@ -3,12 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Nome App Completa Punteggi</title>
+  <title>Nome App Completa - Partita</title>
   
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#4A148C">
   <meta name="mobile-web-app-capable" content="yes">
-
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"> 
   
@@ -16,7 +15,6 @@
   <link rel="stylesheet" href="segnapunti.css">
 
   <style>
-      /* CRITICAL CSS: Assicurare che lo sfondo del corpo corrisponda al background_color del manifest per prevenire il 'flash' bianco (Sezione II.3) */
       body {
           background-color: #212121 !important; 
           margin: 0;
@@ -28,8 +26,11 @@
 <body>
   <div class="container">
     <div class="header-controls">
-      <h1>🂠 Segnapunti Carte</h1>
-      <button id="toggle-dark-mode" title="Attiva/Disattiva Modalità Scura">🌙</button>
+      <h1>🂠 Punteggi Attuali</h1>
+      <div class="top-buttons">
+          <button id="btn-settings" title="Impostazioni Partita" onclick="window.location.href='settings.html'">⚙️</button>
+          <button id="toggle-dark-mode" title="Attiva/Disattiva Modalità Scura">🌙</button>
+      </div>
     </div>
     
     <div id="giocatori-section">
@@ -46,23 +47,6 @@
 
     <div id="winner-message" class="winner" style="display:none;" role="alert"></div>
 
-    <hr class="separator"> 
-    <div id="impostazioni-partita">
-      <h3>Configurazione Partita</h3>
-      
-      <label for="modalita-vittoria">Modalità di vittoria:</label>
-      <select id="modalita-vittoria">
-        <option value="max">Vince chi fa **più** punti</option>
-        <option value="min">Vince chi fa **meno** punti</option>
-      </select>
-      
-      <label for="punteggio-obiettivo">Punteggio obiettivo (stop partita):</label>
-      <input type="number" id="punteggio-obiettivo" min="1" value="100">
-      
-      <div class="action-buttons">
-        <button id="btn-nuova-partita" class="btn-reset">Inizia Nuova Partita (Reset Punti)</button>
-      </div>
-    </div>
   </div>
   
   <script src="segnapunti.js"></script>
@@ -73,7 +57,6 @@
         navigator.serviceWorker.register('service-worker.js');
       });
     }
-    // Aggiorna l'icona della modalità scura all'avvio e al click
     function updateDarkModeIcon() {
       document.getElementById('toggle-dark-mode').textContent = 
         document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
