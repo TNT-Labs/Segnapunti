@@ -1,50 +1,84 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Nome App Completa Punteggi</title>
-    
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#4A148C">
-    <meta name="mobile-web-app-capable" content="yes">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Nome App Completa Punteggi</title>
+  
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#4A148C">
+  <meta name="mobile-web-app-capable" content="yes">
 
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"> 
-    
-    <style>
-        /* Assicurare che lo sfondo del corpo corrisponda al background_color del manifest per evitare il flash */
-        body {
-            background-color: #212121!important; 
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-        }
-        #app-loading-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #212121; /* Colore di coerenza critica  */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-        }
-    </style>
-    
-    <link rel="apple-touch-icon" href="/images/icons/icon-152x152.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"> 
+  
+  <link rel="apple-touch-icon" href="icon-192.png"> 
+  <link rel="stylesheet" href="segnapunti.css">
 
+  <style>
+      /* CRITICAL CSS: Assicurare che lo sfondo del corpo corrisponda al background_color del manifest per evitare il flash */
+      body {
+          background-color: #212121 !important; 
+          margin: 0;
+          padding: 0;
+          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+      }
+  </style>
 </head>
 <body>
-    <div id="app-loading-screen">
-        Caricamento...
+  <div class="container">
+    <div class="header-controls">
+      <h1>🂠 Segnapunti Carte</h1>
+      <button id="toggle-dark-mode" title="Attiva/Disattiva Modalità Scura">🌙</button>
+    </div>
+    
+    <div id="giocatori-section">
+      <h3>Giocatori in Partita</h3>
+      
+      <ul class="giocatori-lista" id="giocatori-lista">
+        </ul>
+
+      <div class="aggiungi-giocatore-form">
+        <input type="text" id="nuovo-giocatore" placeholder="Nome nuovo giocatore" aria-label="Nome nuovo giocatore">
+        <button id="btn-aggiungi-giocatore" class="btn-primary">Aggiungi</button>
+      </div>
     </div>
 
-    <div id="app">
-        </div>
-    
-    <script src="app.js"></script>
+    <div id="winner-message" class="winner" style="display:none;" role="alert"></div>
+
+    <hr class="separator"> <div id="impostazioni-partita">
+      <h3>Configurazione Partita</h3>
+      
+      <label for="modalita-vittoria">Modalità di vittoria:</label>
+      <select id="modalita-vittoria">
+        <option value="max">Vince chi fa **più** punti</option>
+        <option value="min">Vince chi fa **meno** punti</option>
+      </select>
+      
+      <label for="punteggio-obiettivo">Punteggio obiettivo (stop partita):</label>
+      <input type="number" id="punteggio-obiettivo" min="1" value="100">
+      
+      <div class="action-buttons">
+        <button id="btn-nuova-partita" class="btn-reset">Inizia Nuova Partita (Reset Punti)</button>
+      </div>
+    </div>
+  </div>
+  
+  <script src="segnapunti.js"></script>
+  
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('service-worker.js');
+      });
+    }
+    // Aggiorna l'icona della modalità scura all'avvio e al click
+    function updateDarkModeIcon() {
+      document.getElementById('toggle-dark-mode').textContent = 
+        document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
+    }
+    window.addEventListener('load', updateDarkModeIcon);
+    document.getElementById('toggle-dark-mode').addEventListener('click', updateDarkModeIcon);
+  </script>
 </body>
 </html>
