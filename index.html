@@ -5,9 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Segnapunti Carte</title>
   <!-- Manifest PWA -->
-  <link rel="manifest" href=""theme-color" content="#2a4d69">
-  <!-- Icona per dispositivi -->
-  <link rel="icon" typerel="apple-touchS -->
+  manifest.json
+  <meta name="theme-color" content="#2a4d69">
+  <!-- Icone -->
+  icon-192.png
+  icon-512.png
+  <!-- CSS -->
   segnapunti.css
 </head>
 <body>
@@ -31,9 +34,9 @@
     </div>
     <div id="winner-message" class="winner" style="display:none;"></div>
   </div>
-  <!-- JS principale -->
+  <!-- JS -->
   segnapunti.js</script>
-  <!-- Registrazione Service Worker PWA -->
+  <!-- Service Worker -->
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function() {
