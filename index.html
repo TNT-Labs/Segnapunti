@@ -19,12 +19,10 @@
   <link rel="stylesheet" href="segnapunti.css">
 
   <style>
-      /* Stili di fallback o generali */
       body {
           background-color: #212121 !important; 
           margin: 0;
           padding: 0;
-          /* Ora il font viene gestito dal CSS principale */
           font-family: 'Inter', sans-serif; 
       }
   </style>
@@ -51,6 +49,35 @@
 
   </div>
   
+  <div id="modal-overlay" class="modal-overlay" style="display: none;">
+      <div class="modal-content">
+          <h2 id="modal-title-player-name">Aggiungi Punti</h2>
+          <form id="modal-input-form">
+              <input type="number" id="punteggio-input-custom" placeholder="Inserisci +20, -15, 50..." required inputmode="numeric">
+              
+              <div class="quick-score-buttons">
+                  <button type="button" id="btn-quick-plus10" class="btn-primary">+10</button>
+                  <button type="button" id="btn-quick-minus10" class="btn-rimuovi">-10</button>
+                  <button type="button" id="btn-quick-plus20" class="btn-primary">+20</button>
+                  <button type="button" id="btn-quick-minus20" class="btn-rimuovi">-20</button>
+                  <button type="button" id="btn-quick-plus50" class="btn-primary">+50</button>
+                  <button type="button" id="btn-quick-minus50" class="btn-rimuovi">-50</button>
+              </div>
+
+              <div class="modal-action-buttons">
+                  <button type="button" id="btn-modal-annulla" class="btn-reset">Annulla</button>
+                  <button type="submit" id="btn-modal-applica" class="btn-primary">Applica Punti</button>
+              </div>
+          </form>
+      </div>
+  </div>
+  
+  <div id="loader-overlay" class="loader-overlay" style="display: flex;">
+      <div class="loader-spinner"></div>
+      <p>Caricamento dati...</p>
+  </div>
+
+
   <script src="segnapunti.js"></script>
   
   <script>
