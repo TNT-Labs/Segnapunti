@@ -11,7 +11,7 @@
   --sfondo-rimuovi: #c62828;
   --colore-pulsante-custom: #008CBA;
   --colore-reset: #c62828; 
-  --colore-blocco: rgba(0, 0, 0, 0.6); /* Scuro semi-trasparente */
+  --colore-blocco: rgba(0, 0, 0, 0.6); 
 }
 
 /* --- Dark Mode Variables --- */
@@ -30,6 +30,7 @@ body.dark-mode {
 body.dark-mode h1, body.dark-mode .giocatore-nome {
   color: var(--colore-primario);
 }
+/* ... (Mantenere il resto degli stili Dark Mode) ... */
 body.dark-mode h3 {
   color: var(--colore-secondario);
   border-bottom-color: #333;
@@ -103,7 +104,7 @@ h1 {
   font-size: 2em;
 }
 
-/* 🚩 NUOVO: Stili per i pulsanti di navigazione */
+/* 🚩 Stili per i pulsanti di navigazione */
 .top-buttons {
     display: flex;
     gap: 8px;
@@ -126,7 +127,6 @@ h1 {
     background: var(--colore-primario);
 }
 #toggle-dark-mode {
-    /* Sovrascrivi lo stile generico per mantenere l'aspetto icona */
     background: none !important;
     border: 1px solid var(--colore-primario) !important;
     color: var(--colore-primario) !important;
@@ -147,7 +147,7 @@ body.dark-mode #toggle-dark-mode {
   color: var(--colore-card) !important;
 }
 
-/* Separatore per dividere la gestione dalla configurazione */
+/* Separatore */
 .separator {
     border: none;
     border-top: 1px dashed #ccc;
@@ -205,7 +205,7 @@ body.dark-mode h3 {
     border-bottom-color: #333;
 }
 
-/* Form Aggiungi Giocatore (Miglioramento UX) */
+/* Form Aggiungi Giocatore */
 .aggiungi-giocatore-form {
     display: flex;
     gap: 10px;
@@ -233,7 +233,7 @@ input[type="text"], input[type="number"], select {
   width: 100%;
   box-sizing: border-box;
   transition: border-color 0.3s;
-  min-height: 48px; /* Target minimo per l'usabilità mobile */
+  min-height: 48px; 
 }
 
 /* Bottoni principali */
@@ -264,7 +264,7 @@ input[type="text"], input[type="number"], select {
   margin-bottom: 10px;
   position: relative;
 }
-/* 🚩 NUOVO: Overlay Partita Terminata */
+/* Overlay Partita Terminata (Blocca interazione) */
 .giocatore-item.game-over::after {
     content: '';
     position: absolute;
@@ -272,13 +272,13 @@ input[type="text"], input[type="number"], select {
     left: 0;
     right: 0;
     bottom: 0;
-    background: var(--colore-blocco); /* Blocco visuale */
+    background: var(--colore-blocco); 
     border-radius: 8px;
-    pointer-events: none; /* Consente al mouse di interagire con il vincitore */
+    pointer-events: none; 
     z-index: 10;
 }
 .giocatore-item.game-over.winner-highlight::after {
-    display: none; /* Il vincitore non viene bloccato dall'overlay */
+    display: none; 
 }
 
 /* Highlight Vincitore */
@@ -342,7 +342,7 @@ body.dark-mode .giocatore-punti {
   background: #006b8c;
 }
 
-/* Stile Messaggio Vincitore (Più impatto) */
+/* Stile Messaggio Vincitore */
 .winner {
     text-align: center;
     padding: 15px;
@@ -387,6 +387,59 @@ body.dark-mode .winner {
   color: #F44336 !important; 
   animation: scaleBounce 0.3s ease-in-out;
 }
+
+/* 🚩 NUOVO: Stili per la Lista Storico */
+.storico-lista {
+    list-style: none;
+    padding: 0;
+}
+.storico-item {
+    background: var(--colore-card);
+    border: 1px solid #ddd;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    transition: background-color 0.3s;
+}
+body.dark-mode .storico-item {
+    border-color: #333;
+    box-shadow: 0 2px 4px rgba(255, 255, 255, 0.05);
+}
+.storico-header {
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #eee;
+}
+body.dark-mode .storico-header {
+    border-bottom: 1px solid #333;
+}
+.storico-vincitore {
+    color: var(--colore-primario);
+    font-size: 1.1em;
+}
+.storico-data {
+    font-size: 0.85em;
+    color: #888;
+}
+.storico-details p {
+    margin: 5px 0;
+    font-size: 0.9em;
+}
+.storico-details strong {
+    font-weight: 700;
+    /* Usa un colore che si distingue ma che non sia solo per i vincitori in gioco */
+    color: var(--colore-vincitore); 
+}
+.giocatori-list {
+    font-style: italic;
+    line-height: 1.4;
+    font-size: 0.85em !important;
+}
+
 
 /* Media Query per Desktop/Tablet (layout orizzontale) */
 @media (min-width: 501px) {
