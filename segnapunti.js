@@ -3,7 +3,7 @@ let punteggioObiettivo = 100;
 let giocatori = [];
 let partitaTerminata = false; 
 
-// 🚩 NUOVO: Costanti IndexedDB
+// 🚩 Costanti IndexedDB
 const DB_NAME = 'SegnapuntiDB';
 const DB_VERSION = 1;
 const STORE_NAME = 'stato_partita';
@@ -11,21 +11,24 @@ const STATE_KEY = 'current_state';
 
 let db; // Variabile globale per il database
 
-// Le funzioni pubbliche per settings.html rimangono invariate nel loro scopo
+// -------------------------------------------------------------------
+// 🚩 Funzioni Pubbliche per settings.html (salvano solo lo stato)
+// -------------------------------------------------------------------
+
 window.setModalitaVittoria = (value) => {
     modalitaVittoria = value;
-    salvaStato();
+    salvaStato(); 
 };
 
 window.setPunteggioObiettivo = (value) => {
     punteggioObiettivo = value;
-    salvaStato();
+    salvaStato(); 
 };
 
 window.resetPartita = resetPartita; // Espone la funzione reset
 
 // -------------------------------------------------------------------
-// 🚩 IMPLEMENTAZIONE CRITICA: LOGICA ASINCRONA INDEXEDDB
+// 🚩 LOGICA ASINCRONA INDEXEDDB
 // -------------------------------------------------------------------
 
 /**
@@ -122,9 +125,6 @@ function salvaStato() {
         
         const request = store.put(stato); // put() sovrascrive se la chiave esiste
 
-        request.onsuccess = () => {
-            // console.log("[IndexedDB] Stato salvato con successo.");
-        };
         request.onerror = (event) => {
             console.error("[IndexedDB] Errore nel salvataggio dello stato:", event.target.error);
         };
@@ -134,14 +134,14 @@ function salvaStato() {
 }
 
 // -------------------------------------------------------------------
-// 🚩 LOGICA DOMContentLoaded
+// 🚩 LOGICA DOMContentLoaded (Inizializzazione)
 // -------------------------------------------------------------------
 
 document.addEventListener('DOMContentLoaded', async function() {
   await caricaStato(); // Caricamento Asincrono (IndexedDB)
   await requestPersistentStorage();
 
-  // 🚩 NUOVO: Gestione specifica in base alla pagina
+  // Gestione specifica in base alla pagina
   if (document.getElementById('giocatori-lista')) {
       // LOGICA PER index.html (Pagina Partita)
       
@@ -170,7 +170,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 });
 
 // -------------------------------------------------------------------
-// 🚩 FUNZIONI CORE (Aggiornate per usare salvaStato())
+// 🚩 FUNZIONI CORE
 // -------------------------------------------------------------------
 
 /**
@@ -180,16 +180,14 @@ async function requestPersistentStorage() {
     if (navigator.storage && navigator.storage.persist) {
         const isPersisted = await navigator.storage.persisted();
         if (isPersisted) {
-            console.log("Storage già persistente.");
             return true;
         }
         
         const granted = await navigator.storage.persist();
         if (granted) {
-            console.log("Persistenza storage garantita.");
             return true;
         } else {
-            console.warn("Storage persistente negato. I dati potrebbero essere cancellati (rischio su iOS).");
+            console.warn("Storage persistente negato. I dati potrebbero essere cancellati.");
             return false;
         }
     }
@@ -203,6 +201,7 @@ function resetPartita() {
     partitaTerminata = false;
     salvaStato(); // Salva lo stato resettato
     
+    // Forziamo il reindirizzamento se siamo in settings.html
     if (document.getElementById('impostazioni-partita')) {
         window.location.href = 'index.html';
     } else {
@@ -260,7 +259,7 @@ function aggiungiGiocatore() {
   if (nome) {
     giocatori.push({ nome: nome, punti: 0 });
     nomeInput.value = '';
-    salvaStato(); // Salva
+    salvaStato(); 
     aggiornaListaGiocatori();
   }
 }
@@ -269,7 +268,7 @@ function rimuoviGiocatore(index) {
   if (partitaTerminata) return; 
   
   giocatori.splice(index, 1);
-  salvaStato(); // Salva
+  salvaStato(); 
   aggiornaListaGiocatori();
   controllaVittoria();
 }
@@ -289,7 +288,7 @@ function modificaPunteggio(index, delta) {
     puntiElement.querySelector('strong').textContent = giocatori[index].punti;
   }
 
-  salvaStato(); // Salva
+  salvaStato(); 
   aggiornaListaGiocatori();
   controllaVittoria();
 }
@@ -390,7 +389,7 @@ function controllaVittoria() {
         <span class="fireworks">🎉</span>
     `;
     
-    salvaStato(); // Salva lo stato "partita terminata"
+    salvaStato(); 
     
   } else {
     if (partitaTerminata) {
@@ -405,10 +404,10 @@ function controllaVittoria() {
 
 function toggleDarkMode() {
   document.body.classList.toggle('dark-mode');
-  salvaStato(); // Salva la preferenza Dark Mode
+  salvaStato(); 
 }
 
-// Esponi le funzioni solo sulla pagina index.html per la gestione UI
+// Espone le funzioni solo sulla pagina index.html per la gestione UI
 if (document.getElementById('giocatori-lista')) {
     window.aggiungiGiocatore = aggiungiGiocatore;
     window.rimuoviGiocatore = rimuoviGiocatore;
