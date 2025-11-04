@@ -10,7 +10,7 @@
   --colore-rimuovi: #e57373;
   --sfondo-rimuovi: #c62828;
   --colore-pulsante-custom: #008CBA;
-  --colore-reset: #c62828; /* Rosso più scuro per il reset */
+  --colore-reset: #c62828; 
 }
 
 /* --- Dark Mode Variables --- */
@@ -128,13 +128,13 @@ button:active {
 }
 
 /* Pulsanti Specifici */
-.btn-primary { /* Pulsante Aggiungi */
+.btn-primary { 
     background: var(--colore-primario);
 }
 .btn-primary:hover {
     background: var(--colore-secondario);
 }
-.btn-reset { /* Pulsante Nuova Partita */
+.btn-reset { 
     background: var(--colore-reset);
 }
 .btn-reset:hover {
@@ -174,7 +174,7 @@ h3 {
 }
 .aggiungi-giocatore-form input {
     flex-grow: 1;
-    margin-bottom: 0; /* Rimuove lo spazio extra sotto l'input */
+    margin-bottom: 0; 
 }
 .aggiungi-giocatore-form button {
     flex-shrink: 0;
@@ -224,7 +224,12 @@ input[type="text"], input[type="number"], select {
   padding: 12px 15px;
   margin-bottom: 10px;
 }
-/* ... (Mantenuti stili per vincitore, punti, controlli, animazioni) ... */
+/* Highlight Vincitore */
+.giocatore-item.winner-highlight {
+  background: #e9f5e9; 
+  border: 2px solid var(--bordo-vincitore);
+  box-shadow: 0 0 10px rgba(212, 237, 218, 0.8);
+}
 .giocatore-punti {
   font-size: 1.1em;
   color: #555;
