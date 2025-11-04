@@ -21,13 +21,16 @@ document.addEventListener('DOMContentLoaded', function() {
   });
   
   // Event Listeners per i giocatori
-  document.getElementById('nuovo-giocatore').addEventListener('keydown', function(e) {
+  const nuovoGiocatoreInput = document.getElementById('nuovo-giocatore');
+  
+  nuovoGiocatoreInput.addEventListener('keydown', function(e) {
     if (e.key === 'Enter') {
       e.preventDefault();
       aggiungiGiocatore();
     }
   });
   
+  // Utilizza l'ID del nuovo pulsante 'Aggiungi'
   document.getElementById('btn-aggiungi-giocatore').addEventListener('click', aggiungiGiocatore);
   document.getElementById('btn-nuova-partita').addEventListener('click', resetPartita);
   
@@ -84,6 +87,10 @@ function aggiornaListaGiocatori() {
   lista.innerHTML = '';
   const vincitoriNomi = getVincitoriNomi();
   
+  if (giocatori.length === 0) {
+      lista.innerHTML = '<p class="empty-state">Nessun giocatore. Aggiungi i partecipanti qui sopra per iniziare!</p>';
+  }
+
   giocatori.forEach((g, i) => {
     const li = document.createElement('li');
     li.className = `giocatore-item ${vincitoriNomi.includes(g.nome) ? 'winner-highlight' : ''}`;
@@ -137,16 +144,14 @@ function modificaPunteggio(index, delta) {
   }
 
   salvaStato();
-  aggiornaListaGiocatori(); // Aggiorna per i valori corretti e l'highlight del vincitore
+  aggiornaListaGiocatori();
   controllaVittoria();
 }
 
-// Funzione per chiedere un punteggio personalizzato
 function chiediPunteggioPersonalizzato(index) {
   const nomeGiocatore = giocatori[index].nome;
   const punteggioAttuale = giocatori[index].punti;
   
-  // Sostituisci con una modal se l'app cresce. Per ora, prompt è sufficiente.
   let input = prompt(`Inserisci il DELTA (es. 15, -10) o il NUOVO PUNTEGGIO (preceduto da '=') per ${nomeGiocatore}:\nPunti attuali: ${punteggioAttuale}`);
   
   if (input === null || input.trim() === '') return;
@@ -155,7 +160,6 @@ function chiediPunteggioPersonalizzato(index) {
   let delta = 0;
   
   if (input.startsWith('=')) {
-    // Imposta il nuovo punteggio
     let nuovoPunteggio = parseInt(input.substring(1), 10);
     if (!isNaN(nuovoPunteggio)) {
       delta = nuovoPunteggio - punteggioAttuale;
@@ -164,7 +168,6 @@ function chiediPunteggioPersonalizzato(index) {
       return;
     }
   } else {
-    // Aggiungi un delta
     delta = parseInt(input, 10);
     if (isNaN(delta)) {
       alert("Input non valido per l'aggiunta di punti.");
@@ -233,7 +236,7 @@ function controllaVittoria() {
 
 function toggleDarkMode() {
   document.body.classList.toggle('dark-mode');
-  salvaStato(); // Salva anche lo stato della modalità scura
+  salvaStato(); 
 }
 
 window.aggiungiGiocatore = aggiungiGiocatore;
