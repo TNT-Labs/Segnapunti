@@ -56,7 +56,7 @@
         navigator.serviceWorker.register('service-worker.js');
       });
     }
-    // Aggiorna l'icona della modalità scura all'avvio
+    // Aggiorna l'icona della modalità scura all'avvio e al click
     function updateDarkModeIcon() {
       document.getElementById('toggle-dark-mode').textContent = 
         document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
