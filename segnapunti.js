@@ -2,12 +2,13 @@ let modalitaVittoria = 'max';
 let punteggioObiettivo = 100;
 let giocatori = [];
 const STORAGE_KEY = 'segnapunti_stato';
-// Simula la futura migrazione a IndexedDB
+// Variabile per gestire il futuro passaggio a IndexedDB (mantiene l'MVP funzionante su LocalStorage per ora)
 const ASYNC_STORAGE_AVAILABLE = false; 
 
 document.addEventListener('DOMContentLoaded', async function() {
   if (ASYNC_STORAGE_AVAILABLE) {
-    await caricaStatoAsync(); // Futura carica asincrona da IndexedDB
+    // PASSAGGIO MMP: Sostituire con l'implementazione IndexedDB
+    await caricaStatoAsync(); 
   } else {
     caricaStato(); // Carica lo stato salvato (o i default) da LocalStorage
   }
@@ -90,11 +91,11 @@ function salvaStato() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(stato));
 }
 
-// Funzione di salvataggio dello stato (IndexedDB - Asincrona)
+// Funzione di salvataggio dello stato (IndexedDB - Asincrona PLACEHOLDER)
 async function salvaStatoAsync() {
-    // Implementazione IndexedDB qui
+    // Logica IndexedDB qui per salvare lo stato in modo robusto
     console.log("Saving state asynchronously (IndexedDB placeholder)...");
-    salvaStato(); // Fallback
+    salvaStato(); // Fallback a LocalStorage finché l'implementazione IndexedDB non è completa
 }
 
 // Funzione di caricamento dello stato (LocalStorage - Legacy/Sync)
@@ -112,11 +113,11 @@ function caricaStato() {
   }
 }
 
-// Funzione di caricamento dello stato (IndexedDB - Asincrona)
+// Funzione di caricamento dello stato (IndexedDB - Asincrona PLACEHOLDER)
 async function caricaStatoAsync() {
-    // Implementazione IndexedDB qui
+    // Logica IndexedDB qui per caricare lo stato
     console.log("Loading state asynchronously (IndexedDB placeholder)...");
-    caricaStato(); // Fallback
+    caricaStato(); // Fallback a LocalStorage finché l'implementazione IndexedDB non è completa
 }
 
 
@@ -144,7 +145,7 @@ function aggiornaListaGiocatori() {
     // Aggiunto highlight del vincitore
     li.className = `giocatore-item ${vincitoriNomi.includes(g.nome) ? 'winner-highlight' : ''}`;
     
-    // NOTA: I pulsanti hanno bisogno di un dimensionamento minimo 48x48px (DIP) via CSS per UX mobile
+    // NOTA: I pulsanti richiedono uno stile in segnapunti.css per raggiungere il target minimo di 48x48px (DIP)
     li.innerHTML = `
       <span class="giocatore-nome">${g.nome}</span>
       <div class="punti-e-controlli">
@@ -188,6 +189,7 @@ function modificaPunteggio(index, delta) {
   const puntiElement = document.getElementById(`punti-${index}`);
   if (puntiElement) {
     puntiElement.classList.add(delta > 0 ? 'anim-up' : 'anim-down');
+    // Rimuove la classe dopo l'animazione per permettere replay
     puntiElement.addEventListener('animationend', () => {
       puntiElement.classList.remove('anim-up', 'anim-down');
     }, { once: true });
