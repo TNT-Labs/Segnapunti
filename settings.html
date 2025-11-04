@@ -70,20 +70,19 @@
     window.addEventListener('load', updateDarkModeIcon);
     document.getElementById('toggle-dark-mode').addEventListener('click', updateDarkModeIcon);
     
-    // Inizializza gli event listener specifici per settings.html
     document.addEventListener('DOMContentLoaded', function() {
         
-        // 🚩 CORREZIONE BUG: Aggiorna lo stato E reindirizza subito alla pagina di gioco
+        // 🚩 CORREZIONE: Ora salva lo stato MA NON reindirizza
         document.getElementById('modalita-vittoria').addEventListener('change', function() {
             setModalitaVittoria(this.value);
-            window.location.href = 'index.html'; 
+            // Il reindirizzamento avverrà solo quando l'utente clicca '◀️ Partita'
         });
         
-        // 🚩 CORREZIONE BUG: Aggiorna lo stato E reindirizza subito alla pagina di gioco
+        // 🚩 CORREZIONE: Ora salva lo stato MA NON reindirizza
         document.getElementById('punteggio-obiettivo').addEventListener('input', function() {
             const val = parseInt(this.value, 10);
             setPunteggioObiettivo(val > 0 ? val : 1);
-            window.location.href = 'index.html'; 
+            // Il reindirizzamento avverrà solo quando l'utente clicca '◀️ Partita'
         });
         
         document.getElementById('btn-nuova-partita').addEventListener('click', resetPartita);
