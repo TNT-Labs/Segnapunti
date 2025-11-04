@@ -1,86 +1,236 @@
+:root {
+  --colore-primario: #2a4d69;
+  --colore-secondario: #4b86b4;
+  --colore-sfondo: #f4f6fb;
+  --colore-card: #ffffff;
+  --colore-testo: #222;
+  --colore-vincitore: #155724;
+  --sfondo-vincitore: #d4edda;
+  --bordo-vincitore: #c3e6cb;
+  --colore-rimuovi: #e57373;
+  --sfondo-rimuovi: #c62828;
+}
+
 body {
-  font-family: 'Segoe UI', Arial, sans-serif;
-  background: #f4f6fb;
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif; /* Font più moderno (presupponendo Inter disponibile o fallback) */
+  background: var(--colore-sfondo);
   margin: 0;
   padding: 0;
-  color: #222;
+  color: var(--colore-testo);
+  line-height: 1.6;
 }
+
 .container {
-  max-width: 500px;
+  max-width: 550px; /* Leggermente più ampio */
   margin: 40px auto;
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 2px 16px rgba(0,0,0,0.08);
-  padding: 32px 24px 24px 24px;
+  background: var(--colore-card);
+  border-radius: 16px; /* Bordi più arrotondati */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Ombra più pronunciata */
+  padding: 32px 24px;
 }
+
 h1 {
   text-align: center;
-  color: #2a4d69;
-  margin-bottom: 8px;
+  color: var(--colore-primario);
+  margin-bottom: 20px;
+  font-weight: 700;
+  font-size: 2em;
 }
+
 h3 {
-  color: #4b86b4;
-  margin-top: 24px;
-  margin-bottom: 8px;
+  color: var(--colore-secondario);
+  margin-top: 28px;
+  margin-bottom: 12px;
+  border-bottom: 2px solid #e0e0e0;
+  padding-bottom: 5px;
+  font-weight: 600;
 }
+
 label {
   display: block;
-  margin: 12px 0 6px 0;
+  margin: 15px 0 8px 0;
   font-weight: 500;
+  color: #555;
 }
-input, select, button {
+
+input[type="text"], input[type="number"], select {
   font-size: 1em;
-  padding: 8px;
-  border-radius: 6px;
+  padding: 10px 12px;
+  border-radius: 8px;
   border: 1px solid #bfc9d1;
-  margin-bottom: 10px;
   width: 100%;
   box-sizing: border-box;
+  transition: border-color 0.3s;
 }
+
+input:focus, select:focus {
+  border-color: var(--colore-primario);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(42, 77, 105, 0.2);
+}
+
+/* Stile per i pulsanti */
 button {
-  background: #2a4d69;
-  color: #fff;
+  font-size: 0.9em;
+  padding: 8px 12px;
+  border-radius: 6px;
   border: none;
   cursor: pointer;
-  transition: background 0.2s;
-  margin-top: 10px;
+  transition: background 0.2s, transform 0.1s;
+  color: #fff;
+  background: var(--colore-primario);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
+
 button:hover {
-  background: #4b86b4;
+  background: var(--colore-secondario);
 }
+
+button:active {
+  transform: translateY(1px);
+}
+
+/* Pulsante Aggiungi Giocatore */
+#giocatori-section button {
+  width: 100%;
+  margin-top: 15px;
+  font-weight: 600;
+  padding: 10px;
+}
+
+/* Lista Giocatori */
 .giocatori-lista {
-  margin: 16px 0;
+  margin: 20px 0;
   padding: 0;
   list-style: none;
 }
+
 .giocatore-item {
+  display: flex;
+  flex-direction: column; /* Colonna su mobile, riga su desktop */
+  align-items: flex-start;
+  background: #f0f4fa;
+  border-radius: 8px;
+  padding: 12px 15px;
+  margin-bottom: 10px;
+  transition: background 0.3s, box-shadow 0.3s;
+}
+
+/* Stile per il vincitore */
+.giocatore-item.winner-highlight {
+  background: #e9f5e9; /* Sfondo più chiaro per l'highlight */
+  border: 2px solid var(--bordo-vincitore);
+  box-shadow: 0 0 10px rgba(212, 237, 218, 0.8);
+}
+
+.giocatore-nome {
+  font-weight: 600;
+  font-size: 1.1em;
+  color: var(--colore-primario);
+  margin-bottom: 5px;
+}
+
+.punti-e-controlli {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #f0f4fa;
-  border-radius: 6px;
-  padding: 8px 12px;
-  margin-bottom: 8px;
+  width: 100%;
+  margin-top: 5px;
 }
-.giocatore-nome {
+
+.giocatore-punti {
+  font-size: 1.1em;
+  color: #555;
   font-weight: 500;
+  min-width: 100px;
 }
+
+.giocatore-punti strong {
+  font-weight: 700;
+  color: var(--colore-primario);
+  font-size: 1.2em;
+}
+
 .punteggio-controls {
   display: flex;
-  gap: 6px;
+  gap: 4px; /* Spazio ridotto tra i pulsanti di controllo */
+  flex-wrap: wrap; /* Permette l'andata a capo su schermi molto piccoli */
 }
+
+/* Stili specifici per i pulsanti di controllo punteggio */
+.punteggio-controls button {
+  padding: 6px 8px;
+  font-size: 0.85em;
+  min-width: 35px; /* Assicura che siano facili da toccare */
+}
+
+.punteggio-controls .btn-rimuovi {
+  background: var(--colore-rimuovi);
+  color: #fff;
+}
+
+.punteggio-controls .btn-rimuovi:hover {
+  background: var(--sfondo-rimuovi);
+}
+
+/* Messaggio Vincitore */
 .winner {
-  background: #d4edda;
-  color: #155724;
-  border: 1px solid #c3e6cb;
-  padding: 10px;
-  border-radius: 6px;
-  margin-top: 16px;
+  background: var(--sfondo-vincitore);
+  color: var(--colore-vincitore);
+  border: 1px solid var(--bordo-vincitore);
+  padding: 15px;
+  border-radius: 10px;
+  margin-top: 25px;
   text-align: center;
   font-weight: bold;
+  font-size: 1.1em;
+  box-shadow: 0 2px 8px rgba(212, 237, 218, 0.5);
 }
-@media (max-width: 600px) {
+
+/* Media Query per Desktop/Tablet (layout orizzontale) */
+@media (min-width: 501px) {
+  .giocatore-item {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+  }
+  .giocatore-nome {
+    margin-bottom: 0;
+    flex-basis: 30%;
+  }
+  .punti-e-controlli {
+    width: auto;
+    flex-grow: 1;
+    justify-content: flex-end; /* Sposta i controlli a destra */
+  }
+  .giocatore-punti {
+    margin-right: 20px;
+    text-align: right;
+  }
+}
+
+/* Media Query per schermi molto piccoli (mobile) */
+@media (max-width: 500px) {
   .container {
-    padding: 16px 4px;
+    margin: 10px auto;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 20px 15px;
+  }
+  h1 {
+    font-size: 1.8em;
+  }
+  .punteggio-controls {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 5px; /* Spazio per scroll orizzontale */
+  }
+  .punteggio-controls button {
+    min-width: 45px;
+    flex-shrink: 0;
+  }
+  .giocatore-punti {
+    font-size: 1em;
   }
 }
