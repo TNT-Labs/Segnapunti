@@ -1,0 +1,86 @@
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: #f4f6fb;
+  margin: 0;
+  padding: 0;
+  color: #222;
+}
+.container {
+  max-width: 500px;
+  margin: 40px auto;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+  padding: 32px 24px 24px 24px;
+}
+h1 {
+  text-align: center;
+  color: #2a4d69;
+  margin-bottom: 8px;
+}
+h3 {
+  color: #4b86b4;
+  margin-top: 24px;
+  margin-bottom: 8px;
+}
+label {
+  display: block;
+  margin: 12px 0 6px 0;
+  font-weight: 500;
+}
+input, select, button {
+  font-size: 1em;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #bfc9d1;
+  margin-bottom: 10px;
+  width: 100%;
+  box-sizing: border-box;
+}
+button {
+  background: #2a4d69;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-top: 10px;
+}
+button:hover {
+  background: #4b86b4;
+}
+.giocatori-lista {
+  margin: 16px 0;
+  padding: 0;
+  list-style: none;
+}
+.giocatore-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f0f4fa;
+  border-radius: 6px;
+  padding: 8px 12px;
+  margin-bottom: 8px;
+}
+.giocatore-nome {
+  font-weight: 500;
+}
+.punteggio-controls {
+  display: flex;
+  gap: 6px;
+}
+.winner {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+  padding: 10px;
+  border-radius: 6px;
+  margin-top: 16px;
+  text-align: center;
+  font-weight: bold;
+}
+@media (max-width: 600px) {
+  .container {
+    padding: 16px 4px;
+  }
+}
