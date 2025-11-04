@@ -12,20 +12,26 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"> 
   
   <link rel="apple-touch-icon" href="icon-192.png"> 
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet"> 
+  
   <link rel="stylesheet" href="segnapunti.css">
 
   <style>
+      /* Stili di fallback o generali */
       body {
           background-color: #212121 !important; 
           margin: 0;
           padding: 0;
-          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+          /* Ora il font viene gestito dal CSS principale */
+          font-family: 'Inter', sans-serif; 
       }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="header-controls">
+    <div class="header-controls fixed-header"> 
       <h1>🂠 Punteggi Attuali</h1>
       <div class="top-buttons">
           <button id="btn-history" title="Storico Partite" onclick="window.location.href='storico.html'">📜</button>
@@ -40,6 +46,7 @@
       <ul class="giocatori-lista" id="giocatori-lista-partita">
         </ul>
     </div>
+
     <div id="winner-message" class="winner" style="display:none;" role="alert"></div>
 
   </div>
