@@ -1,4 +1,4 @@
-const CACHE_NAME = 'segnapunti-cache-v1.0.7'; // AGGIORNATO: Versione incrementata
+const CACHE_NAME = 'segnapunti-cache-v1.0.7'; 
 // Lista degli asset essenziali per il funzionamento offline
 const ASSETS_TO_CACHE = [
   '/', 
