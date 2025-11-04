@@ -16,8 +16,22 @@
       <button id="toggle-dark-mode" title="Attiva/Disattiva Modalità Scura">🌙</button>
     </div>
     
-    <div id="impostazioni-partita">
-      <h3>Impostazioni Partita</h3>
+    <div id="giocatori-section">
+      <h3>Giocatori in Partita</h3>
+      
+      <ul class="giocatori-lista" id="giocatori-lista">
+        </ul>
+
+      <div class="aggiungi-giocatore-form">
+        <input type="text" id="nuovo-giocatore" placeholder="Nome nuovo giocatore" aria-label="Nome nuovo giocatore">
+        <button id="btn-aggiungi-giocatore" class="btn-primary">Aggiungi</button>
+      </div>
+    </div>
+
+    <div id="winner-message" class="winner" style="display:none;" role="alert"></div>
+
+    <hr class="separator"> <div id="impostazioni-partita">
+      <h3>Configurazione Partita</h3>
       
       <label for="modalita-vittoria">Modalità di vittoria:</label>
       <select id="modalita-vittoria">
@@ -29,23 +43,9 @@
       <input type="number" id="punteggio-obiettivo" min="1" value="100">
       
       <div class="action-buttons">
-        <button id="btn-nuova-partita" style="background: #e57373;">Inizia Nuova Partita (Reset)</button>
+        <button id="btn-nuova-partita" class="btn-reset">Inizia Nuova Partita (Reset Punti)</button>
       </div>
     </div>
-    
-    <div id="giocatori-section">
-      <h3>Gestione Giocatori</h3>
-      
-      <div class="aggiungi-giocatore-form">
-        <input type="text" id="nuovo-giocatore" placeholder="Nome nuovo giocatore" aria-label="Nome nuovo giocatore">
-        <button id="btn-aggiungi-giocatore">Aggiungi Giocatore</button>
-      </div>
-      
-      <ul class="giocatori-lista" id="giocatori-lista">
-        </ul>
-    </div>
-    
-    <div id="winner-message" class="winner" style="display:none;" role="alert"></div>
   </div>
   
   <script src="segnapunti.js"></script>
@@ -57,11 +57,12 @@
       });
     }
     // Aggiorna l'icona della modalità scura all'avvio
-    document.getElementById('toggle-dark-mode').textContent = 
-      document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
-    document.getElementById('toggle-dark-mode').addEventListener('click', function() {
-      this.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
-    });
+    function updateDarkModeIcon() {
+      document.getElementById('toggle-dark-mode').textContent = 
+        document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
+    }
+    window.addEventListener('load', updateDarkModeIcon);
+    document.getElementById('toggle-dark-mode').addEventListener('click', updateDarkModeIcon);
   </script>
 </body>
 </html>
