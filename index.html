@@ -17,12 +17,11 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet"> 
   
   <link rel="stylesheet" href="segnapunti.css">
-
-  </head>
+</head>
 <body>
   <div class="container">
     <div class="header-controls fixed-header"> 
-      <h1>🂠 Punteggi Attuali</h1>
+      <h1>🃏 Punteggi Attuali</h1>
       <div class="top-buttons">
           <button id="btn-history" title="Storico Partite" onclick="window.location.href='storico.html'">📜</button>
           <button id="btn-settings" title="Impostazioni Partita" onclick="window.location.href='settings.html'">⚙️</button>
@@ -31,10 +30,10 @@
     </div>
     
     <div class="winner-message" id="winner-message" style="display: none;">
-      </div>
+    </div>
     
     <ul class="giocatori-lista" id="giocatori-lista-partita">
-      </ul>
+    </ul>
     
     <hr class="separator">
 
@@ -66,11 +65,9 @@
       <p>Caricamento dati...</p>
   </div>
 
-
   <script src="segnapunti.js"></script>
   
   <script>
-    // CORREZIONE 3: Aggiunta della logica di registrazione del Service Worker
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('service-worker.js')
