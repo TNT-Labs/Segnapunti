@@ -312,7 +312,7 @@ function applicaPunteggioPersonalizzato(punti = null) {
 }
 
 // FIX: Funzione separata per animazione con cleanup
-function animaPunteggio(index, delta) {
+/* function animaPunteggio(index, delta) {
     const puntiElement = document.getElementById(`punti-${index}`);
     if (!puntiElement) return;
     
@@ -339,6 +339,39 @@ function animaPunteggio(index, delta) {
     
     // Fallback nel caso animationend non venga triggerato
     setTimeout(cleanup, 500);
+}*/
+function animaPunteggio(giocatoreElement, puntiAggiunti) {
+    // 1. Esegue la "scossa" o l'evidenza sulla card (se già presente)
+    giocatoreElement.classList.add('punti-aggiornati');
+    setTimeout(() => {
+        giocatoreElement.classList.remove('punti-aggiornati');
+    }, 500);
+
+    // 2. CREA L'ELEMENTO POP-UP
+    const popUp = document.createElement('span');
+    
+    // Formatta il testo: "+10" o "-5"
+    const isPositivo = puntiAggiunti >= 0;
+    const testoPopUp = (isPositivo ? '+' : '') + puntiAggiunti;
+    
+    popUp.textContent = testoPopUp;
+    popUp.className = 'punti-popup ' + (isPositivo ? 'positive' : 'negative');
+    
+    // Troviamo il contenitore dei punti per posizionare il pop-up vicino
+    const punteggioElement = giocatoreElement.querySelector('.giocatore-punti');
+    
+    if (punteggioElement) {
+        // Aggiungi il pop-up all'elemento del punteggio
+        punteggioElement.appendChild(popUp);
+    } else {
+        // Fallback: Aggiungi al div principale se non trovi .giocatore-punti
+        giocatoreElement.appendChild(popUp);
+    }
+
+    // 3. Rimuovi l'elemento dopo l'animazione
+    setTimeout(() => {
+        popUp.remove();
+    }, 1000); // 1000ms (1 secondo) deve essere >= della durata dell'animazione CSS
 }
 
 function updateGameControls() {
@@ -472,6 +505,19 @@ document.addEventListener('DOMContentLoaded', async function() {
       await renderStoricoPartite();
   }
   
+  // NUOVO: Gestore per il pulsante Cancella Input nella modale
+  const btnCancella = document.getElementById('btn-cancella-input');
+  const inputPunteggio = document.getElementById('input-punteggio-personalizzato');
+
+  if (btnCancella && inputPunteggio) {
+      btnCancella.addEventListener('click', (e) => {
+          e.preventDefault(); // Impedisce l'invio del form
+          inputPunteggio.value = ''; // Azzera il campo
+          inputPunteggio.focus(); // Riporta il focus sul campo per l'inserimento
+      });
+  }
+
+
   // FIX: Nascondi loader dopo rendering completo
   if (loader) {
       setTimeout(() => {

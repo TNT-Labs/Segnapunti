@@ -356,6 +356,33 @@ body.dark-mode .giocatore-punti {
   margin-right: 5px;
   line-height: 1;
 }
+/* Introdotto a nuovo per gestione effetto su punti*/
+
+.punti-popup {
+  position: absolute;
+  top: -5px; /* Inizialmente posizionato leggermente sopra */
+  right: -5px; /* Posizionato a destra del punteggio */
+  font-size: 1.2em;
+  font-weight: 800;
+  opacity: 1;
+  pointer-events: none; /* Rende l'elemento non interattivo */
+  transition: transform 0.8s ease-out, opacity 0.8s ease-out; /* Durata dell'animazione */
+  z-index: 10;
+}
+
+.punti-popup.positive {
+  color: var(--colore-vincitore); /* Usa il colore del vincitore per i punti positivi */
+}
+
+.punti-popup.negative {
+  color: var(--colore-rimuovi); /* Usa il colore di rimozione per i punti negativi */
+}
+
+/* Stato finale dell'animazione: svanisce e si sposta più in alto */
+.giocatore-punti .punti-popup {
+  transform: translateY(-20px); /* Sposta l'elemento in alto */
+  opacity: 0; /* Lo fa svanire */
+}
 
 .punti-e-controlli {
   display: flex;
@@ -619,4 +646,33 @@ body.dark-mode .winner {
   .punteggio-controls button:nth-child(4) {
       display: block; /* Riattiva +/- 5 */
   }
+}
+/* Stile per il contenitore input + pulsante Cancella */
+.input-with-clear {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+/* Stile per l'input per lasciare spazio al pulsante */
+.input-with-clear input {
+  width: 100%;
+  padding-right: 40px; /* Spazio per il pulsante */
+}
+
+/* Stile per il pulsante Cancella */
+.btn-clear-input {
+  position: absolute;
+  top: 50%;
+  right: 5px;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2em;
+  color: var(--colore-secondario);
+  padding: 5px;
+}
+
+.btn-clear-input:hover {
+  color: var(--colore-reset);
 }
