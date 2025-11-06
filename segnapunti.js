@@ -24,7 +24,11 @@ function resetPartita() {
         return;
     }
     
-    giocatori = [];
+    // Azzeramento dei punti per i giocatori esistenti
+    giocatori.forEach(giocatore => {
+        giocatore.punti = 0;
+    });
+    
     partitaTerminata = false;
     salvaStato();
     window.location.href = 'index.html';
