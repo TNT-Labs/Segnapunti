@@ -388,10 +388,16 @@ document.addEventListener('DOMContentLoaded', async function() {
       
       // FIX: Chiudi modale con ESC
       document.addEventListener('keydown', (e) => {
-          if (e.key === 'Escape') {
-              nascondiModalPunteggio();
-          }
-      });
+        if (e.key === 'Escape') {
+            nascondiModalPunteggio();
+        }
+    });
+    
+    // Setup pulsante Ricomincia Partita
+    const btnRicomincia = document.getElementById('btn-ricomincia-partita');
+    if (btnRicomincia) {
+        btnRicomincia.addEventListener('click', resetPartita);
+    }
       
   } else if (document.getElementById('impostazioni-partita')) {
       // LOGICA PER settings.html

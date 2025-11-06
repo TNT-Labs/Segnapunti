@@ -62,7 +62,21 @@ body.dark-mode button:hover:not(.btn-rimuovi, .btn-custom-score, #toggle-dark-mo
   background: var(--colore-primario);
 }
 body.dark-mode .winner {
+  background-color: var(--sfondo-vincitore);
   color: var(--colore-vincitore);
+}
+
+/* Stili per pulsante Ricomincia Partita */
+.game-over-actions {
+  text-align: center;
+  margin: 20px 0;
+}
+.game-over-actions button {
+  font-size: 1.1em;
+  padding: 15px 30px;
+  font-weight: 700;
+  min-width: 250px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 body.dark-mode .separator {
     border-top: 1px dashed #333;
