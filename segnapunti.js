@@ -237,6 +237,10 @@ async function requestPersistentStorage() {
 
 function mostraModalPunteggio(index) {
   if (partitaTerminata) return; 
+  
+  // FIX: Previeni apertura involontaria
+  if (index < 0 || index >= giocatori.length) return;
+  
   globalPlayerIndexToUpdate = index;
   
   const modal = document.getElementById('modal-overlay');
@@ -255,8 +259,14 @@ function mostraModalPunteggio(index) {
 
 function nascondiModalPunteggio() {
     const modal = document.getElementById('modal-overlay');
-    if (modal) modal.style.display = 'none';
+    if (modal) {
+        modal.style.display = 'none';
+    }
     globalPlayerIndexToUpdate = -1;
+    
+    // FIX: Pulisci l'input quando chiudi
+    const input = document.getElementById('punteggio-input-custom');
+    if (input) input.value = '';
 }
 
 function applicaPunteggioPersonalizzato(punti = null) {
@@ -329,6 +339,10 @@ document.addEventListener('DOMContentLoaded', async function() {
   
   const loader = document.getElementById('loader-overlay');
   if (loader) loader.style.display = 'flex'; 
+  
+  // FIX: Assicurati che la modale sia nascosta all'avvio
+  const modal = document.getElementById('modal-overlay');
+  if (modal) modal.style.display = 'none';
 
   await caricaStato(); 
   await requestPersistentStorage();
