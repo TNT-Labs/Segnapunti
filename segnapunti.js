@@ -113,6 +113,11 @@ async function caricaStato() {
                     giocatori = state.giocatori || [];
                     partitaTerminata = state.partitaTerminata || false;
                     
+                    if (document.getElementById('giocatori-lista')) {
+                        renderGiocatoriPartita();
+                        // OPPURE
+                        updateGameControls(); // Se renderGiocatoriPartita non la chiama già
+                    }
                     if (state.darkMode) {
                         document.body.classList.add('dark-mode');
                     }
@@ -334,6 +339,25 @@ function animaPunteggio(index, delta) {
     
     // Fallback nel caso animationend non venga triggerato
     setTimeout(cleanup, 500);
+}
+
+function updateGameControls() {
+    const gameOverActions = document.getElementById('game-over-actions');
+    const aggiungiGiocatoreBtn = document.getElementById('btn-aggiungi-giocatore');
+
+    if (gameOverActions) {
+        // Logica per mostrare il pulsante "Ricomincia Partita"
+        if (partitaTerminata) {
+            gameOverActions.style.display = 'flex'; // Usa 'flex' perché il tuo CSS usa .game-over-actions come flex container
+        } else {
+            gameOverActions.style.display = 'none';
+        }
+    }
+    
+    // BONUS: Potresti voler nascondere il pulsante "Aggiungi Giocatore" se la partita è terminata
+    if (aggiungiGiocatoreBtn) {
+        aggiungiGiocatoreBtn.style.display = partitaTerminata ? 'none' : 'block';
+    }
 }
 
 // -------------------------------------------------------------------
@@ -712,7 +736,7 @@ function renderGiocatoriPartita() {
         li.appendChild(puntiEControlli);
         lista.appendChild(li);
     });
-    
+    updateGameControls(); // Assicurati che l'interfaccia sia aggiornata dopo il rendering.
     controllaVittoria(); 
 }
 
