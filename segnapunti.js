@@ -19,16 +19,14 @@ let db;
 // Funzioni per l'API 
 // -------------------------------------------------------------------
 
-// *** CORREZIONE 1: Definizione della funzione mancante ***
 function resetPartita() {
-    // 1. Reset dello stato della partita
+    if (!confirm('Sei sicuro di voler iniziare una nuova partita? Tutti i punteggi attuali saranno azzerati.')) {
+        return;
+    }
+    
     giocatori = [];
     partitaTerminata = false;
-
-    // 2. Salva lo stato (per svuotare i dati salvati e il flag partitaTerminata)
     salvaStato();
-
-    // 3. Reindirizza alla pagina principale per una nuova partita
     window.location.href = 'index.html';
 }
 
@@ -38,7 +36,15 @@ window.setModalitaVittoria = (value) => {
 };
 
 window.setPunteggioObiettivo = (value) => {
-    punteggioObiettivo = value;
+    // FIX: Validazione punteggio obiettivo
+    const punti = parseInt(value, 10);
+    if (isNaN(punti) || punti <= 0) {
+        alert('Il punteggio obiettivo deve essere un numero positivo.');
+        const input = document.getElementById('punteggio-obiettivo');
+        if (input) input.value = punteggioObiettivo;
+        return;
+    }
+    punteggioObiettivo = punti;
     salvaStato(); 
 };
 
@@ -84,17 +90,23 @@ function openDB() {
 async function caricaStato() {
     try {
         const db = await openDB();
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
             const transaction = db.transaction([STORE_NAME], 'readonly');
             const store = transaction.objectStore(STORE_NAME);
             const request = store.get(STATE_KEY);
 
+            // FIX: Gestione errori transazione
+            transaction.onerror = () => {
+                console.error('Errore durante il caricamento dello stato');
+                resolve(); // Continua comunque
+            };
+
             request.onsuccess = (event) => {
                 const state = event.target.result;
                 if (state) {
-                    modalitaVittoria = state.modalitaVittoria;
-                    punteggioObiettivo = state.punteggioObiettivo;
-                    giocatori = state.giocatori;
+                    modalitaVittoria = state.modalitaVittoria || 'max';
+                    punteggioObiettivo = state.punteggioObiettivo || 100;
+                    giocatori = state.giocatori || [];
                     partitaTerminata = state.partitaTerminata || false;
                     
                     if (state.darkMode) {
@@ -103,7 +115,11 @@ async function caricaStato() {
                 }
                 resolve();
             };
-            request.onerror = () => resolve(); // Continua anche in caso di errore
+            
+            request.onerror = () => {
+                console.error('Errore nella richiesta di caricamento');
+                resolve();
+            };
         });
     } catch (error) {
         console.error("Errore nel caricamento dello stato:", error);
@@ -125,7 +141,18 @@ function salvaStato() {
         openDB().then(db => {
             const transaction = db.transaction([STORE_NAME], 'readwrite');
             const store = transaction.objectStore(STORE_NAME);
-            store.put(stato);
+            const request = store.put(stato);
+            
+            // FIX: Gestione errori
+            transaction.onerror = () => {
+                console.error('Errore durante il salvataggio dello stato');
+            };
+            
+            request.onerror = () => {
+                console.error('Errore nella richiesta di salvataggio');
+            };
+        }).catch(error => {
+            console.error('Errore apertura DB per salvataggio:', error);
         });
     } catch (error) {
         console.error("Errore nel salvataggio dello stato:", error);
@@ -147,7 +174,16 @@ async function salvaStoricoPartita(vincitoriNomi, puntiVincitore) {
             giocatori: giocatori.map(g => ({ nome: g.nome, punti: g.punti }))
         };
 
-        store.add(partita);
+        const request = store.add(partita);
+        
+        // FIX: Gestione errori
+        transaction.onerror = () => {
+            console.error('Errore durante il salvataggio dello storico');
+        };
+        
+        request.onerror = () => {
+            console.error('Errore nella richiesta di salvataggio storico');
+        };
     } catch (error) {
         console.error("Errore nel salvataggio dello storico:", error);
     }
@@ -161,12 +197,20 @@ async function caricaStoricoPartite() {
             const store = transaction.objectStore(HISTORY_STORE_NAME);
             const request = store.getAll();
 
+            transaction.onerror = () => {
+                console.error('Errore durante il caricamento dello storico');
+                resolve([]);
+            };
+
             request.onsuccess = (event) => {
-                // Ordina per timestamp decrescente (la più recente prima)
                 const storico = event.target.result.sort((a, b) => b.timestamp - a.timestamp);
                 resolve(storico);
             };
-            request.onerror = () => resolve([]);
+            
+            request.onerror = () => {
+                console.error('Errore nella richiesta dello storico');
+                resolve([]);
+            };
         });
     } catch (error) {
         console.error("Errore nel caricamento dello storico:", error);
@@ -176,9 +220,13 @@ async function caricaStoricoPartite() {
 
 async function requestPersistentStorage() {
     if (navigator.storage && navigator.storage.persist) {
-        const isPersisted = await navigator.storage.persisted();
-        if (!isPersisted) {
-            await navigator.storage.persist();
+        try {
+            const isPersisted = await navigator.storage.persisted();
+            if (!isPersisted) {
+                await navigator.storage.persist();
+            }
+        } catch (error) {
+            console.error('Errore richiesta storage persistente:', error);
         }
     }
 }
@@ -187,9 +235,6 @@ async function requestPersistentStorage() {
 // LOGICA MODALE PUNTI PERSONALIZZATI 
 // -------------------------------------------------------------------
 
-/**
- * Mostra il modale per l'inserimento punti avanzato.
- */
 function mostraModalPunteggio(index) {
   if (partitaTerminata) return; 
   globalPlayerIndexToUpdate = index;
@@ -202,23 +247,18 @@ function mostraModalPunteggio(index) {
       nomeGiocatore.textContent = `Aggiungi Punti a ${giocatori[index].nome}`;
       input.value = '';
       modal.style.display = 'flex';
-      input.focus();
+      
+      // FIX: Focus con delay per iOS
+      setTimeout(() => input.focus(), 100);
   }
 }
 
-/**
- * Nasconde il modale.
- */
 function nascondiModalPunteggio() {
     const modal = document.getElementById('modal-overlay');
     if (modal) modal.style.display = 'none';
     globalPlayerIndexToUpdate = -1;
 }
 
-/**
- * Applica il punteggio inserito dall'input o dai pulsanti rapidi.
- * @param {number | null} punti - Punti da aggiungere (dai pulsanti rapidi) o null (dall'input field).
- */
 function applicaPunteggioPersonalizzato(punti = null) {
     if (globalPlayerIndexToUpdate === -1 || partitaTerminata) {
         nascondiModalPunteggio();
@@ -244,15 +284,7 @@ function applicaPunteggioPersonalizzato(punti = null) {
     giocatori[globalPlayerIndexToUpdate].punti += deltaPunti;
     
     // Animazione e update del punteggio
-    const puntiElement = document.getElementById(`punti-${globalPlayerIndexToUpdate}`);
-    if (puntiElement) {
-        const animClass = deltaPunti >= 0 ? 'anim-up' : 'anim-down';
-        puntiElement.classList.add(animClass);
-        puntiElement.addEventListener('animationend', () => {
-            puntiElement.classList.remove(animClass);
-        }, { once: true });
-        puntiElement.querySelector('strong').textContent = giocatori[globalPlayerIndexToUpdate].punti; 
-    }
+    animaPunteggio(globalPlayerIndexToUpdate, deltaPunti);
 
     salvaStato(); 
     renderGiocatoriPartita(); 
@@ -260,24 +292,49 @@ function applicaPunteggioPersonalizzato(punti = null) {
     nascondiModalPunteggio();
 }
 
+// FIX: Funzione separata per animazione con cleanup
+function animaPunteggio(index, delta) {
+    const puntiElement = document.getElementById(`punti-${index}`);
+    if (!puntiElement) return;
+    
+    const strongElement = puntiElement.querySelector('strong');
+    if (!strongElement) return;
+    
+    const animClass = delta >= 0 ? 'anim-up' : 'anim-down';
+    
+    // Rimuovi eventuali animazioni precedenti
+    puntiElement.classList.remove('anim-up', 'anim-down');
+    
+    // Trigger reflow per riavviare l'animazione
+    void puntiElement.offsetWidth;
+    
+    puntiElement.classList.add(animClass);
+    strongElement.textContent = giocatori[index].punti;
+    
+    // FIX: Cleanup listener con timeout
+    const cleanup = () => {
+        puntiElement.classList.remove(animClass);
+    };
+    
+    puntiElement.addEventListener('animationend', cleanup, { once: true });
+    
+    // Fallback nel caso animationend non venga triggerato
+    setTimeout(cleanup, 500);
+}
 
 // -------------------------------------------------------------------
-// LOGICA DOMContentLoaded (AGGIORNATA con logica settings e storico)
+// LOGICA DOMContentLoaded
 // -------------------------------------------------------------------
 document.addEventListener('DOMContentLoaded', async function() {
   
-  // Mostra il loader immediatamente
   const loader = document.getElementById('loader-overlay');
   if (loader) loader.style.display = 'flex'; 
 
   await caricaStato(); 
   await requestPersistentStorage();
 
-  // 🚩 CORREZIONE DARK MODE: Chiama l'update dopo il caricamento dello stato
+  // FIX: Update dark mode icon dopo il caricamento
   updateDarkModeIcon(); 
-
-  // Nasconde il loader dopo il caricamento dello stato
-  if (loader) loader.style.display = 'none'; 
 
   if (document.getElementById('giocatori-lista-partita')) {
       // LOGICA PER index.html (Pagina Partita)
@@ -295,23 +352,28 @@ document.addEventListener('DOMContentLoaded', async function() {
       });
 
       // Quick score buttons
-      const quickPlus10 = document.getElementById('btn-quick-plus10');
-      if (quickPlus10) quickPlus10.addEventListener('click', () => applicaPunteggioPersonalizzato(10));
+      const quickButtons = [
+          { id: 'btn-quick-plus10', value: 10 },
+          { id: 'btn-quick-minus10', value: -10 },
+          { id: 'btn-quick-plus20', value: 20 },
+          { id: 'btn-quick-minus20', value: -20 },
+          { id: 'btn-quick-plus50', value: 50 },
+          { id: 'btn-quick-minus50', value: -50 }
+      ];
       
-      const quickMinus10 = document.getElementById('btn-quick-minus10');
-      if (quickMinus10) quickMinus10.addEventListener('click', () => applicaPunteggioPersonalizzato(-10));
+      quickButtons.forEach(btn => {
+          const element = document.getElementById(btn.id);
+          if (element) {
+              element.addEventListener('click', () => applicaPunteggioPersonalizzato(btn.value));
+          }
+      });
       
-      const quickPlus20 = document.getElementById('btn-quick-plus20');
-      if (quickPlus20) quickPlus20.addEventListener('click', () => applicaPunteggioPersonalizzato(20));
-      
-      const quickMinus20 = document.getElementById('btn-quick-minus20');
-      if (quickMinus20) quickMinus20.addEventListener('click', () => applicaPunteggioPersonalizzato(-20));
-      
-      const quickPlus50 = document.getElementById('btn-quick-plus50');
-      if (quickPlus50) quickPlus50.addEventListener('click', () => applicaPunteggioPersonalizzato(50));
-      
-      const quickMinus50 = document.getElementById('btn-quick-minus50');
-      if (quickMinus50) quickMinus50.addEventListener('click', () => applicaPunteggioPersonalizzato(-50));
+      // FIX: Chiudi modale con ESC
+      document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') {
+              nascondiModalPunteggio();
+          }
+      });
       
   } else if (document.getElementById('impostazioni-partita')) {
       // LOGICA PER settings.html
@@ -321,30 +383,52 @@ document.addEventListener('DOMContentLoaded', async function() {
       const punteggioObiettivoInput = document.getElementById('punteggio-obiettivo');
       if(punteggioObiettivoInput) punteggioObiettivoInput.value = punteggioObiettivo;
       
-      // Listener per il salvataggio automatico delle impostazioni
-      if(modalitaVittoriaSelect) modalitaVittoriaSelect.addEventListener('change', (e) => setModalitaVittoria(e.target.value));
-      if(punteggioObiettivoInput) punteggioObiettivoInput.addEventListener('change', (e) => setPunteggioObiettivo(parseInt(e.target.value, 10)));
+      // Listener per il salvataggio automatico
+      if(modalitaVittoriaSelect) {
+          modalitaVittoriaSelect.addEventListener('change', (e) => setModalitaVittoria(e.target.value));
+      }
+      if(punteggioObiettivoInput) {
+          punteggioObiettivoInput.addEventListener('change', (e) => {
+              setPunteggioObiettivo(parseInt(e.target.value, 10));
+          });
+          // FIX: Validazione real-time
+          punteggioObiettivoInput.addEventListener('blur', (e) => {
+              const val = parseInt(e.target.value, 10);
+              if (isNaN(val) || val <= 0) {
+                  e.target.value = punteggioObiettivo;
+                  alert('Il punteggio obiettivo deve essere un numero positivo.');
+              }
+          });
+      }
       
-      // Listener per il reset (Correzione 1)
       const btnNuovaPartita = document.getElementById('btn-nuova-partita');
       if (btnNuovaPartita) btnNuovaPartita.addEventListener('click', resetPartita);
       
-      // Listener per l'aggiunta di giocatori
       const btnAggiungi = document.getElementById('btn-aggiungi-giocatore');
       if (btnAggiungi) btnAggiungi.addEventListener('click', aggiungiGiocatore);
       
       const nomeInput = document.getElementById('nuovo-giocatore');
-      if (nomeInput) nomeInput.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter') {
-              e.preventDefault();
-              aggiungiGiocatore();
-          }
-      });
+      if (nomeInput) {
+          nomeInput.addEventListener('keydown', (e) => {
+              if (e.key === 'Enter') {
+                  e.preventDefault();
+                  aggiungiGiocatore();
+              }
+          });
+      }
       
       renderGiocatoriSettings(); 
       
-  } else if (document.getElementById('storico-lista')) { // LOGICA PER storico.html (Correzione 4)
-      renderStoricoPartite();
+  } else if (document.getElementById('storico-lista')) {
+      // LOGICA PER storico.html
+      await renderStoricoPartite();
+  }
+  
+  // FIX: Nascondi loader dopo rendering completo
+  if (loader) {
+      setTimeout(() => {
+          loader.style.display = 'none';
+      }, 100);
   }
 });
 
@@ -353,14 +437,19 @@ document.addEventListener('DOMContentLoaded', async function() {
 // -------------------------------------------------------------------
 function aggiungiGiocatore() {
     const nomeInput = document.getElementById('nuovo-giocatore');
-    const nome = (nomeInput ? nomeInput.value.trim() : '').slice(0, 30); // Limite di 30 caratteri
+    const nome = (nomeInput ? nomeInput.value.trim() : '').slice(0, 30);
     
     if (nome === '') {
         alert("Inserisci un nome valido.");
         return;
     }
 
-    // Normalizza il nome per il confronto
+    // FIX: Validazione caratteri speciali
+    if (nome.match(/[<>]/)) {
+        alert("Il nome non può contenere caratteri speciali come < o >");
+        return;
+    }
+
     const nomeNormalizzato = nome.replace(/\s+/g, ' ').toLowerCase();
     if (giocatori.some(g => g.nome.replace(/\s+/g, ' ').toLowerCase() === nomeNormalizzato)) {
         alert("Questo nome esiste già!");
@@ -368,23 +457,25 @@ function aggiungiGiocatore() {
         return;
     }
 
-    // Aggiunge il giocatore all'array in memoria
     giocatori.push({ nome: nome, punti: 0 });
-    if (nomeInput) nomeInput.value = ''; // Pulisce l'input DOPO l'aggiunta
+    if (nomeInput) nomeInput.value = '';
 
     salvaStato(); 
 
-    // Aggiorniamo la lista in settings (se siamo lì)
     if (document.getElementById('giocatori-lista-settings')) {
         renderGiocatoriSettings();
     }
 }
 
 function rimuoviGiocatore(index) {
+    // FIX: Conferma prima di rimuovere
+    if (!confirm(`Sei sicuro di voler rimuovere ${giocatori[index].nome}?`)) {
+        return;
+    }
+    
     giocatori.splice(index, 1);
     salvaStato(); 
 
-    // Aggiorna entrambe le liste (se presenti)
     if (document.getElementById('giocatori-lista-settings')) {
         renderGiocatoriSettings();
     }
@@ -398,20 +489,10 @@ function modificaPunteggio(index, delta) {
     if (partitaTerminata) return;
     
     giocatori[index].punti += delta;
-
-    // Animazione e update del punteggio sulla pagina index.html
-    const puntiElement = document.getElementById(`punti-${index}`);
-    if (puntiElement) {
-        const animClass = delta > 0 ? 'anim-up' : 'anim-down';
-        puntiElement.classList.add(animClass);
-        puntiElement.addEventListener('animationend', () => {
-            puntiElement.classList.remove(animClass);
-        }, { once: true });
-        puntiElement.querySelector('strong').textContent = giocatori[index].punti;
-    }
+    animaPunteggio(index, delta);
 
     salvaStato();
-    renderGiocatoriPartita(); // Ri-renderizza per l'ordine o highlight
+    renderGiocatoriPartita();
     controllaVittoria();
 }
 
@@ -430,7 +511,7 @@ function getVincitoriNomi() {
         if (vincitori.length === 0 && Math.max(...puntiMappa) < punteggioObiettivo) {
              return [];
         }
-    } else { // modalitaVittoria === 'min'
+    } else {
         const minPunti = Math.min(...puntiMappa);
         vincitori = giocatori.filter(g => g.punti === minPunti);
         
@@ -464,16 +545,14 @@ function controllaVittoria() {
     let puntiVincitore = 0;
     let deveTerminare = false;
     
-    // Logica di controllo per terminare la partita
     if (modalitaVittoria === 'max' && maxPunti >= punteggioObiettivo) {
         deveTerminare = true;
         vincitoriNomi = giocatori.filter(g => g.punti === maxPunti).map(g => g.nome);
         puntiVincitore = maxPunti;
     } else if (modalitaVittoria === 'min' && maxPunti >= punteggioObiettivo) {
-        // Se vince chi fa meno punti, la partita finisce quando QUALCUNO supera l'obiettivo (punteggio di sconfitta)
         deveTerminare = true;
         vincitoriNomi = giocatori.filter(g => g.punti === minPunti).map(g => g.nome);
-        puntiVincitore = minPunti; // Punteggio del vincitore (il minimo)
+        puntiVincitore = minPunti;
     }
 
     if (deveTerminare) {
@@ -483,10 +562,18 @@ function controllaVittoria() {
             salvaStato(); 
         }
 
-        winnerDiv.innerHTML = `Partita Terminata! Il vincitore è: <strong>${vincitoriNomi.join(', ')}</strong> con ${puntiVincitore} punti!`;
+        // FIX: HTML sicuro senza innerHTML diretto
+        winnerDiv.textContent = '';
+        const text1 = document.createTextNode('Partita Terminata! Il vincitore è: ');
+        const strong = document.createElement('strong');
+        strong.textContent = vincitoriNomi.join(', ');
+        const text2 = document.createTextNode(` con ${puntiVincitore} punti!`);
+        
+        winnerDiv.appendChild(text1);
+        winnerDiv.appendChild(strong);
+        winnerDiv.appendChild(text2);
         winnerDiv.style.display = 'block';
 
-        // Aggiorna la classe CSS per tutti i giocatori
         giocatori.forEach((g, i) => {
             const item = document.getElementById(`giocatore-${i}`);
             if (item) {
@@ -503,20 +590,18 @@ function controllaVittoria() {
         winnerDiv.style.display = 'none';
         partitaTerminata = false;
         
-        // Rimuovi gli stati di highlight non terminati
         giocatori.forEach((g, i) => {
             const item = document.getElementById(`giocatore-${i}`);
             if (item) {
                  item.classList.remove('game-over');
                  
-                 // Highlight temporaneo del leader (solo se partita non terminata)
                  if (modalitaVittoria === 'max') {
                      if (g.punti === maxPunti && giocatori.length > 0) {
                          item.classList.add('winner-highlight');
                      } else {
                          item.classList.remove('winner-highlight');
                      }
-                 } else { // min
+                 } else {
                      if (g.punti === minPunti && giocatori.length > 0) {
                          item.classList.add('winner-highlight');
                      } else {
@@ -528,26 +613,22 @@ function controllaVittoria() {
         salvaStato();
     }
     
-    // Nascondi i controlli se la partita è terminata
     document.querySelectorAll('.punteggio-controls button').forEach(btn => {
         btn.disabled = partitaTerminata;
     });
 }
 
-
-/**
- * Funzione per renderizzare la lista in index.html (Partita)
- */
 function renderGiocatoriPartita() {
     const lista = document.getElementById('giocatori-lista-partita');
     if (!lista) return;
 
-    // Ordina i giocatori per punti in base alla modalità
-    let giocatoriOrdinati = [...giocatori];
+    // FIX: Mantieni mappa degli indici originali
+    const giocatoriConIndice = giocatori.map((g, idx) => ({ ...g, originalIndex: idx }));
+    
     if (modalitaVittoria === 'max') {
-        giocatoriOrdinati.sort((a, b) => b.punti - a.punti); // Decrescente
-    } else { // min
-        giocatoriOrdinati.sort((a, b) => a.punti - b.punti); // Crescente
+        giocatoriConIndice.sort((a, b) => b.punti - a.punti);
+    } else {
+        giocatoriConIndice.sort((a, b) => a.punti - b.punti);
     }
 
     lista.innerHTML = '';
@@ -556,39 +637,61 @@ function renderGiocatoriPartita() {
         return;
     }
 
-    giocatori.forEach((g, i) => {
-        // Trova l'indice originale per mantenere i riferimenti di modifica
-        const originalIndex = giocatori.findIndex(player => player.nome === g.nome);
+    giocatoriConIndice.forEach((g) => {
+        const i = g.originalIndex;
 
         const li = document.createElement('li');
         li.className = `giocatore-item ${partitaTerminata ? 'game-over' : ''}`;
-        li.id = `giocatore-${originalIndex}`; // ID basato sull'indice originale
+        li.id = `giocatore-${i}`;
 
-        li.innerHTML = `
-            <span class="giocatore-nome">${g.nome}</span>
-            <div class="punti-e-controlli">
-                <span class="giocatore-punti" id="punti-${originalIndex}">
-                    <strong>${g.punti}</strong> Punti
-                </span>
-                <div class="punteggio-controls">
-                    <button title="Aggiungi 1 punto" onclick="modificaPunteggio(${originalIndex}, 1)">+1</button>
-                    <button title="Rimuovi 1 punto" onclick="modificaPunteggio(${originalIndex}, -1)">-1</button>
-                    <button title="Aggiungi 5 punti" onclick="modificaPunteggio(${originalIndex}, 5)">+5</button>
-                    <button title="Rimuovi 5 punti" onclick="modificaPunteggio(${originalIndex}, -5)">-5</button>
-                    <button title="Punteggio Personalizzato" onclick="mostraModalPunteggio(${originalIndex})" class="btn-custom-score">±</button>
-                </div>
-            </div>
-        `;
+        // FIX: Crea elementi DOM invece di innerHTML per sicurezza
+        const nomeSpan = document.createElement('span');
+        nomeSpan.className = 'giocatore-nome';
+        nomeSpan.textContent = g.nome;
+
+        const puntiEControlli = document.createElement('div');
+        puntiEControlli.className = 'punti-e-controlli';
+
+        const puntiSpan = document.createElement('span');
+        puntiSpan.className = 'giocatore-punti';
+        puntiSpan.id = `punti-${i}`;
+        
+        const puntiStrong = document.createElement('strong');
+        puntiStrong.textContent = g.punti;
+        puntiSpan.appendChild(puntiStrong);
+        puntiSpan.appendChild(document.createTextNode(' Punti'));
+
+        const controlsDiv = document.createElement('div');
+        controlsDiv.className = 'punteggio-controls';
+
+        const buttons = [
+            { text: '+1', title: 'Aggiungi 1 punto', action: () => modificaPunteggio(i, 1) },
+            { text: '-1', title: 'Rimuovi 1 punto', action: () => modificaPunteggio(i, -1) },
+            { text: '+5', title: 'Aggiungi 5 punti', action: () => modificaPunteggio(i, 5) },
+            { text: '-5', title: 'Rimuovi 5 punti', action: () => modificaPunteggio(i, -5) },
+            { text: '±', title: 'Punteggio Personalizzato', action: () => mostraModalPunteggio(i), class: 'btn-custom-score' }
+        ];
+
+        buttons.forEach(btn => {
+            const button = document.createElement('button');
+            button.textContent = btn.text;
+            button.title = btn.title;
+            if (btn.class) button.className = btn.class;
+            button.addEventListener('click', btn.action);
+            controlsDiv.appendChild(button);
+        });
+
+        puntiEControlli.appendChild(puntiSpan);
+        puntiEControlli.appendChild(controlsDiv);
+
+        li.appendChild(nomeSpan);
+        li.appendChild(puntiEControlli);
         lista.appendChild(li);
     });
     
-    // Rimuovi o aggiungi highlight dopo il render
     controllaVittoria(); 
 }
 
-/**
- * Funzione per renderizzare la lista in settings.html (Gestione)
- */
 function renderGiocatoriSettings() {
     const lista = document.getElementById('giocatori-lista-settings');
     if (!lista) return;
@@ -601,23 +704,38 @@ function renderGiocatoriSettings() {
 
     giocatori.forEach((g, i) => {
         const li = document.createElement('li');
-        li.className = `giocatore-item`;
-        li.innerHTML = `
-            <span class="giocatore-nome">${g.nome}</span>
-            <div class="punti-e-controlli">
-                <span class="giocatore-punti">${g.punti} Punti</span>
-                <div class="punteggio-controls">
-                    <button title="Rimuovi giocatore" onclick="rimuoviGiocatore(${i})" class="btn-rimuovi">🗑️ Rimuovi</button>
-                </div>
-            </div>
-        `;
+        li.className = 'giocatore-item';
+        
+        const nomeSpan = document.createElement('span');
+        nomeSpan.className = 'giocatore-nome';
+        nomeSpan.textContent = g.nome;
+        
+        const puntiEControlli = document.createElement('div');
+        puntiEControlli.className = 'punti-e-controlli';
+        
+        const puntiSpan = document.createElement('span');
+        puntiSpan.className = 'giocatore-punti';
+        puntiSpan.textContent = `${g.punti} Punti`;
+        
+        const controlsDiv = document.createElement('div');
+        controlsDiv.className = 'punteggio-controls';
+        
+        const btnRimuovi = document.createElement('button');
+        btnRimuovi.className = 'btn-rimuovi';
+        btnRimuovi.title = 'Rimuovi giocatore';
+        btnRimuovi.textContent = '🗑️ Rimuovi';
+        btnRimuovi.addEventListener('click', () => rimuoviGiocatore(i));
+        
+        controlsDiv.appendChild(btnRimuovi);
+        puntiEControlli.appendChild(puntiSpan);
+        puntiEControlli.appendChild(controlsDiv);
+        
+        li.appendChild(nomeSpan);
+        li.appendChild(puntiEControlli);
         lista.appendChild(li);
     });
 }
 
-/**
- * Funzione per renderizzare la lista dello storico in storico.html (Correzione 4)
- */
 async function renderStoricoPartite() {
     const lista = document.getElementById('storico-lista');
     if (!lista) return;
@@ -634,25 +752,48 @@ async function renderStoricoPartite() {
         const li = document.createElement('li');
         li.className = 'storico-item';
 
-        const giocatoriList = partita.giocatori.map(g => `<li>${g.nome}: ${g.punti}</li>`).join('');
+        const header = document.createElement('div');
+        header.className = 'storico-header';
+        
+        const vincitoreSpan = document.createElement('span');
+        vincitoreSpan.className = 'storico-vincitore';
+        vincitoreSpan.textContent = `🏅 ${partita.vincitori.join(', ')} (${partita.puntiVincitore})`;
+        
+        const dataSpan = document.createElement('span');
+        dataSpan.className = 'storico-data';
+        dataSpan.textContent = partita.data;
+        
+        header.appendChild(vincitoreSpan);
+        header.appendChild(dataSpan);
 
-        li.innerHTML = `
-            <div class="storico-header">
-                <span class="storico-vincitore">🏅 ${partita.vincitori.join(', ')} (${partita.puntiVincitore})</span>
-                <span class="storico-data">${partita.data}</span>
-            </div>
-            <div class="storico-details">
-                <p>Modalità: <strong>${partita.modalita === 'max' ? 'Più punti' : 'Meno punti'}</strong></p>
-                <p>Partecipanti:</p>
-                <ul class="giocatori-list">${giocatoriList}</ul>
-            </div>
-        `;
+        const details = document.createElement('div');
+        details.className = 'storico-details';
+        
+        const modalitaP = document.createElement('p');
+        modalitaP.innerHTML = `Modalità: <strong>${partita.modalita === 'max' ? 'Più punti' : 'Meno punti'}</strong>`;
+        
+        const partecipantiP = document.createElement('p');
+        partecipantiP.textContent = 'Partecipanti:';
+        
+        const giocatoriUl = document.createElement('ul');
+        giocatoriUl.className = 'giocatori-list';
+        
+        partita.giocatori.forEach(g => {
+            const giocatoreLi = document.createElement('li');
+            giocatoreLi.textContent = `${g.nome}: ${g.punti}`;
+            giocatoriUl.appendChild(giocatoreLi);
+        });
+        
+        details.appendChild(modalitaP);
+        details.appendChild(partecipantiP);
+        details.appendChild(giocatoriUl);
+        
+        li.appendChild(header);
+        li.appendChild(details);
         lista.appendChild(li);
     });
 }
 
-
-// 🚩 NUOVA FUNZIONE HELPER DARK MODE
 function updateDarkModeIcon() {
   const iconBtn = document.getElementById('toggle-dark-mode');
   if (iconBtn) {
@@ -662,12 +803,11 @@ function updateDarkModeIcon() {
 
 function toggleDarkMode() {
   document.body.classList.toggle('dark-mode');
-  updateDarkModeIcon(); // Aggiorna l'icona
+  updateDarkModeIcon();
   salvaStato(); 
 }
 
-
-// Espone le funzioni al Global Scope per l'uso negli onclick
+// Espone le funzioni al Global Scope
 window.aggiungiGiocatore = aggiungiGiocatore;
 window.rimuoviGiocatore = rimuoviGiocatore;
 window.modificaPunteggio = modificaPunteggio;
