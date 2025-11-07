@@ -21,15 +21,19 @@
 <body>
   <div class="container">
     <div class="header-controls fixed-header"> 
-      <h1>🃏 Punteggi Attuali</h1>
+      <h1>ðŸƒ Punteggi Attuali</h1>
       <div class="top-buttons">
-          <button id="btn-history" title="Storico Partite" onclick="window.location.href='storico.html'">📜</button>
-          <button id="btn-settings" title="Impostazioni Partita" onclick="window.location.href='settings.html'">⚙️</button>
-          <button id="toggle-dark-mode" title="Attiva/Disattiva Modalità Scura" onclick="toggleDarkMode()">🌙</button>
+          <button id="btn-history" title="Storico Partite" onclick="window.location.href='storico.html'">ðŸ“œ</button>
+          <button id="btn-settings" title="Impostazioni Partita" onclick="window.location.href='settings.html'">âš™ï¸</button>
+          <button id="toggle-dark-mode" title="Attiva/Disattiva ModalitÃ  Scura" onclick="toggleDarkMode()">ðŸŒ™</button>
       </div>
     </div>
     
     <div class="winner-message" id="winner-message" style="display: none;">
+    </div>
+    
+    <div class="game-over-actions" id="game-over-actions" style="display: none;">
+      <button id="btn-ricomincia-partita" class="btn-primary">ðŸ”„ Ricomincia Partita</button>
     </div>
     
     <ul class="giocatori-lista" id="giocatori-lista-partita">
