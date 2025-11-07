@@ -388,10 +388,16 @@ document.addEventListener('DOMContentLoaded', async function() {
       
       // FIX: Chiudi modale con ESC
       document.addEventListener('keydown', (e) => {
-          if (e.key === 'Escape') {
-              nascondiModalPunteggio();
-          }
-      });
+        if (e.key === 'Escape') {
+            nascondiModalPunteggio();
+        }
+    });
+    
+    // Setup pulsante Ricomincia Partita
+    const btnRicomincia = document.getElementById('btn-ricomincia-partita');
+    if (btnRicomincia) {
+        btnRicomincia.addEventListener('click', resetPartita);
+    }
       
   } else if (document.getElementById('impostazioni-partita')) {
       // LOGICA PER settings.html
@@ -464,13 +470,13 @@ function aggiungiGiocatore() {
 
     // FIX: Validazione caratteri speciali
     if (nome.match(/[<>]/)) {
-        alert("Il nome non può contenere caratteri speciali come < o >");
+        alert("Il nome non puÃ² contenere caratteri speciali come < o >");
         return;
     }
 
     const nomeNormalizzato = nome.replace(/\s+/g, ' ').toLowerCase();
     if (giocatori.some(g => g.nome.replace(/\s+/g, ' ').toLowerCase() === nomeNormalizzato)) {
-        alert("Questo nome esiste già!");
+        alert("Questo nome esiste giÃ !");
         if (nomeInput) nomeInput.value = '';
         return;
     }
@@ -582,7 +588,7 @@ function controllaVittoria() {
 
         // FIX: HTML sicuro senza innerHTML diretto
         winnerDiv.textContent = '';
-        const text1 = document.createTextNode('Partita Terminata! Il vincitore è: ');
+        const text1 = document.createTextNode('Partita Terminata! Il vincitore Ã¨: ');
         const strong = document.createElement('strong');
         strong.textContent = vincitoriNomi.join(', ');
         const text2 = document.createTextNode(` con ${puntiVincitore} punti!`);
@@ -651,7 +657,7 @@ function renderGiocatoriPartita() {
 
     lista.innerHTML = '';
     if (giocatori.length === 0) {
-        lista.innerHTML = '<p class="empty-state">Nessun giocatore in partita. Aggiungine uno dalle impostazioni (⚙️).</p>';
+        lista.innerHTML = '<p class="empty-state">Nessun giocatore in partita. Aggiungine uno dalle impostazioni (âš™ï¸).</p>';
         return;
     }
 
@@ -687,7 +693,7 @@ function renderGiocatoriPartita() {
             { text: '-1', title: 'Rimuovi 1 punto', action: () => modificaPunteggio(i, -1) },
             { text: '+5', title: 'Aggiungi 5 punti', action: () => modificaPunteggio(i, 5) },
             { text: '-5', title: 'Rimuovi 5 punti', action: () => modificaPunteggio(i, -5) },
-            { text: '±', title: 'Punteggio Personalizzato', action: () => mostraModalPunteggio(i), class: 'btn-custom-score' }
+            { text: 'Â±', title: 'Punteggio Personalizzato', action: () => mostraModalPunteggio(i), class: 'btn-custom-score' }
         ];
 
         buttons.forEach(btn => {
@@ -741,7 +747,7 @@ function renderGiocatoriSettings() {
         const btnRimuovi = document.createElement('button');
         btnRimuovi.className = 'btn-rimuovi';
         btnRimuovi.title = 'Rimuovi giocatore';
-        btnRimuovi.textContent = '🗑️ Rimuovi';
+        btnRimuovi.textContent = 'ðŸ—‘ï¸ Rimuovi';
         btnRimuovi.addEventListener('click', () => rimuoviGiocatore(i));
         
         controlsDiv.appendChild(btnRimuovi);
@@ -775,7 +781,7 @@ async function renderStoricoPartite() {
         
         const vincitoreSpan = document.createElement('span');
         vincitoreSpan.className = 'storico-vincitore';
-        vincitoreSpan.textContent = `🏅 ${partita.vincitori.join(', ')} (${partita.puntiVincitore})`;
+        vincitoreSpan.textContent = `ðŸ… ${partita.vincitori.join(', ')} (${partita.puntiVincitore})`;
         
         const dataSpan = document.createElement('span');
         dataSpan.className = 'storico-data';
@@ -788,7 +794,7 @@ async function renderStoricoPartite() {
         details.className = 'storico-details';
         
         const modalitaP = document.createElement('p');
-        modalitaP.innerHTML = `Modalità: <strong>${partita.modalita === 'max' ? 'Più punti' : 'Meno punti'}</strong>`;
+        modalitaP.innerHTML = `ModalitÃ : <strong>${partita.modalita === 'max' ? 'PiÃ¹ punti' : 'Meno punti'}</strong>`;
         
         const partecipantiP = document.createElement('p');
         partecipantiP.textContent = 'Partecipanti:';
@@ -815,7 +821,7 @@ async function renderStoricoPartite() {
 function updateDarkModeIcon() {
   const iconBtn = document.getElementById('toggle-dark-mode');
   if (iconBtn) {
-    iconBtn.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
+    iconBtn.textContent = document.body.classList.contains('dark-mode') ? 'â˜€ï¸' : 'ðŸŒ™';
   }
 }
 
