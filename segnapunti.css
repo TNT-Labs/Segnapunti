@@ -458,6 +458,37 @@ body.dark-mode .giocatore-punti {
   animation: scaleBounce 0.3s ease-in-out;
 }
 
+/* Animazione Floating Number */
+.floating-number {
+  position: absolute;
+  font-size: 1.5em;
+  font-weight: 800;
+  pointer-events: none;
+  z-index: 20;
+  animation: floatUp 1.2s ease-out forwards;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+.floating-number.positive {
+  color: #4CAF50;
+}
+.floating-number.negative {
+  color: #F44336;
+}
+@keyframes floatUp {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-20px) scale(1.1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-40px) scale(0.8);
+  }
+}
+
 /* Stili per la Lista Storico */
 .storico-lista {
     list-style: none;
