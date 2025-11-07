@@ -40,7 +40,6 @@ window.setModalitaVittoria = (value) => {
 };
 
 window.setPunteggioObiettivo = (value) => {
-    // FIX: Validazione punteggio obiettivo
     const punti = parseInt(value, 10);
     if (isNaN(punti) || punti <= 0) {
         alert('Il punteggio obiettivo deve essere un numero positivo.');
@@ -99,10 +98,9 @@ async function caricaStato() {
             const store = transaction.objectStore(STORE_NAME);
             const request = store.get(STATE_KEY);
 
-            // FIX: Gestione errori transazione
             transaction.onerror = () => {
                 console.error('Errore durante il caricamento dello stato');
-                resolve(); // Continua comunque
+                resolve();
             };
 
             request.onsuccess = (event) => {
@@ -147,7 +145,6 @@ function salvaStato() {
             const store = transaction.objectStore(STORE_NAME);
             const request = store.put(stato);
             
-            // FIX: Gestione errori
             transaction.onerror = () => {
                 console.error('Errore durante il salvataggio dello stato');
             };
@@ -180,7 +177,6 @@ async function salvaStoricoPartita(vincitoriNomi, puntiVincitore) {
 
         const request = store.add(partita);
         
-        // FIX: Gestione errori
         transaction.onerror = () => {
             console.error('Errore durante il salvataggio dello storico');
         };
@@ -242,7 +238,6 @@ async function requestPersistentStorage() {
 function mostraModalPunteggio(index) {
   if (partitaTerminata) return; 
   
-  // FIX: Previeni apertura involontaria
   if (index < 0 || index >= giocatori.length) return;
   
   globalPlayerIndexToUpdate = index;
@@ -256,7 +251,6 @@ function mostraModalPunteggio(index) {
       input.value = '';
       modal.style.display = 'flex';
       
-      // FIX: Focus con delay per iOS
       setTimeout(() => input.focus(), 100);
   }
 }
@@ -268,7 +262,6 @@ function nascondiModalPunteggio() {
     }
     globalPlayerIndexToUpdate = -1;
     
-    // FIX: Pulisci l'input quando chiudi
     const input = document.getElementById('punteggio-input-custom');
     if (input) input.value = '';
 }
@@ -297,7 +290,6 @@ function applicaPunteggioPersonalizzato(punti = null) {
     
     giocatori[globalPlayerIndexToUpdate].punti += deltaPunti;
     
-    // Animazione e update del punteggio
     animaPunteggio(globalPlayerIndexToUpdate, deltaPunti);
 
     salvaStato(); 
@@ -306,7 +298,6 @@ function applicaPunteggioPersonalizzato(punti = null) {
     nascondiModalPunteggio();
 }
 
-// FIX: Funzione separata per animazione con cleanup
 function animaPunteggio(index, delta) {
     const puntiElement = document.getElementById(`punti-${index}`);
     if (!puntiElement) return;
@@ -316,23 +307,19 @@ function animaPunteggio(index, delta) {
     
     const animClass = delta >= 0 ? 'anim-up' : 'anim-down';
     
-    // Rimuovi eventuali animazioni precedenti
     puntiElement.classList.remove('anim-up', 'anim-down');
     
-    // Trigger reflow per riavviare l'animazione
     void puntiElement.offsetWidth;
     
     puntiElement.classList.add(animClass);
     strongElement.textContent = giocatori[index].punti;
     
-    // FIX: Cleanup listener con timeout
     const cleanup = () => {
         puntiElement.classList.remove(animClass);
     };
     
     puntiElement.addEventListener('animationend', cleanup, { once: true });
     
-    // Fallback nel caso animationend non venga triggerato
     setTimeout(cleanup, 500);
 }
 
@@ -344,22 +331,18 @@ document.addEventListener('DOMContentLoaded', async function() {
   const loader = document.getElementById('loader-overlay');
   if (loader) loader.style.display = 'flex'; 
   
-  // FIX: Assicurati che la modale sia nascosta all'avvio
   const modal = document.getElementById('modal-overlay');
   if (modal) modal.style.display = 'none';
 
   await caricaStato(); 
   await requestPersistentStorage();
 
-  // FIX: Update dark mode icon dopo il caricamento
   updateDarkModeIcon(); 
 
   if (document.getElementById('giocatori-lista-partita')) {
-      // LOGICA PER index.html (Pagina Partita)
       renderGiocatoriPartita(); 
       controllaVittoria(); 
 
-      // Setup Modal Handlers
       const btnAnnulla = document.getElementById('btn-modal-annulla');
       if (btnAnnulla) btnAnnulla.addEventListener('click', nascondiModalPunteggio);
 
@@ -369,7 +352,6 @@ document.addEventListener('DOMContentLoaded', async function() {
           applicaPunteggioPersonalizzato();
       });
 
-      // Quick score buttons
       const quickButtons = [
           { id: 'btn-quick-plus10', value: 10 },
           { id: 'btn-quick-minus10', value: -10 },
@@ -386,28 +368,24 @@ document.addEventListener('DOMContentLoaded', async function() {
           }
       });
       
-      // FIX: Chiudi modale con ESC
       document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-            nascondiModalPunteggio();
-        }
-    });
-    
-    // Setup pulsante Ricomincia Partita
-    const btnRicomincia = document.getElementById('btn-ricomincia-partita');
-    if (btnRicomincia) {
-        btnRicomincia.addEventListener('click', resetPartita);
-    }
+          if (e.key === 'Escape') {
+              nascondiModalPunteggio();
+          }
+      });
+      
+      const btnRicomincia = document.getElementById('btn-ricomincia-partita');
+      if (btnRicomincia) {
+          btnRicomincia.addEventListener('click', resetPartita);
+      }
       
   } else if (document.getElementById('impostazioni-partita')) {
-      // LOGICA PER settings.html
       const modalitaVittoriaSelect = document.getElementById('modalita-vittoria');
       if(modalitaVittoriaSelect) modalitaVittoriaSelect.value = modalitaVittoria;
       
       const punteggioObiettivoInput = document.getElementById('punteggio-obiettivo');
       if(punteggioObiettivoInput) punteggioObiettivoInput.value = punteggioObiettivo;
       
-      // Listener per il salvataggio automatico
       if(modalitaVittoriaSelect) {
           modalitaVittoriaSelect.addEventListener('change', (e) => setModalitaVittoria(e.target.value));
       }
@@ -415,7 +393,6 @@ document.addEventListener('DOMContentLoaded', async function() {
           punteggioObiettivoInput.addEventListener('change', (e) => {
               setPunteggioObiettivo(parseInt(e.target.value, 10));
           });
-          // FIX: Validazione real-time
           punteggioObiettivoInput.addEventListener('blur', (e) => {
               const val = parseInt(e.target.value, 10);
               if (isNaN(val) || val <= 0) {
@@ -444,11 +421,9 @@ document.addEventListener('DOMContentLoaded', async function() {
       renderGiocatoriSettings(); 
       
   } else if (document.getElementById('storico-lista')) {
-      // LOGICA PER storico.html
       await renderStoricoPartite();
   }
   
-  // FIX: Nascondi loader dopo rendering completo
   if (loader) {
       setTimeout(() => {
           loader.style.display = 'none';
@@ -468,15 +443,14 @@ function aggiungiGiocatore() {
         return;
     }
 
-    // FIX: Validazione caratteri speciali
     if (nome.match(/[<>]/)) {
-        alert("Il nome non puÃ² contenere caratteri speciali come < o >");
+        alert("Il nome non può contenere caratteri speciali come < o >");
         return;
     }
 
     const nomeNormalizzato = nome.replace(/\s+/g, ' ').toLowerCase();
     if (giocatori.some(g => g.nome.replace(/\s+/g, ' ').toLowerCase() === nomeNormalizzato)) {
-        alert("Questo nome esiste giÃ !");
+        alert("Questo nome esiste già!");
         if (nomeInput) nomeInput.value = '';
         return;
     }
@@ -492,7 +466,6 @@ function aggiungiGiocatore() {
 }
 
 function rimuoviGiocatore(index) {
-    // FIX: Conferma prima di rimuovere
     if (!confirm(`Sei sicuro di voler rimuovere ${giocatori[index].nome}?`)) {
         return;
     }
@@ -550,12 +523,14 @@ function getVincitoriNomi() {
 
 function controllaVittoria() {
     const winnerDiv = document.getElementById('winner-message');
+    const gameOverActions = document.getElementById('game-over-actions');
     if (!winnerDiv) return;
 
     if (giocatori.length === 0) {
         if (winnerDiv.textContent !== '') {
             winnerDiv.textContent = '';
         }
+        if (gameOverActions) gameOverActions.style.display = 'none';
         partitaTerminata = false; 
         salvaStato();
         return;
@@ -586,9 +561,8 @@ function controllaVittoria() {
             salvaStato(); 
         }
 
-        // FIX: HTML sicuro senza innerHTML diretto
         winnerDiv.textContent = '';
-        const text1 = document.createTextNode('Partita Terminata! Il vincitore Ã¨: ');
+        const text1 = document.createTextNode('Partita Terminata! Il vincitore è: ');
         const strong = document.createElement('strong');
         strong.textContent = vincitoriNomi.join(', ');
         const text2 = document.createTextNode(` con ${puntiVincitore} punti!`);
@@ -597,6 +571,8 @@ function controllaVittoria() {
         winnerDiv.appendChild(strong);
         winnerDiv.appendChild(text2);
         winnerDiv.style.display = 'block';
+        
+        if (gameOverActions) gameOverActions.style.display = 'block';
 
         giocatori.forEach((g, i) => {
             const item = document.getElementById(`giocatore-${i}`);
@@ -612,6 +588,7 @@ function controllaVittoria() {
         
     } else {
         winnerDiv.style.display = 'none';
+        if (gameOverActions) gameOverActions.style.display = 'none';
         partitaTerminata = false;
         
         giocatori.forEach((g, i) => {
@@ -646,7 +623,6 @@ function renderGiocatoriPartita() {
     const lista = document.getElementById('giocatori-lista-partita');
     if (!lista) return;
 
-    // FIX: Mantieni mappa degli indici originali
     const giocatoriConIndice = giocatori.map((g, idx) => ({ ...g, originalIndex: idx }));
     
     if (modalitaVittoria === 'max') {
@@ -657,7 +633,7 @@ function renderGiocatoriPartita() {
 
     lista.innerHTML = '';
     if (giocatori.length === 0) {
-        lista.innerHTML = '<p class="empty-state">Nessun giocatore in partita. Aggiungine uno dalle impostazioni (âš™ï¸).</p>';
+        lista.innerHTML = '<p class="empty-state">Nessun giocatore in partita. Aggiungine uno dalle impostazioni (⚙️).</p>';
         return;
     }
 
@@ -668,7 +644,6 @@ function renderGiocatoriPartita() {
         li.className = `giocatore-item ${partitaTerminata ? 'game-over' : ''}`;
         li.id = `giocatore-${i}`;
 
-        // FIX: Crea elementi DOM invece di innerHTML per sicurezza
         const nomeSpan = document.createElement('span');
         nomeSpan.className = 'giocatore-nome';
         nomeSpan.textContent = g.nome;
@@ -693,7 +668,7 @@ function renderGiocatoriPartita() {
             { text: '-1', title: 'Rimuovi 1 punto', action: () => modificaPunteggio(i, -1) },
             { text: '+5', title: 'Aggiungi 5 punti', action: () => modificaPunteggio(i, 5) },
             { text: '-5', title: 'Rimuovi 5 punti', action: () => modificaPunteggio(i, -5) },
-            { text: 'Â±', title: 'Punteggio Personalizzato', action: () => mostraModalPunteggio(i), class: 'btn-custom-score' }
+            { text: '±', title: 'Punteggio Personalizzato', action: () => mostraModalPunteggio(i), class: 'btn-custom-score' }
         ];
 
         buttons.forEach(btn => {
@@ -747,7 +722,7 @@ function renderGiocatoriSettings() {
         const btnRimuovi = document.createElement('button');
         btnRimuovi.className = 'btn-rimuovi';
         btnRimuovi.title = 'Rimuovi giocatore';
-        btnRimuovi.textContent = 'ðŸ—‘ï¸ Rimuovi';
+        btnRimuovi.textContent = '🗑️ Rimuovi';
         btnRimuovi.addEventListener('click', () => rimuoviGiocatore(i));
         
         controlsDiv.appendChild(btnRimuovi);
@@ -781,7 +756,7 @@ async function renderStoricoPartite() {
         
         const vincitoreSpan = document.createElement('span');
         vincitoreSpan.className = 'storico-vincitore';
-        vincitoreSpan.textContent = `ðŸ… ${partita.vincitori.join(', ')} (${partita.puntiVincitore})`;
+        vincitoreSpan.textContent = `🏆 ${partita.vincitori.join(', ')} (${partita.puntiVincitore})`;
         
         const dataSpan = document.createElement('span');
         dataSpan.className = 'storico-data';
@@ -794,7 +769,7 @@ async function renderStoricoPartite() {
         details.className = 'storico-details';
         
         const modalitaP = document.createElement('p');
-        modalitaP.innerHTML = `ModalitÃ : <strong>${partita.modalita === 'max' ? 'PiÃ¹ punti' : 'Meno punti'}</strong>`;
+        modalitaP.innerHTML = `Modalità: <strong>${partita.modalita === 'max' ? 'Più punti' : 'Meno punti'}</strong>`;
         
         const partecipantiP = document.createElement('p');
         partecipantiP.textContent = 'Partecipanti:';
@@ -821,7 +796,7 @@ async function renderStoricoPartite() {
 function updateDarkModeIcon() {
   const iconBtn = document.getElementById('toggle-dark-mode');
   if (iconBtn) {
-    iconBtn.textContent = document.body.classList.contains('dark-mode') ? 'â˜€ï¸' : 'ðŸŒ™';
+    iconBtn.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
   }
 }
 
