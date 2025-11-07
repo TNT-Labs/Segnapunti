@@ -47,11 +47,6 @@ body.dark-mode input:focus, body.dark-mode select:focus {
 body.dark-mode .giocatore-item {
   background: #2a2a2a;
 }
-body.dark-mode .giocatore-item.winner-highlight {
-  background: #2a4a2a;
-  border-color: var(--bordo-vincitore);
-  box-shadow: 0 0 10px rgba(32, 58, 32, 0.8);
-}
 body.dark-mode .giocatore-punti strong {
   color: var(--colore-primario);
 }
@@ -65,19 +60,6 @@ body.dark-mode .winner {
   background-color: var(--sfondo-vincitore);
   color: var(--colore-vincitore);
 }
-
-/* Stili per pulsante Ricomincia Partita */
-.game-over-actions {
-  text-align: center;
-  margin: 20px 0;
-}
-.game-over-actions button {
-  font-size: 1.1em;
-  padding: 15px 30px;
-  font-weight: 700;
-  min-width: 250px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-}
 body.dark-mode .separator {
     border-top: 1px dashed #333;
 }
@@ -90,6 +72,11 @@ body.dark-mode .storico-header {
 }
 body.dark-mode .modal-content {
     background: #2a2a2a;
+}
+body.dark-mode .giocatore-item.winner-highlight {
+    background: #2a4a2a;
+    box-shadow: 0 0 20px rgba(184, 224, 184, 0.6), 0 4px 12px rgba(0, 0, 0, 0.3);
+    border-color: #b8e0b8;
 }
 /* --- Fine Dark Mode Variables --- */
 
@@ -150,7 +137,7 @@ h1 {
   margin: 0;
 }
 
-/* ðŸš© Stili per i pulsanti di navigazione */
+/* 🚩 Stili per i pulsanti di navigazione */
 .top-buttons {
     display: flex;
     gap: 8px;
@@ -224,7 +211,6 @@ button:disabled {
     box-shadow: none;
 }
 
-
 /* Pulsanti Specifici */
 .btn-primary { 
     background: var(--colore-primario);
@@ -237,6 +223,19 @@ button:disabled {
 }
 .btn-reset:hover {
     background: var(--sfondo-rimuovi);
+}
+
+/* Stili per pulsante Ricomincia Partita */
+.game-over-actions {
+    text-align: center;
+    margin: 20px 0;
+}
+.game-over-actions button {
+    font-size: 1.1em;
+    padding: 15px 30px;
+    font-weight: 700;
+    min-width: 250px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 h3 {
@@ -309,6 +308,7 @@ input[type="text"], input[type="number"], select {
   padding: 12px 15px;
   margin-bottom: 10px;
   position: relative;
+  transition: all 0.3s ease;
 }
 /* Overlay Partita Terminata */
 .giocatore-item.game-over::after {
@@ -327,14 +327,26 @@ input[type="text"], input[type="number"], select {
     display: none; 
 }
 
-/* Highlight Vincitore */
+/* Highlight Vincitore/Leader - Molto Più Evidente */
 .giocatore-item.winner-highlight {
   background: var(--sfondo-vincitore); 
-  border: 2px solid var(--bordo-vincitore);
-  box-shadow: 0 0 10px rgba(212, 237, 218, 0.8);
+  border: 3px solid var(--bordo-vincitore);
+  box-shadow: 0 0 20px rgba(212, 237, 218, 1), 0 4px 12px rgba(0, 0, 0, 0.15);
+  position: relative;
+  transform: scale(1.02);
 }
-body.dark-mode .giocatore-item.winner-highlight {
-    box-shadow: 0 0 10px rgba(32, 58, 32, 0.8);
+.giocatore-item.winner-highlight::before {
+  content: '👑';
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  font-size: 1.8em;
+  z-index: 5;
+  animation: crownBounce 1s ease-in-out infinite;
+}
+@keyframes crownBounce {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-5px) rotate(10deg); }
 }
 
 .giocatore-punti {
@@ -355,6 +367,12 @@ body.dark-mode .giocatore-punti {
   display: inline-block;
   margin-right: 5px;
   line-height: 1;
+}
+/* Punteggio del Leader Ancora Più Grande */
+.giocatore-item.winner-highlight .giocatore-punti strong {
+  font-size: 2.2em;
+  color: var(--colore-vincitore);
+  font-weight: 900;
 }
 
 .punti-e-controlli {
@@ -424,11 +442,6 @@ body.dark-mode .giocatore-punti {
     display: block;
     margin-bottom: 5px;
 }
-body.dark-mode .winner {
-    background-color: var(--sfondo-vincitore);
-    color: var(--colore-vincitore);
-}
-
 
 /* Animazioni Punti (Feedback Visivo) */
 @keyframes scaleBounce {
@@ -546,7 +559,6 @@ body.dark-mode .winner {
     100% { transform: rotate(360deg); }
 }
 
-
 /* Media Query per Mobile (Controlli ottimizzati) */
 @media (max-width: 500px) {
   .container {
@@ -554,6 +566,11 @@ body.dark-mode .winner {
   }
   .giocatore-item {
       padding: 10px 15px;
+  }
+  .giocatore-item.winner-highlight::before {
+      font-size: 1.5em;
+      top: -5px;
+      right: -5px;
   }
   .giocatore-punti {
       margin-bottom: 10px;
@@ -563,7 +580,7 @@ body.dark-mode .winner {
       align-items: flex-start;
   }
   
-  /* Nascondi +/- 5 e adatta la griglia a 2 colonne per +1/-1 e Â± */
+  /* Nascondi +/- 5 e adatta la griglia a 2 colonne per +1/-1 e ± */
   .punteggio-controls {
       grid-template-columns: repeat(2, 1fr);
   }
