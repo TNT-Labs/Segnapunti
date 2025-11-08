@@ -611,20 +611,30 @@ body.dark-mode .giocatore-punti {
       align-items: flex-start;
   }
   
-  /* Nascondi +/- 5 e adatta la griglia a 2 colonne per +1/-1 e ± */
+  /* Layout a 3 colonne per mostrare tutti i pulsanti su mobile */
   .punteggio-controls {
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(3, 1fr);
+      gap: 5px;
+      width: 100%;
   }
+  .punteggio-controls button {
+      padding: 10px 8px;
+      font-size: 0.95em;
+      min-width: auto;
+      min-height: 44px;
+  }
+  /* Tutti i pulsanti visibili */
+  .punteggio-controls button:nth-child(1),
+  .punteggio-controls button:nth-child(2),
   .punteggio-controls button:nth-child(3),
   .punteggio-controls button:nth-child(4) {
-      display: none;
-  }
-  .punteggio-controls button:nth-child(1),
-  .punteggio-controls button:nth-child(2) {
       grid-column: span 1;
+      display: block;
   }
+  /* Pulsante ± occupa 3 colonne */
   .punteggio-controls .btn-custom-score {
-      grid-column: span 2; 
+      grid-column: span 3;
+      font-size: 1.05em;
   }
   .header-controls.fixed-header {
     border-radius: 0; /* Su mobile full-width, nessun bordo arrotondato */
