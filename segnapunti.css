@@ -100,6 +100,7 @@ body {
   padding: 32px 24px;
   transition: background-color 0.3s, box-shadow 0.3s;
   padding-top: 80px; /* Spazio per l'header fisso */
+  padding-bottom: 80px; /* Spazio per la bottom nav */
 }
 
 /* Header e Titoli */
@@ -590,6 +591,73 @@ body.dark-mode .giocatore-punti {
     100% { transform: rotate(360deg); }
 }
 
+/* Bottom Navigation Bar */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-width: 550px;
+  margin: 0 auto;
+  background: var(--colore-card);
+  border-top: 1px solid var(--colore-header-bordo);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 8px 0;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 99;
+}
+body.dark-mode .bottom-nav {
+  box-shadow: 0 -2px 10px rgba(255, 255, 255, 0.05);
+}
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  color: var(--colore-testo);
+  padding: 8px 16px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  min-width: 70px;
+  opacity: 0.6;
+}
+.nav-item:hover {
+  opacity: 1;
+  background: rgba(42, 77, 105, 0.1);
+}
+body.dark-mode .nav-item:hover {
+  background: rgba(122, 174, 214, 0.1);
+}
+.nav-item.active {
+  opacity: 1;
+  color: var(--colore-primario);
+  background: rgba(42, 77, 105, 0.15);
+}
+body.dark-mode .nav-item.active {
+  background: rgba(122, 174, 214, 0.15);
+}
+.nav-icon {
+  font-size: 1.5em;
+  margin-bottom: 4px;
+}
+.nav-label {
+  font-size: 0.75em;
+  font-weight: 600;
+  text-align: center;
+}
+@media (max-width: 500px) {
+  .nav-label {
+    font-size: 0.7em;
+  }
+  .nav-item {
+    padding: 6px 12px;
+    min-width: 60px;
+  }
+}
+
 /* Media Query per Mobile (Controlli ottimizzati) */
 @media (max-width: 500px) {
   .container {
@@ -614,27 +682,34 @@ body.dark-mode .giocatore-punti {
   /* Layout a 3 colonne per mostrare tutti i pulsanti su mobile */
   .punteggio-controls {
       grid-template-columns: repeat(3, 1fr);
-      gap: 5px;
+      gap: 4px;
       width: 100%;
   }
   .punteggio-controls button {
-      padding: 10px 8px;
-      font-size: 0.95em;
+      padding: 9px 6px;
+      font-size: 0.9em;
       min-width: auto;
-      min-height: 44px;
+      min-height: 42px;
   }
-  /* Tutti i pulsanti visibili */
+  /* Prima riga: +1, -1, +5 */
   .punteggio-controls button:nth-child(1),
   .punteggio-controls button:nth-child(2),
-  .punteggio-controls button:nth-child(3),
-  .punteggio-controls button:nth-child(4) {
+  .punteggio-controls button:nth-child(3) {
       grid-column: span 1;
       display: block;
   }
-  /* Pulsante ± occupa 3 colonne */
+  /* Seconda riga: -5, +10, -10 */
+  .punteggio-controls button:nth-child(4),
+  .punteggio-controls button:nth-child(5),
+  .punteggio-controls button:nth-child(6) {
+      grid-column: span 1;
+      display: block;
+  }
+  /* Terza riga: Pulsante ± occupa 3 colonne */
   .punteggio-controls .btn-custom-score {
       grid-column: span 3;
       font-size: 1.05em;
+      order: 10;
   }
   .header-controls.fixed-header {
     border-radius: 0; /* Su mobile full-width, nessun bordo arrotondato */
@@ -663,18 +738,26 @@ body.dark-mode .giocatore-punti {
     text-align: right;
     min-width: 120px;
   }
-  /* Layout pulsanti in desktop (5 pulsanti in linea) */
+  /* Layout pulsanti in desktop (7 pulsanti in linea) */
   .punteggio-controls {
     display: flex;
-    gap: 8px;
+    gap: 6px;
     grid-template-columns: none; /* Disabilita grid per tornare a flex/inline */
+    flex-wrap: wrap;
+  }
+  .punteggio-controls button {
+    flex: 0 0 auto;
   }
   .punteggio-controls .btn-custom-score {
-      grid-column: span 1; /* Torna a dimensione normale */
-      font-size: 1em;
+    grid-column: span 1; /* Torna a dimensione normale */
+    font-size: 1em;
   }
+  .punteggio-controls button:nth-child(1),
+  .punteggio-controls button:nth-child(2),
   .punteggio-controls button:nth-child(3),
-  .punteggio-controls button:nth-child(4) {
-      display: block; /* Riattiva +/- 5 */
+  .punteggio-controls button:nth-child(4),
+  .punteggio-controls button:nth-child(5),
+  .punteggio-controls button:nth-child(6) {
+      display: block; /* Mostra tutti i pulsanti */
   }
 }
