@@ -15,6 +15,88 @@ const STATE_KEY = 'current_state';
 
 let db; 
 
+// Preset di giochi popolari
+const GAME_PRESETS = {
+  scala40: {
+    name: 'Scala 40',
+    mode: 'max',
+    target: 500,
+    description: '🃏 Scala 40: Vince chi raggiunge per primo 500 punti. Modalità punti alti.'
+  },
+  burraco: {
+    name: 'Burraco',
+    mode: 'max',
+    target: 2000,
+    description: '🃏 Burraco: Vince chi raggiunge 2000 punti. Partite lunghe e strategiche.'
+  },
+  briscola: {
+    name: 'Briscola',
+    mode: 'max',
+    target: 120,
+    description: '🃏 Briscola: Vince chi arriva a 120 punti (totale carte in gioco).'
+  },
+  scopa: {
+    name: 'Scopa',
+    mode: 'max',
+    target: 11,
+    description: '🃏 Scopa: Vince chi raggiunge 11 punti. Partite rapide.'
+  },
+  pinnacola: {
+    name: 'Pinnacola',
+    mode: 'max',
+    target: 1500,
+    description: '🃏 Pinnacola: Vince chi totalizza 1500 punti. Gioco di combinazioni.'
+  },
+  yahtzee: {
+    name: 'Yahtzee',
+    mode: 'max',
+    target: 300,
+    description: '🎲 Yahtzee: Vince chi fa più punti. Obiettivo tipico 300+ per partita completa.'
+  },
+  catan: {
+    name: 'Catan',
+    mode: 'max',
+    target: 10,
+    description: '🎲 Catan: Vince chi raggiunge 10 punti vittoria. Strategia e commercio.'
+  },
+  carcassonne: {
+    name: 'Carcassonne',
+    mode: 'max',
+    target: 100,
+    description: '🎲 Carcassonne: Obiettivo tipico 100+ punti. Piazzamento tessere strategico.'
+  },
+  ticket: {
+    name: 'Ticket to Ride',
+    mode: 'max',
+    target: 150,
+    description: '🎲 Ticket to Ride: Vince chi fa più punti. Obiettivo tipico 150+.'
+  },
+  freccette501: {
+    name: 'Freccette 501',
+    mode: 'min',
+    target: 0,
+    description: '🎯 Freccette 501: Si parte da 501, vince chi arriva esattamente a 0.'
+  },
+  freccette301: {
+    name: 'Freccette 301',
+    mode: 'min',
+    target: 0,
+    description: '🎯 Freccette 301: Si parte da 301, vince chi arriva esattamente a 0.'
+  },
+  bowling: {
+    name: 'Bowling',
+    mode: 'max',
+    target: 300,
+    description: '🎳 Bowling: Vince chi fa più punti. 300 è il punteggio perfetto.'
+  },
+  golf: {
+    name: 'Golf (Mini)',
+    mode: 'min',
+    target: 50,
+    description: '⛳ Golf: Vince chi fa meno punti. Obiettivo tipico: sotto il par (50).'
+  }
+}; 
+
 // -------------------------------------------------------------------
 // Funzioni per l'API 
 // -------------------------------------------------------------------
