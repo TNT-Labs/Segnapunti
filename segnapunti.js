@@ -298,6 +298,7 @@ function applicaPunteggioPersonalizzato(punti = null) {
     nascondiModalPunteggio();
 }
 
+// FIX: Funzione separata per animazione con cleanup e floating number
 function animaPunteggio(index, delta) {
     const puntiElement = document.getElementById(`punti-${index}`);
     if (!puntiElement) return;
@@ -307,19 +308,43 @@ function animaPunteggio(index, delta) {
     
     const animClass = delta >= 0 ? 'anim-up' : 'anim-down';
     
+    // Rimuovi eventuali animazioni precedenti
     puntiElement.classList.remove('anim-up', 'anim-down');
     
+    // Trigger reflow per riavviare l'animazione
     void puntiElement.offsetWidth;
     
     puntiElement.classList.add(animClass);
     strongElement.textContent = giocatori[index].punti;
     
+    // Crea elemento floating number
+    const floatingNumber = document.createElement('span');
+    floatingNumber.className = `floating-number ${delta >= 0 ? 'positive' : 'negative'}`;
+    floatingNumber.textContent = delta >= 0 ? `+${delta}` : delta;
+    
+    // Posiziona il numero vicino al punteggio
+    const rect = strongElement.getBoundingClientRect();
+    floatingNumber.style.position = 'fixed';
+    floatingNumber.style.left = `${rect.right + 10}px`;
+    floatingNumber.style.top = `${rect.top}px`;
+    
+    document.body.appendChild(floatingNumber);
+    
+    // Rimuovi il floating number dopo l'animazione
+    setTimeout(() => {
+        if (floatingNumber.parentNode) {
+            floatingNumber.parentNode.removeChild(floatingNumber);
+        }
+    }, 1200);
+    
+    // FIX: Cleanup listener con timeout
     const cleanup = () => {
         puntiElement.classList.remove(animClass);
     };
     
     puntiElement.addEventListener('animationend', cleanup, { once: true });
     
+    // Fallback nel caso animationend non venga triggerato
     setTimeout(cleanup, 500);
 }
 
