@@ -693,6 +693,8 @@ function renderGiocatoriPartita() {
             { text: '-1', title: 'Rimuovi 1 punto', action: () => modificaPunteggio(i, -1) },
             { text: '+5', title: 'Aggiungi 5 punti', action: () => modificaPunteggio(i, 5) },
             { text: '-5', title: 'Rimuovi 5 punti', action: () => modificaPunteggio(i, -5) },
+            { text: '+10', title: 'Aggiungi 10 punti', action: () => modificaPunteggio(i, 10) },
+            { text: '-10', title: 'Rimuovi 10 punti', action: () => modificaPunteggio(i, -10) },
             { text: '±', title: 'Punteggio Personalizzato', action: () => mostraModalPunteggio(i), class: 'btn-custom-score' }
         ];
 
