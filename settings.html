@@ -66,9 +66,28 @@
       <div class="loader-spinner"></div>
       <p>Caricamento dati...</p>
   </div>
+  <div id="loader-overlay" class="loader-overlay" style="display: flex;">
+      <div class="loader-spinner"></div>
+      <p>Caricamento dati...</p>
+  </div>
   
-  <script src="segnapunti.js"></script>
+  <!-- Bottom Navigation Bar -->
+  <nav class="bottom-nav">
+    <a href="index.html" class="nav-item">
+      <span class="nav-icon">🃏</span>
+      <span class="nav-label">Partita</span>
+    </a>
+    <a href="storico.html" class="nav-item active">
+      <span class="nav-icon">📜</span>
+      <span class="nav-label">Storico</span>
+    </a>
+    <a href="settings.html" class="nav-item">
+      <span class="nav-icon">⚙️</span>
+      <span class="nav-label">Impostazioni</span>
+    </a>
+  </nav>
   
+  <script src="segnapunti.js"></script>  
   <script>
     // CORREZIONE 3: Aggiunta della logica di registrazione del Service Worker
     if ('serviceWorker' in navigator) {
