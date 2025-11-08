@@ -21,10 +21,10 @@
 <body>
   <div class="container">
     <div class="header-controls fixed-header"> 
-      <h1>🃏 Punteggi</h1>
+      <h1>🃏 Punteggi Attuali</h1>
       <div class="top-buttons">
-          <button id="btn-history" title="Storico" onclick="window.location.href='storico.html'">📜</button>
-          <button id="btn-settings" title="Setup" onclick="window.location.href='settings.html'">⚙️</button>
+          <button id="btn-history" title="Storico Partite" onclick="window.location.href='storico.html'">📜</button>
+          <button id="btn-settings" title="Impostazioni Partita" onclick="window.location.href='settings.html'">⚙️</button>
           <button id="toggle-dark-mode" title="Attiva/Disattiva Modalità Scura" onclick="toggleDarkMode()">🌙</button>
       </div>
     </div>
@@ -68,6 +68,22 @@
       <div class="loader-spinner"></div>
       <p>Caricamento dati...</p>
   </div>
+
+  <!-- Bottom Navigation Bar -->
+  <nav class="bottom-nav">
+    <a href="index.html" class="nav-item active">
+      <span class="nav-icon">🃏</span>
+      <span class="nav-label">Partita</span>
+    </a>
+    <a href="storico.html" class="nav-item">
+      <span class="nav-icon">📜</span>
+      <span class="nav-label">Storico</span>
+    </a>
+    <a href="settings.html" class="nav-item">
+      <span class="nav-icon">⚙️</span>
+      <span class="nav-label">Impostazioni</span>
+    </a>
+  </nav>
 
   <script src="segnapunti.js"></script>
   
