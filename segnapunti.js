@@ -14,6 +14,7 @@ const HISTORY_STORE_NAME = 'storico_partite';
 const STATE_KEY = 'current_state';
 
 let db; 
+let dbPromise = null; // FIX: Evita race conditions
 
 // Preset di giochi popolari
 const GAME_PRESETS = {
@@ -137,15 +138,19 @@ window.resetPartita = resetPartita;
 window.caricaStoricoPartite = caricaStoricoPartite; 
 
 // -------------------------------------------------------------------
-// LOGICA ASINCRONA INDEXEDDB 
+// LOGICA ASINCRONA INDEXEDDB - FIX: Race Condition
 // -------------------------------------------------------------------
 function openDB() {
-    return new Promise((resolve, reject) => {
-        if (db) {
-            resolve(db);
-            return;
-        }
+    // FIX: Usa una promise condivisa per evitare aperture multiple
+    if (dbPromise) {
+        return dbPromise;
+    }
 
+    if (db) {
+        return Promise.resolve(db);
+    }
+
+    dbPromise = new Promise((resolve, reject) => {
         const request = indexedDB.open(DB_NAME, DB_VERSION);
 
         request.onupgradeneeded = (event) => {
@@ -167,9 +172,12 @@ function openDB() {
 
         request.onerror = (event) => {
             console.error("Errore IndexedDB:", event.target.errorCode);
+            dbPromise = null; // FIX: Reset promise on error
             reject(new Error("Errore nell'apertura del database IndexedDB."));
         };
     });
+
+    return dbPromise;
 }
 
 async function caricaStato() {
@@ -348,6 +356,7 @@ function nascondiModalPunteggio() {
     if (input) input.value = '';
 }
 
+// FIX: Validazione migliorata con limiti
 function applicaPunteggioPersonalizzato(punti = null) {
     if (globalPlayerIndexToUpdate === -1 || partitaTerminata) {
         nascondiModalPunteggio();
@@ -362,11 +371,20 @@ function applicaPunteggioPersonalizzato(punti = null) {
         const inputElement = document.getElementById('punteggio-input-custom');
         let val = parseInt(inputElement.value, 10);
         
+        // FIX: Validazione più robusta
         if (isNaN(val) || inputElement.value.trim() === '') {
             alert("Devi inserire un punteggio numerico valido.");
             inputElement.focus();
             return;
         }
+        
+        // FIX: Previeni valori estremi
+        if (val < -99999 || val > 99999) {
+            alert("Il punteggio deve essere tra -99999 e 99999.");
+            inputElement.focus();
+            return;
+        }
+        
         deltaPunti = val;
     }
     
@@ -380,13 +398,23 @@ function applicaPunteggioPersonalizzato(punti = null) {
     nascondiModalPunteggio();
 }
 
-// FIX: Funzione separata per animazione con cleanup e floating number
+// FIX: Gestione migliorata delle animazioni con throttling
+let activeAnimations = new Set();
+
 function animaPunteggio(index, delta) {
     const puntiElement = document.getElementById(`punti-${index}`);
     if (!puntiElement) return;
     
     const strongElement = puntiElement.querySelector('strong');
     if (!strongElement) return;
+    
+    // FIX: Previeni accumulo di animazioni
+    const animKey = `anim-${index}`;
+    if (activeAnimations.has(animKey)) {
+        return; // Skip se c'è già un'animazione attiva
+    }
+    
+    activeAnimations.add(animKey);
     
     const animClass = delta >= 0 ? 'anim-up' : 'anim-down';
     
@@ -412,22 +440,62 @@ function animaPunteggio(index, delta) {
     
     document.body.appendChild(floatingNumber);
     
-    // Rimuovi il floating number dopo l'animazione
-    setTimeout(() => {
-        if (floatingNumber.parentNode) {
+    // FIX: Rimuovi il floating number con timeout sicuro
+    const removeFloating = setTimeout(() => {
+        if (floatingNumber && floatingNumber.parentNode) {
             floatingNumber.parentNode.removeChild(floatingNumber);
         }
     }, 1200);
     
-    // FIX: Cleanup listener con timeout
+    // FIX: Cleanup listener con gestione corretta
     const cleanup = () => {
         puntiElement.classList.remove(animClass);
+        activeAnimations.delete(animKey);
     };
     
     puntiElement.addEventListener('animationend', cleanup, { once: true });
     
     // Fallback nel caso animationend non venga triggerato
-    setTimeout(cleanup, 500);
+    setTimeout(() => {
+        cleanup();
+        clearTimeout(removeFloating);
+    }, 500);
+}
+
+// -------------------------------------------------------------------
+// FIX: LOGICA PRESET GIOCHI
+// -------------------------------------------------------------------
+function applicaPresetGioco(presetKey) {
+    const presetInfo = document.getElementById('preset-info');
+    const presetDescription = document.getElementById('preset-description');
+    const modalitaSelect = document.getElementById('modalita-vittoria');
+    const obiettivoInput = document.getElementById('punteggio-obiettivo');
+    
+    if (!presetKey || presetKey === '') {
+        // Nasconde info se nessun preset
+        if (presetInfo) presetInfo.style.display = 'none';
+        return;
+    }
+    
+    const preset = GAME_PRESETS[presetKey];
+    if (!preset) return;
+    
+    // Applica impostazioni
+    modalitaVittoria = preset.mode;
+    punteggioObiettivo = preset.target;
+    
+    // Aggiorna UI
+    if (modalitaSelect) modalitaSelect.value = preset.mode;
+    if (obiettivoInput) obiettivoInput.value = preset.target;
+    
+    // Mostra descrizione
+    if (presetInfo && presetDescription) {
+        presetDescription.textContent = preset.description;
+        presetInfo.style.display = 'block';
+    }
+    
+    // Salva stato
+    salvaStato();
 }
 
 // -------------------------------------------------------------------
@@ -493,12 +561,30 @@ document.addEventListener('DOMContentLoaded', async function() {
       const punteggioObiettivoInput = document.getElementById('punteggio-obiettivo');
       if(punteggioObiettivoInput) punteggioObiettivoInput.value = punteggioObiettivo;
       
+      // FIX: Aggiungi listener per preset
+      const presetSelect = document.getElementById('preset-gioco');
+      if (presetSelect) {
+          presetSelect.addEventListener('change', (e) => {
+              applicaPresetGioco(e.target.value);
+          });
+      }
+      
       if(modalitaVittoriaSelect) {
-          modalitaVittoriaSelect.addEventListener('change', (e) => setModalitaVittoria(e.target.value));
+          modalitaVittoriaSelect.addEventListener('change', (e) => {
+              setModalitaVittoria(e.target.value);
+              // FIX: Reset preset quando si cambia manualmente
+              if (presetSelect) presetSelect.value = '';
+              const presetInfo = document.getElementById('preset-info');
+              if (presetInfo) presetInfo.style.display = 'none';
+          });
       }
       if(punteggioObiettivoInput) {
           punteggioObiettivoInput.addEventListener('change', (e) => {
               setPunteggioObiettivo(parseInt(e.target.value, 10));
+              // FIX: Reset preset quando si cambia manualmente
+              if (presetSelect) presetSelect.value = '';
+              const presetInfo = document.getElementById('preset-info');
+              if (presetInfo) presetInfo.style.display = 'none';
           });
           punteggioObiettivoInput.addEventListener('blur', (e) => {
               const val = parseInt(e.target.value, 10);
@@ -726,9 +812,24 @@ function controllaVittoria() {
     });
 }
 
+// FIX: Gestione memory leak - cleanup event listeners
+let currentButtonListeners = [];
+
+function cleanupButtonListeners() {
+    currentButtonListeners.forEach(({ element, event, handler }) => {
+        if (element) {
+            element.removeEventListener(event, handler);
+        }
+    });
+    currentButtonListeners = [];
+}
+
 function renderGiocatoriPartita() {
     const lista = document.getElementById('giocatori-lista-partita');
     if (!lista) return;
+
+    // FIX: Cleanup listeners prima di ricreare
+    cleanupButtonListeners();
 
     const giocatoriConIndice = giocatori.map((g, idx) => ({ ...g, originalIndex: idx }));
     
@@ -786,6 +887,14 @@ function renderGiocatoriPartita() {
             button.title = btn.title;
             if (btn.class) button.className = btn.class;
             button.addEventListener('click', btn.action);
+            
+            // FIX: Traccia listener per cleanup
+            currentButtonListeners.push({
+                element: button,
+                event: 'click',
+                handler: btn.action
+            });
+            
             controlsDiv.appendChild(button);
         });
 
