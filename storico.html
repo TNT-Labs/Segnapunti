@@ -17,8 +17,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet"> 
   
   <link rel="stylesheet" href="segnapunti.css">
-
-  </head>
+</head>
 <body>
   <div class="container">
     <div class="header-controls fixed-header">
@@ -30,13 +29,10 @@
     </div>
 
     <ul class="storico-lista" id="storico-lista">
-        </ul>
+    </ul>
   </div>
 
-  <div id="loader-overlay" class="loader-overlay" style="display: flex;">
-      <div class="loader-spinner"></div>
-      <p>Caricamento dati...</p>
-  </div>
+  <!-- FIX: Rimosso loader duplicato -->
   <div id="loader-overlay" class="loader-overlay" style="display: flex;">
       <div class="loader-spinner"></div>
       <p>Caricamento dati...</p>
@@ -60,7 +56,6 @@
   
   <script src="segnapunti.js"></script>  
   <script>
-    // CORREZIONE 3: Aggiunta della logica di registrazione del Service Worker
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('service-worker.js')
