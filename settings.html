@@ -17,8 +17,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet"> 
   
   <link rel="stylesheet" href="segnapunti.css">
-
-  </head>
+</head>
 <body>
   <div class="container">
     <div class="header-controls fixed-header">
@@ -36,12 +35,12 @@
     </div>
     
     <ul class="giocatori-lista" id="giocatori-lista-settings">
-        </ul>
+    </ul>
     
     <hr class="separator">
 
     <div id="impostazioni-partita">
-  <h3>Configurazione Partita</h3>
+      <h3>Configurazione Partita</h3>
       
       <label for="preset-gioco">🎮 Preset Gioco (opzionale):</label>
       <select id="preset-gioco">
@@ -87,29 +86,25 @@
         <button id="btn-nuova-partita" class="btn-reset">Inizia Nuova Partita (Reset Punti)</button>
       </div>
     </div>
-
   </div>
   
-  <div id="loader-overlay" class="loader-overlay" style="display: flex;">
-      <div class="loader-spinner"></div>
-      <p>Caricamento dati...</p>
-  </div>
+  <!-- FIX: Rimosso loader duplicato -->
   <div id="loader-overlay" class="loader-overlay" style="display: flex;">
       <div class="loader-spinner"></div>
       <p>Caricamento dati...</p>
   </div>
   
-  <!-- Bottom Navigation Bar -->
+  <!-- Bottom Navigation Bar - FIX: Impostazioni ora è active -->
   <nav class="bottom-nav">
     <a href="index.html" class="nav-item">
       <span class="nav-icon">🃏</span>
       <span class="nav-label">Partita</span>
     </a>
-    <a href="storico.html" class="nav-item active">
+    <a href="storico.html" class="nav-item">
       <span class="nav-icon">📜</span>
       <span class="nav-label">Storico</span>
     </a>
-    <a href="settings.html" class="nav-item">
+    <a href="settings.html" class="nav-item active">
       <span class="nav-icon">⚙️</span>
       <span class="nav-label">Impostazioni</span>
     </a>
@@ -117,7 +112,6 @@
   
   <script src="segnapunti.js"></script>  
   <script>
-    // CORREZIONE 3: Aggiunta della logica di registrazione del Service Worker
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('service-worker.js')
