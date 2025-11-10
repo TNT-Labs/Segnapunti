@@ -7,9 +7,9 @@ const PresetManagerModule = (() => {
   const DEFAULT_PRESETS = {
     scala40: { 
       name: 'Scala 40', 
-      mode: 'max', 
-      target: 500, 
-      description: '🃏 Scala 40: Vince chi raggiunge per primo 500 punti. Modalità punti alti.',
+      mode: 'min', 
+      target: 151, 
+      description: '🃏 Scala 40: Perde chi raggiunge per primo 151 punti. Modalità punti alti.',
       isDefault: true,
       category: 'carte'
     },
@@ -24,16 +24,16 @@ const PresetManagerModule = (() => {
     briscola: { 
       name: 'Briscola', 
       mode: 'max', 
-      target: 120, 
-      description: '🃏 Briscola: Vince chi arriva a 120 punti (totale carte in gioco).',
+      target: 21, 
+      description: '🃏 Briscola: Vince chi arriva a 21 punti (totale carte in gioco).',
       isDefault: true,
       category: 'carte'
     },
     scopa: { 
       name: 'Scopa', 
       mode: 'max', 
-      target: 11, 
-      description: '🃏 Scopa: Vince chi raggiunge 11 punti. Partite rapide.',
+      target: 21, 
+      description: '🃏 Scopa: Vince chi raggiunge 21 punti. Partite rapide.',
       isDefault: true,
       category: 'carte'
     },
