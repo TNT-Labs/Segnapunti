@@ -16,13 +16,24 @@ Segnapunti Carte è una web app moderna e leggera per gestire i punteggi dei gio
 ### Modalità di Gioco
 - 🏆 **Modalità Max**: Vince chi fa **più** punti
 - 🎯 **Modalità Min**: Vince chi fa **meno** punti
-- 🎮 **12 Preset Giochi Pre-configurati**:
-  - 🃏 Carte: Scala 40, Burraco, Briscola, Scopa, Pinnacola
-  - 🎲 Tavolo: Yahtzee, Catan, Carcassonne, Ticket to Ride
-  - 🎯 Altri: Freccette 301/501, Bowling, Golf
+- 🎮 **Sistema Preset Configurabile**:
+  - 12 Preset predefiniti immutabili
+  - Preset personalizzati illimitati
+  - Modifica regole per i tuoi giochi
+  - Categorie: Carte 🃏, Tavolo 🎲, Sport ⚽, Altri 🎯, Custom ⭐
 - 📊 Punteggio obiettivo personalizzabile
 - 🎉 Evidenziazione automatica del leader con corona animata 👑
 - 🏁 Termine partita con salvataggio automatico nello storico
+
+### 🎮 Gestione Preset (NUOVO v1.1.0)
+- ➕ **Crea Preset Personalizzati**: Configura i tuoi giochi preferiti
+- ✏️ **Modifica Preset**: Aggiorna regole e parametri
+- 📋 **Duplica Preset**: Usa qualsiasi preset come template
+- 🗑️ **Elimina Preset**: Rimuovi preset non più utilizzati
+- 📥📤 **Import/Export JSON**: Backup e condivisione preset
+- 🔒 **Preset Predefiniti Protetti**: 12 preset sempre disponibili
+- 🎨 **Organizzazione per Categoria**: Visualizzazione intuitiva
+- 💾 **Persistenza Automatica**: localStorage integrato
 
 ### Storico e Dati
 - 📜 Storico completo di tutte le partite giocate
@@ -37,7 +48,7 @@ Segnapunti Carte è una web app moderna e leggera per gestire i punteggi dei gio
 - 🎨 Interfaccia moderna con font Inter
 - ⚡ Animazioni fluide e feedback visivi
 - 🔝 Header fisso minimale con solo dark mode toggle
-- 📊 Bottom navigation bar per navigazione rapida
+- 📊 Bottom navigation bar a 4 tab per navigazione rapida
 - ♿ Accessibilità migliorata con ARIA labels
 
 ## 🚀 Come Usare
@@ -54,9 +65,10 @@ Visita direttamente: `https://tnt-labs.github.io/Segnapunti/`
 1. Dalla bottom navigation, vai su ⚙️ **Impostazioni**
 2. Aggiungi i giocatori uno alla volta (max 30 caratteri per nome)
 3. **Opzionale**: Seleziona un preset di gioco per configurazione automatica
-4. Oppure configura manualmente la modalità di vittoria e il punteggio obiettivo
-5. Torna alla 🃏 **Partita** dalla bottom navigation
-6. Usa i pulsanti per modificare i punteggi
+4. **Oppure**: Vai su 🎮 **Preset** per creare il tuo preset personalizzato
+5. Configura manualmente la modalità di vittoria e il punteggio obiettivo
+6. Torna alla 🃏 **Partita** dalla bottom navigation
+7. Usa i pulsanti per modificare i punteggi
 
 ### Durante la Partita
 - **+1/-1**: Modifica rapida di 1 punto
@@ -70,15 +82,276 @@ Usa la **Bottom Navigation Bar** sempre visibile:
 - 🃏 **Partita**: Pagina principale con punteggi attuali
 - 📜 **Storico**: Visualizza tutte le partite passate
 - ⚙️ **Impostazioni**: Gestione giocatori e configurazione
+- 🎮 **Preset**: Gestione preset personalizzati (NUOVO)
 
-### Preset Giochi
-Nella pagina Impostazioni, seleziona un preset per configurazione automatica:
+### 🎮 Gestione Preset Personalizzati
+
+#### Creare un Nuovo Preset
+1. Vai su 🎮 **Preset** dalla bottom navigation
+2. Clicca **➕ Nuovo Preset**
+3. Compila il form:
+   - **Codice**: identificatore univoco (es: `scala40_custom`)
+   - **Nome**: nome visualizzato (es: "Scala 40 Casa")
+   - **Modalità**: Max (più punti) o Min (meno punti)
+   - **Punteggio Obiettivo**: quando termina la partita
+   - **Categoria**: Carte, Tavolo, Sport, Altri, Custom
+   - **Descrizione**: breve descrizione delle regole
+4. **💾 Salva Preset**
+
+#### Modificare un Preset Esistente
+1. Trova il preset nella lista (solo preset personalizzati)
+2. Clicca **✏️ Modifica**
+3. Aggiorna i campi desiderati
+4. **💾 Salva modifiche**
+
+#### Duplicare un Preset
+1. Clicca **📋 Duplica** su qualsiasi preset (anche predefiniti)
+2. Inserisci nuovo codice univoco
+3. Inserisci nuovo nome
+4. Il preset viene creato con le stesse impostazioni dell'originale
+5. Puoi poi modificarlo come preferisci
+
+#### Import/Export Preset
+- **📤 Esporta**: Scarica tutti i tuoi preset personalizzati in formato JSON
+- **📥 Importa**: Carica un file JSON per importare preset
+- **🔄 Ripristina Default**: Elimina tutti i preset personalizzati (richiede conferma)
+
+### Preset Predefiniti Disponibili
+Nella pagina Impostazioni o Preset, trovi questi preset pronti all'uso:
+
+**🃏 Giochi di Carte:**
 - **Scala 40**: Max 500 punti
 - **Burraco**: Max 2000 punti
 - **Briscola**: Max 120 punti
 - **Scopa**: Max 11 punti
+- **Pinnacola**: Max 1500 punti
+
+**🎲 Giochi da Tavolo:**
+- **Yahtzee**: Max 300 punti
+- **Catan**: Max 10 punti
+- **Carcassonne**: Max 100 punti
+- **Ticket to Ride**: Max 150 punti
+
+**🎯 Altri Giochi:**
 - **Freccette 501**: Min 0 (partenza da 501)
-- E molti altri...
+- **Freccette 301**: Min 0 (partenza da 301)
+- **Bowling**: Max 300 punti
+- **Golf (Mini)**: Min 50 punti
+
+## 🛠️ Personalizzazione
+
+### Colori e Stile
+Modifica le variabili CSS in `segnapunti.css`:
+```css
+:root {
+  --colore-primario: #2a4d69;
+  --colore-secondario: #4b86b4;
+  --colore-sfondo: #f4f6fb;
+  /* ... altre variabili ... */
+}
+```
+
+### Manifest e Icone
+Personalizza nome e icone in `manifest.json`:
+```json
+{
+  "name": "Il Tuo Nome App",
+  "short_name": "Nome Breve",
+  "icons": [ /* ... tue icone ... */ ]
+}
+```
+
+### Service Worker
+Modifica la cache e la strategia in `service-worker.js`:
+```javascript
+const CACHE_NAME = 'tuo-cache-v1.1.0';
+const ASSETS_TO_CACHE = [ /* ... tuoi assets ... */ ];
+```
+
+### Creare Preset Programmaticamente
+Usa l'API del PresetManager:
+```javascript
+// Crea un nuovo preset
+window.PresetManager.createPreset('mio_gioco', {
+  name: 'Mio Gioco',
+  mode: 'max',
+  target: 100,
+  description: 'Descrizione del gioco',
+  category: 'custom'
+});
+
+// Duplica un preset esistente
+window.PresetManager.duplicatePreset('scala40', 'scala40_casa', 'Scala 40 Casa');
+
+// Export preset
+window.PresetManager.exportPresets();
+```
+
+## 📋 Requisiti Tecnici
+
+### Browser Supportati
+- ✅ Chrome/Edge 90+
+- ✅ Firefox 88+
+- ✅ Safari 14+
+- ✅ Opera 76+
+
+### Funzionalità Richieste
+- IndexedDB (per salvataggio dati partite)
+- localStorage (per salvataggio preset personalizzati)
+- Service Worker (per PWA e offline)
+- ES6+ JavaScript con Module Pattern
+- CSS Grid e Flexbox
+
+### Per PWA Completa
+- HTTPS obbligatorio (eccetto localhost)
+- Manifest.json configurato
+- Service Worker registrato
+- Icone nelle dimensioni richieste
+
+## 📧 Struttura File
+
+```
+Segnapunti/
+│
+├── index.html              # Pagina principale partita
+├── settings.html           # Pagina impostazioni
+├── storico.html           # Pagina storico partite
+├── preset-manager.html    # 🆕 Pagina gestione preset
+├── segnapunti.js          # Logica JavaScript modulare
+├── preset-manager.js      # 🆕 Modulo gestione preset
+├── segnapunti.css         # Stili CSS principali
+├── preset-manager.css     # 🆕 Stili gestione preset
+├── manifest.json          # Manifest PWA
+├── service-worker.js      # Service Worker per offline
+├── README.md              # Questa documentazione
+│
+└── icon-*.png            # Icone varie dimensioni
+    ├── icon-72x72.png
+    ├── icon-96x96.png
+    ├── icon-128x128.png
+    ├── icon-144x144.png
+    ├── icon-152x152.png
+    ├── icon-192.png
+    ├── icon-384x384.png
+    └── icon-512.png
+```
+
+## 🐛 Bug Fix e Miglioramenti
+
+### v1.1.0 (Novembre 2025) 🆕
+- ✨ **Feature**: Sistema completo di gestione preset personalizzabili
+- ✨ **Feature**: CRUD preset (Create, Read, Update, Delete)
+- ✨ **Feature**: Import/Export preset in formato JSON
+- ✨ **Feature**: Duplicazione preset (anche predefiniti)
+- ✨ **Feature**: Categorie preset con icone
+- ✨ **Feature**: Pagina dedicata con UI card-based
+- 🎨 **UI**: Bottom navigation a 4 tab
+- 🎨 **UI**: Link diretto a Preset Manager da Settings
+- 🎨 **UI**: Select preset popolato dinamicamente
+- 🔧 **Refactor**: Module Pattern ES6 completo
+- 🔧 **Refactor**: Separazione responsabilità in moduli
+- 📝 **Docs**: README aggiornato con guida preset
+
+### v1.0.9 (Novembre 2025)
+- 🔧 **Refactor**: Implementato Module Pattern ES6
+- 🔒 **Security**: Incapsulamento stato privato
+- 🧩 **Architecture**: Separazione in moduli dedicati
+  - DatabaseModule: Gestione IndexedDB
+  - GameStateModule: Stato del gioco
+  - UIModule: Rendering e animazioni
+  - SettingsModule: Gestione impostazioni
+  - AppController: Coordinatore principale
+- 🌐 **API**: Ridotta esposizione globale a `window.SegnapuntiApp`
+- 📊 **Debug**: Helper debug per sviluppo
+- ⚡ **Performance**: Migliore gestione memoria
+
+### v1.0.8 (Novembre 2025)
+- 🐛 Fix: Rimosso loader duplicato in settings/storico
+- 🐛 Fix: Corretta bottom navigation in settings
+- ✨ Feature: Implementati 12 preset giochi funzionanti
+- 🐛 Fix: Risolte race conditions IndexedDB
+- 🐛 Fix: Eliminati memory leak event listeners
+- 🐛 Fix: Migliorata gestione animazioni
+- 🐛 Fix: Validazione input robusta (-99999/+99999)
+- 🎨 UI: Header minimale con solo dark mode
+- ⚡ Performance: +40% fluidità animazioni
+- 📝 Docs: README completo e aggiornato
+
+### v1.0.7 (Gennaio 2025)
+- 🐛 Fix: Modale non si apre automaticamente all'avvio
+- 🐛 Fix: Ordine giocatori sincronizzato
+- 🐛 Fix: Dark mode icon corretta al caricamento
+- 🐛 Fix: Race condition con loader
+- 🐛 Fix: Memory leak event listener animazioni
+- 🛡️ Security: Prevenzione XSS
+- ✨ Feature: Chiusura modale con ESC
+
+## 💡 Consigli per l'Uso
+
+### Giochi Consigliati (Preset Predefiniti)
+- 🃏 **Scala 40**: Modalità Max, Obiettivo 500
+- 🎴 **Burraco**: Modalità Max, Obiettivo 2000
+- 🂡 **Briscola**: Modalità Max, Obiettivo 120
+- 🎯 **Freccette 501**: Modalità Min, Obiettivo 0
+- 🎲 **Catan**: Modalità Max, Obiettivo 10
+
+### Best Practice
+1. **Prima partita**: Aggiungi tutti i giocatori dalle impostazioni
+2. **Usa preset**: Seleziona un preset per configurazione rapida
+3. **Crea preset custom**: Per i tuoi giochi abituali crea preset personalizzati
+4. **Backup preset**: Esporta periodicamente i tuoi preset personalizzati
+5. **Condividi**: Importa preset da amici per uniformare le regole
+6. **Pulsanti rapidi**: Usa +1/+5/+10 per modifiche frequenti
+7. **Modale ±**: Per punteggi complessi o quando servono valori specifici
+8. **Installa come PWA**: Per esperienza app nativa
+
+### Creazione Preset Efficace
+- **Codice chiaro**: Usa nomi descrittivi (es: `scala40_veloce`)
+- **Descrizione completa**: Spiega le regole principali
+- **Categoria corretta**: Facilita l'organizzazione
+- **Test prima**: Prova il preset in una partita di prova
+- **Duplica e modifica**: Parti da preset simili esistenti
+
+## 📱 Compatibilità Dispositivi
+
+### Mobile
+- ✅ Smartphone Android (Chrome, Firefox, Samsung Internet)
+- ✅ iPhone (Safari, Chrome)
+- ✅ Tablet Android
+- ✅ iPad
+
+### Desktop
+- ✅ Windows (Chrome, Edge, Firefox)
+- ✅ macOS (Safari, Chrome, Firefox)
+- ✅ Linux (Chrome, Firefox)
+
+### Installazione PWA
+- **Android**: Menu browser → "Aggiungi a schermata Home"
+- **iOS**: Safari → Condividi → "Aggiungi a Home"
+- **Desktop**: Icona installazione nella barra degli indirizzi
+
+## 🔄 Sviluppo Futuro
+
+### Roadmap v1.2
+- [ ] Condivisione preset tramite QR code
+- [ ] Preset community (repository pubblico)
+- [ ] Validazione avanzata regole (es: punteggio iniziale diverso da 0)
+- [ ] Template preset con variabili
+- [ ] Preset con regole multiple (es: bonus, malus)
+
+### Roadmap v1.3
+- [ ] Export/Import dati partite (CSV/JSON)
+- [ ] Grafici e statistiche per giocatore
+- [ ] Modalità multiplayer sincronizzato (WebSocket)
+- [ ] Temi personalizzabili aggiuntivi
+- [ ] Widget punteggio veloce
+
+### Roadmap v2.0
+- [ ] Supporto per più lingue (i18n)
+- [ ] Timer per turni
+- [ ] Note per giocatore/partita
+- [ ] Backup automatico cloud (opzionale)
+- [ ] Modalità torneo con bracket
 
 ## 🛠️ Personalizzazione
 
@@ -309,16 +582,50 @@ Apri una issue su GitHub con:
 
 ## 📊 Changelog
 
-### v1.0.8 (Novembre 2025) 🆕
+### v1.1.0 (Novembre 2025) 🆕
+- ✨ **Major Feature**: Sistema completo di gestione preset personalizzabili
+- ✨ Feature: CRUD preset (Create, Read, Update, Delete)
+- ✨ Feature: Import/Export preset in formato JSON
+- ✨ Feature: Duplicazione preset (anche predefiniti)
+- ✨ Feature: Organizzazione preset per categorie con icone
+- ✨ Feature: Pagina dedicata 🎮 Preset con UI card-based
+- ✨ Feature: localStorage per persistenza preset personalizzati
+- 🎨 UI: Bottom navigation estesa a 4 tab
+- 🎨 UI: Link diretto da Settings a Preset Manager
+- 🎨 UI: Select preset popolato dinamicamente
+- 🎨 UI: Modal avanzato per creazione/modifica preset
+- 🎨 UI: Badge e styling differenziato per preset default/custom
+- 🔧 Refactor: Module Pattern ES6 completo (v1.0.9)
+- 🔧 Refactor: Separazione responsabilità in moduli dedicati
+- 🔒 Security: Incapsulamento stato privato
+- 📝 Docs: README completamente aggiornato con guida preset
+- 📝 Docs: Esempi d'uso API PresetManager
+
+### v1.0.9 (Novembre 2025)
+- 🔧 **Major Refactor**: Implementato Module Pattern ES6
+- 🧩 Architecture: Separazione in moduli dedicati
+  - DatabaseModule: Gestione IndexedDB
+  - GameStateModule: Stato del gioco
+  - UIModule: Rendering e animazioni
+  - SettingsModule: Gestione impostazioni
+  - AppController: Coordinatore principale
+- 🌐 API: Ridotta esposizione globale a `window.SegnapuntiApp`
+- 🔒 Security: Stato privato incapsulato
+- 📊 Debug: Helper debug per sviluppo
+- ⚡ Performance: Migliore gestione memoria
+- 🧹 Code Quality: Eliminato codice duplicato
+
+### v1.0.8 (Novembre 2025)
 - 🐛 Fix: Rimosso loader duplicato in settings/storico
 - 🐛 Fix: Corretta bottom navigation in settings
 - ✨ Feature: Implementati 12 preset giochi funzionanti
 - 🐛 Fix: Risolte race conditions IndexedDB
 - 🐛 Fix: Eliminati memory leak event listeners
-- 🐛 Fix: Migliorata gestione animazioni
+- 🐛 Fix: Migliorata gestione animazioni con throttling
 - 🐛 Fix: Validazione input robusta (-99999/+99999)
-- 🎨 UI: Header minimale con solo dark mode
+- 🎨 UI: Header minimale con solo dark mode toggle
 - ⚡ Performance: +40% fluidità animazioni
+- 🛡️ Security: Prevenzione XSS migliorata
 - 📝 Docs: README completo e aggiornato
 
 ### v1.0.7 (Gennaio 2025)
@@ -329,6 +636,7 @@ Apri una issue su GitHub con:
 - 🐛 Fix: Memory leak event listener animazioni
 - 🛡️ Security: Prevenzione XSS
 - ✨ Feature: Chiusura modale con ESC
+- 🎨 UI: Miglioramenti animazioni
 
 ### v1.0.0 (Dicembre 2024)
 - 🎉 Release iniziale
@@ -337,13 +645,95 @@ Apri una issue su GitHub con:
 - ✅ Storico partite
 - ✅ Dark mode
 - ✅ PWA completa
+- ✅ Bottom navigation
+- ✅ Service Worker per offline
 
 ---
 
-**Versione Corrente**: 1.0.8  
+**Versione Corrente**: 1.1.0  
 **Ultimo Aggiornamento**: Novembre 2025  
 **Stato**: Stabile e Production-Ready ✅  
 **Download**: [GitHub Releases](https://github.com/tnt-labs/Segnapunti/releases)
+
+---
+
+## 🎮 API Preset Manager (per sviluppatori)
+
+### Metodi Pubblici
+
+```javascript
+// Ottieni tutti i preset (default + custom)
+const allPresets = window.PresetManager.getAllPresets();
+
+// Ottieni preset organizzati per categoria
+const byCategory = window.PresetManager.getPresetsByCategory();
+
+// Crea un nuovo preset
+window.PresetManager.createPreset('mio_gioco', {
+  name: 'Mio Gioco',
+  mode: 'max',
+  target: 100,
+  description: 'Descrizione del gioco',
+  category: 'custom'
+});
+
+// Modifica un preset esistente (solo custom)
+window.PresetManager.updatePreset('mio_gioco', {
+  name: 'Mio Gioco Modificato',
+  mode: 'min',
+  target: 50,
+  description: 'Nuova descrizione',
+  category: 'sport'
+});
+
+// Duplica un preset
+window.PresetManager.duplicatePreset(
+  'scala40',           // preset sorgente
+  'scala40_veloce',    // nuovo codice
+  'Scala 40 Veloce'    // nuovo nome
+);
+
+// Elimina un preset custom
+window.PresetManager.deletePreset('mio_gioco');
+
+// Export preset in JSON
+window.PresetManager.exportPresets();
+
+// Import preset da JSON
+const jsonString = '{"version":"1.0","presets":{...}}';
+const result = window.PresetManager.importPresets(jsonString);
+console.log(`Importati: ${result.imported}, Ignorati: ${result.skipped}`);
+
+// Ripristina solo preset di default
+window.PresetManager.restoreDefaults();
+
+// Verifica se un preset è predefinito
+const isDefault = window.PresetManager.isDefaultPreset('scala40'); // true
+
+// Ottieni icona per categoria
+const icon = window.PresetManager.getCategoryIcon('carte'); // 🃏
+```
+
+### Formato JSON Export/Import
+
+```json
+{
+  "version": "1.0",
+  "exportDate": "2025-11-10T12:00:00.000Z",
+  "presets": {
+    "mio_gioco": {
+      "name": "Mio Gioco",
+      "mode": "max",
+      "target": 100,
+      "description": "Descrizione del gioco",
+      "category": "custom",
+      "isDefault": false,
+      "createdAt": 1699617600000,
+      "modifiedAt": 1699617600000
+    }
+  }
+}
+```
 
 ---
 
