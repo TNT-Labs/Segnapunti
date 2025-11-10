@@ -44,26 +44,14 @@
       <label for="preset-gioco">🎮 Preset Gioco (opzionale):</label>
       <select id="preset-gioco">
         <option value="">-- Configurazione Personalizzata --</option>
-        <optgroup label="🃏 Giochi di Carte">
-          <option value="scala40">Scala 40</option>
-          <option value="burraco">Burraco</option>
-          <option value="briscola">Briscola</option>
-          <option value="scopa">Scopa</option>
-          <option value="pinnacola">Pinnacola</option>
-        </optgroup>
-        <optgroup label="🎲 Giochi da Tavolo">
-          <option value="yahtzee">Yahtzee</option>
-          <option value="catan">Catan</option>
-          <option value="carcassonne">Carcassonne</option>
-          <option value="ticket">Ticket to Ride</option>
-        </optgroup>
-        <optgroup label="🎯 Altri Giochi">
-          <option value="freccette501">Freccette 501</option>
-          <option value="freccette301">Freccette 301</option>
-          <option value="bowling">Bowling</option>
-          <option value="golf">Golf (Mini)</option>
-        </optgroup>
+        <!-- Popolato dinamicamente da JavaScript -->
       </select>
+      
+      <div class="preset-manager-link" style="margin-top: 10px;">
+        <a href="preset-manager.html" class="btn-secondary" style="display: inline-block; text-decoration: none; padding: 8px 16px; border-radius: 6px;">
+          🎮 Gestisci Preset Personalizzati
+        </a>
+      </div>
       
       <label for="modalita-vittoria">Modalità di vittoria:</label>
       <select id="modalita-vittoria">
@@ -93,7 +81,7 @@
       <p>Caricamento dati...</p>
   </div>
   
-  <!-- Bottom Navigation Bar - FIX: Impostazioni ora è active -->
+  <!-- Bottom Navigation Bar -->
   <nav class="bottom-nav">
     <a href="index.html" class="nav-item">
       <span class="nav-icon">🃏</span>
@@ -107,9 +95,14 @@
       <span class="nav-icon">⚙️</span>
       <span class="nav-label">Impostazioni</span>
     </a>
+    <a href="preset-manager.html" class="nav-item">
+      <span class="nav-icon">🎮</span>
+      <span class="nav-label">Preset</span>
+    </a>
   </nav>
   
-  <script src="segnapunti.js"></script>  
+  <script src="segnapunti.js"></script>
+  <script src="preset-manager.js"></script>  
   <script>
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
