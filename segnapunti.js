@@ -138,6 +138,35 @@ const DatabaseModule = (() => {
     }
   };
 
+  const clearHistory = async () => {
+    try {
+      const db = await openDB();
+      return new Promise((resolve, reject) => {
+        const transaction = db.transaction([HISTORY_STORE_NAME], 'readwrite');
+        const store = transaction.objectStore(HISTORY_STORE_NAME);
+        const request = store.clear();
+
+        transaction.onerror = () => {
+          console.error('Errore durante la cancellazione dello storico');
+          reject();
+        };
+
+        request.onsuccess = () => {
+          console.log('Storico cancellato con successo');
+          resolve();
+        };
+        
+        request.onerror = () => {
+          console.error('Errore nella richiesta di cancellazione');
+          reject();
+        };
+      });
+    } catch (error) {
+      console.error("Errore nella cancellazione dello storico:", error);
+      throw error;
+    }
+  };
+
   const requestPersistentStorage = async () => {
     if (navigator.storage && navigator.storage.persist) {
       try {
@@ -157,6 +186,7 @@ const DatabaseModule = (() => {
     saveState,
     saveHistory,
     loadHistory,
+    clearHistory,
     requestPersistentStorage
   };
 })();
@@ -704,6 +734,13 @@ const UIModule = (() => {
     if (!elements.storicoLista) return;
 
     const storico = await DatabaseModule.loadHistory();
+    
+    // Aggiorna statistiche
+    const statsContainer = document.getElementById('storico-stats');
+    if (statsContainer) {
+      statsContainer.innerHTML = `<span><strong>${storico.length}</strong> partite giocate</span>`;
+    }
+    
     elements.storicoLista.innerHTML = '';
 
     if (storico.length === 0) {
@@ -755,6 +792,37 @@ const UIModule = (() => {
       li.appendChild(details);
       elements.storicoLista.appendChild(li);
     });
+  };
+
+  const clearStorico = async () => {
+    const storico = await DatabaseModule.loadHistory();
+    
+    if (storico.length === 0) {
+      alert('Lo storico è già vuoto!');
+      return;
+    }
+
+    const confirmMessage = `⚠️ ATTENZIONE!\n\nStai per eliminare TUTTE le ${storico.length} partite dallo storico.\n\nQuesta operazione è IRREVERSIBILE!\n\nSei assolutamente sicuro di voler continuare?`;
+    
+    if (!confirm(confirmMessage)) {
+      return;
+    }
+
+    // Doppia conferma per sicurezza
+    const doubleConfirm = confirm('Conferma ancora una volta: vuoi davvero eliminare tutto lo storico?');
+    
+    if (!doubleConfirm) {
+      return;
+    }
+
+    try {
+      await DatabaseModule.clearHistory();
+      alert('✅ Storico eliminato con successo!');
+      await renderStorico();
+    } catch (error) {
+      alert('❌ Errore durante l\'eliminazione dello storico. Riprova.');
+      console.error('Errore clear storico:', error);
+    }
   };
 
   const checkAndDisplayVittoria = () => {
@@ -882,6 +950,7 @@ const UIModule = (() => {
     renderGiocatoriPartita,
     renderGiocatoriSettings,
     renderStorico,
+    clearStorico,
     checkAndDisplayVittoria,
     showLoader,
     hideLoader,
@@ -1212,6 +1281,14 @@ const AppController = (() => {
 
   const initStoricoPage = async () => {
     await UIModule.renderStorico();
+    
+    // Setup clear history button
+    const btnClearHistory = document.getElementById('btn-clear-history');
+    if (btnClearHistory) {
+      btnClearHistory.addEventListener('click', async () => {
+        await UIModule.clearStorico();
+      });
+    }
   };
 
   // Public API
