@@ -171,6 +171,11 @@ const GameStateModule = (() => {
   let giocatori = [];
   let partitaTerminata = false;
 
+  // Utility per generare ID univoci
+  const generatePlayerId = () => {
+    return `player_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  };
+
   // Getters
   const getModalitaVittoria = () => modalitaVittoria;
   const getPunteggioObiettivo = () => punteggioObiettivo;
@@ -220,24 +225,43 @@ const GameStateModule = (() => {
       throw new Error("Questo nome esiste già!");
     }
 
-    giocatori.push({ nome: nomeTrimmed, punti: 0 });
+    const newPlayer = {
+      id: generatePlayerId(),
+      nome: nomeTrimmed,
+      punti: 0,
+      createdAt: Date.now()
+    };
+    
+    giocatori.push(newPlayer);
     saveCurrentState();
+    
+    return newPlayer;
   };
 
-  const removeGiocatore = (index) => {
-    if (index >= 0 && index < giocatori.length) {
+  const removeGiocatore = (playerId) => {
+    const index = giocatori.findIndex(g => g.id === playerId);
+    if (index !== -1) {
       giocatori.splice(index, 1);
-      saveCurrentState();
-    }
-  };
-
-  const updatePunteggio = (index, delta) => {
-    if (index >= 0 && index < giocatori.length && !partitaTerminata) {
-      giocatori[index].punti += delta;
       saveCurrentState();
       return true;
     }
     return false;
+  };
+
+  const updatePunteggio = (playerId, delta) => {
+    if (partitaTerminata) return false;
+    
+    const giocatore = giocatori.find(g => g.id === playerId);
+    if (giocatore) {
+      giocatore.punti += delta;
+      saveCurrentState();
+      return true;
+    }
+    return false;
+  };
+  
+  const getGiocatoreById = (playerId) => {
+    return giocatori.find(g => g.id === playerId) || null;
   };
 
   const resetPunteggi = () => {
@@ -305,6 +329,18 @@ const GameStateModule = (() => {
       giocatori = state.giocatori || [];
       partitaTerminata = state.partitaTerminata || false;
       
+      // Migrazione: aggiungi ID ai giocatori esistenti senza ID
+      giocatori = giocatori.map(g => {
+        if (!g.id) {
+          return {
+            ...g,
+            id: generatePlayerId(),
+            createdAt: Date.now()
+          };
+        }
+        return g;
+      });
+      
       if (state.darkMode) {
         document.body.classList.add('dark-mode');
       }
@@ -340,6 +376,7 @@ const GameStateModule = (() => {
     addGiocatore,
     removeGiocatore,
     updatePunteggio,
+    getGiocatoreById,
     resetPunteggi,
     // Preset
     applyPreset,
@@ -358,7 +395,7 @@ const GameStateModule = (() => {
 const UIModule = (() => {
   let currentButtonListeners = [];
   let activeAnimations = new Set();
-  let globalPlayerIndexToUpdate = -1;
+  let globalPlayerIdToUpdate = null; // Cambiato da Index a ID
 
   // DOM Elements cache
   const elements = {
@@ -396,14 +433,14 @@ const UIModule = (() => {
   };
 
   // Animations
-  const animatePunteggio = (index, delta) => {
-    const puntiElement = document.getElementById(`punti-${index}`);
+  const animatePunteggio = (playerId, delta) => {
+    const puntiElement = document.getElementById(`punti-${playerId}`);
     if (!puntiElement) return;
     
     const strongElement = puntiElement.querySelector('strong');
     if (!strongElement) return;
     
-    const animKey = `anim-${index}`;
+    const animKey = `anim-${playerId}`;
     if (activeAnimations.has(animKey)) return;
     
     activeAnimations.add(animKey);
@@ -414,8 +451,10 @@ const UIModule = (() => {
     void puntiElement.offsetWidth;
     puntiElement.classList.add(animClass);
     
-    const giocatori = GameStateModule.getGiocatori();
-    strongElement.textContent = giocatori[index].punti;
+    const giocatore = GameStateModule.getGiocatoreById(playerId);
+    if (giocatore) {
+      strongElement.textContent = giocatore.punti;
+    }
     
     // Floating number
     const floatingNumber = document.createElement('span');
@@ -449,16 +488,16 @@ const UIModule = (() => {
   };
 
   // Modal
-  const showModal = (index) => {
+  const showModal = (playerId) => {
     if (GameStateModule.isPartitaTerminata()) return;
     
-    const giocatori = GameStateModule.getGiocatori();
-    if (index < 0 || index >= giocatori.length) return;
+    const giocatore = GameStateModule.getGiocatoreById(playerId);
+    if (!giocatore) return;
     
-    globalPlayerIndexToUpdate = index;
+    globalPlayerIdToUpdate = playerId;
     
     if (elements.modal && elements.modalTitle && elements.modalInput) {
-      elements.modalTitle.textContent = `Aggiungi Punti a ${giocatori[index].nome}`;
+      elements.modalTitle.textContent = `Aggiungi Punti a ${giocatore.nome}`;
       elements.modalInput.value = '';
       elements.modal.style.display = 'flex';
       
@@ -470,7 +509,7 @@ const UIModule = (() => {
     if (elements.modal) {
       elements.modal.style.display = 'none';
     }
-    globalPlayerIndexToUpdate = -1;
+    globalPlayerIdToUpdate = null;
     
     if (elements.modalInput) {
       elements.modalInput.value = '';
@@ -478,7 +517,7 @@ const UIModule = (() => {
   };
 
   const applyCustomScore = (punti = null) => {
-    if (globalPlayerIndexToUpdate === -1 || GameStateModule.isPartitaTerminata()) {
+    if (!globalPlayerIdToUpdate || GameStateModule.isPartitaTerminata()) {
       hideModal();
       return;
     }
@@ -505,10 +544,12 @@ const UIModule = (() => {
       deltaPunti = val;
     }
     
-    GameStateModule.updatePunteggio(globalPlayerIndexToUpdate, deltaPunti);
-    animatePunteggio(globalPlayerIndexToUpdate, deltaPunti);
-    renderGiocatoriPartita();
-    checkAndDisplayVittoria();
+    if (GameStateModule.updatePunteggio(globalPlayerIdToUpdate, deltaPunti)) {
+      animatePunteggio(globalPlayerIdToUpdate, deltaPunti);
+      renderGiocatoriPartita();
+      checkAndDisplayVittoria();
+    }
+    
     hideModal();
   };
 
@@ -522,12 +563,12 @@ const UIModule = (() => {
     const modalita = GameStateModule.getModalitaVittoria();
     const partitaTerminata = GameStateModule.isPartitaTerminata();
     
-    const giocatoriConIndice = giocatori.map((g, idx) => ({ ...g, originalIndex: idx }));
+    const giocatoriConId = giocatori.map(g => ({ ...g }));
     
     if (modalita === 'max') {
-      giocatoriConIndice.sort((a, b) => b.punti - a.punti);
+      giocatoriConId.sort((a, b) => b.punti - a.punti);
     } else {
-      giocatoriConIndice.sort((a, b) => a.punti - b.punti);
+      giocatoriConId.sort((a, b) => a.punti - b.punti);
     }
 
     elements.giocatoriListaPartita.innerHTML = '';
@@ -537,12 +578,12 @@ const UIModule = (() => {
       return;
     }
 
-    giocatoriConIndice.forEach((g) => {
-      const i = g.originalIndex;
+    giocatoriConId.forEach((g) => {
+      const playerId = g.id;
 
       const li = document.createElement('li');
       li.className = `giocatore-item ${partitaTerminata ? 'game-over' : ''}`;
-      li.id = `giocatore-${i}`;
+      li.id = `giocatore-${playerId}`;
 
       const nomeSpan = document.createElement('span');
       nomeSpan.className = 'giocatore-nome';
@@ -553,7 +594,7 @@ const UIModule = (() => {
 
       const puntiSpan = document.createElement('span');
       puntiSpan.className = 'giocatore-punti';
-      puntiSpan.id = `punti-${i}`;
+      puntiSpan.id = `punti-${playerId}`;
       
       const puntiStrong = document.createElement('strong');
       puntiStrong.textContent = g.punti;
@@ -581,12 +622,13 @@ const UIModule = (() => {
         
         const handler = btn.delta !== null 
           ? () => {
-              GameStateModule.updatePunteggio(i, btn.delta);
-              animatePunteggio(i, btn.delta);
-              renderGiocatoriPartita();
-              checkAndDisplayVittoria();
+              if (GameStateModule.updatePunteggio(playerId, btn.delta)) {
+                animatePunteggio(playerId, btn.delta);
+                renderGiocatoriPartita();
+                checkAndDisplayVittoria();
+              }
             }
-          : () => showModal(i);
+          : () => showModal(playerId);
         
         button.addEventListener('click', handler);
         
@@ -616,7 +658,7 @@ const UIModule = (() => {
       return;
     }
 
-    giocatori.forEach((g, i) => {
+    giocatori.forEach((g) => {
       const li = document.createElement('li');
       li.className = 'giocatore-item';
       
@@ -640,7 +682,7 @@ const UIModule = (() => {
       btnRimuovi.textContent = '🗑️ Rimuovi';
       btnRimuovi.addEventListener('click', () => {
         if (confirm(`Sei sicuro di voler rimuovere ${g.nome}?`)) {
-          GameStateModule.removeGiocatore(i);
+          GameStateModule.removeGiocatore(g.id);
           renderGiocatoriSettings();
           if (elements.giocatoriListaPartita) {
             renderGiocatoriPartita();
@@ -758,7 +800,7 @@ const UIModule = (() => {
       }
 
       giocatori.forEach((g, i) => {
-        const item = document.getElementById(`giocatore-${i}`);
+        const item = document.getElementById(`giocatore-${g.id}`);
         if (item) {
           item.classList.add('game-over');
           if (vincitori.includes(g.nome)) {
@@ -777,7 +819,7 @@ const UIModule = (() => {
       GameStateModule.setPartitaTerminata(false);
       
       giocatori.forEach((g, i) => {
-        const item = document.getElementById(`giocatore-${i}`);
+        const item = document.getElementById(`giocatore-${g.id}`);
         if (item) {
           item.classList.remove('game-over');
           
