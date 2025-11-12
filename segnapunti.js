@@ -340,6 +340,74 @@ const GameStateModule = (() => {
     return { hasWinner, vincitori, puntiVincitore, maxPunti, minPunti };
   };
 
+  /**
+   * Calcola lo stato completo della partita (PURE FUNCTION)
+   * Nessun side effect, solo calcoli
+   */
+  const calcolaStatoPartita = () => {
+    // Caso base: nessun giocatore
+    if (giocatori.length === 0) {
+      return {
+        hasPlayers: false,
+        hasWinner: false,
+        isGameOver: false,
+        vincitori: [],
+        puntiVincitore: 0,
+        leaderId: null,
+        leaderPunti: 0,
+        giocatoriStato: []
+      };
+    }
+
+    // Calcola statistiche
+    const puntiMappa = giocatori.map(g => g.punti);
+    const maxPunti = Math.max(...puntiMappa);
+    const minPunti = Math.min(...puntiMappa);
+
+    // Determina leader corrente (prima della vittoria)
+    const leaderPunti = modalitaVittoria === 'max' ? maxPunti : minPunti;
+    const leadersIds = giocatori
+      .filter(g => g.punti === leaderPunti)
+      .map(g => g.id);
+
+    // Verifica condizioni vittoria
+    let hasWinner = false;
+    let vincitoriNomi = [];
+    let puntiVincitore = 0;
+
+    if (modalitaVittoria === 'max' && maxPunti >= punteggioObiettivo) {
+      hasWinner = true;
+      vincitoriNomi = giocatori.filter(g => g.punti === maxPunti).map(g => g.nome);
+      puntiVincitore = maxPunti;
+    } else if (modalitaVittoria === 'min' && maxPunti >= punteggioObiettivo) {
+      hasWinner = true;
+      vincitoriNomi = giocatori.filter(g => g.punti === minPunti).map(g => g.nome);
+      puntiVincitore = minPunti;
+    }
+
+    // Crea stato per ogni giocatore
+    const giocatoriStato = giocatori.map(g => ({
+      id: g.id,
+      nome: g.nome,
+      punti: g.punti,
+      isLeader: leadersIds.includes(g.id),
+      isWinner: hasWinner && vincitoriNomi.includes(g.nome)
+    }));
+
+    return {
+      hasPlayers: true,
+      hasWinner,
+      isGameOver: hasWinner,
+      vincitori: vincitoriNomi,
+      puntiVincitore,
+      leaderId: leadersIds[0] || null, // Primo leader se ci sono pari merito
+      leaderPunti,
+      giocatoriStato,
+      modalita: modalitaVittoria,
+      obiettivo: punteggioObiettivo
+    };
+  };
+
   // State persistence
   const saveCurrentState = () => {
     const darkMode = document.body.classList.contains('dark-mode');
