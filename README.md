@@ -37,6 +37,8 @@ Segnapunti Carte è una web app moderna e leggera per gestire i punteggi dei gio
 
 ### Storico e Dati
 - 📜 Storico completo di tutte le partite giocate
+- 📊 Statistiche partite in tempo reale
+- 🗑️ **Azzera Storico**: Elimina tutte le partite con doppia conferma di sicurezza
 - 💾 Salvataggio automatico con IndexedDB
 - 🔄 Persistenza dati anche offline
 - 📱 Storage persistente del browser
@@ -80,9 +82,32 @@ Visita direttamente: `https://tnt-labs.github.io/Segnapunti/`
 ### Navigazione
 Usa la **Bottom Navigation Bar** sempre visibile:
 - 🃏 **Partita**: Pagina principale con punteggi attuali
-- 📜 **Storico**: Visualizza tutte le partite passate
+- 📜 **Storico**: Visualizza tutte le partite passate con statistiche
 - ⚙️ **Impostazioni**: Gestione giocatori e configurazione
-- 🎮 **Preset**: Gestione preset personalizzati (NUOVO)
+- 🎮 **Preset**: Gestione preset personalizzati
+
+### 📜 Gestione Storico
+
+#### Visualizzazione Partite
+- Tutte le partite sono ordinate dalla più recente
+- Ogni partita mostra:
+  - 🏆 Vincitori e punteggio finale
+  - 📅 Data e ora della partita
+  - ⚙️ Modalità di gioco utilizzata
+  - 👥 Lista completa giocatori e punteggi
+
+#### Statistiche
+- Contatore totale partite giocate
+- Aggiornamento in tempo reale
+
+#### Azzera Storico
+1. Clicca **🗑️ Azzera Storico** nella pagina storico
+2. **Prima conferma**: Mostra numero partite da eliminare
+3. **Seconda conferma**: Ultima verifica di sicurezza
+4. Cancellazione completa e irreversibile
+5. Feedback immediato dell'operazione
+
+⚠️ **ATTENZIONE**: L'operazione è irreversibile! Usa con cautela.
 
 ### 🎮 Gestione Preset Personalizzati
 
@@ -138,7 +163,73 @@ Nella pagina Impostazioni o Preset, trovi questi preset pronti all'uso:
 - **Bowling**: Max 300 punti
 - **Golf (Mini)**: Min 50 punti
 
-## 🛠️ Personalizzazione
+## 🏗️ Architettura Tecnica
+
+### Module Pattern ES6
+L'applicazione utilizza un'architettura modulare con separazione delle responsabilità:
+
+#### 📦 Moduli Principali
+
+1. **DatabaseModule** 🗄️
+   - Gestione completa IndexedDB
+   - Connection pooling per performance
+   - API: `loadState`, `saveState`, `saveHistory`, `loadHistory`, `clearHistory`
+
+2. **GameStateModule** 🎮
+   - Stato privato del gioco (giocatori, modalità, punteggi)
+   - Logica di business (vittoria, preset, validazioni)
+   - Sistema ID univoci per giocatori (UUID-like)
+   - API: `getGiocatori`, `addGiocatore`, `updatePunteggio`, `checkVittoria`
+
+3. **UIModule** 🎨
+   - Rendering e animazioni
+   - Gestione DOM e event listeners
+   - Cleanup automatico memoria
+   - API: `renderGiocatoriPartita`, `showModal`, `toggleDarkMode`
+
+4. **SettingsModule** 🎛️
+   - Gestione pagina impostazioni
+   - Preset giochi con popolamento dinamico
+   - API: `initializeFromState`, `setupEventListeners`
+
+5. **PresetManagerModule** 🎮
+   - CRUD preset personalizzati
+   - Import/Export JSON
+   - localStorage per persistenza
+   - API: `createPreset`, `updatePreset`, `deletePreset`, `duplicatePreset`
+
+6. **AppController** 🚀
+   - Coordinatore principale
+   - Inizializzazione app
+   - Router delle pagine
+
+### ✨ Caratteristiche Architetturali
+
+- **🔒 Incapsulamento**: Stato privato, zero inquinamento globale
+- **🧩 Modularità**: Ogni modulo ha una responsabilità chiara (Single Responsibility)
+- **🔗 Loose Coupling**: Moduli indipendenti comunicano via API pubbliche
+- **♻️ Manutenibilità**: Codice organizzato e facilmente estendibile
+- **🧪 Testabilità**: Moduli isolati facilmente testabili
+- **🆔 ID Univoci**: Sistema robusto senza dipendenza da indici array
+
+### 🌐 API Globale Esposta
+
+```javascript
+window.SegnapuntiApp = {
+  toggleDarkMode: () => ...,
+  version: '1.1.2',
+  debug: { 
+    getState: () => ...,
+    getGiocatori: () => ...
+  }
+}
+
+window.PresetManager = {
+  getAllPresets: () => ...,
+  createPreset: (key, data) => ...,
+  // ... altre API
+}
+```
 
 ### Colori e Stile
 Modifica le variabili CSS in `segnapunti.css`:
@@ -333,25 +424,29 @@ Segnapunti/
 ## 🔄 Sviluppo Futuro
 
 ### Roadmap v1.2
+- [ ] Export/Import completo dati partite (JSON/CSV)
+- [ ] Statistiche avanzate per giocatore (vittorie, media punti, trend)
+- [ ] Grafici con Chart.js (andamento punteggi, confronto giocatori)
+- [ ] Filtri e ricerca nello storico
 - [ ] Condivisione preset tramite QR code
 - [ ] Preset community (repository pubblico)
-- [ ] Validazione avanzata regole (es: punteggio iniziale diverso da 0)
-- [ ] Template preset con variabili
-- [ ] Preset con regole multiple (es: bonus, malus)
 
 ### Roadmap v1.3
-- [ ] Export/Import dati partite (CSV/JSON)
-- [ ] Grafici e statistiche per giocatore
-- [ ] Modalità multiplayer sincronizzato (WebSocket)
-- [ ] Temi personalizzabili aggiuntivi
+- [ ] Modalità multiplayer sincronizzato (WebSocket/Firebase)
+- [ ] Timer per turni con notifiche
+- [ ] Note per giocatore/partita
+- [ ] Tags e categorie personalizzate per storico
+- [ ] Temi personalizzabili (costruttore colori)
 - [ ] Widget punteggio veloce
 
 ### Roadmap v2.0
-- [ ] Supporto per più lingue (i18n)
-- [ ] Timer per turni
-- [ ] Note per giocatore/partita
-- [ ] Backup automatico cloud (opzionale)
-- [ ] Modalità torneo con bracket
+- [ ] Supporto multi-lingua (i18n) - EN, ES, FR, DE
+- [ ] Backup automatico cloud (Google Drive, Dropbox)
+- [ ] Modalità torneo con bracket eliminatorio
+- [ ] Sistema achievement e badge
+- [ ] Esportazione PDF report partita
+- [ ] API REST per integrazioni esterne
+- [ ] App nativa iOS/Android (React Native)
 
 ## 🛠️ Personalizzazione
 
@@ -582,37 +677,58 @@ Apri una issue su GitHub con:
 
 ## 📊 Changelog
 
-### v1.1.0 (Novembre 2025) 🆕
-- ✨ **Major Feature**: Sistema completo di gestione preset personalizzabili
+### v1.1.2 (Novembre 2025) 🆕
+- ✨ **Feature**: Azzera storico con doppia conferma di sicurezza
+- ✨ Feature: Toolbar storico con statistiche in tempo reale
+- ✨ Feature: Contatore partite giocate
+- 🔧 API: DatabaseModule.clearHistory() per cancellazione completa
+- 🎨 UI: Feedback visivi per operazioni distruttive
+- 🛡️ Security: Doppia conferma per cancellazioni accidentali
+- 📝 UX: Messaggi espliciti su irreversibilità operazione
+- 🎨 CSS: Stili toolbar storico responsive
+
+### v1.1.1 (Novembre 2025)
+- 🔧 **Major Refactor**: Sistema ID univoci per giocatori
+- 🆔 Feature: Generatore UUID-like (`player_timestamp_random`)
+- 🛡️ Robustness: Eliminata dipendenza da indici array
+- ✨ Feature: Campo `createdAt` timestamp per tracciabilità
+- 🔄 Migration: Migrazione automatica backward-compatible
+- 🧪 Testing: Scenari riordino/rimozione gestiti correttamente
+- 📊 API: `getGiocatoreById(id)`, `removeGiocatore(id)`, `updatePunteggio(id, delta)`
+- ♻️ Code Quality: Codice più semantico e robusto
+- 🐛 Fix: Animazioni sempre sull'elemento corretto
+- 🐛 Fix: Modal riferimenti stabili durante operazioni async
+
+### v1.1.0 (Novembre 2025)
+- ✨ **Major Feature**: Sistema completo gestione preset personalizzabili
 - ✨ Feature: CRUD preset (Create, Read, Update, Delete)
-- ✨ Feature: Import/Export preset in formato JSON
-- ✨ Feature: Duplicazione preset (anche predefiniti)
-- ✨ Feature: Organizzazione preset per categorie con icone
-- ✨ Feature: Pagina dedicata 🎮 Preset con UI card-based
-- ✨ Feature: localStorage per persistenza preset personalizzati
-- 🎨 UI: Bottom navigation estesa a 4 tab
-- 🎨 UI: Link diretto da Settings a Preset Manager
-- 🎨 UI: Select preset popolato dinamicamente
-- 🎨 UI: Modal avanzato per creazione/modifica preset
-- 🎨 UI: Badge e styling differenziato per preset default/custom
-- 🔧 Refactor: Module Pattern ES6 completo (v1.0.9)
-- 🔧 Refactor: Separazione responsabilità in moduli dedicati
-- 🔒 Security: Incapsulamento stato privato
-- 📝 Docs: README completamente aggiornato con guida preset
-- 📝 Docs: Esempi d'uso API PresetManager
+- ✨ Feature: Import/Export preset JSON con versioning
+- ✨ Feature: Duplicazione preset (default + custom)
+- ✨ Feature: 5 categorie preset (Carte, Tavolo, Sport, Altri, Custom)
+- ✨ Feature: Pagina 🎮 Preset con grid card responsive
+- ✨ Feature: localStorage persistenza automatica
+- 🎨 UI: Bottom navigation 4 tab
+- 🎨 UI: Select dinamico preset in Settings
+- 🎨 UI: Modal creazione/modifica preset avanzato
+- 🎨 UI: Badge differenziati default/custom
+- 🔧 Architecture: Module Pattern ES6 completo
+- 🔧 Refactor: 6 moduli dedicati con responsabilità chiare
+- 🔒 Security: Stato privato incapsulato
+- 📝 Docs: API PresetManager documentata
+- 🎨 CSS: File dedicato preset-manager.css
 
 ### v1.0.9 (Novembre 2025)
 - 🔧 **Major Refactor**: Implementato Module Pattern ES6
-- 🧩 Architecture: Separazione in moduli dedicati
-  - DatabaseModule: Gestione IndexedDB
-  - GameStateModule: Stato del gioco
-  - UIModule: Rendering e animazioni
-  - SettingsModule: Gestione impostazioni
-  - AppController: Coordinatore principale
-- 🌐 API: Ridotta esposizione globale a `window.SegnapuntiApp`
-- 🔒 Security: Stato privato incapsulato
-- 📊 Debug: Helper debug per sviluppo
-- ⚡ Performance: Migliore gestione memoria
+- 🧩 Architecture: Separazione moduli
+  - DatabaseModule: IndexedDB
+  - GameStateModule: Business logic
+  - UIModule: Rendering
+  - SettingsModule: Configurazione
+  - AppController: Coordinamento
+- 🌐 API: Esposizione controllata `window.SegnapuntiApp`
+- 🔒 Security: Incapsulamento completo
+- 📊 Debug: Helper sviluppo
+- ⚡ Performance: Gestione memoria ottimizzata
 - 🧹 Code Quality: Eliminato codice duplicato
 
 ### v1.0.8 (Novembre 2025)
@@ -650,16 +766,114 @@ Apri una issue su GitHub con:
 
 ---
 
-**Versione Corrente**: 1.1.0  
+**Versione Corrente**: 1.1.2  
 **Ultimo Aggiornamento**: Novembre 2025  
 **Stato**: Stabile e Production-Ready ✅  
 **Download**: [GitHub Releases](https://github.com/tnt-labs/Segnapunti/releases)
 
 ---
 
-## 🎮 API Preset Manager (per sviluppatori)
+## 🎮 API Reference (per sviluppatori)
 
-### Metodi Pubblici
+### DatabaseModule API
+
+```javascript
+// Carica stato applicazione
+const state = await DatabaseModule.loadState();
+
+// Salva stato
+await DatabaseModule.saveState({
+  modalitaVittoria: 'max',
+  punteggioObiettivo: 100,
+  giocatori: [...],
+  partitaTerminata: false,
+  darkMode: true
+});
+
+// Salva partita nello storico
+await DatabaseModule.saveHistory({
+  timestamp: Date.now(),
+  data: '10/11/2025, 15:30',
+  vincitori: ['Mario'],
+  puntiVincitore: 500,
+  modalita: 'max',
+  giocatori: [...]
+});
+
+// Carica storico partite
+const storico = await DatabaseModule.loadHistory();
+
+// Cancella tutto lo storico
+await DatabaseModule.clearHistory();
+
+// Richiedi storage persistente
+await DatabaseModule.requestPersistentStorage();
+```
+
+### GameStateModule API
+
+```javascript
+// Getters
+const modalita = GameStateModule.getModalitaVittoria(); // 'max' | 'min'
+const obiettivo = GameStateModule.getPunteggioObiettivo(); // number
+const giocatori = GameStateModule.getGiocatori(); // array (copia)
+const terminata = GameStateModule.isPartitaTerminata(); // boolean
+const presets = GameStateModule.getPresets(); // object
+
+// Setters
+GameStateModule.setModalitaVittoria('max');
+GameStateModule.setPunteggioObiettivo(500);
+GameStateModule.setPartitaTerminata(true);
+
+// Gestione giocatori (con ID univoci)
+const newPlayer = GameStateModule.addGiocatore('Mario');
+// Returns: { id: 'player_123_abc', nome: 'Mario', punti: 0, createdAt: 123 }
+
+GameStateModule.removeGiocatore('player_123_abc'); // by ID
+GameStateModule.updatePunteggio('player_123_abc', 10); // by ID
+const player = GameStateModule.getGiocatoreById('player_123_abc');
+
+// Reset e controlli
+GameStateModule.resetPunteggi();
+const vittoria = GameStateModule.checkVittoria();
+// Returns: { hasWinner, vincitori, puntiVincitore, maxPunti, minPunti }
+
+// Preset
+const preset = GameStateModule.applyPreset('scala40');
+
+// Persistenza
+GameStateModule.saveCurrentState();
+GameStateModule.loadFromState(state);
+await GameStateModule.saveToHistory(vincitori, puntiVincitore);
+```
+
+### UIModule API
+
+```javascript
+// Rendering
+UIModule.renderGiocatoriPartita();
+UIModule.renderGiocatoriSettings();
+await UIModule.renderStorico();
+
+// Modal gestione
+UIModule.showModal('player_123_abc'); // by player ID
+UIModule.hideModal();
+UIModule.applyCustomScore(50); // applica punteggio custom
+
+// Storico
+await UIModule.clearStorico(); // con doppia conferma
+
+// Controlli
+UIModule.checkAndDisplayVittoria();
+UIModule.showLoader();
+UIModule.hideLoader();
+
+// Dark mode
+UIModule.toggleDarkMode();
+UIModule.updateDarkModeIcon();
+```
+
+### PresetManager API
 
 ```javascript
 // Ottieni tutti i preset (default + custom)
