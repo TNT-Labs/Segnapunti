@@ -583,7 +583,13 @@ const UIModule = (() => {
     hideModal();
   };
 
-  // Render functions
+  // -------------------------------------------------------------------
+  // 📋 MAIN RENDERING FUNCTIONS - Orchestrano i componenti
+  // -------------------------------------------------------------------
+
+  /**
+   * Renderizza lista giocatori nella pagina PARTITA
+   */
   const renderGiocatoriPartita = () => {
     if (!elements.giocatoriListaPartita) return;
 
@@ -593,204 +599,158 @@ const UIModule = (() => {
     const modalita = GameStateModule.getModalitaVittoria();
     const partitaTerminata = GameStateModule.isPartitaTerminata();
     
-    const giocatoriConId = giocatori.map(g => ({ ...g }));
-    
-    if (modalita === 'max') {
-      giocatoriConId.sort((a, b) => b.punti - a.punti);
-    } else {
-      giocatoriConId.sort((a, b) => a.punti - b.punti);
-    }
-
     elements.giocatoriListaPartita.innerHTML = '';
     
+    // Empty state
     if (giocatori.length === 0) {
-      elements.giocatoriListaPartita.innerHTML = '<p class="empty-state">Nessun giocatore in partita. Aggiungine uno dalle impostazioni (⚙️).</p>';
+      const emptyMessage = createEmptyStateMessage(
+        'Nessun giocatore in partita. Aggiungine uno dalle impostazioni (⚙️).'
+      );
+      elements.giocatoriListaPartita.appendChild(emptyMessage);
       return;
     }
 
-    giocatoriConId.forEach((g) => {
-      const playerId = g.id;
-
-      const li = document.createElement('li');
-      li.className = `giocatore-item ${partitaTerminata ? 'game-over' : ''}`;
-      li.id = `giocatore-${playerId}`;
-
-      const nomeSpan = document.createElement('span');
-      nomeSpan.className = 'giocatore-nome';
-      nomeSpan.textContent = g.nome;
-
-      const puntiEControlli = document.createElement('div');
-      puntiEControlli.className = 'punti-e-controlli';
-
-      const puntiSpan = document.createElement('span');
-      puntiSpan.className = 'giocatore-punti';
-      puntiSpan.id = `punti-${playerId}`;
-      
-      const puntiStrong = document.createElement('strong');
-      puntiStrong.textContent = g.punti;
-      puntiSpan.appendChild(puntiStrong);
-      puntiSpan.appendChild(document.createTextNode(' Punti'));
-
-      const controlsDiv = document.createElement('div');
-      controlsDiv.className = 'punteggio-controls';
-
-      const buttons = [
-        { text: '+1', title: 'Aggiungi 1 punto', delta: 1 },
-        { text: '-1', title: 'Rimuovi 1 punto', delta: -1 },
-        { text: '+5', title: 'Aggiungi 5 punti', delta: 5 },
-        { text: '-5', title: 'Rimuovi 5 punti', delta: -5 },
-        { text: '+10', title: 'Aggiungi 10 punti', delta: 10 },
-        { text: '-10', title: 'Rimuovi 10 punti', delta: -10 },
-        { text: '±', title: 'Punteggio Personalizzato', delta: null, class: 'btn-custom-score' }
-      ];
-
-      buttons.forEach(btn => {
-        const button = document.createElement('button');
-        button.textContent = btn.text;
-        button.title = btn.title;
-        if (btn.class) button.className = btn.class;
-        
-        const handler = btn.delta !== null 
-          ? () => {
-              if (GameStateModule.updatePunteggio(playerId, btn.delta)) {
-                animatePunteggio(playerId, btn.delta);
-                renderGiocatoriPartita();
-                checkAndDisplayVittoria();
-              }
-            }
-          : () => showModal(playerId);
-        
-        button.addEventListener('click', handler);
-        
-        currentButtonListeners.push({ element: button, event: 'click', handler });
-        controlsDiv.appendChild(button);
-      });
-
-      puntiEControlli.appendChild(puntiSpan);
-      puntiEControlli.appendChild(controlsDiv);
-
-      li.appendChild(nomeSpan);
-      li.appendChild(puntiEControlli);
-      elements.giocatoriListaPartita.appendChild(li);
+    // Ordina e renderizza
+    const giocatoriOrdinati = sortPlayers(giocatori, modalita);
+    
+    giocatoriOrdinati.forEach((giocatore) => {
+      const playerItem = createPlayerItemPartita(giocatore, partitaTerminata);
+      elements.giocatoriListaPartita.appendChild(playerItem);
     });
     
     checkAndDisplayVittoria();
   };
 
+  /**
+   * Renderizza lista giocatori nella pagina SETTINGS
+   */
   const renderGiocatoriSettings = () => {
     if (!elements.giocatoriListaSettings) return;
 
     const giocatori = GameStateModule.getGiocatori();
     elements.giocatoriListaSettings.innerHTML = '';
     
+    // Empty state
     if (giocatori.length === 0) {
-      elements.giocatoriListaSettings.innerHTML = '<p class="empty-state">Nessun giocatore in lista.</p>';
+      const emptyMessage = createEmptyStateMessage('Nessun giocatore in lista.');
+      elements.giocatoriListaSettings.appendChild(emptyMessage);
       return;
     }
 
-    giocatori.forEach((g) => {
-      const li = document.createElement('li');
-      li.className = 'giocatore-item';
-      
-      const nomeSpan = document.createElement('span');
-      nomeSpan.className = 'giocatore-nome';
-      nomeSpan.textContent = g.nome;
-      
-      const puntiEControlli = document.createElement('div');
-      puntiEControlli.className = 'punti-e-controlli';
-      
-      const puntiSpan = document.createElement('span');
-      puntiSpan.className = 'giocatore-punti';
-      puntiSpan.textContent = `${g.punti} Punti`;
-      
-      const controlsDiv = document.createElement('div');
-      controlsDiv.className = 'punteggio-controls';
-      
-      const btnRimuovi = document.createElement('button');
-      btnRimuovi.className = 'btn-rimuovi';
-      btnRimuovi.title = 'Rimuovi giocatore';
-      btnRimuovi.textContent = '🗑️ Rimuovi';
-      btnRimuovi.addEventListener('click', () => {
-        if (confirm(`Sei sicuro di voler rimuovere ${g.nome}?`)) {
-          GameStateModule.removeGiocatore(g.id);
-          renderGiocatoriSettings();
-          if (elements.giocatoriListaPartita) {
-            renderGiocatoriPartita();
-          }
-        }
-      });
-      
-      controlsDiv.appendChild(btnRimuovi);
-      puntiEControlli.appendChild(puntiSpan);
-      puntiEControlli.appendChild(controlsDiv);
-      
-      li.appendChild(nomeSpan);
-      li.appendChild(puntiEControlli);
-      elements.giocatoriListaSettings.appendChild(li);
+    // Renderizza senza ordinamento (ordine di inserimento)
+    giocatori.forEach((giocatore) => {
+      const playerItem = createPlayerItemSettings(giocatore);
+      elements.giocatoriListaSettings.appendChild(playerItem);
     });
   };
 
+  // -------------------------------------------------------------------
+  // 🏆 STORICO RENDERING COMPONENTS
+  // -------------------------------------------------------------------
+
+  /**
+   * Crea header partita storico
+   */
+  const createStoricoHeader = (partita) => {
+    const header = document.createElement('div');
+    header.className = 'storico-header';
+    
+    const vincitoreSpan = document.createElement('span');
+    vincitoreSpan.className = 'storico-vincitore';
+    vincitoreSpan.textContent = `🏆 ${partita.vincitori.join(', ')} (${partita.puntiVincitore})`;
+    
+    const dataSpan = document.createElement('span');
+    dataSpan.className = 'storico-data';
+    dataSpan.textContent = partita.data;
+    
+    header.appendChild(vincitoreSpan);
+    header.appendChild(dataSpan);
+    
+    return header;
+  };
+
+  /**
+   * Crea dettagli partita storico
+   */
+  const createStoricoDetails = (partita) => {
+    const details = document.createElement('div');
+    details.className = 'storico-details';
+    
+    // Modalità
+    const modalitaP = document.createElement('p');
+    modalitaP.innerHTML = `Modalità: <strong>${partita.modalita === 'max' ? 'Più punti' : 'Meno punti'}</strong>`;
+    
+    // Partecipanti label
+    const partecipantiP = document.createElement('p');
+    partecipantiP.textContent = 'Partecipanti:';
+    
+    // Lista giocatori
+    const giocatoriUl = document.createElement('ul');
+    giocatoriUl.className = 'giocatori-list';
+    
+    partita.giocatori.forEach(g => {
+      const giocatoreLi = document.createElement('li');
+      giocatoreLi.textContent = `${g.nome}: ${g.punti}`;
+      giocatoriUl.appendChild(giocatoreLi);
+    });
+    
+    details.appendChild(modalitaP);
+    details.appendChild(partecipantiP);
+    details.appendChild(giocatoriUl);
+    
+    return details;
+  };
+
+  /**
+   * Crea item completo partita storico
+   */
+  const createStoricoItem = (partita) => {
+    const li = document.createElement('li');
+    li.className = 'storico-item';
+
+    const header = createStoricoHeader(partita);
+    const details = createStoricoDetails(partita);
+    
+    li.appendChild(header);
+    li.appendChild(details);
+    
+    return li;
+  };
+
+  /**
+   * Aggiorna statistiche storico
+   */
+  const updateStoricoStats = (storicoLength) => {
+    const statsContainer = document.getElementById('storico-stats');
+    if (statsContainer) {
+      statsContainer.innerHTML = `<span><strong>${storicoLength}</strong> partite giocate</span>`;
+    }
+  };
+
+  /**
+   * Renderizza storico partite
+   */
   const renderStorico = async () => {
     if (!elements.storicoLista) return;
 
     const storico = await DatabaseModule.loadHistory();
     
     // Aggiorna statistiche
-    const statsContainer = document.getElementById('storico-stats');
-    if (statsContainer) {
-      statsContainer.innerHTML = `<span><strong>${storico.length}</strong> partite giocate</span>`;
-    }
+    updateStoricoStats(storico.length);
     
     elements.storicoLista.innerHTML = '';
 
+    // Empty state
     if (storico.length === 0) {
-      elements.storicoLista.innerHTML = '<p class="empty-state">Nessuna partita nello storico.</p>';
+      const emptyMessage = createEmptyStateMessage('Nessuna partita nello storico.');
+      elements.storicoLista.appendChild(emptyMessage);
       return;
     }
 
+    // Renderizza ogni partita
     storico.forEach(partita => {
-      const li = document.createElement('li');
-      li.className = 'storico-item';
-
-      const header = document.createElement('div');
-      header.className = 'storico-header';
-      
-      const vincitoreSpan = document.createElement('span');
-      vincitoreSpan.className = 'storico-vincitore';
-      vincitoreSpan.textContent = `🏆 ${partita.vincitori.join(', ')} (${partita.puntiVincitore})`;
-      
-      const dataSpan = document.createElement('span');
-      dataSpan.className = 'storico-data';
-      dataSpan.textContent = partita.data;
-      
-      header.appendChild(vincitoreSpan);
-      header.appendChild(dataSpan);
-
-      const details = document.createElement('div');
-      details.className = 'storico-details';
-      
-      const modalitaP = document.createElement('p');
-      modalitaP.innerHTML = `Modalità: <strong>${partita.modalita === 'max' ? 'Più punti' : 'Meno punti'}</strong>`;
-      
-      const partecipantiP = document.createElement('p');
-      partecipantiP.textContent = 'Partecipanti:';
-      
-      const giocatoriUl = document.createElement('ul');
-      giocatoriUl.className = 'giocatori-list';
-      
-      partita.giocatori.forEach(g => {
-        const giocatoreLi = document.createElement('li');
-        giocatoreLi.textContent = `${g.nome}: ${g.punti}`;
-        giocatoriUl.appendChild(giocatoreLi);
-      });
-      
-      details.appendChild(modalitaP);
-      details.appendChild(partecipantiP);
-      details.appendChild(giocatoriUl);
-      
-      li.appendChild(header);
-      li.appendChild(details);
-      elements.storicoLista.appendChild(li);
+      const storicoItem = createStoricoItem(partita);
+      elements.storicoLista.appendChild(storicoItem);
     });
   };
 
