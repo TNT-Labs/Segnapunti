@@ -1,9 +1,9 @@
 // ===================================================================
-// 🎮 PRESET MANAGER MODULE - Sistema di Gestione Preset Giochi
+// 🎮 PRESET MANAGER MODULE v1.1.0 - con Supporto ROUNDS
 // ===================================================================
 
 const PresetManagerModule = (() => {
-  // Preset di default (backup immutabili)
+  // 🆕 AGGIORNATO: Preset di default con supporto rounds
   const DEFAULT_PRESETS = {
     scala40: { 
       name: 'Scala 40', 
@@ -21,11 +21,31 @@ const PresetManagerModule = (() => {
       isDefault: true,
       category: 'carte'
     },
+    // 🆕 NUOVO: Preset con rounds
+    poker_tournament: {
+      name: 'Poker (Torneo)',
+      mode: 'rounds',
+      target: 10000,
+      roundsTarget: 5,
+      description: '🃏 Poker Torneo: Vince chi vince 5 mani. Punteggio secondario per pareggi.',
+      isDefault: true,
+      category: 'carte'
+    },
     briscola: { 
       name: 'Briscola', 
       mode: 'max', 
       target: 21, 
       description: '🃏 Briscola: Vince chi arriva a 21 punti (totale carte in gioco).',
+      isDefault: true,
+      category: 'carte'
+    },
+    // 🆕 NUOVO: Scopa a rounds
+    scopa_rounds: {
+      name: 'Scopa (a Partite)',
+      mode: 'rounds',
+      target: 100,
+      roundsTarget: 3,
+      description: '🃏 Scopa a Partite: Vince chi vince 3 partite. Best of 5.',
       isDefault: true,
       category: 'carte'
     },
@@ -77,6 +97,16 @@ const PresetManagerModule = (() => {
       isDefault: true,
       category: 'tavolo'
     },
+    // 🆕 NUOVO: Tennis/Volley a set
+    tennis: {
+      name: 'Tennis/Volley',
+      mode: 'rounds',
+      target: 25,
+      roundsTarget: 3,
+      description: '⚽ Tennis/Volley: Vince chi vince 3 set. Ogni set a 25 punti.',
+      isDefault: true,
+      category: 'sport'
+    },
     freccette501: { 
       name: 'Freccette 501', 
       mode: 'min', 
@@ -108,6 +138,16 @@ const PresetManagerModule = (() => {
       description: '⛳ Golf: Vince chi fa meno punti. Obiettivo tipico: sotto il par (50).',
       isDefault: true,
       category: 'altri'
+    },
+    // 🆕 NUOVO: Ping pong a set
+    pingpong: {
+      name: 'Ping Pong',
+      mode: 'rounds',
+      target: 11,
+      roundsTarget: 3,
+      description: '🏓 Ping Pong: Vince chi vince 3 set. Ogni set a 11 punti.',
+      isDefault: true,
+      category: 'sport'
     }
   };
 
@@ -120,7 +160,6 @@ const PresetManagerModule = (() => {
     custom: '⭐'
   };
 
-  // Carica preset personalizzati da localStorage
   const loadCustomPresets = () => {
     try {
       const stored = localStorage.getItem(PRESET_STORAGE_KEY);
@@ -133,7 +172,6 @@ const PresetManagerModule = (() => {
     return {};
   };
 
-  // Salva preset personalizzati
   const saveCustomPresets = (presets) => {
     try {
       localStorage.setItem(PRESET_STORAGE_KEY, JSON.stringify(presets));
@@ -144,13 +182,11 @@ const PresetManagerModule = (() => {
     }
   };
 
-  // Ottieni tutti i preset (default + custom)
   const getAllPresets = () => {
     const customPresets = loadCustomPresets();
     return { ...DEFAULT_PRESETS, ...customPresets };
   };
 
-  // Ottieni preset per categoria
   const getPresetsByCategory = () => {
     const allPresets = getAllPresets();
     const categorized = {};
@@ -166,9 +202,8 @@ const PresetManagerModule = (() => {
     return categorized;
   };
 
-  // Crea un nuovo preset
+  // 🆕 AGGIORNATO: Validazione con roundsTarget
   const createPreset = (key, presetData) => {
-    // Validazione
     if (!key || key.trim() === '') {
       throw new Error('Il codice del preset non può essere vuoto');
     }
@@ -181,8 +216,8 @@ const PresetManagerModule = (() => {
       throw new Error('Il nome del gioco non può essere vuoto');
     }
 
-    if (!['max', 'min'].includes(presetData.mode)) {
-      throw new Error('La modalità deve essere "max" o "min"');
+    if (!['max', 'min', 'rounds'].includes(presetData.mode)) {
+      throw new Error('La modalità deve essere "max", "min" o "rounds"');
     }
 
     const target = parseInt(presetData.target, 10);
@@ -190,7 +225,14 @@ const PresetManagerModule = (() => {
       throw new Error('Il punteggio obiettivo deve essere un numero maggiore o uguale a 0');
     }
 
-    // Non permettere override dei preset di default
+    // 🆕 NUOVO: Validazione roundsTarget
+    if (presetData.mode === 'rounds') {
+      const roundsTarget = parseInt(presetData.roundsTarget, 10);
+      if (isNaN(roundsTarget) || roundsTarget <= 0) {
+        throw new Error('Il numero di rounds deve essere un numero positivo');
+      }
+    }
+
     if (DEFAULT_PRESETS[key]) {
       throw new Error('Non puoi sovrascrivere un preset predefinito. Usa un altro codice.');
     }
@@ -201,12 +243,17 @@ const PresetManagerModule = (() => {
       name: presetData.name.trim(),
       mode: presetData.mode,
       target: target,
-      description: presetData.description?.trim() || `${presetData.name} - Modalità ${presetData.mode === 'max' ? 'Più punti' : 'Meno punti'}, Obiettivo: ${target}`,
+      description: presetData.description?.trim() || `${presetData.name} - Modalità ${presetData.mode === 'rounds' ? 'Rounds' : presetData.mode === 'max' ? 'Più punti' : 'Meno punti'}, Obiettivo: ${target}`,
       category: presetData.category || 'custom',
       isDefault: false,
       createdAt: Date.now(),
       modifiedAt: Date.now()
     };
+
+    // 🆕 NUOVO: Aggiungi roundsTarget se presente
+    if (presetData.mode === 'rounds' && presetData.roundsTarget) {
+      newPreset.roundsTarget = parseInt(presetData.roundsTarget, 10);
+    }
 
     customPresets[key] = newPreset;
     
@@ -217,7 +264,7 @@ const PresetManagerModule = (() => {
     }
   };
 
-  // Modifica un preset esistente (solo custom)
+  // 🆕 AGGIORNATO: Update con roundsTarget
   const updatePreset = (key, presetData) => {
     const customPresets = loadCustomPresets();
     
@@ -229,18 +276,25 @@ const PresetManagerModule = (() => {
       throw new Error('Non puoi modificare un preset predefinito');
     }
 
-    // Validazione
     if (!presetData.name || presetData.name.trim() === '') {
       throw new Error('Il nome del gioco non può essere vuoto');
     }
 
-    if (!['max', 'min'].includes(presetData.mode)) {
-      throw new Error('La modalità deve essere "max" o "min"');
+    if (!['max', 'min', 'rounds'].includes(presetData.mode)) {
+      throw new Error('La modalità deve essere "max", "min" o "rounds"');
     }
 
     const target = parseInt(presetData.target, 10);
     if (isNaN(target) || target < 0) {
       throw new Error('Il punteggio obiettivo deve essere un numero maggiore o uguale a 0');
+    }
+
+    // 🆕 NUOVO: Validazione roundsTarget
+    if (presetData.mode === 'rounds') {
+      const roundsTarget = parseInt(presetData.roundsTarget, 10);
+      if (isNaN(roundsTarget) || roundsTarget <= 0) {
+        throw new Error('Il numero di rounds deve essere un numero positivo');
+      }
     }
 
     customPresets[key] = {
@@ -253,6 +307,13 @@ const PresetManagerModule = (() => {
       modifiedAt: Date.now()
     };
 
+    // 🆕 NUOVO: Gestione roundsTarget
+    if (presetData.mode === 'rounds' && presetData.roundsTarget) {
+      customPresets[key].roundsTarget = parseInt(presetData.roundsTarget, 10);
+    } else {
+      delete customPresets[key].roundsTarget;
+    }
+
     if (saveCustomPresets(customPresets)) {
       return { key, ...customPresets[key] };
     } else {
@@ -260,7 +321,6 @@ const PresetManagerModule = (() => {
     }
   };
 
-  // Elimina un preset custom
   const deletePreset = (key) => {
     if (DEFAULT_PRESETS[key]) {
       throw new Error('Non puoi eliminare un preset predefinito');
@@ -281,7 +341,6 @@ const PresetManagerModule = (() => {
     }
   };
 
-  // Ripristina preset di default
   const restoreDefaults = () => {
     if (confirm('Sei sicuro di voler eliminare tutti i preset personalizzati? Questa azione non può essere annullata.')) {
       localStorage.removeItem(PRESET_STORAGE_KEY);
@@ -290,11 +349,10 @@ const PresetManagerModule = (() => {
     return false;
   };
 
-  // Export preset in JSON
   const exportPresets = () => {
     const customPresets = loadCustomPresets();
     const exportData = {
-      version: '1.0',
+      version: '1.1',
       exportDate: new Date().toISOString(),
       presets: customPresets
     };
@@ -311,7 +369,6 @@ const PresetManagerModule = (() => {
     URL.revokeObjectURL(url);
   };
 
-  // Import preset da JSON
   const importPresets = (jsonData) => {
     try {
       const data = JSON.parse(jsonData);
@@ -325,13 +382,11 @@ const PresetManagerModule = (() => {
       let skipped = 0;
 
       Object.entries(data.presets).forEach(([key, preset]) => {
-        // Skip se è un preset di default
         if (DEFAULT_PRESETS[key]) {
           skipped++;
           return;
         }
 
-        // Validazione base
         if (preset.name && preset.mode && typeof preset.target === 'number') {
           customPresets[key] = {
             ...preset,
@@ -353,7 +408,6 @@ const PresetManagerModule = (() => {
     }
   };
 
-  // Duplica un preset (anche default)
   const duplicatePreset = (sourceKey, newKey, newName) => {
     const allPresets = getAllPresets();
     
@@ -371,16 +425,22 @@ const PresetManagerModule = (() => {
 
     const sourcePreset = allPresets[sourceKey];
     
-    return createPreset(newKey, {
+    const newPresetData = {
       name: newName || `${sourcePreset.name} (Copia)`,
       mode: sourcePreset.mode,
       target: sourcePreset.target,
       description: sourcePreset.description,
       category: sourcePreset.category === 'carte' || sourcePreset.category === 'tavolo' || sourcePreset.category === 'altri' ? 'custom' : sourcePreset.category
-    });
+    };
+
+    // 🆕 NUOVO: Copia roundsTarget se presente
+    if (sourcePreset.roundsTarget) {
+      newPresetData.roundsTarget = sourcePreset.roundsTarget;
+    }
+
+    return createPreset(newKey, newPresetData);
   };
 
-  // Public API
   return {
     getAllPresets,
     getPresetsByCategory,
@@ -397,13 +457,12 @@ const PresetManagerModule = (() => {
 })();
 
 // ===================================================================
-// 🎨 PRESET UI MODULE - Interfaccia Gestione Preset
+// 🎨 PRESET UI MODULE - AGGIORNATO CON ROUNDS
 // ===================================================================
 
 const PresetUIModule = (() => {
   let currentEditingKey = null;
 
-  // Render lista preset nella pagina gestione
   const renderPresetList = () => {
     const container = document.getElementById('preset-list-container');
     if (!container) return;
@@ -419,7 +478,6 @@ const PresetUIModule = (() => {
       custom: '⭐ Personalizzati'
     };
 
-    // Ordine categorie
     const categoryOrder = ['carte', 'tavolo', 'sport', 'altri', 'custom'];
 
     categoryOrder.forEach(category => {
@@ -447,7 +505,7 @@ const PresetUIModule = (() => {
     });
   };
 
-  // Crea card preset
+  // 🆕 AGGIORNATO: Card con rounds
   const createPresetCard = (preset) => {
     const card = document.createElement('div');
     card.className = `preset-card ${preset.isDefault ? 'preset-default' : 'preset-custom'}`;
@@ -471,11 +529,26 @@ const PresetUIModule = (() => {
 
     const mode = document.createElement('p');
     mode.className = 'preset-mode';
-    mode.innerHTML = `<strong>Modalità:</strong> ${preset.mode === 'max' ? '📈 Più punti' : '📉 Meno punti'}`;
+    
+    let modeText = '';
+    if (preset.mode === 'rounds') {
+      modeText = '🏆 Rounds';
+    } else if (preset.mode === 'max') {
+      modeText = '📈 Più punti';
+    } else {
+      modeText = '📉 Meno punti';
+    }
+    mode.innerHTML = `<strong>Modalità:</strong> ${modeText}`;
 
     const target = document.createElement('p');
     target.className = 'preset-target';
-    target.innerHTML = `<strong>Obiettivo:</strong> ${preset.target} punti`;
+    
+    // 🆕 NUOVO: Mostra rounds target
+    if (preset.mode === 'rounds' && preset.roundsTarget) {
+      target.innerHTML = `<strong>Obiettivo:</strong> ${preset.roundsTarget} rounds (${preset.target} pt/round)`;
+    } else {
+      target.innerHTML = `<strong>Obiettivo:</strong> ${preset.target} punti`;
+    }
 
     const description = document.createElement('p');
     description.className = 'preset-description';
@@ -488,7 +561,6 @@ const PresetUIModule = (() => {
     const actions = document.createElement('div');
     actions.className = 'preset-card-actions';
 
-    // Bottone Duplica (sempre disponibile)
     const btnDuplicate = document.createElement('button');
     btnDuplicate.className = 'btn-secondary btn-small';
     btnDuplicate.innerHTML = '📋 Duplica';
@@ -497,7 +569,6 @@ const PresetUIModule = (() => {
 
     actions.appendChild(btnDuplicate);
 
-    // Se è custom, aggiungi modifica ed elimina
     if (!preset.isDefault) {
       const btnEdit = document.createElement('button');
       btnEdit.className = 'btn-primary btn-small';
@@ -525,7 +596,6 @@ const PresetUIModule = (() => {
     return card;
   };
 
-  // Mostra modal per nuovo preset
   const showCreateModal = () => {
     currentEditingKey = null;
     const modal = document.getElementById('preset-edit-modal');
@@ -538,10 +608,21 @@ const PresetUIModule = (() => {
     document.getElementById('preset-key').value = '';
     document.getElementById('preset-key').disabled = false;
     
+    // 🆕 NUOVO: Nascondi campo rounds di default
+    toggleRoundsField('max');
+    
     modal.style.display = 'flex';
   };
 
-  // Mostra modal per modifica preset
+  // 🆕 NUOVO: Toggle campo rounds
+  const toggleRoundsField = (mode) => {
+    const roundsField = document.getElementById('preset-rounds-field');
+    if (roundsField) {
+      roundsField.style.display = mode === 'rounds' ? 'block' : 'none';
+    }
+  };
+
+  // 🆕 AGGIORNATO: Edit modal con rounds
   const showEditModal = (key) => {
     const allPresets = PresetManagerModule.getAllPresets();
     const preset = allPresets[key];
@@ -563,10 +644,16 @@ const PresetUIModule = (() => {
     document.getElementById('preset-description').value = preset.description || '';
     document.getElementById('preset-category').value = preset.category || 'custom';
     
+    // 🆕 NUOVO: Rounds target
+    if (preset.mode === 'rounds' && preset.roundsTarget) {
+      document.getElementById('preset-rounds-target').value = preset.roundsTarget;
+    }
+    
+    toggleRoundsField(preset.mode);
+    
     modal.style.display = 'flex';
   };
 
-  // Mostra modal duplica
   const showDuplicateModal = (sourceKey) => {
     const newKey = prompt('Inserisci il codice per il nuovo preset (lettere minuscole, numeri, underscore):');
     if (!newKey) return;
@@ -583,14 +670,13 @@ const PresetUIModule = (() => {
     }
   };
 
-  // Chiudi modal
   const closeModal = () => {
     const modal = document.getElementById('preset-edit-modal');
     if (modal) modal.style.display = 'none';
     currentEditingKey = null;
   };
 
-  // Salva preset (crea o modifica)
+  // 🆕 AGGIORNATO: Salva con rounds
   const savePreset = () => {
     const key = document.getElementById('preset-key').value.trim();
     const name = document.getElementById('preset-name').value.trim();
@@ -600,6 +686,12 @@ const PresetUIModule = (() => {
     const category = document.getElementById('preset-category').value;
 
     const presetData = { name, mode, target, description, category };
+
+    // 🆕 NUOVO: Rounds target
+    if (mode === 'rounds') {
+      const roundsTarget = document.getElementById('preset-rounds-target').value;
+      presetData.roundsTarget = roundsTarget;
+    }
 
     try {
       if (currentEditingKey) {
@@ -616,7 +708,6 @@ const PresetUIModule = (() => {
     }
   };
 
-  // Elimina preset
   const deletePreset = (key) => {
     if (!confirm('Sei sicuro di voler eliminare questo preset? Questa azione non può essere annullata.')) {
       return;
@@ -631,7 +722,6 @@ const PresetUIModule = (() => {
     }
   };
 
-  // Export presets
   const exportPresets = () => {
     try {
       PresetManagerModule.exportPresets();
@@ -641,7 +731,6 @@ const PresetUIModule = (() => {
     }
   };
 
-  // Import presets
   const importPresets = () => {
     const input = document.createElement('input');
     input.type = 'file';
@@ -667,7 +756,6 @@ const PresetUIModule = (() => {
     input.click();
   };
 
-  // Ripristina defaults
   const restoreDefaults = () => {
     if (PresetManagerModule.restoreDefaults()) {
       alert('✅ Preset personalizzati eliminati. Solo i preset predefiniti sono disponibili.');
@@ -675,7 +763,6 @@ const PresetUIModule = (() => {
     }
   };
 
-  // Setup event listeners
   const setupEventListeners = () => {
     const btnCreate = document.getElementById('btn-create-preset');
     if (btnCreate) {
@@ -690,6 +777,14 @@ const PresetUIModule = (() => {
     const btnSavePreset = document.getElementById('btn-save-preset');
     if (btnSavePreset) {
       btnSavePreset.addEventListener('click', savePreset);
+    }
+
+    // 🆕 NUOVO: Toggle rounds field on mode change
+    const modeSelect = document.getElementById('preset-mode');
+    if (modeSelect) {
+      modeSelect.addEventListener('change', (e) => {
+        toggleRoundsField(e.target.value);
+      });
     }
 
     const btnExport = document.getElementById('btn-export-presets');
@@ -708,13 +803,11 @@ const PresetUIModule = (() => {
     }
   };
 
-  // Public API
   return {
     renderPresetList,
     setupEventListeners
   };
 })();
 
-// Esporta al window per compatibilità
 window.PresetManager = PresetManagerModule;
 window.PresetUI = PresetUIModule;
