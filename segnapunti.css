@@ -13,6 +13,7 @@
   --colore-reset: #c62828; 
   --colore-blocco: rgba(0, 0, 0, 0.6); 
   --colore-header-bordo: #e0e0e0;
+  --colore-rounds: #ff9800; /* 🆕 NUOVO: Colore per rounds */
 }
 
 /* --- Dark Mode Variables --- */
@@ -28,6 +29,7 @@ body.dark-mode {
   --colore-reset: #a02020;
   --colore-blocco: rgba(0, 0, 0, 0.8);
   --colore-header-bordo: #333;
+  --colore-rounds: #ffb74d;
 }
 body.dark-mode h1, body.dark-mode .giocatore-nome {
   color: var(--colore-primario);
@@ -50,10 +52,10 @@ body.dark-mode .giocatore-item {
 body.dark-mode .giocatore-punti strong {
   color: var(--colore-primario);
 }
-body.dark-mode button:not(.btn-rimuovi, .btn-custom-score, #toggle-dark-mode, .btn-reset, .btn-primary, .top-buttons button) {
+body.dark-mode button:not(.btn-rimuovi, .btn-custom-score, #toggle-dark-mode, .btn-reset, .btn-primary, .top-buttons button, .btn-round-plus, .btn-round-minus) {
   background: var(--colore-secondario);
 }
-body.dark-mode button:hover:not(.btn-rimuovi, .btn-custom-score, #toggle-dark-mode, .btn-reset, .btn-primary, .top-buttons button) {
+body.dark-mode button:hover:not(.btn-rimuovi, .btn-custom-score, #toggle-dark-mode, .btn-reset, .btn-primary, .top-buttons button, .btn-round-plus, .btn-round-minus) {
   background: var(--colore-primario);
 }
 body.dark-mode .winner {
@@ -78,7 +80,6 @@ body.dark-mode .giocatore-item.winner-highlight {
     box-shadow: 0 0 20px rgba(184, 224, 184, 0.6), 0 4px 12px rgba(0, 0, 0, 0.3);
     border-color: #b8e0b8;
 }
-/* --- Fine Dark Mode Variables --- */
 
 /* Stili Generali */
 body {
@@ -99,8 +100,8 @@ body {
   box-shadow: none; 
   padding: 32px 24px;
   transition: background-color 0.3s, box-shadow 0.3s;
-  padding-top: 80px; /* Spazio per l'header fisso */
-  padding-bottom: 80px; /* Spazio per la bottom nav */
+  padding-top: 80px;
+  padding-bottom: 80px;
 }
 
 /* Header e Titoli */
@@ -110,7 +111,6 @@ body {
   align-items: center;
   margin-bottom: 20px;
 }
-/* Stili per Header Fissato */
 .header-controls.fixed-header {
     position: fixed; 
     top: 0;
@@ -138,7 +138,6 @@ h1 {
   margin: 0;
 }
 
-/* 🚩 Stili per i pulsanti di navigazione */
 .top-buttons {
     display: flex;
     gap: 8px;
@@ -212,7 +211,6 @@ button:disabled {
     box-shadow: none;
 }
 
-/* Pulsanti Specifici */
 .btn-primary { 
     background: var(--colore-primario);
 }
@@ -226,7 +224,6 @@ button:disabled {
     background: var(--sfondo-rimuovi);
 }
 
-/* Stili per pulsante Ricomincia Partita */
 .game-over-actions {
     text-align: center;
     margin: 20px 0;
@@ -271,7 +268,7 @@ label {
 body.dark-mode label {
     color: #bbb;
 }
-/* Stili per Preset Info */
+
 .preset-info {
   background: rgba(42, 77, 105, 0.1);
   border-left: 4px solid var(--colore-primario);
@@ -299,6 +296,7 @@ body.dark-mode .preset-info {
     transform: translateY(0);
   }
 }
+
 input[type="text"], input[type="number"], select {
   font-size: 1em;
   padding: 10px 12px;
@@ -310,7 +308,6 @@ input[type="text"], input[type="number"], select {
   min-height: 48px; 
 }
 
-/* Bottoni principali */
 .action-buttons {
   display: flex;
   gap: 10px;
@@ -320,6 +317,11 @@ input[type="text"], input[type="number"], select {
   flex-grow: 1;
   font-weight: 600;
   padding: 10px;
+}
+
+/* 🆕 NUOVO: Campo Rounds (mostra/nascondi) */
+#rounds-field {
+  display: none;
 }
 
 /* Lista Giocatori */
@@ -339,7 +341,7 @@ input[type="text"], input[type="number"], select {
   position: relative;
   transition: all 0.3s ease;
 }
-/* Overlay Partita Terminata */
+
 .giocatore-item.game-over::after {
     content: '';
     position: absolute;
@@ -356,7 +358,6 @@ input[type="text"], input[type="number"], select {
     display: none; 
 }
 
-/* Highlight Vincitore/Leader - Molto Più Evidente */
 .giocatore-item.winner-highlight {
   background: var(--sfondo-vincitore); 
   border: 3px solid var(--bordo-vincitore);
@@ -378,6 +379,30 @@ input[type="text"], input[type="number"], select {
   50% { transform: translateY(-5px) rotate(10deg); }
 }
 
+/* 🆕 NUOVO: Container Stats (Rounds + Punti) */
+.giocatore-stats {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  margin: 5px 0;
+  flex-wrap: wrap;
+}
+
+/* 🆕 NUOVO: Stile Rounds */
+.giocatore-rounds {
+  font-size: 1.1em;
+  color: var(--colore-rounds);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.giocatore-rounds strong {
+  font-weight: 900;
+  font-size: 1.5em;
+  color: var(--colore-rounds);
+}
+
 .giocatore-punti {
   font-size: 1.1em;
   color: #555;
@@ -388,7 +413,7 @@ input[type="text"], input[type="number"], select {
 body.dark-mode .giocatore-punti {
     color: #bbb;
 }
-/* Punteggio in Primo Piano */
+
 .giocatore-punti strong {
   font-weight: 800; 
   color: var(--colore-primario);
@@ -397,7 +422,7 @@ body.dark-mode .giocatore-punti {
   margin-right: 5px;
   line-height: 1;
 }
-/* Punteggio del Leader Ancora Più Grande */
+
 .giocatore-item.winner-highlight .giocatore-punti strong {
   font-size: 2.2em;
   color: var(--colore-vincitore);
@@ -410,8 +435,38 @@ body.dark-mode .giocatore-punti {
   justify-content: space-between;
   width: 100%;
   margin-top: 5px;
+  gap: 10px;
+  flex-wrap: wrap;
 }
-/* Layout Controlli (Grid per mobile) */
+
+/* 🆕 NUOVO: Controlli Rounds */
+.rounds-controls {
+  display: flex;
+  gap: 6px;
+}
+.rounds-controls button {
+  padding: 8px 12px;
+  font-size: 0.95em;
+  min-width: 70px;
+  min-height: 44px;
+  font-weight: 600;
+}
+.btn-round-plus {
+  background: var(--colore-rounds) !important;
+  color: white;
+}
+.btn-round-plus:hover {
+  background: #f57c00 !important;
+}
+.btn-round-minus {
+  background: #9e9e9e !important;
+  color: white;
+}
+.btn-round-minus:hover {
+  background: #757575 !important;
+}
+
+/* Layout Controlli Punteggio */
 .punteggio-controls {
   display: grid; 
   grid-template-columns: repeat(3, 1fr); 
@@ -434,14 +489,13 @@ body.dark-mode .giocatore-punti {
 .punteggio-controls .btn-custom-score {
   background: var(--colore-pulsante-custom);
   font-weight: 700;
+  grid-column: span 3; 
+  font-size: 1.1em;
 }
 .punteggio-controls .btn-custom-score:hover {
   background: #006b8c;
 }
-.punteggio-controls .btn-custom-score {
-    grid-column: span 3; 
-    font-size: 1.1em;
-}
+
 #giocatori-lista-settings .punteggio-controls {
     grid-template-columns: 1fr;
 }
@@ -478,11 +532,11 @@ body.dark-mode .giocatore-punti {
     50% { transform: scale(1.15); }
     100% { transform: scale(1.0); }
 }
-.giocatore-punti.anim-up strong {
+.giocatore-punti.anim-up strong, .giocatore-rounds.anim-up strong {
   color: #4CAF50 !important; 
   animation: scaleBounce 0.3s ease-in-out;
 }
-.giocatore-punti.anim-down strong {
+.giocatore-punti.anim-down strong, .giocatore-rounds.anim-down strong {
   color: #F44336 !important; 
   animation: scaleBounce 0.3s ease-in-out;
 }
@@ -533,7 +587,7 @@ body.dark-mode .giocatore-punti {
     transition: background-color 0.3s;
 }
 
-/* NUOVO: Stili per Modal Overlay */
+/* Modal Overlay */
 .modal-overlay, .loader-overlay {
     position: fixed;
     top: 0;
@@ -686,7 +740,7 @@ body.dark-mode .nav-item.active {
   }
 }
 
-/* Media Query per Mobile (Controlli ottimizzati) */
+/* Media Query per Mobile */
 @media (max-width: 500px) {
   .container {
     padding-top: 90px; 
@@ -699,7 +753,7 @@ body.dark-mode .nav-item.active {
       top: -5px;
       right: -5px;
   }
-  .giocatore-punti {
+  .giocatore-stats {
       margin-bottom: 10px;
   }
   .punti-e-controlli {
@@ -707,7 +761,16 @@ body.dark-mode .nav-item.active {
       align-items: flex-start;
   }
   
-  /* Layout a 3 colonne per mostrare tutti i pulsanti su mobile */
+  /* 🆕 Rounds controls su mobile */
+  .rounds-controls {
+      width: 100%;
+      margin-bottom: 8px;
+  }
+  .rounds-controls button {
+      flex: 1;
+      min-width: 0;
+  }
+  
   .punteggio-controls {
       grid-template-columns: repeat(3, 1fr);
       gap: 4px;
@@ -719,32 +782,17 @@ body.dark-mode .nav-item.active {
       min-width: auto;
       min-height: 42px;
   }
-  /* Prima riga: +1, -1, +5 */
-  .punteggio-controls button:nth-child(1),
-  .punteggio-controls button:nth-child(2),
-  .punteggio-controls button:nth-child(3) {
-      grid-column: span 1;
-      display: block;
-  }
-  /* Seconda riga: -5, +10, -10 */
-  .punteggio-controls button:nth-child(4),
-  .punteggio-controls button:nth-child(5),
-  .punteggio-controls button:nth-child(6) {
-      grid-column: span 1;
-      display: block;
-  }
-  /* Terza riga: Pulsante ± occupa 3 colonne */
   .punteggio-controls .btn-custom-score {
       grid-column: span 3;
       font-size: 1.05em;
       order: 10;
   }
   .header-controls.fixed-header {
-    border-radius: 0; /* Su mobile full-width, nessun bordo arrotondato */
+    border-radius: 0;
   }
 }
 
-/* Media Query per Desktop/Tablet (Layout Orizzontale) */
+/* Media Query per Desktop/Tablet */
 @media (min-width: 501px) {
   .giocatore-item {
     flex-direction: row;
@@ -754,38 +802,35 @@ body.dark-mode .nav-item.active {
   }
   .giocatore-nome {
     margin-bottom: 0;
-    flex-basis: 25%; 
+    flex-basis: 20%; 
+  }
+  .giocatore-stats {
+      flex-basis: 25%;
+      margin: 0;
   }
   .punti-e-controlli {
     width: auto;
     flex-grow: 1;
-    justify-content: flex-end; 
+    justify-content: flex-end;
+    flex-wrap: nowrap;
   }
-  .giocatore-punti {
-    margin-right: 20px;
-    text-align: right;
-    min-width: 120px;
+  
+  /* 🆕 Rounds controls desktop */
+  .rounds-controls {
+      margin-right: 10px;
   }
-  /* Layout pulsanti in desktop (7 pulsanti in linea) */
+  
   .punteggio-controls {
     display: flex;
     gap: 6px;
-    grid-template-columns: none; /* Disabilita grid per tornare a flex/inline */
+    grid-template-columns: none;
     flex-wrap: wrap;
   }
   .punteggio-controls button {
     flex: 0 0 auto;
   }
   .punteggio-controls .btn-custom-score {
-    grid-column: span 1; /* Torna a dimensione normale */
+    grid-column: span 1;
     font-size: 1em;
-  }
-  .punteggio-controls button:nth-child(1),
-  .punteggio-controls button:nth-child(2),
-  .punteggio-controls button:nth-child(3),
-  .punteggio-controls button:nth-child(4),
-  .punteggio-controls button:nth-child(5),
-  .punteggio-controls button:nth-child(6) {
-      display: block; /* Mostra tutti i pulsanti */
   }
 }
