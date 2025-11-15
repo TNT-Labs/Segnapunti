@@ -84,6 +84,12 @@
     </div>
   </div>
   
+  <!-- FIX: Rimosso loader duplicato -->
+  <div id="loader-overlay" class="loader-overlay" style="display: flex;">
+      <div class="loader-spinner"></div>
+      <p>Caricamento dati...</p>
+  </div>
+  
   <!-- Bottom Navigation Bar -->
   <nav class="bottom-nav">
     <a href="index.html" class="nav-item">
@@ -108,10 +114,6 @@
   <script src="preset-manager.js"></script>  
   <script>
     if ('serviceWorker' in navigator) {
-      <div id="loader-overlay" class="loader-overlay" style="display: flex;">
-          <div class="loader-spinner"></div>
-          <p>Caricamento dati...</p>
-      </div>
       window.addEventListener('load', () => {
             navigator.serviceWorker.register('service-worker.js')
                 .then(registration => {
