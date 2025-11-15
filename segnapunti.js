@@ -1,5 +1,5 @@
 // ===================================================================
-// MODULE PATTERN ES6 - Segnapunti v1.1.0 - MODALITÀ ROUND/SET
+// MODULE PATTERN ES6 - Segnapunti v1.1.1 - BUGFIX COMPLETO
 // ===================================================================
 
 // -------------------------------------------------------------------
@@ -7,7 +7,7 @@
 // -------------------------------------------------------------------
 const DatabaseModule = (() => {
   const DB_NAME = 'SegnapuntiDB';
-  const DB_VERSION = 3; // Incrementato per nuova struttura
+  const DB_VERSION = 3;
   const STORE_NAME = 'stato_partita';
   const HISTORY_STORE_NAME = 'storico_partite';
   const STATE_KEY = 'current_state';
@@ -194,10 +194,9 @@ const DatabaseModule = (() => {
 // 🎮 GAME STATE MODULE - Gestione stato del gioco CON ROUNDS
 // -------------------------------------------------------------------
 const GameStateModule = (() => {
-  // Private state
-  let modalitaVittoria = 'max'; // max, min, rounds
+  let modalitaVittoria = 'max';
   let punteggioObiettivo = 100;
-  let roundsObiettivo = 3; // 🆕 NUOVO: obiettivo rounds
+  let roundsObiettivo = 3;
   let giocatori = [];
   let partitaTerminata = false;
 
@@ -205,10 +204,9 @@ const GameStateModule = (() => {
     return `player_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   };
 
-  // Getters
   const getModalitaVittoria = () => modalitaVittoria;
   const getPunteggioObiettivo = () => punteggioObiettivo;
-  const getRoundsObiettivo = () => roundsObiettivo; // 🆕 NUOVO
+  const getRoundsObiettivo = () => roundsObiettivo;
   const getGiocatori = () => [...giocatori];
   const isPartitaTerminata = () => partitaTerminata;
   const getPresets = () => {
@@ -218,7 +216,6 @@ const GameStateModule = (() => {
     return {};
   };
 
-  // Setters
   const setModalitaVittoria = (value) => {
     modalitaVittoria = value;
     saveCurrentState();
@@ -233,7 +230,6 @@ const GameStateModule = (() => {
     saveCurrentState();
   };
 
-  // 🆕 NUOVO: Setter rounds obiettivo
   const setRoundsObiettivo = (value) => {
     const rounds = parseInt(value, 10);
     if (isNaN(rounds) || rounds <= 0) {
@@ -247,7 +243,6 @@ const GameStateModule = (() => {
     partitaTerminata = value;
   };
 
-  // Giocatori management
   const addGiocatore = (nome) => {
     const nomeTrimmed = nome.trim().slice(0, 30);
     
@@ -268,7 +263,7 @@ const GameStateModule = (() => {
       id: generatePlayerId(),
       nome: nomeTrimmed,
       punti: 0,
-      rounds: 0, // 🆕 NUOVO: contatore rounds
+      rounds: 0,
       createdAt: Date.now()
     };
     
@@ -300,7 +295,6 @@ const GameStateModule = (() => {
     return false;
   };
 
-  // 🆕 NUOVO: Aggiorna rounds
   const updateRounds = (playerId, delta) => {
     if (partitaTerminata) return false;
     
@@ -320,13 +314,12 @@ const GameStateModule = (() => {
   const resetPunteggi = () => {
     giocatori.forEach(g => {
       g.punti = 0;
-      g.rounds = 0; // 🆕 NUOVO: reset rounds
+      g.rounds = 0;
     });
     partitaTerminata = false;
     saveCurrentState();
   };
 
-  // Preset application
   const applyPreset = (presetKey) => {
     const presets = getPresets();
     const preset = presets[presetKey];
@@ -335,7 +328,6 @@ const GameStateModule = (() => {
     modalitaVittoria = preset.mode;
     punteggioObiettivo = preset.target;
     
-    // 🆕 NUOVO: Carica rounds obiettivo se presente
     if (preset.roundsTarget) {
       roundsObiettivo = preset.roundsTarget;
     }
@@ -345,7 +337,6 @@ const GameStateModule = (() => {
     return preset;
   };
 
-  // 🆕 NUOVO: Logica vittoria aggiornata con rounds
   const checkVittoria = () => {
     if (giocatori.length === 0) {
       return { hasWinner: false, vincitori: [], puntiVincitore: 0, roundsVincitore: 0 };
@@ -362,20 +353,17 @@ const GameStateModule = (() => {
     let roundsVincitore = 0;
     let hasWinner = false;
 
-    // Modalità Rounds: vince chi raggiunge il numero di rounds
     if (modalitaVittoria === 'rounds' && maxRounds >= roundsObiettivo) {
       hasWinner = true;
       vincitori = giocatori.filter(g => g.rounds === maxRounds).map(g => g.nome);
       roundsVincitore = maxRounds;
       puntiVincitore = giocatori.filter(g => g.rounds === maxRounds)[0]?.punti || 0;
     }
-    // Modalità Max Punti
     else if (modalitaVittoria === 'max' && maxPunti >= punteggioObiettivo) {
       hasWinner = true;
       vincitori = giocatori.filter(g => g.punti === maxPunti).map(g => g.nome);
       puntiVincitore = maxPunti;
     }
-    // Modalità Min Punti
     else if (modalitaVittoria === 'min' && maxPunti >= punteggioObiettivo) {
       hasWinner = true;
       vincitori = giocatori.filter(g => g.punti === minPunti).map(g => g.nome);
@@ -385,13 +373,12 @@ const GameStateModule = (() => {
     return { hasWinner, vincitori, puntiVincitore, roundsVincitore, maxPunti, minPunti, maxRounds };
   };
 
-  // State persistence
   const saveCurrentState = () => {
     const darkMode = document.body.classList.contains('dark-mode');
     DatabaseModule.saveState({
       modalitaVittoria,
       punteggioObiettivo,
-      roundsObiettivo, // 🆕 NUOVO
+      roundsObiettivo,
       giocatori,
       partitaTerminata,
       darkMode
@@ -402,18 +389,17 @@ const GameStateModule = (() => {
     if (state) {
       modalitaVittoria = state.modalitaVittoria || 'max';
       punteggioObiettivo = state.punteggioObiettivo || 100;
-      roundsObiettivo = state.roundsObiettivo || 3; // 🆕 NUOVO
+      roundsObiettivo = state.roundsObiettivo || 3;
       giocatori = state.giocatori || [];
       partitaTerminata = state.partitaTerminata || false;
       
-      // Migrazione: aggiungi rounds ai giocatori esistenti
       giocatori = giocatori.map(g => {
         if (!g.id) {
           g.id = generatePlayerId();
           g.createdAt = Date.now();
         }
         if (g.rounds === undefined) {
-          g.rounds = 0; // 🆕 NUOVO: Inizializza rounds
+          g.rounds = 0;
         }
         return g;
       });
@@ -430,34 +416,33 @@ const GameStateModule = (() => {
       data: new Date().toLocaleString('it-IT', { dateStyle: 'short', timeStyle: 'short' }),
       vincitori: vincitori,
       puntiVincitore: puntiVincitore,
-      roundsVincitore: roundsVincitore || 0, // 🆕 NUOVO
+      roundsVincitore: roundsVincitore || 0,
       modalita: modalitaVittoria,
       giocatori: giocatori.map(g => ({ 
         nome: g.nome, 
         punti: g.punti, 
-        rounds: g.rounds || 0 // 🆕 NUOVO
+        rounds: g.rounds || 0
       }))
     };
     
     await DatabaseModule.saveHistory(partita);
   };
 
-  // Public API
   return {
     getModalitaVittoria,
     getPunteggioObiettivo,
-    getRoundsObiettivo, // 🆕 NUOVO
+    getRoundsObiettivo,
     getGiocatori,
     isPartitaTerminata,
     getPresets,
     setModalitaVittoria,
     setPunteggioObiettivo,
-    setRoundsObiettivo, // 🆕 NUOVO
+    setRoundsObiettivo,
     setPartitaTerminata,
     addGiocatore,
     removeGiocatore,
     updatePunteggio,
-    updateRounds, // 🆕 NUOVO
+    updateRounds,
     getGiocatoreById,
     resetPunteggi,
     applyPreset,
@@ -469,7 +454,7 @@ const GameStateModule = (() => {
 })();
 
 // -------------------------------------------------------------------
-// 🎨 UI MODULE - AGGIORNATO CON SUPPORTO ROUNDS
+// 🎨 UI MODULE - COMPLETO CON TUTTE LE FUNZIONI
 // -------------------------------------------------------------------
 const UIModule = (() => {
   let currentButtonListeners = [];
@@ -509,7 +494,187 @@ const UIModule = (() => {
     currentButtonListeners = [];
   };
 
-  // 🆕 NUOVO: Animazione rounds
+  // ✅ BUGFIX: Funzione mancante - Ordina giocatori
+  const sortPlayers = (giocatori, modalita) => {
+    return [...giocatori].sort((a, b) => {
+      if (modalita === 'rounds') {
+        return b.rounds - a.rounds || b.punti - a.punti;
+      }
+      return modalita === 'max' ? b.punti - a.punti : a.punti - b.punti;
+    });
+  };
+
+  // ✅ BUGFIX: Funzione mancante - Messaggio empty state
+  const createEmptyStateMessage = (text) => {
+    const li = document.createElement('li');
+    li.style.textAlign = 'center';
+    li.style.padding = '20px';
+    li.style.color = '#999';
+    li.style.fontStyle = 'italic';
+    li.textContent = text;
+    return li;
+  };
+
+  // ✅ BUGFIX: Funzione mancante - Crea controlli rounds
+  const createRoundsControls = (playerId) => {
+    const container = document.createElement('div');
+    container.className = 'rounds-controls';
+    
+    const btnMinus = document.createElement('button');
+    btnMinus.textContent = '-1 🏆';
+    btnMinus.className = 'btn-round-minus';
+    btnMinus.title = 'Rimuovi 1 round';
+    btnMinus.onclick = () => {
+      if (GameStateModule.updateRounds(playerId, -1)) {
+        animateRounds(playerId, -1);
+        renderGiocatoriPartita();
+        checkAndDisplayVittoria();
+      }
+    };
+    
+    const btnPlus = document.createElement('button');
+    btnPlus.textContent = '+1 🏆';
+    btnPlus.className = 'btn-round-plus';
+    btnPlus.title = 'Aggiungi 1 round vinto';
+    btnPlus.onclick = () => {
+      if (GameStateModule.updateRounds(playerId, 1)) {
+        animateRounds(playerId, 1);
+        renderGiocatoriPartita();
+        checkAndDisplayVittoria();
+      }
+    };
+    
+    container.appendChild(btnMinus);
+    container.appendChild(btnPlus);
+    
+    return container;
+  };
+
+  // ✅ BUGFIX: Funzione mancante - Crea item giocatore per PARTITA
+  const createPlayerItemPartita = (giocatore) => {
+    const isRoundsMode = GameStateModule.getModalitaVittoria() === 'rounds';
+    const partitaTerminata = GameStateModule.isPartitaTerminata();
+    
+    const li = document.createElement('li');
+    li.className = 'giocatore-item';
+    li.id = `giocatore-${giocatore.id}`;
+    
+    // Nome
+    const nomeDiv = document.createElement('div');
+    nomeDiv.className = 'giocatore-nome';
+    nomeDiv.textContent = giocatore.nome;
+    
+    // Container stats
+    const statsDiv = document.createElement('div');
+    statsDiv.className = 'giocatore-stats';
+    
+    // Rounds (se modalità rounds)
+    if (isRoundsMode) {
+      const roundsSpan = document.createElement('span');
+      roundsSpan.className = 'giocatore-rounds';
+      roundsSpan.id = `rounds-${giocatore.id}`;
+      roundsSpan.innerHTML = `🏆 <strong>${giocatore.rounds}</strong>`;
+      roundsSpan.title = 'Rounds vinti';
+      statsDiv.appendChild(roundsSpan);
+    }
+    
+    // Punti
+    const puntiSpan = document.createElement('span');
+    puntiSpan.className = 'giocatore-punti';
+    puntiSpan.id = `punti-${giocatore.id}`;
+    puntiSpan.innerHTML = `<strong>${giocatore.punti}</strong> ${isRoundsMode ? 'pt' : 'punti'}`;
+    statsDiv.appendChild(puntiSpan);
+    
+    // Controlli
+    const controlsDiv = document.createElement('div');
+    controlsDiv.className = 'punti-e-controlli';
+    
+    // Rounds controls (se modalità rounds)
+    if (isRoundsMode) {
+      const roundsControls = createRoundsControls(giocatore.id);
+      controlsDiv.appendChild(roundsControls);
+    }
+    
+    // Score controls
+    const scoreControls = document.createElement('div');
+    scoreControls.className = 'punteggio-controls';
+    
+    const buttons = [
+      { text: '+1', value: 1 },
+      { text: '-1', value: -1 },
+      { text: '+5', value: 5 },
+      { text: '-5', value: -5 },
+      { text: '+10', value: 10 },
+      { text: '-10', value: -10 }
+    ];
+    
+    buttons.forEach(btn => {
+      const button = document.createElement('button');
+      button.textContent = btn.text;
+      button.disabled = partitaTerminata;
+      button.onclick = () => {
+        if (GameStateModule.updatePunteggio(giocatore.id, btn.value)) {
+          animatePunteggio(giocatore.id, btn.value);
+          renderGiocatoriPartita();
+          checkAndDisplayVittoria();
+        }
+      };
+      scoreControls.appendChild(button);
+    });
+    
+    const customBtn = document.createElement('button');
+    customBtn.textContent = '± Personalizza';
+    customBtn.className = 'btn-custom-score';
+    customBtn.disabled = partitaTerminata;
+    customBtn.onclick = () => showModal(giocatore.id);
+    scoreControls.appendChild(customBtn);
+    
+    controlsDiv.appendChild(scoreControls);
+    
+    // Assembly
+    li.appendChild(nomeDiv);
+    li.appendChild(statsDiv);
+    li.appendChild(controlsDiv);
+    
+    return li;
+  };
+
+  // ✅ BUGFIX: Funzione mancante - Crea item giocatore per SETTINGS
+  const createPlayerItemSettings = (giocatore) => {
+    const li = document.createElement('li');
+    li.className = 'giocatore-item';
+    li.id = `giocatore-${giocatore.id}`;
+    
+    const nomeDiv = document.createElement('div');
+    nomeDiv.className = 'giocatore-nome';
+    nomeDiv.textContent = giocatore.nome;
+    
+    const statsDiv = document.createElement('div');
+    statsDiv.className = 'giocatore-punti';
+    statsDiv.innerHTML = `<strong>${giocatore.punti}</strong> punti | 🏆 <strong>${giocatore.rounds || 0}</strong> rounds`;
+    
+    const controlsDiv = document.createElement('div');
+    controlsDiv.className = 'punteggio-controls';
+    
+    const btnRemove = document.createElement('button');
+    btnRemove.textContent = '🗑️ Rimuovi';
+    btnRemove.className = 'btn-rimuovi';
+    btnRemove.onclick = () => {
+      if (confirm(`Rimuovere ${giocatore.nome} dalla partita?`)) {
+        GameStateModule.removeGiocatore(giocatore.id);
+        renderGiocatoriSettings();
+      }
+    };
+    
+    controlsDiv.appendChild(btnRemove);
+    
+    li.appendChild(nomeDiv);
+    li.appendChild(statsDiv);
+    li.appendChild(controlsDiv);
+    
+    return li;
+  };
+
   const animateRounds = (playerId, delta) => {
     const roundsElement = document.getElementById(`rounds-${playerId}`);
     if (!roundsElement) return;
@@ -565,7 +730,6 @@ const UIModule = (() => {
       strongElement.textContent = giocatore.punti;
     }
     
-    // Floating number
     const floatingNumber = document.createElement('span');
     floatingNumber.className = `floating-number ${delta >= 0 ? 'positive' : 'negative'}`;
     floatingNumber.textContent = delta >= 0 ? `+${delta}` : delta;
@@ -661,42 +825,6 @@ const UIModule = (() => {
     hideModal();
   };
 
-  // 🆕 NUOVO: Crea controlli rounds
-  const createRoundsControls = (playerId) => {
-    const container = document.createElement('div');
-    container.className = 'rounds-controls';
-    
-    const btnMinus = document.createElement('button');
-    btnMinus.textContent = '-1 🏆';
-    btnMinus.className = 'btn-round-minus';
-    btnMinus.title = 'Rimuovi 1 round';
-    btnMinus.onclick = () => {
-      if (GameStateModule.updateRounds(playerId, -1)) {
-        animateRounds(playerId, -1);
-        renderGiocatoriPartita();
-        checkAndDisplayVittoria();
-      }
-    };
-    
-    const btnPlus = document.createElement('button');
-    btnPlus.textContent = '+1 🏆';
-    btnPlus.className = 'btn-round-plus';
-    btnPlus.title = 'Aggiungi 1 round vinto';
-    btnPlus.onclick = () => {
-      if (GameStateModule.updateRounds(playerId, 1)) {
-        animateRounds(playerId, 1);
-        renderGiocatoriPartita();
-        checkAndDisplayVittoria();
-      }
-    };
-    
-    container.appendChild(btnMinus);
-    container.appendChild(btnPlus);
-    
-    return container;
-  };
-
-  // 🆕 AGGIORNATO: Rendering giocatori con rounds
   const renderGiocatoriPartita = () => {
     if (!elements.giocatoriListaPartita) return;
 
@@ -704,110 +832,22 @@ const UIModule = (() => {
 
     const giocatori = GameStateModule.getGiocatori();
     const modalita = GameStateModule.getModalitaVittoria();
-    const partitaTerminata = GameStateModule.isPartitaTerminata();
-    const isRoundsMode = modalita === 'rounds';
     
     elements.giocatoriListaPartita.innerHTML = '';
     
     if (giocatori.length === 0) {
-      const emptyLi = document.createElement('li');
-      emptyLi.style.textAlign = 'center';
-      emptyLi.style.padding = '20px';
-      emptyLi.style.color = '#999';
-      emptyLi.textContent = 'Nessun giocatore in partita. Aggiungine uno dalle impostazioni (⚙️).';
-      elements.giocatoriListaPartita.appendChild(emptyLi);
+      const emptyMessage = createEmptyStateMessage(
+        'Nessun giocatore in partita. Aggiungine uno dalle impostazioni (⚙️).'
+      );
+      elements.giocatoriListaPartita.appendChild(emptyMessage);
       return;
     }
 
-    // Ordina giocatori
-    const giocatoriOrdinati = [...giocatori].sort((a, b) => {
-      if (isRoundsMode) {
-        return b.rounds - a.rounds || b.punti - a.punti;
-      }
-      return modalita === 'max' ? b.punti - a.punti : a.punti - b.punti;
-    });
+    const giocatoriOrdinati = sortPlayers(giocatori, modalita);
     
     giocatoriOrdinati.forEach((giocatore) => {
-      const li = document.createElement('li');
-      li.className = 'giocatore-item';
-      li.id = `giocatore-${giocatore.id}`;
-      
-      // Nome
-      const nomeDiv = document.createElement('div');
-      nomeDiv.className = 'giocatore-nome';
-      nomeDiv.textContent = giocatore.nome;
-      
-      // Container punti e rounds
-      const statsDiv = document.createElement('div');
-      statsDiv.className = 'giocatore-stats';
-      
-      // Rounds (se modalità rounds)
-      if (isRoundsMode) {
-        const roundsSpan = document.createElement('span');
-        roundsSpan.className = 'giocatore-rounds';
-        roundsSpan.id = `rounds-${giocatore.id}`;
-        roundsSpan.innerHTML = `🏆 <strong>${giocatore.rounds}</strong>`;
-        roundsSpan.title = 'Rounds vinti';
-        statsDiv.appendChild(roundsSpan);
-      }
-      
-      // Punti
-      const puntiSpan = document.createElement('span');
-      puntiSpan.className = 'giocatore-punti';
-      puntiSpan.id = `punti-${giocatore.id}`;
-      puntiSpan.innerHTML = `<strong>${giocatore.punti}</strong> ${isRoundsMode ? 'pt' : 'punti'}`;
-      statsDiv.appendChild(puntiSpan);
-      
-      // Controlli
-      const controlsDiv = document.createElement('div');
-      controlsDiv.className = 'punti-e-controlli';
-      
-      // Rounds controls (se modalità rounds)
-      if (isRoundsMode) {
-        const roundsControls = createRoundsControls(giocatore.id);
-        controlsDiv.appendChild(roundsControls);
-      }
-      
-      // Score controls
-      const scoreControls = document.createElement('div');
-      scoreControls.className = 'punteggio-controls';
-      
-      const buttons = [
-        { text: '+1', value: 1 },
-        { text: '-1', value: -1 },
-        { text: '+5', value: 5 },
-        { text: '-5', value: -5 },
-        { text: '+10', value: 10 },
-        { text: '-10', value: -10 }
-      ];
-      
-      buttons.forEach(btn => {
-        const button = document.createElement('button');
-        button.textContent = btn.text;
-        button.onclick = () => {
-          if (GameStateModule.updatePunteggio(giocatore.id, btn.value)) {
-            animatePunteggio(giocatore.id, btn.value);
-            renderGiocatoriPartita();
-            checkAndDisplayVittoria();
-          }
-        };
-        scoreControls.appendChild(button);
-      });
-      
-      const customBtn = document.createElement('button');
-      customBtn.textContent = '± Personalizza';
-      customBtn.className = 'btn-custom-score';
-      customBtn.onclick = () => showModal(giocatore.id);
-      scoreControls.appendChild(customBtn);
-      
-      controlsDiv.appendChild(scoreControls);
-      
-      // Assembly
-      li.appendChild(nomeDiv);
-      li.appendChild(statsDiv);
-      li.appendChild(controlsDiv);
-      
-      elements.giocatoriListaPartita.appendChild(li);
+      const playerItem = createPlayerItemPartita(giocatore);
+      elements.giocatoriListaPartita.appendChild(playerItem);
     });
     
     checkAndDisplayVittoria();
@@ -820,52 +860,17 @@ const UIModule = (() => {
     elements.giocatoriListaSettings.innerHTML = '';
     
     if (giocatori.length === 0) {
-      const emptyLi = document.createElement('li');
-      emptyLi.style.textAlign = 'center';
-      emptyLi.style.padding = '20px';
-      emptyLi.style.color = '#999';
-      emptyLi.textContent = 'Nessun giocatore in lista.';
-      elements.giocatoriListaSettings.appendChild(emptyLi);
+      const emptyMessage = createEmptyStateMessage('Nessun giocatore in lista.');
+      elements.giocatoriListaSettings.appendChild(emptyMessage);
       return;
     }
 
     giocatori.forEach((giocatore) => {
-      const li = document.createElement('li');
-      li.className = 'giocatore-item';
-      li.id = `giocatore-${giocatore.id}`;
-      
-      const nomeDiv = document.createElement('div');
-      nomeDiv.className = 'giocatore-nome';
-      nomeDiv.textContent = giocatore.nome;
-      
-      const statsDiv = document.createElement('div');
-      statsDiv.className = 'giocatore-punti';
-      statsDiv.innerHTML = `<strong>${giocatore.punti}</strong> punti | 🏆 <strong>${giocatore.rounds || 0}</strong> rounds`;
-      
-      const controlsDiv = document.createElement('div');
-      controlsDiv.className = 'punteggio-controls';
-      
-      const btnRemove = document.createElement('button');
-      btnRemove.textContent = '🗑️ Rimuovi';
-      btnRemove.className = 'btn-rimuovi';
-      btnRemove.onclick = () => {
-        if (confirm(`Rimuovere ${giocatore.nome} dalla partita?`)) {
-          GameStateModule.removeGiocatore(giocatore.id);
-          renderGiocatoriSettings();
-        }
-      };
-      
-      controlsDiv.appendChild(btnRemove);
-      
-      li.appendChild(nomeDiv);
-      li.appendChild(statsDiv);
-      li.appendChild(controlsDiv);
-      
-      elements.giocatoriListaSettings.appendChild(li);
+      const playerItem = createPlayerItemSettings(giocatore);
+      elements.giocatoriListaSettings.appendChild(playerItem);
     });
   };
 
-  // 🆕 AGGIORNATO: Storico con rounds
   const renderStorico = async () => {
     if (!elements.storicoLista) return;
 
@@ -879,12 +884,8 @@ const UIModule = (() => {
     elements.storicoLista.innerHTML = '';
 
     if (storico.length === 0) {
-      const emptyLi = document.createElement('li');
-      emptyLi.style.textAlign = 'center';
-      emptyLi.style.padding = '40px 20px';
-      emptyLi.style.color = '#999';
-      emptyLi.textContent = 'Nessuna partita nello storico.';
-      elements.storicoLista.appendChild(emptyLi);
+      const emptyMessage = createEmptyStateMessage('Nessuna partita nello storico.');
+      elements.storicoLista.appendChild(emptyMessage);
       return;
     }
 
@@ -898,7 +899,6 @@ const UIModule = (() => {
       const vincitoreSpan = document.createElement('span');
       vincitoreSpan.className = 'storico-vincitore';
       
-      // 🆕 NUOVO: Mostra rounds se modalità rounds
       if (partita.modalita === 'rounds') {
         vincitoreSpan.textContent = `🏆 ${partita.vincitori.join(', ')} (${partita.roundsVincitore || 0} rounds, ${partita.puntiVincitore} pt)`;
       } else {
@@ -978,7 +978,6 @@ const UIModule = (() => {
     }
   };
 
-  // 🆕 AGGIORNATO: Vittoria con rounds
   const checkAndDisplayVittoria = () => {
     if (!elements.winnerMessage) return;
 
@@ -1046,7 +1045,6 @@ const UIModule = (() => {
       }
       GameStateModule.setPartitaTerminata(false);
       
-      // Highlight leader
       giocatori.forEach((g) => {
         const item = document.getElementById(`giocatore-${g.id}`);
         if (item) {
@@ -1121,14 +1119,14 @@ const UIModule = (() => {
 })();
 
 // -------------------------------------------------------------------
-// 🎛️ SETTINGS MODULE - AGGIORNATO CON ROUNDS
+// 🎛️ SETTINGS MODULE
 // -------------------------------------------------------------------
 const SettingsModule = (() => {
   let presetSelectElement = null;
   let modalitaSelectElement = null;
   let obiettivoInputElement = null;
-  let roundsObiettivoInputElement = null; // 🆕 NUOVO
-  let roundsFieldElement = null; // 🆕 NUOVO
+  let roundsObiettivoInputElement = null;
+  let roundsFieldElement = null;
   let presetInfoElement = null;
   let presetDescriptionElement = null;
 
@@ -1136,16 +1134,15 @@ const SettingsModule = (() => {
     presetSelectElement = document.getElementById('preset-gioco');
     modalitaSelectElement = document.getElementById('modalita-vittoria');
     obiettivoInputElement = document.getElementById('punteggio-obiettivo');
-    roundsObiettivoInputElement = document.getElementById('rounds-obiettivo'); // 🆕 NUOVO
-    roundsFieldElement = document.getElementById('rounds-field'); // 🆕 NUOVO
+    roundsObiettivoInputElement = document.getElementById('rounds-obiettivo');
+    roundsFieldElement = document.getElementById('rounds-field');
     presetInfoElement = document.getElementById('preset-info');
     presetDescriptionElement = document.getElementById('preset-description');
     
     populatePresetSelect();
-    toggleRoundsField(); // 🆕 NUOVO: Mostra/nascondi campo rounds
+    toggleRoundsField();
   };
 
-  // 🆕 NUOVO: Mostra/nascondi campo rounds obiettivo
   const toggleRoundsField = () => {
     if (!roundsFieldElement) return;
     
@@ -1227,12 +1224,11 @@ const SettingsModule = (() => {
     if (obiettivoInputElement) {
       obiettivoInputElement.value = preset.target;
     }
-    // 🆕 NUOVO: Rounds obiettivo
     if (roundsObiettivoInputElement && preset.roundsTarget) {
       roundsObiettivoInputElement.value = preset.roundsTarget;
     }
     
-    toggleRoundsField(); // 🆕 NUOVO
+    toggleRoundsField();
     
     if (presetInfoElement && presetDescriptionElement) {
       presetDescriptionElement.textContent = preset.description;
@@ -1256,11 +1252,10 @@ const SettingsModule = (() => {
     if (obiettivoInputElement) {
       obiettivoInputElement.value = GameStateModule.getPunteggioObiettivo();
     }
-    // 🆕 NUOVO
     if (roundsObiettivoInputElement) {
       roundsObiettivoInputElement.value = GameStateModule.getRoundsObiettivo();
     }
-    toggleRoundsField(); // 🆕 NUOVO
+    toggleRoundsField();
   };
 
   const setupEventListeners = () => {
@@ -1273,7 +1268,7 @@ const SettingsModule = (() => {
     if (modalitaSelectElement) {
       modalitaSelectElement.addEventListener('change', (e) => {
         GameStateModule.setModalitaVittoria(e.target.value);
-        toggleRoundsField(); // 🆕 NUOVO
+        toggleRoundsField();
         resetPresetUI();
       });
     }
@@ -1298,7 +1293,6 @@ const SettingsModule = (() => {
       });
     }
 
-    // 🆕 NUOVO: Rounds obiettivo listener
     if (roundsObiettivoInputElement) {
       roundsObiettivoInputElement.addEventListener('change', (e) => {
         try {
@@ -1493,7 +1487,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // -------------------------------------------------------------------
 window.SegnapuntiApp = {
   toggleDarkMode: () => UIModule.toggleDarkMode(),
-  version: '1.1.0',
+  version: '1.1.1',
   debug: {
     getState: () => ({
       modalita: GameStateModule.getModalitaVittoria(),
