@@ -44,7 +44,6 @@
       <label for="preset-gioco">🎮 Preset Gioco (opzionale):</label>
       <select id="preset-gioco">
         <option value="">-- Configurazione Personalizzata --</option>
-        <!-- Popolato dinamicamente da JavaScript -->
       </select>
       
       <div class="preset-manager-link" style="margin-top: 10px;">
@@ -57,10 +56,20 @@
       <select id="modalita-vittoria">
         <option value="max">Vince chi fa **più** punti</option>
         <option value="min">Vince chi fa **meno** punti</option>
+        <option value="rounds">🏆 Vince chi vince più **rounds**</option>
       </select>
       
       <label for="punteggio-obiettivo">Punteggio obiettivo (stop partita):</label>
       <input type="number" id="punteggio-obiettivo" min="1" value="100">
+      
+      <!-- 🆕 NUOVO: Campo Rounds Obiettivo -->
+      <div id="rounds-field">
+        <label for="rounds-obiettivo">🏆 Rounds da vincere:</label>
+        <input type="number" id="rounds-obiettivo" min="1" value="3">
+        <small style="display: block; margin-top: 5px; color: #666;">
+          Numero di rounds necessari per vincere la partita
+        </small>
+      </div>
       
       <div id="preset-info" class="preset-info" style="display: none;">
         <p id="preset-description"></p>
@@ -73,12 +82,6 @@
         <button id="btn-nuova-partita" class="btn-reset">Inizia Nuova Partita (Reset Punti)</button>
       </div>
     </div>
-  </div>
-  
-  <!-- FIX: Rimosso loader duplicato -->
-  <div id="loader-overlay" class="loader-overlay" style="display: flex;">
-      <div class="loader-spinner"></div>
-      <p>Caricamento dati...</p>
   </div>
   
   <!-- Bottom Navigation Bar -->
@@ -105,7 +108,11 @@
   <script src="preset-manager.js"></script>  
   <script>
     if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
+      <div id="loader-overlay" class="loader-overlay" style="display: flex;">
+          <div class="loader-spinner"></div>
+          <p>Caricamento dati...</p>
+      </div>
+      window.addEventListener('load', () => {
             navigator.serviceWorker.register('service-worker.js')
                 .then(registration => {
                     console.log('Service Worker registrato con successo:', registration.scope);
