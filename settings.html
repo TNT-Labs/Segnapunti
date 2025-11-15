@@ -84,7 +84,6 @@
     </div>
   </div>
   
-  <!-- FIX: Rimosso loader duplicato -->
   <div id="loader-overlay" class="loader-overlay" style="display: flex;">
       <div class="loader-spinner"></div>
       <p>Caricamento dati...</p>
@@ -114,7 +113,7 @@
   <script src="preset-manager.js"></script>  
   <script>
     if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
+        window.addEventListener('load', () => {
             navigator.serviceWorker.register('service-worker.js')
                 .then(registration => {
                     console.log('Service Worker registrato con successo:', registration.scope);
