@@ -49,6 +49,9 @@ body.dark-mode input:focus, body.dark-mode select:focus {
 body.dark-mode .giocatore-item {
   background: #2a2a2a;
 }
+body.dark-mode .giocatore-nome {
+  color: var(--colore-primario);
+}
 body.dark-mode .giocatore-punti strong {
   color: var(--colore-primario);
 }
@@ -340,6 +343,16 @@ input[type="text"], input[type="number"], select {
   margin-bottom: 10px;
   position: relative;
   transition: all 0.3s ease;
+}
+
+/* 🆕 Nome Giocatore in Evidenza */
+.giocatore-nome {
+  font-size: 1.4em;
+  font-weight: 700;
+  color: var(--colore-primario);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .giocatore-item.game-over::after {
@@ -802,7 +815,8 @@ body.dark-mode .nav-item.active {
   }
   .giocatore-nome {
     margin-bottom: 0;
-    flex-basis: 20%; 
+    flex-basis: 20%;
+    font-size: 1.5em;
   }
   .giocatore-stats {
       flex-basis: 25%;
