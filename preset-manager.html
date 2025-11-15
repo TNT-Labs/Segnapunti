@@ -16,6 +16,38 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet"> 
   
+  <style>
+    body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+    .loader-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.8);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+    .loader-spinner {
+      border: 4px solid rgba(255,255,255,0.3);
+      border-top: 4px solid #4b86b4;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .loader-overlay p {
+      color: white;
+      margin-top: 20px;
+    }
+  </style>
   <link rel="stylesheet" href="segnapunti.css">
   <link rel="stylesheet" href="preset-manager.css">
 </head>
@@ -54,6 +86,7 @@
         <li>✅ <strong>Crea</strong> nuovi preset personalizzati per i tuoi giochi preferiti</li>
         <li>✏️ <strong>Modifica</strong> i tuoi preset (quelli predefiniti non possono essere modificati)</li>
         <li>📋 <strong>Duplica</strong> qualsiasi preset per usarlo come base</li>
+        <li>🏆 <strong>Modalità Rounds</strong>: Perfetta per giochi a mani/set (poker, tennis, ecc.)</li>
         <li>💾 <strong>Esporta/Importa</strong> i tuoi preset per condividerli o fare backup</li>
       </ul>
     </div>
@@ -101,6 +134,7 @@
             <select id="preset-mode" required>
               <option value="max">📈 Vince chi fa PIÙ punti</option>
               <option value="min">📉 Vince chi fa MENO punti</option>
+              <option value="rounds">🏆 Vince chi vince più ROUNDS</option>
             </select>
           </div>
 
@@ -113,6 +147,21 @@
               max="999999"
               placeholder="es: 100" 
               required>
+          </div>
+        </div>
+
+        <!-- 🆕 NUOVO: Campo Rounds Target -->
+        <div id="preset-rounds-field" style="display: none;">
+          <div class="form-group">
+            <label for="preset-rounds-target">🏆 Rounds da Vincere *</label>
+            <input 
+              type="number" 
+              id="preset-rounds-target" 
+              min="1" 
+              max="99"
+              placeholder="es: 3" 
+              value="3">
+            <small>Numero di rounds/set/mani necessari per vincere</small>
           </div>
         </div>
 
@@ -175,7 +224,6 @@
   </nav>
 
   <!-- Scripts -->
-  <script src="segnapunti.js"></script>
   <script src="preset-manager.js"></script>
   
   <script>
@@ -185,15 +233,13 @@
       if (loader) loader.style.display = 'flex';
 
       // Update dark mode icon
-      if (window.SegnapuntiApp) {
-        const darkMode = localStorage.getItem('darkMode') === 'true';
-        if (darkMode) {
-          document.body.classList.add('dark-mode');
-        }
-        const iconBtn = document.getElementById('toggle-dark-mode');
-        if (iconBtn) {
-          iconBtn.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
-        }
+      const darkMode = localStorage.getItem('darkMode') === 'true';
+      if (darkMode) {
+        document.body.classList.add('dark-mode');
+      }
+      const iconBtn = document.getElementById('toggle-dark-mode');
+      if (iconBtn) {
+        iconBtn.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
       }
 
       // Render preset list
