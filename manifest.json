@@ -2,56 +2,154 @@
   "name": "Segnapunti - Partita e Impostazioni",
   "short_name": "Segnapunti",
   "start_url": "index.html",
+  "id": "/Segnapunti/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#212121",
   "theme_color": "#4A148C",
-  "description": "L'app segnapunti mobile definitiva per ogni gioco.",
+  "description": "L'app segnapunti mobile definitiva per ogni gioco. Traccia punti e rounds per Scala 40, Burraco, Scopa, Poker, giochi da tavolo e molto altro. Supporta modalità offline, dark mode e preset personalizzabili.",
+  "lang": "it",
+  "dir": "ltr",
+  "categories": ["games", "utilities", "entertainment"],
+  "scope": "/Segnapunti/",
   "icons": [
     {
       "src": "Segnapunti72x72.png",
       "sizes": "72x72",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "Segnapunti96x96.png",
       "sizes": "96x96",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "Segnapunti128x128.png",
       "sizes": "128x128",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "Segnapunti144x144.png",
       "sizes": "144x144",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "Segnapunti152x152.png",
       "sizes": "152x152",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "Segnapunti192x192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "Segnapunti384x384.png",
       "sizes": "384x384",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "Segnapunti512x512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "Segnapunti1024x1024.png",
       "sizes": "1024x1024",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "screenshots/screenshot-mobile-1.png",
+      "sizes": "1170x2532",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Partita in corso con punteggi"
+    },
+    {
+      "src": "screenshots/screenshot-mobile-2.png",
+      "sizes": "1170x2532",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Gestione preset giochi"
+    },
+    {
+      "src": "screenshots/screenshot-mobile-3.png",
+      "sizes": "1170x2532",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Storico partite"
+    },
+    {
+      "src": "screenshots/screenshot-desktop-1.png",
+      "sizes": "2560x1440",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Segnapunti - Visione Desktop"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Nuova Partita",
+      "short_name": "Partita",
+      "description": "Inizia una nuova partita velocemente",
+      "url": "index.html",
+      "icons": [
+        {
+          "src": "Segnapunti192x192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Impostazioni",
+      "short_name": "Settings",
+      "description": "Configura giocatori e modalità di gioco",
+      "url": "settings.html",
+      "icons": [
+        {
+          "src": "Segnapunti192x192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Storico",
+      "short_name": "Storico",
+      "description": "Visualizza lo storico delle partite",
+      "url": "storico.html",
+      "icons": [
+        {
+          "src": "Segnapunti192x192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Preset",
+      "short_name": "Preset",
+      "description": "Gestisci i preset dei giochi",
+      "url": "preset-manager.html",
+      "icons": [
+        {
+          "src": "Segnapunti192x192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
     }
   ]
 }
