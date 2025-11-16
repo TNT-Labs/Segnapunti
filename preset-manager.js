@@ -1,9 +1,9 @@
 // ===================================================================
-// 🎮 PRESET MANAGER MODULE v1.1.0 - con Supporto ROUNDS
+// 🎮 PRESET MANAGER MODULE v1.1.2 - BUG FIXES APPLICATI
 // ===================================================================
 
 const PresetManagerModule = (() => {
-  // 🆕 AGGIORNATO: Preset di default con supporto rounds
+  // Preset di default con supporto rounds
   const DEFAULT_PRESETS = {
     scala40: { 
       name: 'Scala 40', 
@@ -21,7 +21,6 @@ const PresetManagerModule = (() => {
       isDefault: true,
       category: 'carte'
     },
-    // 🆕 NUOVO: Preset con rounds
     poker_tournament: {
       name: 'Poker (Torneo)',
       mode: 'rounds',
@@ -39,7 +38,6 @@ const PresetManagerModule = (() => {
       isDefault: true,
       category: 'carte'
     },
-    // 🆕 NUOVO: Scopa a rounds
     scopa_rounds: {
       name: 'Scopa (a Partite)',
       mode: 'rounds',
@@ -97,7 +95,6 @@ const PresetManagerModule = (() => {
       isDefault: true,
       category: 'tavolo'
     },
-    // 🆕 NUOVO: Tennis/Volley a set
     tennis: {
       name: 'Tennis/Volley',
       mode: 'rounds',
@@ -139,7 +136,6 @@ const PresetManagerModule = (() => {
       isDefault: true,
       category: 'altri'
     },
-    // 🆕 NUOVO: Ping pong a set
     pingpong: {
       name: 'Ping Pong',
       mode: 'rounds',
@@ -202,7 +198,6 @@ const PresetManagerModule = (() => {
     return categorized;
   };
 
-  // 🆕 AGGIORNATO: Validazione con roundsTarget
   const createPreset = (key, presetData) => {
     if (!key || key.trim() === '') {
       throw new Error('Il codice del preset non può essere vuoto');
@@ -225,7 +220,6 @@ const PresetManagerModule = (() => {
       throw new Error('Il punteggio obiettivo deve essere un numero maggiore o uguale a 0');
     }
 
-    // 🆕 NUOVO: Validazione roundsTarget
     if (presetData.mode === 'rounds') {
       const roundsTarget = parseInt(presetData.roundsTarget, 10);
       if (isNaN(roundsTarget) || roundsTarget <= 0) {
@@ -250,7 +244,6 @@ const PresetManagerModule = (() => {
       modifiedAt: Date.now()
     };
 
-    // 🆕 NUOVO: Aggiungi roundsTarget se presente
     if (presetData.mode === 'rounds' && presetData.roundsTarget) {
       newPreset.roundsTarget = parseInt(presetData.roundsTarget, 10);
     }
@@ -264,7 +257,6 @@ const PresetManagerModule = (() => {
     }
   };
 
-  // 🆕 AGGIORNATO: Update con roundsTarget
   const updatePreset = (key, presetData) => {
     const customPresets = loadCustomPresets();
     
@@ -289,7 +281,6 @@ const PresetManagerModule = (() => {
       throw new Error('Il punteggio obiettivo deve essere un numero maggiore o uguale a 0');
     }
 
-    // 🆕 NUOVO: Validazione roundsTarget
     if (presetData.mode === 'rounds') {
       const roundsTarget = parseInt(presetData.roundsTarget, 10);
       if (isNaN(roundsTarget) || roundsTarget <= 0) {
@@ -307,7 +298,6 @@ const PresetManagerModule = (() => {
       modifiedAt: Date.now()
     };
 
-    // 🆕 NUOVO: Gestione roundsTarget
     if (presetData.mode === 'rounds' && presetData.roundsTarget) {
       customPresets[key].roundsTarget = parseInt(presetData.roundsTarget, 10);
     } else {
@@ -352,7 +342,7 @@ const PresetManagerModule = (() => {
   const exportPresets = () => {
     const customPresets = loadCustomPresets();
     const exportData = {
-      version: '1.1',
+      version: '1.1.2',
       exportDate: new Date().toISOString(),
       presets: customPresets
     };
@@ -369,6 +359,7 @@ const PresetManagerModule = (() => {
     URL.revokeObjectURL(url);
   };
 
+  // ✅ FIX #12: Validazione rigorosa import
   const importPresets = (jsonData) => {
     try {
       const data = JSON.parse(jsonData);
@@ -387,13 +378,23 @@ const PresetManagerModule = (() => {
           return;
         }
 
-        if (preset.name && preset.mode && typeof preset.target === 'number') {
+        // ✅ FIX #12: Validazione rigorosa
+        const isValid = 
+          preset.name && 
+          typeof preset.name === 'string' &&
+          ['max', 'min', 'rounds'].includes(preset.mode) &&
+          typeof preset.target === 'number' &&
+          preset.target >= 0 &&
+          (preset.mode !== 'rounds' || (preset.roundsTarget && preset.roundsTarget > 0));
+
+        if (isValid) {
           customPresets[key] = {
             ...preset,
             importedAt: Date.now()
           };
           imported++;
         } else {
+          console.warn(`Preset "${key}" ignorato: dati non validi`);
           skipped++;
         }
       });
@@ -433,7 +434,6 @@ const PresetManagerModule = (() => {
       category: sourcePreset.category === 'carte' || sourcePreset.category === 'tavolo' || sourcePreset.category === 'altri' ? 'custom' : sourcePreset.category
     };
 
-    // 🆕 NUOVO: Copia roundsTarget se presente
     if (sourcePreset.roundsTarget) {
       newPresetData.roundsTarget = sourcePreset.roundsTarget;
     }
@@ -457,7 +457,7 @@ const PresetManagerModule = (() => {
 })();
 
 // ===================================================================
-// 🎨 PRESET UI MODULE - AGGIORNATO CON ROUNDS
+// 🎨 PRESET UI MODULE - CON FIX #4
 // ===================================================================
 
 const PresetUIModule = (() => {
@@ -505,7 +505,6 @@ const PresetUIModule = (() => {
     });
   };
 
-  // 🆕 AGGIORNATO: Card con rounds
   const createPresetCard = (preset) => {
     const card = document.createElement('div');
     card.className = `preset-card ${preset.isDefault ? 'preset-default' : 'preset-custom'}`;
@@ -543,7 +542,6 @@ const PresetUIModule = (() => {
     const target = document.createElement('p');
     target.className = 'preset-target';
     
-    // 🆕 NUOVO: Mostra rounds target
     if (preset.mode === 'rounds' && preset.roundsTarget) {
       target.innerHTML = `<strong>Obiettivo:</strong> ${preset.roundsTarget} rounds (${preset.target} pt/round)`;
     } else {
@@ -605,16 +603,18 @@ const PresetUIModule = (() => {
 
     document.getElementById('preset-modal-title').textContent = '➕ Nuovo Preset';
     form.reset();
-    document.getElementById('preset-key').value = '';
-    document.getElementById('preset-key').disabled = false;
     
-    // 🆕 NUOVO: Nascondi campo rounds di default
+    const keyInput = document.getElementById('preset-key');
+    if (keyInput) {
+      keyInput.value = '';
+      keyInput.disabled = false;
+    }
+    
     toggleRoundsField('max');
     
     modal.style.display = 'flex';
   };
 
-  // 🆕 NUOVO: Toggle campo rounds
   const toggleRoundsField = (mode) => {
     const roundsField = document.getElementById('preset-rounds-field');
     if (roundsField) {
@@ -622,7 +622,6 @@ const PresetUIModule = (() => {
     }
   };
 
-  // 🆕 AGGIORNATO: Edit modal con rounds
   const showEditModal = (key) => {
     const allPresets = PresetManagerModule.getAllPresets();
     const preset = allPresets[key];
@@ -636,17 +635,31 @@ const PresetUIModule = (() => {
     if (!modal || !form) return;
 
     document.getElementById('preset-modal-title').textContent = '✏️ Modifica Preset';
-    document.getElementById('preset-key').value = key;
-    document.getElementById('preset-key').disabled = true;
-    document.getElementById('preset-name').value = preset.name;
-    document.getElementById('preset-mode').value = preset.mode;
-    document.getElementById('preset-target').value = preset.target;
-    document.getElementById('preset-description').value = preset.description || '';
-    document.getElementById('preset-category').value = preset.category || 'custom';
     
-    // 🆕 NUOVO: Rounds target
+    const keyInput = document.getElementById('preset-key');
+    if (keyInput) {
+      keyInput.value = key;
+      keyInput.disabled = true;
+    }
+    
+    const nameInput = document.getElementById('preset-name');
+    if (nameInput) nameInput.value = preset.name;
+    
+    const modeSelect = document.getElementById('preset-mode');
+    if (modeSelect) modeSelect.value = preset.mode;
+    
+    const targetInput = document.getElementById('preset-target');
+    if (targetInput) targetInput.value = preset.target;
+    
+    const descInput = document.getElementById('preset-description');
+    if (descInput) descInput.value = preset.description || '';
+    
+    const categorySelect = document.getElementById('preset-category');
+    if (categorySelect) categorySelect.value = preset.category || 'custom';
+    
     if (preset.mode === 'rounds' && preset.roundsTarget) {
-      document.getElementById('preset-rounds-target').value = preset.roundsTarget;
+      const roundsInput = document.getElementById('preset-rounds-target');
+      if (roundsInput) roundsInput.value = preset.roundsTarget;
     }
     
     toggleRoundsField(preset.mode);
@@ -676,21 +689,30 @@ const PresetUIModule = (() => {
     currentEditingKey = null;
   };
 
-  // 🆕 AGGIORNATO: Salva con rounds
   const savePreset = () => {
-    const key = document.getElementById('preset-key').value.trim();
-    const name = document.getElementById('preset-name').value.trim();
-    const mode = document.getElementById('preset-mode').value;
-    const target = document.getElementById('preset-target').value;
-    const description = document.getElementById('preset-description').value.trim();
-    const category = document.getElementById('preset-category').value;
+    const keyInput = document.getElementById('preset-key');
+    const nameInput = document.getElementById('preset-name');
+    const modeSelect = document.getElementById('preset-mode');
+    const targetInput = document.getElementById('preset-target');
+    const descInput = document.getElementById('preset-description');
+    const categorySelect = document.getElementById('preset-category');
+    
+    if (!keyInput || !nameInput || !modeSelect || !targetInput) return;
+    
+    const key = keyInput.value.trim();
+    const name = nameInput.value.trim();
+    const mode = modeSelect.value;
+    const target = targetInput.value;
+    const description = descInput ? descInput.value.trim() : '';
+    const category = categorySelect ? categorySelect.value : 'custom';
 
     const presetData = { name, mode, target, description, category };
 
-    // 🆕 NUOVO: Rounds target
     if (mode === 'rounds') {
-      const roundsTarget = document.getElementById('preset-rounds-target').value;
-      presetData.roundsTarget = roundsTarget;
+      const roundsInput = document.getElementById('preset-rounds-target');
+      if (roundsInput) {
+        presetData.roundsTarget = roundsInput.value;
+      }
     }
 
     try {
@@ -779,7 +801,7 @@ const PresetUIModule = (() => {
       btnSavePreset.addEventListener('click', savePreset);
     }
 
-    // 🆕 NUOVO: Toggle rounds field on mode change
+    // ✅ FIX #4: Null check prima di aggiungere listener
     const modeSelect = document.getElementById('preset-mode');
     if (modeSelect) {
       modeSelect.addEventListener('change', (e) => {
