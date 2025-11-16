@@ -1,9 +1,9 @@
 // ===================================================================
-// MODULE PATTERN ES6 - Segnapunti v1.1.1 - BUGFIX COMPLETO
+// MODULE PATTERN ES6 - Segnapunti v1.1.2 - BUG FIXES COMPLETI
 // ===================================================================
 
 // -------------------------------------------------------------------
-// 🗄️ DATABASE MODULE - Gestione IndexedDB
+// 🗄️ DATABASE MODULE - Gestione IndexedDB (✅ FIX #1, #7)
 // -------------------------------------------------------------------
 const DatabaseModule = (() => {
   const DB_NAME = 'SegnapuntiDB';
@@ -14,6 +14,8 @@ const DatabaseModule = (() => {
 
   let db = null;
   let dbPromise = null;
+  let retryCount = 0;
+  const MAX_RETRIES = 3;
 
   const openDB = () => {
     if (dbPromise) return dbPromise;
@@ -36,13 +38,26 @@ const DatabaseModule = (() => {
 
       request.onsuccess = (event) => {
         db = event.target.result;
+        retryCount = 0; // ✅ FIX #1: Reset retry count on success
         resolve(db);
       };
 
       request.onerror = (event) => {
         console.error("Errore IndexedDB:", event.target.errorCode);
-        dbPromise = null;
-        reject(new Error("Errore nell'apertura del database IndexedDB."));
+        
+        // ✅ FIX #1: Retry logic invece di reject immediato
+        if (retryCount < MAX_RETRIES) {
+          retryCount++;
+          dbPromise = null;
+          console.log(`Retry ${retryCount}/${MAX_RETRIES}...`);
+          
+          setTimeout(() => {
+            openDB().then(resolve).catch(reject);
+          }, 1000 * retryCount);
+        } else {
+          dbPromise = null;
+          reject(new Error("Errore nell'apertura del database dopo " + MAX_RETRIES + " tentativi."));
+        }
       };
     });
 
@@ -85,13 +100,14 @@ const DatabaseModule = (() => {
         const store = transaction.objectStore(STORE_NAME);
         const request = store.put({ id: STATE_KEY, ...state });
         
+        // ✅ FIX #7: Usa transaction.oncomplete invece di request.onsuccess
+        transaction.oncomplete = () => resolve();
         transaction.onerror = () => {
           console.error('Errore durante il salvataggio dello stato');
-          reject();
+          reject(new Error('Transaction failed'));
         };
         
-        request.onsuccess = () => resolve();
-        request.onerror = () => reject();
+        request.onerror = () => reject(new Error('Put request failed'));
       });
     } catch (error) {
       console.error("Errore nel salvataggio dello stato:", error);
@@ -101,9 +117,20 @@ const DatabaseModule = (() => {
   const saveHistory = async (partita) => {
     try {
       const db = await openDB();
-      const transaction = db.transaction([HISTORY_STORE_NAME], 'readwrite');
-      const store = transaction.objectStore(HISTORY_STORE_NAME);
-      await store.add(partita);
+      return new Promise((resolve, reject) => {
+        const transaction = db.transaction([HISTORY_STORE_NAME], 'readwrite');
+        const store = transaction.objectStore(HISTORY_STORE_NAME);
+        const request = store.add(partita);
+        
+        // ✅ FIX #7: Transaction completion
+        transaction.oncomplete = () => resolve();
+        transaction.onerror = () => {
+          console.error('Errore salvataggio storico');
+          reject();
+        };
+        
+        request.onerror = () => reject();
+      });
     } catch (error) {
       console.error("Errore nel salvataggio dello storico:", error);
     }
@@ -146,14 +173,15 @@ const DatabaseModule = (() => {
         const store = transaction.objectStore(HISTORY_STORE_NAME);
         const request = store.clear();
 
+        // ✅ FIX #7: Transaction completion
+        transaction.oncomplete = () => {
+          console.log('Storico cancellato con successo');
+          resolve();
+        };
+        
         transaction.onerror = () => {
           console.error('Errore durante la cancellazione dello storico');
           reject();
-        };
-
-        request.onsuccess = () => {
-          console.log('Storico cancellato con successo');
-          resolve();
         };
         
         request.onerror = () => {
@@ -191,7 +219,7 @@ const DatabaseModule = (() => {
 })();
 
 // -------------------------------------------------------------------
-// 🎮 GAME STATE MODULE - Gestione stato del gioco CON ROUNDS
+// 🎮 GAME STATE MODULE - Gestione stato del gioco (✅ FIX #8, #9)
 // -------------------------------------------------------------------
 const GameStateModule = (() => {
   let modalitaVittoria = 'max';
@@ -250,8 +278,10 @@ const GameStateModule = (() => {
       throw new Error("Inserisci un nome valido.");
     }
 
-    if (nomeTrimmed.match(/[<>]/)) {
-      throw new Error("Il nome non può contenere caratteri speciali come < o >");
+    // ✅ FIX #9: Validazione più robusta contro XSS
+    const dangerousChars = /[<>"'`]/;
+    if (dangerousChars.test(nomeTrimmed)) {
+      throw new Error("Il nome contiene caratteri non ammessi.");
     }
 
     const nomeNormalizzato = nomeTrimmed.replace(/\s+/g, ' ').toLowerCase();
@@ -404,9 +434,13 @@ const GameStateModule = (() => {
         return g;
       });
       
-      if (state.darkMode) {
+      // ✅ FIX #8: Sincronizza dark mode correttamente
+      if (state.darkMode === true) {
         document.body.classList.add('dark-mode');
+      } else if (state.darkMode === false) {
+        document.body.classList.remove('dark-mode');
       }
+      // Se undefined, mantieni stato corrente
     }
   };
 
@@ -454,7 +488,7 @@ const GameStateModule = (() => {
 })();
 
 // -------------------------------------------------------------------
-// 🎨 UI MODULE - COMPLETO CON TUTTE LE FUNZIONI
+// 🎨 UI MODULE - (✅ FIX #2, #3, #6, #11)
 // -------------------------------------------------------------------
 const UIModule = (() => {
   let currentButtonListeners = [];
@@ -494,17 +528,33 @@ const UIModule = (() => {
     currentButtonListeners = [];
   };
 
-  // ✅ BUGFIX: Funzione mancante - Ordina giocatori
+  // ✅ FIX #2: Helper per registrare listener e tracciare cleanup
+  const registerListener = (element, event, handler) => {
+    if (element) {
+      element.addEventListener(event, handler);
+      currentButtonListeners.push({ element, event, handler });
+    }
+  };
+
+  // ✅ FIX #6: Ordina giocatori con fallback consistente
   const sortPlayers = (giocatori, modalita) => {
     return [...giocatori].sort((a, b) => {
       if (modalita === 'rounds') {
-        return b.rounds - a.rounds || b.punti - a.punti;
+        // Prima per rounds, poi per punti, poi per nome
+        return b.rounds - a.rounds || 
+               b.punti - a.punti || 
+               a.nome.localeCompare(b.nome);
       }
-      return modalita === 'max' ? b.punti - a.punti : a.punti - b.punti;
+      
+      // ✅ FIX #6: Aggiungi fallback per nome in tutte le modalità
+      const puntDiff = modalita === 'max' ? 
+                       b.punti - a.punti : 
+                       a.punti - b.punti;
+      
+      return puntDiff !== 0 ? puntDiff : a.nome.localeCompare(b.nome);
     });
   };
 
-  // ✅ BUGFIX: Funzione mancante - Messaggio empty state
   const createEmptyStateMessage = (text) => {
     const li = document.createElement('li');
     li.style.textAlign = 'center';
@@ -515,7 +565,6 @@ const UIModule = (() => {
     return li;
   };
 
-  // ✅ BUGFIX: Funzione mancante - Crea controlli rounds
   const createRoundsControls = (playerId) => {
     const container = document.createElement('div');
     container.className = 'rounds-controls';
@@ -524,25 +573,30 @@ const UIModule = (() => {
     btnMinus.textContent = '-1 🏆';
     btnMinus.className = 'btn-round-minus';
     btnMinus.title = 'Rimuovi 1 round';
-    btnMinus.onclick = () => {
+    
+    // ✅ FIX #2: Usa addEventListener + registrazione per cleanup
+    const minusHandler = () => {
       if (GameStateModule.updateRounds(playerId, -1)) {
         animateRounds(playerId, -1);
         renderGiocatoriPartita();
         checkAndDisplayVittoria();
       }
     };
+    registerListener(btnMinus, 'click', minusHandler);
     
     const btnPlus = document.createElement('button');
     btnPlus.textContent = '+1 🏆';
     btnPlus.className = 'btn-round-plus';
     btnPlus.title = 'Aggiungi 1 round vinto';
-    btnPlus.onclick = () => {
+    
+    const plusHandler = () => {
       if (GameStateModule.updateRounds(playerId, 1)) {
         animateRounds(playerId, 1);
         renderGiocatoriPartita();
         checkAndDisplayVittoria();
       }
     };
+    registerListener(btnPlus, 'click', plusHandler);
     
     container.appendChild(btnMinus);
     container.appendChild(btnPlus);
@@ -550,7 +604,6 @@ const UIModule = (() => {
     return container;
   };
 
-  // ✅ BUGFIX: Funzione mancante - Crea item giocatore per PARTITA
   const createPlayerItemPartita = (giocatore) => {
     const isRoundsMode = GameStateModule.getModalitaVittoria() === 'rounds';
     const partitaTerminata = GameStateModule.isPartitaTerminata();
@@ -559,16 +612,13 @@ const UIModule = (() => {
     li.className = 'giocatore-item';
     li.id = `giocatore-${giocatore.id}`;
     
-    // Nome
     const nomeDiv = document.createElement('div');
     nomeDiv.className = 'giocatore-nome';
     nomeDiv.textContent = giocatore.nome;
     
-    // Container stats
     const statsDiv = document.createElement('div');
     statsDiv.className = 'giocatore-stats';
     
-    // Rounds (se modalità rounds)
     if (isRoundsMode) {
       const roundsSpan = document.createElement('span');
       roundsSpan.className = 'giocatore-rounds';
@@ -578,24 +628,20 @@ const UIModule = (() => {
       statsDiv.appendChild(roundsSpan);
     }
     
-    // Punti
     const puntiSpan = document.createElement('span');
     puntiSpan.className = 'giocatore-punti';
     puntiSpan.id = `punti-${giocatore.id}`;
     puntiSpan.innerHTML = `<strong>${giocatore.punti}</strong> ${isRoundsMode ? 'pt' : 'punti'}`;
     statsDiv.appendChild(puntiSpan);
     
-    // Controlli
     const controlsDiv = document.createElement('div');
     controlsDiv.className = 'punti-e-controlli';
     
-    // Rounds controls (se modalità rounds)
     if (isRoundsMode) {
       const roundsControls = createRoundsControls(giocatore.id);
       controlsDiv.appendChild(roundsControls);
     }
     
-    // Score controls
     const scoreControls = document.createElement('div');
     scoreControls.className = 'punteggio-controls';
     
@@ -612,13 +658,17 @@ const UIModule = (() => {
       const button = document.createElement('button');
       button.textContent = btn.text;
       button.disabled = partitaTerminata;
-      button.onclick = () => {
+      
+      // ✅ FIX #2: Registra listener per cleanup
+      const handler = () => {
         if (GameStateModule.updatePunteggio(giocatore.id, btn.value)) {
           animatePunteggio(giocatore.id, btn.value);
           renderGiocatoriPartita();
           checkAndDisplayVittoria();
         }
       };
+      registerListener(button, 'click', handler);
+      
       scoreControls.appendChild(button);
     });
     
@@ -626,12 +676,15 @@ const UIModule = (() => {
     customBtn.textContent = '± Personalizza';
     customBtn.className = 'btn-custom-score';
     customBtn.disabled = partitaTerminata;
-    customBtn.onclick = () => showModal(giocatore.id);
+    
+    // ✅ FIX #2: Registra listener
+    const customHandler = () => showModal(giocatore.id);
+    registerListener(customBtn, 'click', customHandler);
+    
     scoreControls.appendChild(customBtn);
     
     controlsDiv.appendChild(scoreControls);
     
-    // Assembly
     li.appendChild(nomeDiv);
     li.appendChild(statsDiv);
     li.appendChild(controlsDiv);
@@ -639,7 +692,6 @@ const UIModule = (() => {
     return li;
   };
 
-  // ✅ BUGFIX: Funzione mancante - Crea item giocatore per SETTINGS
   const createPlayerItemSettings = (giocatore) => {
     const li = document.createElement('li');
     li.className = 'giocatore-item';
@@ -659,12 +711,15 @@ const UIModule = (() => {
     const btnRemove = document.createElement('button');
     btnRemove.textContent = '🗑️ Rimuovi';
     btnRemove.className = 'btn-rimuovi';
-    btnRemove.onclick = () => {
+    
+    // ✅ FIX #2: Registra listener
+    const removeHandler = () => {
       if (confirm(`Rimuovere ${giocatore.nome} dalla partita?`)) {
         GameStateModule.removeGiocatore(giocatore.id);
         renderGiocatoriSettings();
       }
     };
+    registerListener(btnRemove, 'click', removeHandler);
     
     controlsDiv.appendChild(btnRemove);
     
@@ -741,23 +796,28 @@ const UIModule = (() => {
     
     document.body.appendChild(floatingNumber);
     
-    const removeFloating = setTimeout(() => {
-      if (floatingNumber && floatingNumber.parentNode) {
+    // ✅ FIX #3: Cleanup corretto floating number
+    let floatingRemoved = false;
+    const removeFloating = () => {
+      if (!floatingRemoved && floatingNumber && floatingNumber.parentNode) {
         floatingNumber.parentNode.removeChild(floatingNumber);
+        floatingRemoved = true;
       }
-    }, 1200);
+    };
+    
+    // Rimuovi dopo animazione (1.2s)
+    setTimeout(removeFloating, 1200);
     
     const cleanup = () => {
       puntiElement.classList.remove(animClass);
       activeAnimations.delete(animKey);
+      removeFloating(); // ✅ FIX #3: Assicura rimozione anche se animazione interrotta
     };
     
     puntiElement.addEventListener('animationend', cleanup, { once: true });
     
-    setTimeout(() => {
-      cleanup();
-      clearTimeout(removeFloating);
-    }, 500);
+    // Fallback cleanup dopo 500ms
+    setTimeout(cleanup, 500);
   };
 
   const showModal = (playerId) => {
@@ -773,7 +833,14 @@ const UIModule = (() => {
       elements.modalInput.value = '';
       elements.modal.style.display = 'flex';
       
-      setTimeout(() => elements.modalInput.focus(), 100);
+      // ✅ FIX #11: Usa requestAnimationFrame invece di setTimeout
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          if (elements.modalInput) {
+            elements.modalInput.focus();
+          }
+        });
+      });
     }
   };
 
@@ -1487,7 +1554,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // -------------------------------------------------------------------
 window.SegnapuntiApp = {
   toggleDarkMode: () => UIModule.toggleDarkMode(),
-  version: '1.1.1',
+  version: '1.1.2',
   debug: {
     getState: () => ({
       modalita: GameStateModule.getModalitaVittoria(),
