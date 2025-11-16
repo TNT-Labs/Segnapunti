@@ -71,21 +71,21 @@
   "screenshots": [
     {
       "src": "screenshots/screenshot-mobile-1.png",
-      "sizes": "1170x2532",
+      "sizes": "1170x2536",
       "type": "image/png",
       "form_factor": "narrow",
       "label": "Partita in corso con punteggi"
     },
     {
       "src": "screenshots/screenshot-mobile-2.png",
-      "sizes": "1170x2532",
+      "sizes": "1170x2536",
       "type": "image/png",
       "form_factor": "narrow",
       "label": "Gestione preset giochi"
     },
     {
       "src": "screenshots/screenshot-mobile-3.png",
-      "sizes": "1170x2532",
+      "sizes": "1170x2536",
       "type": "image/png",
       "form_factor": "narrow",
       "label": "Storico partite"
