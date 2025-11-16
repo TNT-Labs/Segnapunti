@@ -89,13 +89,6 @@
       "type": "image/png",
       "form_factor": "narrow",
       "label": "Storico partite"
-    },
-    {
-      "src": "screenshots/screenshot-desktop-1.png",
-      "sizes": "2560x1440",
-      "type": "image/png",
-      "form_factor": "wide",
-      "label": "Segnapunti - Visione Desktop"
     }
   ],
   "shortcuts": [
