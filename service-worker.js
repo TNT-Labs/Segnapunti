@@ -1,32 +1,62 @@
-const CACHE_NAME = 'segnapunti-cache-v1.0.7'; 
-// Lista degli asset essenziali per il funzionamento offline
+// ✅ FIX #5: Cache aggiornata con tutti i file necessari
+const CACHE_NAME = 'segnapunti-cache-v1.1.2'; 
+
+// ✅ FIX #5: Lista completa degli asset essenziali
 const ASSETS_TO_CACHE = [
   '/', 
   'index.html',
   'settings.html',
   'storico.html',
+  'preset-manager.html', // ✅ AGGIUNTO
   'segnapunti.js',
   'segnapunti.css',
+  'preset-manager.js', // ✅ AGGIUNTO
+  'preset-manager.css', // ✅ AGGIUNTO
   'manifest.json',
   'icon-192.png', 
   'icon-512.png',
+  // Aggiungi tutte le altre icone dal manifest
+  'Segnapunti72x72.png',
+  'Segnapunti96x96.png',
+  'Segnapunti128x128.png',
+  'Segnapunti144x144.png',
+  'Segnapunti152x152.png',
+  'Segnapunti192x192.png',
+  'Segnapunti384x384.png',
+  'Segnapunti512x512.png',
+  'Segnapunti1024x1024.png'
 ];
 
 // 1. Installazione del Service Worker
 self.addEventListener('install', event => {
-  console.log('[Service Worker] Installazione completata. Avvio caching...');
+  console.log('[Service Worker] Installazione v1.1.2 completata. Avvio caching...');
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
-        return cache.addAll(ASSETS_TO_CACHE);
+        console.log('[Service Worker] Caching assets...');
+        return cache.addAll(ASSETS_TO_CACHE)
+          .catch(error => {
+            console.error('[Service Worker] Errore caching assets:', error);
+            // Continua comunque anche se alcuni asset falliscono
+            return Promise.all(
+              ASSETS_TO_CACHE.map(asset => {
+                return cache.add(asset).catch(err => {
+                  console.warn(`[Service Worker] Impossibile cachare: ${asset}`, err);
+                });
+              })
+            );
+          });
       })
-      .then(() => self.skipWaiting())
+      .then(() => {
+        console.log('[Service Worker] Cache completata');
+        return self.skipWaiting();
+      })
   );
 });
 
 // 2. Attivazione del Service Worker
 self.addEventListener('activate', event => {
-  console.log('[Service Worker] Attivazione in corso...');
+  console.log('[Service Worker] Attivazione v1.1.2 in corso...');
   // Rimuove le vecchie cache
   event.waitUntil(
     caches.keys().then(cacheNames => {
@@ -38,32 +68,73 @@ self.addEventListener('activate', event => {
           }
         })
       );
-    }).then(() => self.clients.claim())
+    }).then(() => {
+      console.log('[Service Worker] Attivazione completata');
+      return self.clients.claim();
+    })
   );
 });
 
 // 3. Gestione delle Richieste (Caching)
 self.addEventListener('fetch', event => {
-  // Strategia: Cache-First, fallendo al network (Stale-While-Revalidate implicito)
+  // Skip per richieste non-GET o chrome-extension
+  if (event.request.method !== 'GET' || event.request.url.startsWith('chrome-extension://')) {
+    return;
+  }
+
+  // Strategia: Cache-First con Network Fallback e Update
   event.respondWith(
     caches.match(event.request)
-      .then(response => {
-        if (response) {
-          // Aggiorna la cache in background (opzionale)
+      .then(cachedResponse => {
+        if (cachedResponse) {
+          // ✅ Trovato in cache, restituiscilo immediatamente
+          
+          // ✅ Aggiorna la cache in background (Stale-While-Revalidate)
           fetch(event.request).then(
             networkResponse => {
-              caches.open(CACHE_NAME).then(cache => {
-                cache.put(event.request, networkResponse.clone());
-              });
+              // Solo se la risposta è OK
+              if (networkResponse && networkResponse.status === 200) {
+                caches.open(CACHE_NAME).then(cache => {
+                  cache.put(event.request, networkResponse.clone());
+                });
+              }
             }
-          ).catch(() => {}); 
+          ).catch(() => {
+            // Network error, ma abbiamo già la cache
+          }); 
           
-          return response;
+          return cachedResponse;
         }
 
-        return fetch(event.request).catch(() => {
+        // ✅ Non in cache, prova il network
+        return fetch(event.request)
+          .then(networkResponse => {
+            // Se la risposta è valida, cachala
+            if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
+              const responseToCache = networkResponse.clone();
+              caches.open(CACHE_NAME).then(cache => {
+                cache.put(event.request, responseToCache);
+              });
+            }
+            return networkResponse;
+          })
+          .catch(error => {
             console.log('[Service Worker] Richiesta fallita e non in cache:', event.request.url);
-        });
+            
+            // ✅ Fallback per HTML: restituisci index.html dalla cache
+            if (event.request.headers.get('accept').includes('text/html')) {
+              return caches.match('index.html');
+            }
+            
+            throw error;
+          });
       })
   );
+});
+
+// ✅ Gestione messaggi per forzare update
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });
