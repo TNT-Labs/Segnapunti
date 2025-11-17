@@ -109,16 +109,19 @@
         });
     }
     
-    // ✅ Initialize Monetization
+    // ✅ Initialize Monetization (ORDINE CORRETTO)
     document.addEventListener('DOMContentLoaded', async () => {
       try {
-        // Init billing
+        // 1. Init billing PRIMA
         await BillingModule.init();
         
-        // Init ads only if not premium
+        // 2. Init ads solo se non premium
         if (!BillingModule.isPremium()) {
           await AdsModule.init();
         }
+        
+        // 3. Init Premium UI DOPO billing
+        await PremiumUIModule.init();
       } catch (error) {
         console.error('Monetization init error:', error);
       }
