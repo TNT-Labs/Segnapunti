@@ -850,7 +850,7 @@ body.dark-mode .nav-item.active {
 }
 
 /* ===================================================================
-   ✅ MONETIZATION SYSTEM STYLES
+   ✅ MONETIZATION SYSTEM STYLES - DA AGGIUNGERE A segnapunti.css
    =================================================================== */
 
 /* Ad Banner Container */
@@ -870,6 +870,7 @@ body.dark-mode .nav-item.active {
   justify-content: center;
   font-size: 0.85em;
   color: #666;
+  box-sizing: border-box;
 }
 
 body.dark-mode #ad-banner-container {
@@ -878,9 +879,15 @@ body.dark-mode #ad-banner-container {
   color: #aaa;
 }
 
-/* Compensa spazio banner quando presente */
+/* ✅ FIX: Compensa spazio banner quando presente */
 body.has-ad-banner .container {
-  padding-bottom: 130px !important;
+  padding-bottom: 130px !important; /* 50px banner + 70px nav + 10px margin */
+}
+
+@media (max-width: 500px) {
+  body.has-ad-banner .container {
+    padding-bottom: 140px !important;
+  }
 }
 
 /* Premium Badge in Header */
@@ -896,9 +903,143 @@ body.has-ad-banner .container {
   vertical-align: middle;
   box-shadow: 0 2px 8px rgba(255, 215, 0, 0.4);
   animation: premiumPulse 2s infinite;
+  line-height: 1.4;
 }
 
 @keyframes premiumPulse {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.05); }
 }
+
+/* ✅ FIX: Assicura che il badge non rompa il layout header */
+.fixed-header h1 {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+/* Premium Nav Item Highlight */
+.nav-item-premium {
+  position: relative;
+  background: linear-gradient(135deg, rgba(255,215,0,0.1), rgba(255,165,0,0.1)) !important;
+  border-radius: 8px;
+}
+
+.nav-item-premium .nav-icon {
+  color: #FFD700 !important;
+}
+
+.nav-item-premium .nav-label {
+  color: #FFD700 !important;
+  font-weight: 700 !important;
+}
+
+/* NEW Badge on Premium Tab */
+.nav-item-premium .new-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: #ff4444;
+  color: white;
+  font-size: 0.65em;
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-weight: 700;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  z-index: 1;
+}
+
+/* Premium Locked Modal */
+.premium-locked-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  animation: fadeIn 0.3s;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Premium Promo Banner */
+#premium-promo-banner {
+  position: fixed;
+  top: 70px;
+  left: 0;
+  right: 0;
+  max-width: 550px;
+  margin: 0 auto;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 15px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 99;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  animation: slideDown 0.5s;
+  box-sizing: border-box;
+}
+
+@keyframes slideDown {
+  from { 
+    transform: translateY(-100%); 
+    opacity: 0;
+  }
+  to { 
+    transform: translateY(0); 
+    opacity: 1;
+  }
+}
+
+/* ✅ FIX: Assicura che il promo banner non sovrappponga header */
+body.has-promo-banner .fixed-header {
+  position: relative;
+  z-index: 100;
+}
+
+/* Responsive adjustments */
+@media (max-width: 500px) {
+  #premium-promo-banner {
+    flex-direction: column;
+    gap: 10px;
+    padding: 12px 15px;
+  }
+  
+  .premium-badge {
+    font-size: 0.45em;
+    padding: 3px 8px;
+  }
+}
+
+/* ✅ FIX: Previeni overflow su schermi piccoli */
+@media (max-width: 380px) {
+  .nav-item-premium .nav-label {
+    font-size: 0.6em;
+  }
+  
+  .premium-badge {
+    display: none; /* Nascondi su schermi molto piccoli */
+  }
+}
+
+/* ✅ IMPORTANTE: Z-index hierarchy */
+/*
+  Navigation bar: 99
+  Ad banner: 98
+  Promo banner: 99
+  Header: 100
+  Modals: 1000+
+  Loader: 9999
+*/
