@@ -460,6 +460,11 @@ const GameStateModule = (() => {
     };
     
     await DatabaseModule.saveHistory(partita);
+    
+    // ✅ FIX: Dispatch evento per ads module
+    document.dispatchEvent(new CustomEvent('gameCompleted', {
+      detail: { partita }
+    }));
   };
 
   return {
