@@ -204,7 +204,7 @@
   </div>
 
   <!-- Bottom Navigation Bar -->
-  <nav class="bottom-nav">
+ <nav class="bottom-nav">
     <a href="index.html" class="nav-item">
       <span class="nav-icon">🃏</span>
       <span class="nav-label">Partita</span>
@@ -217,14 +217,18 @@
       <span class="nav-icon">⚙️</span>
       <span class="nav-label">Impostazioni</span>
     </a>
-    <a href="preset-manager.html" class="nav-item active">
-      <span class="nav-icon">🎮</span>
-      <span class="nav-label">Preset</span>
+    <a href="premium.html" class="nav-item">
+      <span class="nav-icon">✨</span>
+      <span class="nav-label">Premium</span>
     </a>
   </nav>
 
   <!-- Scripts -->
   <script src="preset-manager.js"></script>
+  <!-- ✅ MONETIZATION SYSTEM -->
+  <script src="billing-module.js"></script>
+  <script src="ads-module.js"></script>
+  <script src="premium-ui.js"></script>
   
   <script>
     // Inizializzazione
@@ -252,6 +256,15 @@
         setTimeout(() => {
           loader.style.display = 'none';
         }, 300);
+      }
+       // ✅ AGGIUNGI QUESTO ALLA FINE
+      try {
+        await BillingModule.init();
+        if (!BillingModule.isPremium()) {
+          await AdsModule.init();
+        }
+      } catch (error) {
+        console.error('Monetization init error:', error);
       }
     });
 
