@@ -871,3 +871,34 @@ body.dark-mode .nav-item.active {
   font-size: 0.85em;
   color: #666;
 }
+
+body.dark-mode #ad-banner-container {
+  background: #2a2a2a;
+  border-top-color: #444;
+  color: #aaa;
+}
+
+/* Compensa spazio banner quando presente */
+body.has-ad-banner .container {
+  padding-bottom: 130px !important;
+}
+
+/* Premium Badge in Header */
+.premium-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  color: #333;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.5em;
+  font-weight: 700;
+  margin-left: 10px;
+  vertical-align: middle;
+  box-shadow: 0 2px 8px rgba(255, 215, 0, 0.4);
+  animation: premiumPulse 2s infinite;
+}
+
+@keyframes premiumPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
