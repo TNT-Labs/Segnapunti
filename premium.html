@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Segnapunti - Premium</title>
+  
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#4A148C">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    body { 
+      margin: 0; 
+      padding: 0; 
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      color: white;
+    }
+    
+    .premium-container {
+      max-width: 550px;
+      margin: 0 auto;
+      padding: 20px;
+      padding-bottom: 100px;
+    }
+    
+    .premium-header {
+      text-align: center;
+      padding: 40px 20px;
+    }
+    
+    .premium-badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.2);
+      padding: 8px 20px;
+      border-radius: 20px;
+      font-size: 0.9em;
+      font-weight: 600;
+      margin-bottom: 20px;
+      backdrop-filter: blur(10px);
+    }
+    
+    .premium-header h1 {
+      font-size: 2.5em;
+      margin: 10px 0;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    }
+    
+    .premium-header p {
+      font-size: 1.2em;
+      opacity: 0.9;
+      margin: 10px 0;
+    }
+    
+    .premium-price {
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      padding: 30px;
+      text-align: center;
+      margin: 20px 0;
+      border: 2px solid rgba(255,255,255,0.3);
+    }
+    
+    .price-amount {
+      font-size: 3em;
+      font-weight: 800;
+      margin: 10px 0;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    }
+    
+    .price-label {
+      font-size: 1.1em;
+      opacity: 0.9;
+    }
+    
+    .premium-features {
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      padding: 30px;
+      margin: 20px 0;
+    }
+    
+    .feature-item {
+      display: flex;
+      align-items: flex-start;
+      margin: 20px 0;
+      padding: 15px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 12px;
+      transition: transform 0.2s;
+    }
+    
+    .feature-item:hover {
+      transform: translateX(5px);
+      background: rgba(255,255,255,0.15);
+    }
+    
+    .feature-icon {
+      font-size: 2em;
+      margin-right: 15px;
+      flex-shrink: 0;
+    }
+    
+    .feature-content h3 {
+      margin: 0 0 8px 0;
+      font-size: 1.2em;
+    }
+    
+    .feature-content p {
+      margin: 0;
+      opacity: 0.9;
+      font-size: 0.95em;
+      line-height: 1.5;
+    }
+    
+    .cta-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin: 30px 0;
+    }
+    
+    .btn-buy-premium {
+      background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+      color: #333;
+      padding: 18px 30px;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.3em;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(255,215,0,0.4);
+      transition: all 0.3s;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .btn-buy-premium:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px rgba(255,215,0,0.6);
+    }
+    
+    .btn-restore {
+      background: rgba(255,255,255,0.15);
+      color: white;
+      padding: 14px 24px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-radius: 10px;
+      font-size: 1em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .btn-restore:hover {
+      background: rgba(255,255,255,0.25);
+    }
+    
+    .premium-guarantee {
+      text-align: center;
+      padding: 20px;
+      opacity: 0.8;
+      font-size: 0.9em;
+    }
+    
+    .already-premium {
+      background: rgba(76, 175, 80, 0.2);
+      border: 2px solid rgba(76, 175, 80, 0.5);
+      border-radius: 16px;
+      padding: 30px;
+      text-align: center;
+      margin: 20px 0;
+    }
+    
+    .already-premium h2 {
+      margin: 0 0 10px 0;
+    }
+    
+    .loader-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.8);
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+    
+    .loader-spinner {
+      border: 4px solid rgba(255,255,255,0.3);
+      border-top: 4px solid white;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .loader-overlay p {
+      color: white;
+      margin-top: 20px;
+      font-size: 1.1em;
+    }
+  </style>
+  <link rel="stylesheet" href="segnapunti.css">
+</head>
+<body>
+  <div class="premium-container">
+    <div class="premium-header">
+      <div class="premium-badge">✨ PREMIUM</div>
+      <h1>🎮 Upgrade a Premium</h1>
+      <p>Esperienza senza interruzioni + Funzionalità esclusive</p>
+    </div>
+
+    <div id="premium-status-view" style="display: none;">
+      <div class="already-premium">
+        <h2>✅ Sei già Premium!</h2>
+        <p>Grazie per il supporto! 🎉</p>
+        <p style="margin-top: 15px; opacity: 0.9;">
+          Tutte le funzionalità premium sono attive.
+        </p>
+      </div>
+      
+      <button onclick="window.location.href='index.html'" class="btn-buy-premium" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); margin-top: 20px;">
+        🎮 Torna alla Partita
+      </button>
+    </div>
+
+    <div id="free-user-view">
+      <div class="premium-price">
+        <div class="price-amount">€2,99</div>
+        <div class="price-label">Acquisto una tantum - Tuo per sempre</div>
+      </div>
+
+      <div class="premium-features">
+        <h2 style="text-align: center; margin-top: 0;">🎁 Cosa ottieni</h2>
+        
+        <div class="feature-item">
+          <div class="feature-icon">🚫</div>
+          <div class="feature-content">
+            <h3>Zero Pubblicità</h3>
+            <p>Nessun banner o interruzione. Esperienza pulita e veloce.</p>
+          </div>
+        </div>
+
+        <div class="feature-item">
+          <div class="feature-icon">🎨</div>
+          <div class="feature-content">
+            <h3>Temi Premium</h3>
+            <p>3 temi esclusivi oltre alla dark mode: Ocean, Sunset, Forest.</p>
+          </div>
+        </div>
+
+        <div class="feature-item">
+          <div class="feature-icon">📊</div>
+          <div class="feature-content">
+            <h3>Statistiche Avanzate</h3>
+            <p>Grafici evoluzione, win rate, media punti e performance storiche.</p>
+          </div>
+        </div>
+
+        <div class="feature-item">
+          <div class="feature-icon">📄</div>
+          <div class="feature-content">
+            <h3>Export PDF/CSV</h3>
+            <p>Esporta lo storico delle partite in formato professionale.</p>
+          </div>
+        </div>
+
+        <div class="feature-item">
+          <div class="feature-icon">☁️</div>
+          <div class="feature-content">
+            <h3>Backup Cloud (Prossimamente)</h3>
+            <p>Sincronizza i tuoi dati su Google Drive automaticamente.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="cta-buttons">
+        <button id="btn-buy-premium" class="btn-buy-premium">
+          🛒 Acquista Premium - €2,99
+        </button>
+        
+        <button id="btn-restore-purchases" class="btn-restore">
+          🔄 Ripristina Acquisti
+        </button>
+      </div>
+
+      <div class="premium-guarantee">
+        ✅ Pagamento sicuro tramite Google Play<br>
+        ✅ Acquisto una tantum, nessun abbonamento<br>
+        ✅ Supporto sviluppatore indipendente
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Navigation Bar -->
+  <nav class="bottom-nav" style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); border-top: 1px solid rgba(255,255,255,0.2);">
+    <a href="index.html" class="nav-item" style="color: white; opacity: 0.8;">
+      <span class="nav-icon">🃏</span>
+      <span class="nav-label">Partita</span>
+    </a>
+    <a href="storico.html" class="nav-item" style="color: white; opacity: 0.8;">
+      <span class="nav-icon">📜</span>
+      <span class="nav-label">Storico</span>
+    </a>
+    <a href="settings.html" class="nav-item" style="color: white; opacity: 0.8;">
+      <span class="nav-icon">⚙️</span>
+      <span class="nav-label">Impostazioni</span>
+    </a>
+    <a href="premium.html" class="nav-item active" style="color: #FFD700;">
+      <span class="nav-icon">✨</span>
+      <span class="nav-label">Premium</span>
+    </a>
+  </nav>
+
+  <div id="loader-overlay" class="loader-overlay">
+    <div class="loader-spinner"></div>
+    <p id="loader-text">Elaborazione...</p>
+  </div>
+
+  <script src="billing-module.js"></script>
+  <script src="ads-module.js"></script>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const loader = document.getElementById('loader-overlay');
+      const freeView = document.getElementById('free-user-view');
+      const premiumView = document.getElementById('premium-status-view');
+      const btnBuy = document.getElementById('btn-buy-premium');
+      const btnRestore = document.getElementById('btn-restore-purchases');
+      
+      // Inizializza Billing
+      loader.style.display = 'flex';
+      const isPremium = await BillingModule.init();
+      loader.style.display = 'none';
+      
+      // Mostra vista corretta
+      if (isPremium) {
+        freeView.style.display = 'none';
+        premiumView.style.display = 'block';
+      } else {
+        freeView.style.display = 'block';
+        premiumView.style.display = 'none';
+      }
+      
+      // Acquisto
+      btnBuy.addEventListener('click', async () => {
+        loader.style.display = 'flex';
+        document.getElementById('loader-text').textContent = 'Apertura Google Play...';
+        
+        const result = await BillingModule.purchasePremium();
+        
+        loader.style.display = 'none';
+        
+        if (result.success) {
+          alert('✅ Acquisto completato!\n\nBenvenuto in Premium! 🎉');
+          window.location.reload();
+        } else if (result.cancelled) {
+          // Utente ha annullato
+        } else {
+          alert('❌ Errore durante l\'acquisto.\n\n' + (result.error || 'Riprova più tardi.'));
+        }
+      });
+      
+      // Ripristino
+      btnRestore.addEventListener('click', async () => {
+        loader.style.display = 'flex';
+        document.getElementById('loader-text').textContent = 'Verifica acquisti...';
+        
+        const result = await BillingModule.restorePurchases();
+        
+        loader.style.display = 'none';
+        
+        if (result.success) {
+          alert('✅ ' + result.message);
+          window.location.reload();
+        } else {
+          alert(result.message || 'Nessun acquisto trovato.');
+        }
+      });
+    });
+    
+    // Dark mode toggle (se presente)
+    function toggleDarkMode() {
+      // Non necessario su questa pagina con sfondo gradient
+    }
+  </script>
+</body>
+</html>
