@@ -11,7 +11,13 @@ const PremiumUIModule = (() => {
   
   const addPremiumBadge = () => {
     const header = document.querySelector('.fixed-header h1');
-    if (!header || header.querySelector('.premium-badge')) return;
+    if (!header) return;
+    
+    // ✅ FIX: Rimuovi badge esistente prima di aggiungerne uno nuovo
+    const existingBadge = header.querySelector('.premium-badge');
+    if (existingBadge) {
+      existingBadge.remove();
+    }
     
     const badge = document.createElement('span');
     badge.className = 'premium-badge';
@@ -44,6 +50,12 @@ const PremiumUIModule = (() => {
     }
     
     header.appendChild(badge);
+  };
+  
+  // ✅ NUOVO: Metodo per rimuovere badge
+  const removePremiumBadge = () => {
+    const badges = document.querySelectorAll('.premium-badge');
+    badges.forEach(badge => badge.remove());
   };
 
   // ===================================================================
@@ -352,6 +364,26 @@ const PremiumUIModule = (() => {
     // Incrementa session count
     const sessionCount = parseInt(localStorage.getItem('app_session_count') || '0');
     localStorage.setItem('app_session_count', (sessionCount + 1).toString());
+    
+    // ✅ FIX: Listener per cambio stato premium
+    document.addEventListener('premiumStatusChanged', handlePremiumStatusChange);
+  };
+  
+  // ✅ NUOVO: Handler per cambio stato
+  const handlePremiumStatusChange = (e) => {
+    isPremium = e.detail.isPremium;
+    
+    if (isPremium) {
+      addPremiumBadge();
+      // Rimuovi upgrade button se presente
+      const upgradeBtn = document.querySelector('.nav-item-premium');
+      if (upgradeBtn && upgradeBtn.parentNode) {
+        upgradeBtn.remove();
+      }
+    } else {
+      removePremiumBadge();
+      addUpgradeButton();
+    }
   };
 
   // ===================================================================
@@ -371,10 +403,6 @@ const PremiumUIModule = (() => {
 // Esporta globalmente
 window.PremiumUIModule = PremiumUIModule;
 
-// Auto-inizializza su DOMContentLoaded
-document.addEventListener('DOMContentLoaded', () => {
-  // Skip su pagina premium stessa
-  if (!window.location.pathname.includes('premium.html')) {
-    PremiumUIModule.init();
-  }
-});
+// ✅ FIX: Non auto-inizializzare, lascia che sia chiamato esplicitamente
+// dopo BillingModule.init() per evitare race condition
+// L'inizializzazione avviene negli script inline di ogni HTML
