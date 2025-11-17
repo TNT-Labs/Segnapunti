@@ -31,7 +31,7 @@ const ASSETS_TO_CACHE = [
 
 // 1. Installazione del Service Worker
 self.addEventListener('install', event => {
-  console.log('[Service Worker] Installazione v1.1.2 completata. Avvio caching...');
+  console.log('[Service Worker] Installazione v1.2.0 completata. Avvio caching...');
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
