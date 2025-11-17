@@ -344,13 +344,17 @@ const AdsModule = (() => {
   // ===================================================================
   
   const setupEventListeners = () => {
-    // Track navigazione
+    // ✅ FIX: Rimuovi listener esistenti prima di aggiungerne nuovi
     const navLinks = document.querySelectorAll('.nav-item');
     navLinks.forEach(link => {
+      // Rimuovi vecchio listener se esiste
+      link.removeEventListener('click', onNavigation);
+      // Aggiungi nuovo listener
       link.addEventListener('click', onNavigation);
     });
     
-    // Track salvataggio partite (custom event)
+    // Track salvataggio partite (custom event) - solo una volta
+    document.removeEventListener('gameCompleted', onGameSaved);
     document.addEventListener('gameCompleted', onGameSaved);
     
     // Track vista storico
@@ -358,12 +362,16 @@ const AdsModule = (() => {
       onHistoryView();
     }
     
-    // Premium status change
-    document.addEventListener('premiumStatusChanged', (e) => {
-      if (e.detail.isPremium) {
-        hideAllAds();
-      }
-    });
+    // Premium status change - solo una volta
+    document.removeEventListener('premiumStatusChanged', handlePremiumChange);
+    document.addEventListener('premiumStatusChanged', handlePremiumChange);
+  };
+  
+  // ✅ Handler separato per evitare closure problems
+  const handlePremiumChange = (e) => {
+    if (e.detail.isPremium) {
+      hideAllAds();
+    }
   };
 
   // ===================================================================
