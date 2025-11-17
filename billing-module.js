@@ -187,23 +187,42 @@ const BillingModule = (() => {
       purchaseToken: purchaseToken
     };
     
-    localStorage.setItem(BILLING_STORAGE_KEY, JSON.stringify(premiumData));
-    
-    console.log('[Billing] ✅ Premium attivato!');
+    try {
+      localStorage.setItem(BILLING_STORAGE_KEY, JSON.stringify(premiumData));
+      console.log('[Billing] ✅ Premium attivato!');
+    } catch (error) {
+      console.error('[Billing] ⚠️ Errore salvataggio premium:', error);
+      // ✅ FIX: Anche se il salvataggio fallisce, mantieni stato in memoria
+    }
     
     // Notifica cambio stato
-    document.dispatchEvent(new CustomEvent('premiumStatusChanged', { 
-      detail: { isPremium: true } 
-    }));
+    try {
+      document.dispatchEvent(new CustomEvent('premiumStatusChanged', { 
+        detail: { isPremium: true } 
+      }));
+    } catch (error) {
+      console.error('[Billing] Errore dispatch evento:', error);
+    }
     
     // Rimuovi ads se attivi
     if (window.AdsModule) {
-      window.AdsModule.hideAllAds();
+      try {
+        window.AdsModule.hideAllAds();
+      } catch (error) {
+        console.error('[Billing] Errore nascondere ads:', error);
+      }
     }
   };
 
   const loadPremiumStatus = () => {
     try {
+      // ✅ FIX: Verifica disponibilità localStorage
+      if (typeof localStorage === 'undefined') {
+        console.warn('[Billing] localStorage non disponibile');
+        isPremiumUser = false;
+        return;
+      }
+      
       const stored = localStorage.getItem(BILLING_STORAGE_KEY);
       
       if (stored) {
