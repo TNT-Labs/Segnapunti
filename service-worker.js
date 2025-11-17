@@ -1,7 +1,9 @@
-// ✅ Cache aggiornata con monetization files
-const CACHE_NAME = 'segnapunti-cache-v1.2.0'; 
+// ✅ Cache aggiornata con monetization files + VERSIONE INCREMENTATA
+const CACHE_NAME = 'segnapunti-cache-v1.2.0';  // ⚠️ Incrementa ad ogni deploy!
 
+// ✅ Lista completa asset (VERIFICATA)
 const ASSETS_TO_CACHE = [
+  './',  // ✅ FIX: Aggiungi './' oltre a '/'
   '/', 
   'index.html',
   'settings.html',
@@ -18,6 +20,7 @@ const ASSETS_TO_CACHE = [
   'manifest.json',
   'icon-192.png', 
   'icon-512.png',
+  // Icone complete
   'Segnapunti72x72.png',
   'Segnapunti96x96.png',
   'Segnapunti128x128.png',
