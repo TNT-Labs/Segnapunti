@@ -104,9 +104,9 @@
       <span class="nav-icon">⚙️</span>
       <span class="nav-label">Impostazioni</span>
     </a>
-    <a href="preset-manager.html" class="nav-item">
-      <span class="nav-icon">🎮</span>
-      <span class="nav-label">Preset</span>
+    <a href="premium.html" class="nav-item">
+      <span class="nav-icon">✨</span>
+      <span class="nav-label">Premium</span>
     </a>
   </nav>
   
@@ -117,7 +117,13 @@
   </script>
   <script src="segnapunti.js"></script>
   
+  <!-- ✅ MONETIZATION SYSTEM -->
+  <script src="billing-module.js"></script>
+  <script src="ads-module.js"></script>
+  <script src="premium-ui.js"></script>
+  
   <script>
+    // Service Worker
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('service-worker.js')
@@ -129,6 +135,19 @@
                 });
         });
     }
+    
+    // ✅ Initialize Monetization
+    document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        await BillingModule.init();
+        
+        if (!BillingModule.isPremium()) {
+          await AdsModule.init();
+        }
+      } catch (error) {
+        console.error('Monetization init error:', error);
+      }
+    });
   </script>
 </body>
 </html>
