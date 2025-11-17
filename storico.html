@@ -136,7 +136,7 @@
         });
     }
     
-    // ✅ Initialize Monetization
+    // ✅ Initialize Monetization (ORDINE CORRETTO)
     document.addEventListener('DOMContentLoaded', async () => {
       try {
         await BillingModule.init();
@@ -144,6 +144,8 @@
         if (!BillingModule.isPremium()) {
           await AdsModule.init();
         }
+        
+        await PremiumUIModule.init();
       } catch (error) {
         console.error('Monetization init error:', error);
       }
