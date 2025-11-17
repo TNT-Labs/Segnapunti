@@ -1,21 +1,23 @@
-// ✅ FIX #5: Cache aggiornata con tutti i file necessari
-const CACHE_NAME = 'segnapunti-cache-v1.1.2'; 
+// ✅ Cache aggiornata con monetization files
+const CACHE_NAME = 'segnapunti-cache-v1.2.0'; 
 
-// ✅ FIX #5: Lista completa degli asset essenziali
 const ASSETS_TO_CACHE = [
   '/', 
   'index.html',
   'settings.html',
   'storico.html',
-  'preset-manager.html', // ✅ AGGIUNTO
+  'preset-manager.html',
+  'premium.html', // ✅ NUOVO
   'segnapunti.js',
   'segnapunti.css',
-  'preset-manager.js', // ✅ AGGIUNTO
-  'preset-manager.css', // ✅ AGGIUNTO
+  'preset-manager.js',
+  'preset-manager.css',
+  'billing-module.js', // ✅ NUOVO
+  'ads-module.js', // ✅ NUOVO
+  'premium-ui.js', // ✅ NUOVO
   'manifest.json',
   'icon-192.png', 
   'icon-512.png',
-  // Aggiungi tutte le altre icone dal manifest
   'Segnapunti72x72.png',
   'Segnapunti96x96.png',
   'Segnapunti128x128.png',
