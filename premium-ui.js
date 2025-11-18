@@ -59,54 +59,11 @@ const PremiumUIModule = (() => {
   };
 
   // ===================================================================
-  // 🔒 UPGRADE BUTTON IN NAV
+  // 🔒 UPGRADE BUTTON (DEPRECATO - rimosso)
   // ===================================================================
   
-  const addUpgradeButton = () => {
-    const bottomNav = document.querySelector('.bottom-nav');
-    if (!bottomNav) return;
-    
-    // Verifica se esiste già
-    if (document.querySelector('.nav-item-premium')) return;
-    
-    // Rimuovi nav-item esistente "Preset" se presente (per fare spazio)
-    const presetNavItem = bottomNav.querySelector('a[href="preset-manager.html"]');
-    
-    // Sostituisci o aggiungi
-    const premiumNavItem = document.createElement('a');
-    premiumNavItem.href = 'premium.html';
-    premiumNavItem.className = 'nav-item nav-item-premium';
-    premiumNavItem.style.cssText = `
-      position: relative;
-      background: linear-gradient(135deg, rgba(255,215,0,0.1), rgba(255,165,0,0.1));
-      border-radius: 8px;
-    `;
-    premiumNavItem.innerHTML = `
-      <span class="nav-icon" style="color: #FFD700;">✨</span>
-      <span class="nav-label" style="color: #FFD700; font-weight: 700;">Premium</span>
-      <span style="
-        position: absolute;
-        top: -5px;
-        right: -5px;
-        background: #ff4444;
-        color: white;
-        font-size: 0.65em;
-        padding: 2px 6px;
-        border-radius: 10px;
-        font-weight: 700;
-      ">NEW</span>
-    `;
-    
-    if (presetNavItem) {
-      bottomNav.replaceChild(premiumNavItem, presetNavItem);
-    } else {
-      bottomNav.appendChild(premiumNavItem);
-    }
-  };
-
-  // ===================================================================
-  // 💎 FEATURE LOCKED OVERLAY
-  // ===================================================================
+  // Metodi lockPresetTab/unlockPresetTab/addUpgradeButton rimossi
+  // Non più necessari con sistema limite 1 preset free
   
   const showFeatureLockedModal = (featureName, description) => {
     const modal = document.createElement('div');
@@ -354,9 +311,6 @@ const PremiumUIModule = (() => {
       // Mostra badge premium
       addPremiumBadge();
     } else {
-      // Aggiungi upgrade button
-      addUpgradeButton();
-      
       // Mostra promo strategici
       checkAndShowPromo();
     }
@@ -369,20 +323,69 @@ const PremiumUIModule = (() => {
     document.addEventListener('premiumStatusChanged', handlePremiumStatusChange);
   };
   
+  // ✅ NUOVO: Lock/Unlock Preset Tab
+  const lockPresetTab = () => {
+    const presetTab = document.getElementById('nav-preset');
+    if (!presetTab) return;
+    
+    const lockBadge = presetTab.querySelector('.lock-badge');
+    if (lockBadge) {
+      lockBadge.style.display = 'inline-block';
+      lockBadge.style.cssText = `
+        position: absolute;
+        top: 2px;
+        right: 2px;
+        font-size: 0.7em;
+        background: rgba(255,255,255,0.2);
+        padding: 2px 4px;
+        border-radius: 4px;
+      `;
+    }
+    
+    // Intercetta click
+    presetTab.addEventListener('click', handlePresetClick);
+  };
+  
+  const unlockPresetTab = () => {
+    const presetTab = document.getElementById('nav-preset');
+    if (!presetTab) return;
+    
+    const lockBadge = presetTab.querySelector('.lock-badge');
+    if (lockBadge) {
+      lockBadge.style.display = 'none';
+    }
+    
+    // Rimuovi intercettazione click
+    presetTab.removeEventListener('click', handlePresetClick);
+  };
+  
+  const handlePresetClick = (e) => {
+    if (!isPremium) {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      showFeatureLockedModal(
+        'Gestione Preset Personalizzati',
+        'Crea, modifica ed esporta preset illimitati per tutti i tuoi giochi preferiti. Disponibile solo con Premium!'
+      );
+    }
+  };
+  
   // ✅ NUOVO: Handler per cambio stato
   const handlePremiumStatusChange = (e) => {
     isPremium = e.detail.isPremium;
     
     if (isPremium) {
       addPremiumBadge();
-      // Rimuovi upgrade button se presente
-      const upgradeBtn = document.querySelector('.nav-item-premium');
-      if (upgradeBtn && upgradeBtn.parentNode) {
-        upgradeBtn.remove();
+      
+      // ✅ Refresh preset list se siamo sulla pagina
+      if (window.location.pathname.includes('preset-manager.html')) {
+        if (window.PresetUI) {
+          window.PresetUI.renderPresetList();
+        }
       }
     } else {
       removePremiumBadge();
-      addUpgradeButton();
     }
   };
 
@@ -396,7 +399,7 @@ const PremiumUIModule = (() => {
     showFeatureLockedModal,
     showPromoBanner,
     addPremiumBadge,
-    addUpgradeButton
+    removePremiumBadge
   };
 })();
 
