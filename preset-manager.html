@@ -83,8 +83,9 @@
     <div class="info-box">
       <p><strong>💡 Come funziona:</strong></p>
       <ul>
-        <li>✅ <strong>Crea</strong> nuovi preset personalizzati per i tuoi giochi preferiti</li>
-        <li>✏️ <strong>Modifica</strong> i tuoi preset (quelli predefiniti non possono essere modificati)</li>
+        <li>✅ <strong>17 preset predefiniti</strong> pronti all'uso (Scala 40, Burraco, Poker, ecc.)</li>
+        <li id="free-limit-info" style="display:none;">🎁 <strong>1 preset personalizzato gratis</strong> - Sblocca illimitati con Premium!</li>
+        <li>✏️ <strong>Modifica</strong> i tuoi preset personalizzati</li>
         <li>📋 <strong>Duplica</strong> qualsiasi preset per usarlo come base</li>
         <li>🏆 <strong>Modalità Rounds</strong>: Perfetta per giochi a mani/set (poker, tennis, ecc.)</li>
         <li>💾 <strong>Esporta/Importa</strong> i tuoi preset per condividerli o fare backup</li>
@@ -215,7 +216,7 @@
     </a>
     <a href="settings.html" class="nav-item">
       <span class="nav-icon">⚙️</span>
-      <span class="nav-label">Impostazioni</span>
+      <span class="nav-label">Settings</span>
     </a>
     <a href="preset-manager.html" class="nav-item active">
       <span class="nav-icon">🎮</span>
@@ -229,6 +230,7 @@
 
   <!-- Scripts -->
   <script src="preset-manager.js"></script>
+  
   <!-- ✅ MONETIZATION SYSTEM -->
   <script src="billing-module.js"></script>
   <script src="ads-module.js"></script>
@@ -236,7 +238,7 @@
   
   <script>
     // Inizializzazione
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
       const loader = document.getElementById('loader-overlay');
       if (loader) loader.style.display = 'flex';
 
@@ -250,6 +252,31 @@
         iconBtn.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
       }
 
+      // ✅ Initialize Monetization FIRST
+      try {
+        await BillingModule.init();
+        
+        // ✅ CHECK: Mostra info limite free
+        if (!BillingModule.isPremium()) {
+          const freeLimitInfo = document.getElementById('free-limit-info');
+          if (freeLimitInfo) {
+            freeLimitInfo.style.display = 'list-item';
+            freeLimitInfo.style.background = 'rgba(255, 215, 0, 0.1)';
+            freeLimitInfo.style.padding = '5px 10px';
+            freeLimitInfo.style.borderRadius = '4px';
+            freeLimitInfo.style.marginTop = '5px';
+          }
+        }
+        
+        if (!BillingModule.isPremium()) {
+          await AdsModule.init();
+        }
+        
+        await PremiumUIModule.init();
+      } catch (error) {
+        console.error('Monetization init error:', error);
+      }
+
       // Render preset list
       if (window.PresetUI) {
         PresetUI.renderPresetList();
@@ -260,15 +287,6 @@
         setTimeout(() => {
           loader.style.display = 'none';
         }, 300);
-      }
-       // ✅ AGGIUNGI QUESTO ALLA FINE
-      try {
-        await BillingModule.init();
-        if (!BillingModule.isPremium()) {
-          await AdsModule.init();
-        }
-      } catch (error) {
-        console.error('Monetization init error:', error);
       }
     });
 
