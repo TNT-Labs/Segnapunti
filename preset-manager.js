@@ -148,6 +148,8 @@ const PresetManagerModule = (() => {
   };
 
   const PRESET_STORAGE_KEY = 'custom_presets';
+  const FREE_CUSTOM_LIMIT = 1; // ✅ Free users possono creare 1 solo preset custom
+  
   const CATEGORY_ICONS = {
     carte: '🃏',
     tavolo: '🎲',
