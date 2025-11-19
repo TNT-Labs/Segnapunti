@@ -1,5 +1,5 @@
 // ✅ Cache aggiornata con monetization files + VERSIONE INCREMENTATA
-const CACHE_NAME = 'segnapunti-cache-v1.2.0';  // ⚠️ Incrementa ad ogni deploy!
+const CACHE_NAME = 'segnapunti-cache-v1.2.1';  // ⚠️ Incrementa ad ogni deploy!
 
 // ✅ Lista completa asset (VERIFICATA)
 const ASSETS_TO_CACHE = [
@@ -34,7 +34,7 @@ const ASSETS_TO_CACHE = [
 
 // 1. Installazione del Service Worker
 self.addEventListener('install', event => {
-  console.log('[Service Worker] Installazione v1.2.0 completata. Avvio caching...');
+  console.log('[Service Worker] Installazione v1.2.1 completata. Avvio caching...');
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
