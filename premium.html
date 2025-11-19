@@ -21,6 +21,29 @@
       color: white;
     }
     
+    /* ✅ Bottom Nav Premium Override */
+    .bottom-nav.premium-nav {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      border-top: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .bottom-nav.premium-nav .nav-item {
+      color: white;
+      opacity: 0.8;
+    }
+    
+    .bottom-nav.premium-nav .nav-item:hover {
+      opacity: 1;
+      background: rgba(255, 255, 255, 0.1);
+    }
+    
+    .bottom-nav.premium-nav .nav-item.active {
+      opacity: 1;
+      color: #FFD700;
+      background: rgba(255, 215, 0, 0.15);
+    }
+    
     .premium-container {
       max-width: 550px;
       margin: 0 auto;
@@ -258,6 +281,14 @@
         </div>
 
         <div class="feature-item">
+          <div class="feature-icon">🎮</div>
+          <div class="feature-content">
+            <h3>Preset Personalizzati Illimitati</h3>
+            <p>Crea, modifica ed esporta preset illimitati per tutti i tuoi giochi. Free: 1 preset, Premium: illimitati!</p>
+          </div>
+        </div>
+
+        <div class="feature-item">
           <div class="feature-icon">🎨</div>
           <div class="feature-content">
             <h3>Temi Premium</h3>
@@ -309,20 +340,24 @@
   </div>
 
   <!-- Bottom Navigation Bar -->
-  <nav class="bottom-nav" style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); border-top: 1px solid rgba(255,255,255,0.2);">
-    <a href="index.html" class="nav-item" style="color: white; opacity: 0.8;">
+  <nav class="bottom-nav premium-nav">
+    <a href="index.html" class="nav-item">
       <span class="nav-icon">🃏</span>
       <span class="nav-label">Partita</span>
     </a>
-    <a href="storico.html" class="nav-item" style="color: white; opacity: 0.8;">
+    <a href="storico.html" class="nav-item">
       <span class="nav-icon">📜</span>
       <span class="nav-label">Storico</span>
     </a>
-    <a href="settings.html" class="nav-item" style="color: white; opacity: 0.8;">
+    <a href="settings.html" class="nav-item">
       <span class="nav-icon">⚙️</span>
-      <span class="nav-label">Impostazioni</span>
+      <span class="nav-label">Settings</span>
     </a>
-    <a href="premium.html" class="nav-item active" style="color: #FFD700;">
+    <a href="preset-manager.html" class="nav-item">
+      <span class="nav-icon">🎮</span>
+      <span class="nav-label">Preset</span>
+    </a>
+    <a href="premium.html" class="nav-item active">
       <span class="nav-icon">✨</span>
       <span class="nav-label">Premium</span>
     </a>
