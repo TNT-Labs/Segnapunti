@@ -686,7 +686,7 @@ body.dark-mode .giocatore-punti {
     100% { transform: rotate(360deg); }
 }
 
-/* Bottom Navigation Bar */
+/* Bottom Navigation Bar - 5 tabs optimized */
 .bottom-nav {
   position: fixed;
   bottom: 0;
@@ -699,7 +699,7 @@ body.dark-mode .giocatore-punti {
   display: flex;
   justify-content: space-around;
   align-items: center;
-  padding: 8px 0;
+  padding: 6px 0;
   box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
   z-index: 99;
 }
@@ -713,10 +713,10 @@ body.dark-mode .bottom-nav {
   justify-content: center;
   text-decoration: none;
   color: var(--colore-testo);
-  padding: 8px 16px;
+  padding: 6px 10px;
   border-radius: 8px;
   transition: all 0.3s ease;
-  min-width: 70px;
+  min-width: 60px;
   opacity: 0.6;
 }
 .nav-item:hover {
@@ -735,24 +735,30 @@ body.dark-mode .nav-item.active {
   background: rgba(122, 174, 214, 0.15);
 }
 .nav-icon {
-  font-size: 1.5em;
+  font-size: 1.3em;
   margin-bottom: 4px;
 }
 .nav-label {
-  font-size: 0.75em;
+  font-size: 0.7em;
   font-weight: 600;
   text-align: center;
 }
+
+/* Responsive adjustments for 5-tab bottom nav */
 @media (max-width: 500px) {
-  .nav-label {
-    font-size: 0.7em;
+  .bottom-nav .nav-item {
+    min-width: 50px;
+    padding: 4px 8px;
   }
-  .nav-item {
-    padding: 6px 12px;
-    min-width: 60px;
+  
+  .bottom-nav .nav-icon {
+    font-size: 1.2em;
+  }
+  
+  .bottom-nav .nav-label {
+    font-size: 0.65em;
   }
 }
-
 /* Media Query per Mobile */
 @media (max-width: 500px) {
   .container {
