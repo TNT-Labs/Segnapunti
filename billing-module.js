@@ -1,5 +1,5 @@
 // ===================================================================
-// 💳 BILLING MODULE - Google Play In-App Purchases
+// 💳 BILLING MODULE - Google Play In-App Purchases (✅ FIXED v1.3.0)
 // ===================================================================
 
 const BillingModule = (() => {
@@ -9,6 +9,11 @@ const BillingModule = (() => {
   let isPremiumUser = false;
   let billingClient = null;
   let purchaseUpdateListener = null;
+  
+  // ✅ FIX #2: In-memory fallback storage
+  let memoryStorage = {
+    premium_status: null
+  };
 
   // ===================================================================
   // 🔧 INIZIALIZZAZIONE
@@ -175,8 +180,25 @@ const BillingModule = (() => {
   };
 
   // ===================================================================
-  // 💾 GESTIONE STATO PREMIUM
+  // 💾 GESTIONE STATO PREMIUM (✅ FIX #2: Safari private mode support)
   // ===================================================================
+  
+  // ✅ FIX #2: Helper per verificare disponibilità localStorage
+  const isStorageAvailable = () => {
+    try {
+      if (typeof localStorage === 'undefined') return false;
+      
+      // Test write per verificare disponibilità effettiva
+      const testKey = '__storage_test__';
+      localStorage.setItem(testKey, 'test');
+      localStorage.removeItem(testKey);
+      return true;
+    } catch (e) {
+      // SecurityError in Safari private mode, QuotaExceededError, etc.
+      console.warn('[Billing] localStorage non disponibile:', e.name);
+      return false;
+    }
+  };
   
   const activatePremium = (purchaseToken = null) => {
     isPremiumUser = true;
@@ -187,13 +209,21 @@ const BillingModule = (() => {
       purchaseToken: purchaseToken
     };
     
+    // ✅ FIX #2: Try localStorage con fallback memory
     try {
-      localStorage.setItem(BILLING_STORAGE_KEY, JSON.stringify(premiumData));
-      console.log('[Billing] ✅ Premium attivato!');
+      if (isStorageAvailable()) {
+        localStorage.setItem(BILLING_STORAGE_KEY, JSON.stringify(premiumData));
+        console.log('[Billing] ✅ Premium salvato in localStorage');
+      } else {
+        memoryStorage[BILLING_STORAGE_KEY] = premiumData;
+        console.log('[Billing] ⚠️ Premium salvato in memoria (localStorage non disponibile)');
+      }
     } catch (error) {
-      console.error('[Billing] ⚠️ Errore salvataggio premium:', error);
-      // ✅ FIX: Anche se il salvataggio fallisce, mantieni stato in memoria
+      console.error('[Billing] ⚠️ Errore salvataggio, uso memoria:', error);
+      memoryStorage[BILLING_STORAGE_KEY] = premiumData;
     }
+    
+    console.log('[Billing] ✅ Premium attivato!');
     
     // Notifica cambio stato
     try {
@@ -215,22 +245,28 @@ const BillingModule = (() => {
   };
 
   const loadPremiumStatus = () => {
+    // ✅ FIX #2: Try localStorage prima, poi fallback memoria
     try {
-      // ✅ FIX: Verifica disponibilità localStorage
-      if (typeof localStorage === 'undefined') {
-        console.warn('[Billing] localStorage non disponibile');
-        isPremiumUser = false;
-        return;
-      }
-      
-      const stored = localStorage.getItem(BILLING_STORAGE_KEY);
-      
-      if (stored) {
-        const premiumData = JSON.parse(stored);
-        isPremiumUser = premiumData.active === true;
+      if (isStorageAvailable()) {
+        const stored = localStorage.getItem(BILLING_STORAGE_KEY);
         
-        console.log('[Billing] Stato premium caricato:', isPremiumUser);
+        if (stored) {
+          const premiumData = JSON.parse(stored);
+          isPremiumUser = premiumData.active === true;
+          console.log('[Billing] Stato premium caricato da localStorage:', isPremiumUser);
+          return;
+        }
+      } else {
+        // Fallback memoria
+        const stored = memoryStorage[BILLING_STORAGE_KEY];
+        if (stored) {
+          isPremiumUser = stored.active === true;
+          console.log('[Billing] Stato premium caricato da memoria:', isPremiumUser);
+          return;
+        }
       }
+      
+      isPremiumUser = false;
     } catch (error) {
       console.error('[Billing] Errore caricamento stato:', error);
       isPremiumUser = false;
@@ -239,13 +275,27 @@ const BillingModule = (() => {
 
   const revokePremium = () => {
     isPremiumUser = false;
-    localStorage.removeItem(BILLING_STORAGE_KEY);
+    
+    // Rimuovi da entrambi storage e memoria
+    try {
+      if (isStorageAvailable()) {
+        localStorage.removeItem(BILLING_STORAGE_KEY);
+      }
+    } catch (error) {
+      console.warn('[Billing] Impossibile rimuovere da localStorage:', error);
+    }
+    
+    memoryStorage[BILLING_STORAGE_KEY] = null;
     
     console.log('[Billing] Premium revocato (solo per test)');
     
-    document.dispatchEvent(new CustomEvent('premiumStatusChanged', { 
-      detail: { isPremium: false } 
-    }));
+    try {
+      document.dispatchEvent(new CustomEvent('premiumStatusChanged', { 
+        detail: { isPremium: false } 
+      }));
+    } catch (error) {
+      console.error('[Billing] Errore dispatch evento:', error);
+    }
   };
 
   // ===================================================================
@@ -314,7 +364,8 @@ const BillingModule = (() => {
     
     // Solo per debug/test
     _revokePremium: revokePremium,
-    _simulate: simulatePurchase
+    _simulate: simulatePurchase,
+    _isStorageAvailable: isStorageAvailable // Debug helper
   };
 })();
 
