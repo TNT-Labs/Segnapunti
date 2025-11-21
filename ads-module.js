@@ -124,6 +124,9 @@ const AdsModule = (() => {
       
       bannerShown = true;
       
+      // ✅ FIX: Aggiungi classe al body per gestire padding
+      document.body.classList.add('has-ad-banner');
+      
       // Aggiungi padding al container per compensare banner
       const container = document.querySelector('.container');
       if (container) {
@@ -183,6 +186,9 @@ const AdsModule = (() => {
     if (window.admob) {
       window.admob.banner.hide();
     }
+    
+    // ✅ FIX: Rimuovi classe dal body
+    document.body.classList.remove('has-ad-banner');
     
     // Rimuovi padding
     const container = document.querySelector('.container');
@@ -381,6 +387,9 @@ const AdsModule = (() => {
   const hideAllAds = () => {
     adsEnabled = false;
     hideBanner();
+    
+    // ✅ FIX: Assicura che la classe venga rimossa
+    document.body.classList.remove('has-ad-banner');
     
     console.log('[Ads] Tutti gli ads nascosti (Premium attivo)');
   };
