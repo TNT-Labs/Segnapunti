@@ -8,50 +8,33 @@ const PresetManagerModule = (() => {
     scala40: { 
       name: 'Scala 40', 
       mode: 'min', 
-      target: 151, 
-      description: '🃏 Scala 40: Perde chi raggiunge per primo 151 punti. Modalità punti alti.',
+      target: 101, 
+      description: '🃏 Scala 40: Perde chi raggiunge per primo 101 punti.',
       isDefault: true,
       category: 'carte'
     },
     burraco: { 
       name: 'Burraco', 
       mode: 'max', 
-      target: 2000, 
-      description: '🃏 Burraco: Vince chi raggiunge 2000 punti. Partite lunghe e strategiche.',
-      isDefault: true,
-      category: 'carte'
-    },
-    poker_tournament: {
-      name: 'Poker (Torneo)',
-      mode: 'rounds',
-      target: 10000,
-      roundsTarget: 5,
-      description: '🃏 Poker Torneo: Vince chi vince 5 mani. Punteggio secondario per pareggi.',
+      target: 2005, 
+      description: '🃏 Burraco: Vince chi raggiunge 2005 punti.',
       isDefault: true,
       category: 'carte'
     },
     briscola: { 
       name: 'Briscola', 
       mode: 'max', 
-      target: 21, 
-      description: '🃏 Briscola: Vince chi arriva a 21 punti (totale carte in gioco).',
-      isDefault: true,
-      category: 'carte'
-    },
-    scopa_rounds: {
-      name: 'Scopa (a Partite)',
-      mode: 'rounds',
-      target: 100,
-      roundsTarget: 3,
-      description: '🃏 Scopa a Partite: Vince chi vince 3 partite. Best of 5.',
+      target: 11, 
+      description: '🃏 Briscola: Vince chi arriva a 11 vittorie.',
       isDefault: true,
       category: 'carte'
     },
     scopa: { 
       name: 'Scopa', 
       mode: 'max', 
-      target: 21, 
-      description: '🃏 Scopa: Vince chi raggiunge 21 punti. Partite rapide.',
+      target: 21,
+      roundsTarget: 3,
+      description: '🃏 Scopa: In 3 partite vince chi raggiunge 21 punti per 2 volte',
       isDefault: true,
       category: 'carte'
     },
@@ -59,50 +42,9 @@ const PresetManagerModule = (() => {
       name: 'Pinnacola', 
       mode: 'max', 
       target: 1500, 
-      description: '🃏 Pinnacola: Vince chi totalizza 1500 punti. Gioco di combinazioni.',
+      description: '🃏 Pinnacola: Vince chi totalizza 1500 punti.',
       isDefault: true,
       category: 'carte'
-    },
-    yahtzee: { 
-      name: 'Yahtzee', 
-      mode: 'max', 
-      target: 300, 
-      description: '🎲 Yahtzee: Vince chi fa più punti. Obiettivo tipico 300+ per partita completa.',
-      isDefault: true,
-      category: 'tavolo'
-    },
-    catan: { 
-      name: 'Catan', 
-      mode: 'max', 
-      target: 10, 
-      description: '🎲 Catan: Vince chi raggiunge 10 punti vittoria. Strategia e commercio.',
-      isDefault: true,
-      category: 'tavolo'
-    },
-    carcassonne: { 
-      name: 'Carcassonne', 
-      mode: 'max', 
-      target: 100, 
-      description: '🎲 Carcassonne: Obiettivo tipico 100+ punti. Piazzamento tessere strategico.',
-      isDefault: true,
-      category: 'tavolo'
-    },
-    ticket: { 
-      name: 'Ticket to Ride', 
-      mode: 'max', 
-      target: 150, 
-      description: '🎲 Ticket to Ride: Vince chi fa più punti. Obiettivo tipico 150+.',
-      isDefault: true,
-      category: 'tavolo'
-    },
-    tennis: {
-      name: 'Tennis/Volley',
-      mode: 'rounds',
-      target: 25,
-      roundsTarget: 3,
-      description: '⚽ Tennis/Volley: Vince chi vince 3 set. Ogni set a 25 punti.',
-      isDefault: true,
-      category: 'sport'
     },
     freccette501: { 
       name: 'Freccette 501', 
@@ -120,31 +62,7 @@ const PresetManagerModule = (() => {
       isDefault: true,
       category: 'altri'
     },
-    bowling: { 
-      name: 'Bowling', 
-      mode: 'max', 
-      target: 300, 
-      description: '🎳 Bowling: Vince chi fa più punti. 300 è il punteggio perfetto.',
-      isDefault: true,
-      category: 'altri'
-    },
-    golf: { 
-      name: 'Golf (Mini)', 
-      mode: 'min', 
-      target: 50, 
-      description: '⛳ Golf: Vince chi fa meno punti. Obiettivo tipico: sotto il par (50).',
-      isDefault: true,
-      category: 'altri'
-    },
-    pingpong: {
-      name: 'Ping Pong',
-      mode: 'rounds',
-      target: 11,
-      roundsTarget: 3,
-      description: '🏓 Ping Pong: Vince chi vince 3 set. Ogni set a 11 punti.',
-      isDefault: true,
-      category: 'sport'
-    }
+
   };
 
   const PRESET_STORAGE_KEY = 'custom_presets';
