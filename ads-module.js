@@ -1,5 +1,5 @@
 // ===================================================================
-// 📺 ADS MODULE - Google AdMob Integration
+// 📺 ADS MODULE - Google AdMob Integration (✅ FIXED v1.3.0)
 // ===================================================================
 
 const AdsModule = (() => {
@@ -14,6 +14,7 @@ const AdsModule = (() => {
   let interstitialReady = false;
   let navigationCount = 0;
   let gamesCount = 0;
+  let isInitialized = false; // ✅ FIX #1: Flag inizializzazione
   
   const INTERSTITIAL_FREQUENCY = {
     navigation: 3, // Ogni 3 navigazioni
@@ -91,7 +92,7 @@ const AdsModule = (() => {
   };
 
   // ===================================================================
-  // 🎯 BANNER ADS
+  // 🎯 BANNER ADS (✅ FIX #5: Padding conflict resolved)
   // ===================================================================
   
   const showBanner = async () => {
@@ -124,14 +125,8 @@ const AdsModule = (() => {
       
       bannerShown = true;
       
-      // ✅ FIX: Aggiungi classe al body per gestire padding
+      // ✅ FIX #5: Usa SOLO classe CSS (non più inline style)
       document.body.classList.add('has-ad-banner');
-      
-      // Aggiungi padding al container per compensare banner
-      const container = document.querySelector('.container');
-      if (container) {
-        container.style.paddingBottom = '120px'; // 50px banner + 70px nav
-      }
       
     } catch (error) {
       console.error('[Ads] Errore mostra banner:', error);
@@ -187,14 +182,8 @@ const AdsModule = (() => {
       window.admob.banner.hide();
     }
     
-    // ✅ FIX: Rimuovi classe dal body
+    // ✅ FIX #5: Rimuovi SOLO classe (CSS gestisce padding)
     document.body.classList.remove('has-ad-banner');
-    
-    // Rimuovi padding
-    const container = document.querySelector('.container');
-    if (container) {
-      container.style.paddingBottom = '80px';
-    }
     
     bannerShown = false;
   };
@@ -346,31 +335,35 @@ const AdsModule = (() => {
   };
 
   // ===================================================================
-  // 🎛️ SETUP LISTENERS
+  // 🎛️ SETUP LISTENERS (✅ FIX #1: Prevent multiple initialization)
   // ===================================================================
   
   const setupEventListeners = () => {
-    // ✅ FIX: Rimuovi listener esistenti prima di aggiungerne nuovi
+    // ✅ FIX #1: Previeni re-setup multipli
+    if (isInitialized) {
+      console.log('[Ads] Already initialized, skipping setup');
+      return;
+    }
+    
+    // Setup navigation tracking - SENZA removeEventListener
     const navLinks = document.querySelectorAll('.nav-item');
     navLinks.forEach(link => {
-      // Rimuovi vecchio listener se esiste
-      link.removeEventListener('click', onNavigation);
-      // Aggiungi nuovo listener
-      link.addEventListener('click', onNavigation);
+      link.addEventListener('click', onNavigation, { once: false });
     });
     
-    // Track salvataggio partite (custom event) - solo una volta
-    document.removeEventListener('gameCompleted', onGameSaved);
-    document.addEventListener('gameCompleted', onGameSaved);
+    // Track salvataggio partite (custom event)
+    document.addEventListener('gameCompleted', onGameSaved, { once: false });
     
     // Track vista storico
     if (window.location.pathname.includes('storico.html')) {
       onHistoryView();
     }
     
-    // Premium status change - solo una volta
-    document.removeEventListener('premiumStatusChanged', handlePremiumChange);
-    document.addEventListener('premiumStatusChanged', handlePremiumChange);
+    // Premium status change
+    document.addEventListener('premiumStatusChanged', handlePremiumChange, { once: false });
+    
+    isInitialized = true; // ✅ Marca come inizializzato
+    console.log('[Ads] Event listeners configurati');
   };
   
   // ✅ Handler separato per evitare closure problems
@@ -378,6 +371,12 @@ const AdsModule = (() => {
     if (e.detail.isPremium) {
       hideAllAds();
     }
+  };
+
+  // ✅ FIX #1: Aggiungi metodo reset per test
+  const resetInitialization = () => {
+    isInitialized = false;
+    console.log('[Ads] Initialization reset');
   };
 
   // ===================================================================
@@ -388,7 +387,7 @@ const AdsModule = (() => {
     adsEnabled = false;
     hideBanner();
     
-    // ✅ FIX: Assicura che la classe venga rimossa
+    // Assicura che la classe venga rimossa
     document.body.classList.remove('has-ad-banner');
     
     console.log('[Ads] Tutti gli ads nascosti (Premium attivo)');
@@ -403,7 +402,7 @@ const AdsModule = (() => {
   };
 
   // ===================================================================
-  // 📊 API PUBBLICA
+  // 📊 API PUBBLICA (✅ FIX #1: Added _resetInit)
   // ===================================================================
   
   return {
@@ -417,7 +416,10 @@ const AdsModule = (() => {
     // Triggers
     onNavigation,
     onGameSaved,
-    onHistoryView
+    onHistoryView,
+    
+    // Debug only
+    _resetInit: resetInitialization
   };
 })();
 
