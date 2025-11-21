@@ -1213,24 +1213,15 @@ const UIModule = (() => {
 // -------------------------------------------------------------------
 const SettingsModule = (() => {
   let presetSelectElement = null;
-  let modalitaSelectElement = null;
-  let obiettivoInputElement = null;
-  let roundsObiettivoInputElement = null;
-  let roundsFieldElement = null;
   let presetInfoElement = null;
   let presetDescriptionElement = null;
 
   const cacheElements = () => {
     presetSelectElement = document.getElementById('preset-gioco');
-    modalitaSelectElement = document.getElementById('modalita-vittoria');
-    obiettivoInputElement = document.getElementById('punteggio-obiettivo');
-    roundsObiettivoInputElement = document.getElementById('rounds-obiettivo');
-    roundsFieldElement = document.getElementById('rounds-field');
     presetInfoElement = document.getElementById('preset-info');
     presetDescriptionElement = document.getElementById('preset-description');
     
     populatePresetSelect();
-    toggleRoundsField();
   };
 
   const toggleRoundsField = () => {
@@ -1308,98 +1299,47 @@ const SettingsModule = (() => {
     const preset = GameStateModule.applyPreset(presetKey);
     if (!preset) return;
     
-    if (modalitaSelectElement) {
-      modalitaSelectElement.value = preset.mode;
-    }
-    if (obiettivoInputElement) {
-      obiettivoInputElement.value = preset.target;
-    }
-    if (roundsObiettivoInputElement && preset.roundsTarget) {
-      roundsObiettivoInputElement.value = preset.roundsTarget;
-    }
-    
-    toggleRoundsField();
-    
+    // ✅ MODIFICATO: Mostra info complete del gioco
     if (presetInfoElement && presetDescriptionElement) {
-      presetDescriptionElement.textContent = preset.description;
+      // Crea descrizione completa
+      let infoText = `<strong>📋 ${preset.name}</strong><br><br>`;
+      
+      // Modalità vittoria
+      let modalitaText = '';
+      if (preset.mode === 'rounds') {
+        modalitaText = `🏆 Vince chi vince <strong>${preset.roundsTarget || 3} rounds</strong>`;
+      } else if (preset.mode === 'max') {
+        modalitaText = `📈 Vince chi fa <strong>più punti</strong> (obiettivo: ${preset.target})`;
+      } else {
+        modalitaText = `📉 Vince chi fa <strong>meno punti</strong> (obiettivo: ${preset.target})`;
+      }
+      
+      infoText += `${modalitaText}<br><br>`;
+      
+      // Descrizione preset se disponibile
+      if (preset.description && preset.description.trim() !== '') {
+        infoText += `<em>${preset.description}</em>`;
+      }
+      
+      presetDescriptionElement.innerHTML = infoText;
       presetInfoElement.style.display = 'block';
     }
   };
 
   const resetPresetUI = () => {
-    if (presetSelectElement) {
-      presetSelectElement.value = '';
-    }
-    if (presetInfoElement) {
-      presetInfoElement.style.display = 'none';
-    }
+    // Non serve più resettare preset UI
+    // L'utente può solo selezionare preset, non modificare manualmente
   };
 
   const initializeFromState = () => {
-    if (modalitaSelectElement) {
-      modalitaSelectElement.value = GameStateModule.getModalitaVittoria();
-    }
-    if (obiettivoInputElement) {
-      obiettivoInputElement.value = GameStateModule.getPunteggioObiettivo();
-    }
-    if (roundsObiettivoInputElement) {
-      roundsObiettivoInputElement.value = GameStateModule.getRoundsObiettivo();
-    }
-    toggleRoundsField();
+    // Non serve più inizializzare controlli manuali
+    // Il preset viene gestito automaticamente
   };
 
   const setupEventListeners = () => {
     if (presetSelectElement) {
       presetSelectElement.addEventListener('change', (e) => {
         applyPreset(e.target.value);
-      });
-    }
-
-    if (modalitaSelectElement) {
-      modalitaSelectElement.addEventListener('change', (e) => {
-        GameStateModule.setModalitaVittoria(e.target.value);
-        toggleRoundsField();
-        resetPresetUI();
-      });
-    }
-
-    if (obiettivoInputElement) {
-      obiettivoInputElement.addEventListener('change', (e) => {
-        try {
-          GameStateModule.setPunteggioObiettivo(parseInt(e.target.value, 10));
-          resetPresetUI();
-        } catch (error) {
-          alert(error.message);
-          e.target.value = GameStateModule.getPunteggioObiettivo();
-        }
-      });
-
-      obiettivoInputElement.addEventListener('blur', (e) => {
-        const val = parseInt(e.target.value, 10);
-        if (isNaN(val) || val <= 0) {
-          e.target.value = GameStateModule.getPunteggioObiettivo();
-          alert('Il punteggio obiettivo deve essere un numero positivo.');
-        }
-      });
-    }
-
-    if (roundsObiettivoInputElement) {
-      roundsObiettivoInputElement.addEventListener('change', (e) => {
-        try {
-          GameStateModule.setRoundsObiettivo(parseInt(e.target.value, 10));
-          resetPresetUI();
-        } catch (error) {
-          alert(error.message);
-          e.target.value = GameStateModule.getRoundsObiettivo();
-        }
-      });
-
-      roundsObiettivoInputElement.addEventListener('blur', (e) => {
-        const val = parseInt(e.target.value, 10);
-        if (isNaN(val) || val <= 0) {
-          e.target.value = GameStateModule.getRoundsObiettivo();
-          alert('Il numero di rounds deve essere un numero positivo.');
-        }
       });
     }
 
