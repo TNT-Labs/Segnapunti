@@ -339,7 +339,12 @@ body.dark-mode .form-group small {
   }
 
   .container {
-    padding-bottom: 100px; /* Extra space for 4-tab bottom nav */
+    padding-bottom: 100px; /* Extra space for 5-tab bottom nav */
+  }
+  
+  /* ✅ FIX: Padding extra quando il banner ads è presente */
+  body.has-ad-banner .container {
+    padding-bottom: 170px !important; /* 50px banner + 70px nav + 50px extra space */
   }
 }
 
