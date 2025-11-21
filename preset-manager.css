@@ -230,9 +230,25 @@ body.dark-mode .preset-card-actions {
 }
 
 /* Modal Large */
+/* Modal Large */
 .modal-large {
   max-width: 600px;
   width: 95%;
+  text-align: left; /* ✅ FIX: Form meglio allineato a sinistra */
+}
+
+/* ✅ FIX: Su mobile ottimizza spazio e leggibilità */
+@media (max-width: 600px) {
+  .modal-large {
+    width: 95%;
+    max-width: none;
+    border-radius: 8px; /* Bordi meno arrotondati su mobile */
+  }
+  
+  .modal-large h2 {
+    font-size: 1.3em; /* Titolo più piccolo */
+    text-align: center; /* Titolo centrato */
+  }
 }
 
 /* Form Styles */
@@ -251,6 +267,7 @@ body.dark-mode .preset-card-actions {
 
 .form-group {
   margin-bottom: 15px;
+  text-align: left; /* ✅ FIX: Allineamento labels */
 }
 
 .form-group label {
@@ -258,6 +275,7 @@ body.dark-mode .preset-card-actions {
   margin-bottom: 6px;
   font-weight: 600;
   color: var(--colore-primario);
+  font-size: 0.95em;
 }
 
 .form-group input,
@@ -273,6 +291,30 @@ body.dark-mode .preset-card-actions {
   box-sizing: border-box;
   background: var(--colore-card);
   color: var(--colore-testo);
+  min-height: 44px; /* ✅ FIX: Altezza minima touch-friendly */
+}
+
+/* ✅ FIX: Su mobile aumenta dimensioni input */
+@media (max-width: 600px) {
+  .form-group input,
+  .form-group select {
+    font-size: 16px; /* ✅ Previene zoom su iOS */
+    padding: 12px 14px;
+    min-height: 48px;
+  }
+  
+  .form-group textarea {
+    font-size: 16px;
+    padding: 12px 14px;
+  }
+  
+  .form-group label {
+    font-size: 0.9em;
+  }
+  
+  .form-group small {
+    font-size: 0.8em;
+  }
 }
 
 body.dark-mode .form-group input,
@@ -339,12 +381,7 @@ body.dark-mode .form-group small {
   }
 
   .container {
-    padding-bottom: 100px; /* Extra space for 5-tab bottom nav */
-  }
-  
-  /* ✅ FIX: Padding extra quando il banner ads è presente */
-  body.has-ad-banner .container {
-    padding-bottom: 170px !important; /* 50px banner + 70px nav + 50px extra space */
+    padding-bottom: 100px; /* Extra space for 4-tab bottom nav */
   }
 }
 
