@@ -83,11 +83,11 @@
     <div class="info-box">
       <p><strong>💡 Come funziona:</strong></p>
       <ul>
-        <li>✅ <strong>17 preset predefiniti</strong> pronti all'uso (Scala 40, Briscola, Freccette, ecc.)</li>
+        <li>✅ <strong>17 preset predefiniti</strong> pronti all'uso (Scala 40, Briscola, Tennis, ecc.)</li>
         <li id="free-limit-info" style="display:none;">🎁 <strong>1 preset personalizzato gratis</strong> - Sblocca illimitati con Premium!</li>
         <li>✏️ <strong>Modifica</strong> i tuoi preset personalizzati</li>
         <li>📋 <strong>Duplica</strong> qualsiasi preset per usarlo come base</li>
-        <li>🏆 <strong>Modalità Rounds</strong>: Perfetta per giochi a mani/set (poker, tennis, ecc.)</li>
+        <li>🏆 <strong>Modalità Rounds</strong>: Imposta punteggio limite + chi vince (max/min) per determinare la fine di ogni round, poi scegli quanti round servono per vincere la partita</li>
         <li>💾 <strong>Esporta/Importa</strong> i tuoi preset per condividerli o fare backup</li>
       </ul>
     </div>
@@ -151,7 +151,18 @@
           </div>
         </div>
 
-        <!-- 🆕 NUOVO: Campo Rounds Target -->
+        <!-- 🆕 NUOVO: Campi Rounds -->
+        <div id="preset-round-mode-field" style="display: none;">
+          <div class="form-group">
+            <label for="preset-round-mode">📊 Come si Vince un Round *</label>
+            <select id="preset-round-mode">
+              <option value="max">📈 Vince chi fa PIÙ punti</option>
+              <option value="min">📉 Vince chi fa MENO punti</option>
+            </select>
+            <small>Determina quando finisce un singolo round e chi lo vince</small>
+          </div>
+        </div>
+        
         <div id="preset-rounds-field" style="display: none;">
           <div class="form-group">
             <label for="preset-rounds-target">🏆 Rounds da Vincere *</label>
@@ -162,7 +173,7 @@
               max="99"
               placeholder="es: 3" 
               value="3">
-            <small>Numero di rounds/set/mani necessari per vincere</small>
+            <small>Numero di rounds/set/mani necessari per vincere la partita</small>
           </div>
         </div>
 
