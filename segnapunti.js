@@ -227,6 +227,7 @@ const GameStateModule = (() => {
   let roundsObiettivo = 3;
   let giocatori = [];
   let partitaTerminata = false;
+  let nomeGiocoCorrente = ''; // ✅ NUOVO: Nome del gioco/preset corrente
 
   const generatePlayerId = () => {
     return `player_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -237,6 +238,7 @@ const GameStateModule = (() => {
   const getRoundsObiettivo = () => roundsObiettivo;
   const getGiocatori = () => [...giocatori];
   const isPartitaTerminata = () => partitaTerminata;
+  const getNomeGiocoCorrente = () => nomeGiocoCorrente; // ✅ NUOVO
   const getPresets = () => {
     if (window.PresetManager) {
       return window.PresetManager.getAllPresets();
@@ -246,6 +248,7 @@ const GameStateModule = (() => {
 
   const setModalitaVittoria = (value) => {
     modalitaVittoria = value;
+    nomeGiocoCorrente = ''; // ✅ Reset nome gioco quando cambia manualmente
     saveCurrentState();
   };
 
@@ -255,6 +258,7 @@ const GameStateModule = (() => {
       throw new Error('Il punteggio obiettivo deve essere un numero positivo.');
     }
     punteggioObiettivo = punti;
+    nomeGiocoCorrente = ''; // ✅ Reset nome gioco quando cambia manualmente
     saveCurrentState();
   };
 
@@ -264,6 +268,7 @@ const GameStateModule = (() => {
       throw new Error('Il numero di rounds deve essere un numero positivo.');
     }
     roundsObiettivo = rounds;
+    nomeGiocoCorrente = ''; // ✅ Reset nome gioco quando cambia manualmente
     saveCurrentState();
   };
 
@@ -362,6 +367,9 @@ const GameStateModule = (() => {
       roundsObiettivo = preset.roundsTarget;
     }
     
+    // ✅ NUOVO: Salva il nome del gioco
+    nomeGiocoCorrente = preset.name || '';
+    
     saveCurrentState();
     
     return preset;
@@ -411,7 +419,8 @@ const GameStateModule = (() => {
       roundsObiettivo,
       giocatori,
       partitaTerminata,
-      darkMode
+      darkMode,
+      nomeGiocoCorrente // ✅ NUOVO: Salva nome gioco
     });
   };
 
@@ -422,6 +431,7 @@ const GameStateModule = (() => {
       roundsObiettivo = state.roundsObiettivo || 3;
       giocatori = state.giocatori || [];
       partitaTerminata = state.partitaTerminata || false;
+      nomeGiocoCorrente = state.nomeGiocoCorrente || ''; // ✅ NUOVO: Carica nome gioco
       
       giocatori = giocatori.map(g => {
         if (!g.id) {
@@ -452,6 +462,7 @@ const GameStateModule = (() => {
       puntiVincitore: puntiVincitore,
       roundsVincitore: roundsVincitore || 0,
       modalita: modalitaVittoria,
+      nomeGioco: nomeGiocoCorrente || '', // ✅ NUOVO: Salva nome gioco
       giocatori: giocatori.map(g => ({ 
         nome: g.nome, 
         punti: g.punti, 
@@ -473,6 +484,7 @@ const GameStateModule = (() => {
     getRoundsObiettivo,
     getGiocatori,
     isPartitaTerminata,
+    getNomeGiocoCorrente, // ✅ NUOVO
     getPresets,
     setModalitaVittoria,
     setPunteggioObiettivo,
@@ -987,16 +999,22 @@ const UIModule = (() => {
       const details = document.createElement('div');
       details.className = 'storico-details';
       
-      const modalitaP = document.createElement('p');
-      let modalitaText = '';
-      if (partita.modalita === 'rounds') {
-        modalitaText = 'Rounds';
-      } else if (partita.modalita === 'max') {
-        modalitaText = 'Più punti';
+      // ✅ MODIFICATO: Mostra nome gioco se disponibile, altrimenti modalità
+      const infoP = document.createElement('p');
+      if (partita.nomeGioco && partita.nomeGioco.trim() !== '') {
+        infoP.innerHTML = `Gioco: <strong>${partita.nomeGioco}</strong>`;
       } else {
-        modalitaText = 'Meno punti';
+        // Fallback: mostra modalità se nome gioco non disponibile
+        let modalitaText = '';
+        if (partita.modalita === 'rounds') {
+          modalitaText = 'Rounds';
+        } else if (partita.modalita === 'max') {
+          modalitaText = 'Più punti';
+        } else {
+          modalitaText = 'Meno punti';
+        }
+        infoP.innerHTML = `Modalità: <strong>${modalitaText}</strong>`;
       }
-      modalitaP.innerHTML = `Modalità: <strong>${modalitaText}</strong>`;
       
       const partecipantiP = document.createElement('p');
       partecipantiP.textContent = 'Partecipanti:';
@@ -1014,7 +1032,7 @@ const UIModule = (() => {
         giocatoriUl.appendChild(giocatoreLi);
       });
       
-      details.appendChild(modalitaP);
+      details.appendChild(infoP);
       details.appendChild(partecipantiP);
       details.appendChild(giocatoriUl);
       
