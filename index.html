@@ -113,23 +113,43 @@
         });
     }
     
-    // ✅ Initialize Monetization (ORDINE CORRETTO)
-    document.addEventListener('DOMContentLoaded', async () => {
-      try {
-        // 1. Init billing PRIMA
-        await BillingModule.init();
-        
-        // 2. Init ads solo se non premium
-        if (!BillingModule.isPremium()) {
-          await AdsModule.init();
-        }
-        
-        // 3. Init Premium UI DOPO billing
-        await PremiumUIModule.init();
-      } catch (error) {
-        console.error('Monetization init error:', error);
+  // ✅ FIX #3: Error handling con finally
+  document.addEventListener('DOMContentLoaded', async () => {
+    const loader = document.getElementById('loader-overlay');
+    
+    try {
+      // 1. Init billing PRIMA
+      await BillingModule.init();
+      
+      // 2. Init ads solo se non premium
+      if (!BillingModule.isPremium()) {
+        await AdsModule.init();
       }
-    });
+      
+      // 3. Init Premium UI DOPO billing
+      await PremiumUIModule.init();
+      
+    } catch (error) {
+      console.error('Monetization init error:', error);
+      
+      // ✅ NUOVO: Mostra messaggio errore user-friendly
+      if (loader) {
+        const loaderText = loader.querySelector('p');
+        if (loaderText) {
+          loaderText.textContent = '⚠️ Errore caricamento. Ricarica la pagina.';
+          loaderText.style.color = '#ff6b6b';
+        }
+      }
+      
+    } finally {
+      // ✅ CRITICAL: Nascondi loader SEMPRE
+      if (loader) {
+        setTimeout(() => {
+          loader.style.display = 'none';
+        }, 2000); // Mostra errore per 2 secondi
+      }
+    }
+  });
   </script>
 </body>
 </html>
