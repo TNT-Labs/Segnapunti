@@ -248,7 +248,7 @@
   <script src="premium-ui.js"></script>
   
   <script>
-    // Inizializzazione
+    // ✅ FIX #3: Inizializzazione with Error Handling
     document.addEventListener('DOMContentLoaded', async () => {
       const loader = document.getElementById('loader-overlay');
       if (loader) loader.style.display = 'flex';
@@ -263,8 +263,9 @@
         iconBtn.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
       }
 
-      // ✅ Initialize Monetization FIRST
+      // ✅ FIX #3: Initialize Monetization with proper error handling
       try {
+        // 1. Init billing PRIMA
         await BillingModule.init();
         
         // ✅ CHECK: Mostra info limite free
@@ -279,25 +280,39 @@
           }
         }
         
+        // 2. Init ads solo se non premium
         if (!BillingModule.isPremium()) {
           await AdsModule.init();
         }
         
+        // 3. Init Premium UI
         await PremiumUIModule.init();
+        
       } catch (error) {
         console.error('Monetization init error:', error);
-      }
+        
+        // ✅ FIX #3: Mostra messaggio errore user-friendly
+        if (loader) {
+          const loaderText = loader.querySelector('p');
+          if (loaderText) {
+            loaderText.textContent = '⚠️ Errore caricamento. Ricarica la pagina.';
+            loaderText.style.color = '#ff6b6b';
+          }
+        }
+        
+      } finally {
+        // Render preset list
+        if (window.PresetUI) {
+          PresetUI.renderPresetList();
+          PresetUI.setupEventListeners();
+        }
 
-      // Render preset list
-      if (window.PresetUI) {
-        PresetUI.renderPresetList();
-        PresetUI.setupEventListeners();
-      }
-
-      if (loader) {
-        setTimeout(() => {
-          loader.style.display = 'none';
-        }, 300);
+        // ✅ FIX #3 CRITICAL: Nascondi loader SEMPRE
+        if (loader) {
+          setTimeout(() => {
+            loader.style.display = 'none';
+          }, 300);
+        }
       }
     });
 
