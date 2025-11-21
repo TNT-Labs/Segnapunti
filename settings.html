@@ -39,38 +39,20 @@
     <hr class="separator">
 
     <div id="impostazioni-partita">
-      <h3>Configurazione Partita</h3>
+      <h3>Selezione Gioco</h3>
       
-      <label for="preset-gioco">🎮 Preset Gioco (opzionale):</label>
+      <label for="preset-gioco">🎮 Seleziona Gioco:</label>
       <select id="preset-gioco">
-        <option value="">-- Configurazione Personalizzata --</option>
+        <option value="">-- Seleziona un Gioco --</option>
       </select>
       
-      <div class="preset-manager-link" style="margin-top: 10px;">
-        <a href="preset-manager.html" class="btn-secondary" style="display: inline-block; text-decoration: none; padding: 8px 16px; border-radius: 6px;">
+      <div class="preset-manager-link" style="margin-top: 15px; margin-bottom: 20px;">
+        <a href="preset-manager.html" class="btn-secondary" style="display: inline-block; text-decoration: none; padding: 10px 20px; border-radius: 8px; font-weight: 600;">
           🎮 Gestisci Preset Personalizzati
         </a>
       </div>
       
-      <label for="modalita-vittoria">Modalità di vittoria:</label>
-      <select id="modalita-vittoria">
-        <option value="max">Vince chi fa **più** punti</option>
-        <option value="min">Vince chi fa **meno** punti</option>
-        <option value="rounds">🏆 Vince chi vince più **rounds**</option>
-      </select>
-      
-      <label for="punteggio-obiettivo">Punteggio obiettivo (stop partita):</label>
-      <input type="number" id="punteggio-obiettivo" min="1" value="100">
-      
-      <!-- 🆕 NUOVO: Campo Rounds Obiettivo -->
-      <div id="rounds-field">
-        <label for="rounds-obiettivo">🏆 Rounds da vincere:</label>
-        <input type="number" id="rounds-obiettivo" min="1" value="3">
-        <small style="display: block; margin-top: 5px; color: #666;">
-          Numero di rounds necessari per vincere la partita
-        </small>
-      </div>
-      
+      <!-- Info Box Gioco Selezionato -->
       <div id="preset-info" class="preset-info" style="display: none;">
         <p id="preset-description"></p>
       </div>
