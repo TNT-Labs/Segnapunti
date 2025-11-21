@@ -610,8 +610,18 @@ body.dark-mode .giocatore-punti {
     background-color: rgba(0, 0, 0, 0.7);
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start; /* ✅ FIX: flex-start invece di center per mobile */
+    overflow-y: auto; /* ✅ FIX: Abilita scroll verticale */
     z-index: 1000;
+    padding: 20px 0; /* ✅ FIX: Padding per spaziare dal bordo */
+}
+
+/* ✅ FIX: Su desktop torna al centramento classico */
+@media (min-height: 700px) {
+  .modal-overlay {
+    align-items: center;
+    padding: 0;
+  }
 }
 
 .modal-content {
@@ -620,11 +630,23 @@ body.dark-mode .giocatore-punti {
     border-radius: 12px;
     width: 90%;
     max-width: 400px;
+    max-height: 90vh; /* ✅ FIX: Limita altezza massima */
+    overflow-y: auto; /* ✅ FIX: Scroll interno se necessario */
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
     text-align: center;
     transform: scale(0.9);
     opacity: 0;
     animation: modalFadeIn 0.3s forwards;
+    margin: auto 0; /* ✅ FIX: Centra quando possibile */
+}
+
+/* ✅ FIX: Su mobile riduci padding per più spazio */
+@media (max-width: 500px) {
+  .modal-content {
+    padding: 20px 15px;
+    width: 95%;
+    max-height: 85vh; /* ✅ Più spazio su mobile */
+  }
 }
 @keyframes modalFadeIn {
     to {
@@ -663,9 +685,33 @@ body.dark-mode .giocatore-punti {
 .modal-action-buttons {
     display: flex;
     gap: 10px;
+    margin-top: 20px; /* ✅ FIX: Spazio sopra */
+    padding-top: 15px; /* ✅ FIX: Padding extra */
+    border-top: 1px solid rgba(0,0,0,0.1); /* ✅ FIX: Separatore visivo */
 }
+
+body.dark-mode .modal-action-buttons {
+    border-top-color: rgba(255,255,255,0.1);
+}
+
 .modal-action-buttons button {
     flex-grow: 1;
+    min-height: 48px; /* ✅ FIX: Altezza minima touch-friendly */
+    font-weight: 600;
+}
+
+/* ✅ FIX: Su mobile rendi bottoni più grandi e verticali se necessario */
+@media (max-width: 400px) {
+  .modal-action-buttons {
+    flex-direction: column; /* Stack verticale su schermi molto piccoli */
+    gap: 12px;
+  }
+  
+  .modal-action-buttons button {
+    width: 100%;
+    min-height: 50px; /* Ancora più grandi */
+  }
+}
 }
 
 /* Stili per Loader */
@@ -686,7 +732,7 @@ body.dark-mode .giocatore-punti {
     100% { transform: rotate(360deg); }
 }
 
-/* Bottom Navigation Bar - 5 tabs optimized */
+/* Bottom Navigation Bar */
 .bottom-nav {
   position: fixed;
   bottom: 0;
@@ -699,7 +745,7 @@ body.dark-mode .giocatore-punti {
   display: flex;
   justify-content: space-around;
   align-items: center;
-  padding: 6px 0;
+  padding: 8px 0;
   box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
   z-index: 99;
 }
@@ -713,10 +759,10 @@ body.dark-mode .bottom-nav {
   justify-content: center;
   text-decoration: none;
   color: var(--colore-testo);
-  padding: 6px 10px;
+  padding: 8px 16px;
   border-radius: 8px;
   transition: all 0.3s ease;
-  min-width: 60px;
+  min-width: 70px;
   opacity: 0.6;
 }
 .nav-item:hover {
@@ -735,28 +781,21 @@ body.dark-mode .nav-item.active {
   background: rgba(122, 174, 214, 0.15);
 }
 .nav-icon {
-  font-size: 1.3em;
+  font-size: 1.5em;
   margin-bottom: 4px;
 }
 .nav-label {
-  font-size: 0.7em;
+  font-size: 0.75em;
   font-weight: 600;
   text-align: center;
 }
-
-/* Responsive adjustments for 5-tab bottom nav */
 @media (max-width: 500px) {
-  .bottom-nav .nav-item {
-    min-width: 50px;
-    padding: 4px 8px;
+  .nav-label {
+    font-size: 0.7em;
   }
-  
-  .bottom-nav .nav-icon {
-    font-size: 1.2em;
-  }
-  
-  .bottom-nav .nav-label {
-    font-size: 0.65em;
+  .nav-item {
+    padding: 6px 12px;
+    min-width: 60px;
   }
 }
 
@@ -888,12 +927,12 @@ body.dark-mode #ad-banner-container {
 
 /* ✅ FIX: Compensa spazio banner quando presente */
 body.has-ad-banner .container {
-  padding-bottom: 140px !important; /* 50px banner + 70px nav + 20px margin */
+  padding-bottom: 130px !important; /* 50px banner + 70px nav + 10px margin */
 }
 
 @media (max-width: 500px) {
   body.has-ad-banner .container {
-    padding-bottom: 150px !important; /* Extra space per mobile */
+    padding-bottom: 140px !important;
   }
 }
 
