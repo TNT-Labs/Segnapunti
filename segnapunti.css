@@ -686,7 +686,7 @@ body.dark-mode .giocatore-punti {
     100% { transform: rotate(360deg); }
 }
 
-/* Bottom Navigation Bar - 5 tabs optimized */
+/* Bottom Navigation Bar */
 .bottom-nav {
   position: fixed;
   bottom: 0;
@@ -699,7 +699,7 @@ body.dark-mode .giocatore-punti {
   display: flex;
   justify-content: space-around;
   align-items: center;
-  padding: 6px 0;
+  padding: 8px 0;
   box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
   z-index: 99;
 }
@@ -713,10 +713,10 @@ body.dark-mode .bottom-nav {
   justify-content: center;
   text-decoration: none;
   color: var(--colore-testo);
-  padding: 6px 10px;
+  padding: 8px 16px;
   border-radius: 8px;
   transition: all 0.3s ease;
-  min-width: 60px;
+  min-width: 70px;
   opacity: 0.6;
 }
 .nav-item:hover {
@@ -735,30 +735,24 @@ body.dark-mode .nav-item.active {
   background: rgba(122, 174, 214, 0.15);
 }
 .nav-icon {
-  font-size: 1.3em;
+  font-size: 1.5em;
   margin-bottom: 4px;
 }
 .nav-label {
-  font-size: 0.7em;
+  font-size: 0.75em;
   font-weight: 600;
   text-align: center;
 }
-
-/* Responsive adjustments for 5-tab bottom nav */
 @media (max-width: 500px) {
-  .bottom-nav .nav-item {
-    min-width: 50px;
-    padding: 4px 8px;
+  .nav-label {
+    font-size: 0.7em;
   }
-  
-  .bottom-nav .nav-icon {
-    font-size: 1.2em;
-  }
-  
-  .bottom-nav .nav-label {
-    font-size: 0.65em;
+  .nav-item {
+    padding: 6px 12px;
+    min-width: 60px;
   }
 }
+
 /* Media Query per Mobile */
 @media (max-width: 500px) {
   .container {
@@ -887,12 +881,12 @@ body.dark-mode #ad-banner-container {
 
 /* ✅ FIX: Compensa spazio banner quando presente */
 body.has-ad-banner .container {
-  padding-bottom: 130px !important; /* 50px banner + 70px nav + 10px margin */
+  padding-bottom: 140px !important; /* 50px banner + 70px nav + 20px margin */
 }
 
 @media (max-width: 500px) {
   body.has-ad-banner .container {
-    padding-bottom: 140px !important;
+    padding-bottom: 150px !important; /* Extra space per mobile */
   }
 }
 
