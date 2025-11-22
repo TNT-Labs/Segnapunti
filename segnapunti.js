@@ -228,8 +228,9 @@ const GameStateModule = (() => {
   let roundMode = 'max'; // ✅ FIX #11: Chi vince il round (max/min) - solo per mode='rounds'
   let giocatori = [];
   let partitaTerminata = false;
-  let nomeGiocoCorrente = '';
-  let presetKeySelezionato = ''; // ✅ NUOVO: Salva la key del preset attivo
+  let nomeGiocoCorrente = ''; // ✅ NUOVO: Nome del gioco/preset corrente
+  let presetKeySelezionato = ''; // ✅ NUOVO v1.3.3: Salva la key del preset attivo
+
   const generatePlayerId = () => {
     return `player_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   };
@@ -240,8 +241,8 @@ const GameStateModule = (() => {
   const getRoundMode = () => roundMode; // ✅ FIX #11: Getter per roundMode
   const getGiocatori = () => [...giocatori];
   const isPartitaTerminata = () => partitaTerminata;
-  const getNomeGiocoCorrente = () => nomeGiocoCorrente;
-  const getPresetKeySelezionato = () => presetKeySelezionato; // ✅ NUOVO
+  const getNomeGiocoCorrente = () => nomeGiocoCorrente; // ✅ NUOVO
+  const getPresetKeySelezionato = () => presetKeySelezionato; // ✅ NUOVO v1.3.3
   const getPresets = () => {
     if (window.PresetManager) {
       return window.PresetManager.getAllPresets();
@@ -251,8 +252,8 @@ const GameStateModule = (() => {
 
   const setModalitaVittoria = (value) => {
     modalitaVittoria = value;
-    nomeGiocoCorrente = '';
-    presetKeySelezionato = ''; // ✅ NUOVO: Reset preset key
+    nomeGiocoCorrente = ''; // ✅ Reset nome gioco quando cambia manualmente
+    presetKeySelezionato = ''; // ✅ NUOVO v1.3.3: Reset preset key
     saveCurrentState();
   };
 
@@ -262,8 +263,8 @@ const GameStateModule = (() => {
       throw new Error('Il punteggio obiettivo deve essere un numero positivo.');
     }
     punteggioObiettivo = punti;
-    nomeGiocoCorrente = '';
-    presetKeySelezionato = ''; // ✅ NUOVO: Reset preset key
+    nomeGiocoCorrente = ''; // ✅ Reset nome gioco quando cambia manualmente
+    presetKeySelezionato = ''; // ✅ NUOVO v1.3.3: Reset preset key
     saveCurrentState();
   };
 
@@ -273,8 +274,8 @@ const GameStateModule = (() => {
       throw new Error('Il numero di rounds deve essere un numero positivo.');
     }
     roundsObiettivo = rounds;
-    nomeGiocoCorrente = '';
-    presetKeySelezionato = ''; // ✅ NUOVO: Reset preset key
+    nomeGiocoCorrente = ''; // ✅ Reset nome gioco quando cambia manualmente
+    presetKeySelezionato = ''; // ✅ NUOVO v1.3.3: Reset preset key
     saveCurrentState();
   };
 
@@ -444,9 +445,9 @@ const GameStateModule = (() => {
       }
     }
     
-    // ✅ NUOVO: Salva il nome del gioco e la key
+    // ✅ NUOVO: Salva il nome del gioco e la key del preset
     nomeGiocoCorrente = preset.name || '';
-    presetKeySelezionato = presetKey; // ✅ NUOVO: Salva preset key
+    presetKeySelezionato = presetKey; // ✅ NUOVO v1.3.3: Salva preset key
     
     saveCurrentState();
     
@@ -495,12 +496,12 @@ const GameStateModule = (() => {
       modalitaVittoria,
       punteggioObiettivo,
       roundsObiettivo,
-      roundMode,
+      roundMode, // ✅ FIX #11: Salva roundMode
       giocatori,
       partitaTerminata,
       darkMode,
-      nomeGiocoCorrente,
-      presetKeySelezionato // ✅ NUOVO
+      nomeGiocoCorrente, // ✅ NUOVO: Salva nome gioco
+      presetKeySelezionato // ✅ NUOVO v1.3.3: Salva preset key selezionato
     });
   };
 
@@ -512,8 +513,8 @@ const GameStateModule = (() => {
       roundMode = state.roundMode || 'max'; // ✅ FIX #11: Carica roundMode
       giocatori = state.giocatori || [];
       partitaTerminata = state.partitaTerminata || false;
-      nomeGiocoCorrente = state.nomeGiocoCorrente || '';
-      presetKeySelezionato = state.presetKeySelezionato || ''; // ✅ NUOVO
+      nomeGiocoCorrente = state.nomeGiocoCorrente || ''; // ✅ NUOVO: Carica nome gioco
+      presetKeySelezionato = state.presetKeySelezionato || ''; // ✅ NUOVO v1.3.3: Carica preset key
       
       giocatori = giocatori.map(g => {
         if (!g.id) {
@@ -564,11 +565,11 @@ const GameStateModule = (() => {
     getModalitaVittoria,
     getPunteggioObiettivo,
     getRoundsObiettivo,
-    getRoundMode,
+    getRoundMode, // ✅ FIX #11: Esporta getter
     getGiocatori,
     isPartitaTerminata,
-    getNomeGiocoCorrente,
-    getPresetKeySelezionato, // ✅ NUOVO
+    getNomeGiocoCorrente, // ✅ NUOVO
+    getPresetKeySelezionato, // ✅ NUOVO v1.3.3: Esponi getter preset key
     getPresets,
     setModalitaVittoria,
     setPunteggioObiettivo,
@@ -1391,44 +1392,49 @@ const UIModule = (() => {
 // -------------------------------------------------------------------
 // 🎛️ SETTINGS MODULE
 // -------------------------------------------------------------------
-const cacheElements = () => {
-  presetSelectElement = document.getElementById('preset-gioco');
-  presetInfoElement = document.getElementById('preset-info');
-  presetDescriptionElement = document.getElementById('preset-description');
-  
-  populatePresetSelect();
-  
-  // ✅ NUOVO: Ripristina selezione preset salvata
-  const presetKey = GameStateModule.getPresetKeySelezionato();
-  if (presetKey && presetSelectElement) {
-    presetSelectElement.value = presetKey;
+const SettingsModule = (() => {
+  let presetSelectElement = null;
+  let presetInfoElement = null;
+  let presetDescriptionElement = null;
+
+  const cacheElements = () => {
+    presetSelectElement = document.getElementById('preset-gioco');
+    presetInfoElement = document.getElementById('preset-info');
+    presetDescriptionElement = document.getElementById('preset-description');
     
-    // Mostra info preset senza ri-applicarlo (evita loop)
-    const presets = GameStateModule.getPresets();
-    const preset = presets[presetKey];
-    if (preset && presetInfoElement && presetDescriptionElement) {
-      let infoText = `<strong>📋 ${preset.name}</strong><br><br>`;
+    populatePresetSelect();
+    
+    // ✅ NUOVO v1.3.3: Ripristina selezione preset salvata
+    const presetKey = GameStateModule.getPresetKeySelezionato();
+    if (presetKey && presetSelectElement) {
+      presetSelectElement.value = presetKey;
       
-      let modalitaText = '';
-      if (preset.mode === 'rounds') {
-        modalitaText = `🏆 Vince chi vince <strong>${preset.roundsTarget || 3} rounds</strong>`;
-      } else if (preset.mode === 'max') {
-        modalitaText = `📈 Vince chi fa <strong>più punti</strong> (obiettivo: ${preset.target})`;
-      } else {
-        modalitaText = `📉 Vince chi fa <strong>meno punti</strong> (obiettivo: ${preset.target})`;
+      // Mostra info preset senza ri-applicarlo (evita loop)
+      const presets = GameStateModule.getPresets();
+      const preset = presets[presetKey];
+      if (preset && presetInfoElement && presetDescriptionElement) {
+        let infoText = `<strong>📋 ${preset.name}</strong><br><br>`;
+        
+        let modalitaText = '';
+        if (preset.mode === 'rounds') {
+          modalitaText = `🏆 Vince chi vince <strong>${preset.roundsTarget || 3} rounds</strong>`;
+        } else if (preset.mode === 'max') {
+          modalitaText = `📈 Vince chi fa <strong>più punti</strong> (obiettivo: ${preset.target})`;
+        } else {
+          modalitaText = `📉 Vince chi fa <strong>meno punti</strong> (obiettivo: ${preset.target})`;
+        }
+        
+        infoText += `${modalitaText}<br><br>`;
+        
+        if (preset.description && preset.description.trim() !== '') {
+          infoText += `<em>${preset.description}</em>`;
+        }
+        
+        presetDescriptionElement.innerHTML = infoText;
+        presetInfoElement.style.display = 'block';
       }
-      
-      infoText += `${modalitaText}<br><br>`;
-      
-      if (preset.description && preset.description.trim() !== '') {
-        infoText += `<em>${preset.description}</em>`;
-      }
-      
-      presetDescriptionElement.innerHTML = infoText;
-      presetInfoElement.style.display = 'block';
     }
-  }
-};
+  };
 
   const toggleRoundsField = () => {
     if (!roundsFieldElement) return;

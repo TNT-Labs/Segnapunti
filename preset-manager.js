@@ -105,8 +105,8 @@ const PresetManagerModule = (() => {
     altri: '🎯',
     custom: '⭐'
   };
-  
-  // ✅ NUOVO: Funzione per generare codice preset automatico da nome
+
+  // ✅ NUOVO v1.3.3: Funzione per generare codice preset automatico da nome
   const generatePresetKey = (name) => {
     if (!name || typeof name !== 'string') {
       return `custom_${Date.now()}`;
@@ -147,6 +147,7 @@ const PresetManagerModule = (() => {
     
     return finalKey;
   };
+
   const loadCustomPresets = () => {
     try {
       const stored = StorageHelper.getItem(PRESET_STORAGE_KEY);
@@ -190,7 +191,7 @@ const PresetManagerModule = (() => {
   };
 
   const createPreset = (keyOrNull, presetData) => {
-    // ✅ NUOVO: Auto-genera key se non fornita o vuota
+    // ✅ NUOVO v1.3.3: Auto-genera key se non fornita o vuota
     const key = (keyOrNull && keyOrNull.trim() !== '') ? keyOrNull : generatePresetKey(presetData.name);
     
     // ✅ Validazione formato key (per sicurezza)
@@ -342,7 +343,7 @@ const PresetManagerModule = (() => {
     delete customPresets[key];
     
     if (saveCustomPresets(customPresets)) {
-      // ✅ NUOVO: Aggiorna contatore dopo delete
+      // ✅ NUOVO v1.3.3: Aggiorna contatore dopo delete
       if (typeof window !== 'undefined' && window.PresetUI && typeof window.PresetUI.updateCreateButtonState === 'function') {
         setTimeout(() => {
           window.PresetUI.updateCreateButtonState();
@@ -350,7 +351,7 @@ const PresetManagerModule = (() => {
       }
       return true;
     } else {
-      throw new Error('Errore nel salvataggio delle modifiche');
+      throw new Error('Errore nell\'eliminazione del preset');
     }
   };
 
@@ -478,8 +479,8 @@ const PresetManagerModule = (() => {
     exportPresets,
     importPresets,
     duplicatePreset,
-    canCreatePreset,
-    loadCustomPresets, // ✅ NUOVO: Esponi per conteggio
+    canCreatePreset, // 🆕
+    loadCustomPresets, // ✅ NUOVO v1.3.3: Esponi per conteggio
     FREE_CUSTOM_LIMIT
   };
 })();
@@ -515,7 +516,7 @@ const PresetUIModule = (() => {
     const isPremium = window.BillingModule?.isPremium() || false;
     
     if (!isPremium) {
-      // ✅ FIX: Usa loadCustomPresets() per contare SOLO custom (non default)
+      // ✅ FIX v1.3.3: Usa loadCustomPresets() per contare SOLO custom (non default)
       const customPresets = PresetManagerModule.loadCustomPresets();
       const customCount = Object.keys(customPresets).length;
       
@@ -723,9 +724,12 @@ const PresetUIModule = (() => {
     currentEditingKey = null;
     const modal = document.getElementById('preset-edit-modal');
     const form = document.getElementById('preset-form');
-.    
+    
     if (!modal || !form) return;
 
+    document.getElementById('preset-modal-title').textContent = '➕ Nuovo Preset';
+    form.reset();
+    
     const keyInput = document.getElementById('preset-key');
     const keyFormGroup = keyInput?.closest('.form-group');
     
@@ -734,13 +738,13 @@ const PresetUIModule = (() => {
       keyInput.disabled = false;
     }
     
-    // ✅ NUOVO: Nascondi campo codice per creazione (auto-generato)
+    // ✅ NUOVO v1.3.3: Nascondi campo codice per creazione (auto-generato)
     if (keyFormGroup) {
       keyFormGroup.style.display = 'none';
     }
     
-    toggleRoundsFields('max');
-  
+    toggleRoundsFields('max'); // Default
+    
     modal.style.display = 'flex';
   };
 
@@ -780,7 +784,7 @@ const PresetUIModule = (() => {
       keyInput.disabled = true;
     }
     
-    // ✅ NUOVO: Mostra campo codice in modifica (read-only)
+    // ✅ NUOVO v1.3.3: Mostra campo codice in modifica (read-only)
     if (keyFormGroup) {
       keyFormGroup.style.display = 'block';
     }
@@ -865,9 +869,9 @@ const PresetUIModule = (() => {
     const descInput = document.getElementById('preset-description');
     const categorySelect = document.getElementById('preset-category');
     
-    if (!keyInput || !nameInput || !modeSelect || !targetInput) return;
-        
-    // ✅ NUOVO: Per creazione passa null (sarà auto-generata da nome)
+    if (!nameInput || !modeSelect || !targetInput) return;
+    
+    // ✅ NUOVO v1.3.3: Per creazione passa null (sarà auto-generata da nome)
     const key = currentEditingKey ? currentEditingKey : null;
     const name = nameInput.value.trim();
     const mode = modeSelect.value;
@@ -1025,12 +1029,3 @@ const PresetUIModule = (() => {
 
 window.PresetManager = PresetManagerModule;
 window.PresetUI = PresetUIModule;
-
-// ✅ NUOVO: Esponi updateCreateButtonState globalmente per debugging
-if (typeof window !== 'undefined') {
-  window.updatePresetButtonState = () => {
-    if (PresetUIModule && typeof PresetUIModule.updateCreateButtonState === 'function') {
-      PresetUIModule.updateCreateButtonState();
-    }
-  };
-}

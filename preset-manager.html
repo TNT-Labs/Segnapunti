@@ -107,31 +107,7 @@
       
       <form id="preset-form" onsubmit="return false;">
         <div class="form-row">
-          <div class="form-group">
-            <label for="preset-key">Codice Preset *</label>
-            <input 
-              type="text" 
-              id="preset-key" 
-              placeholder="es: mio_gioco" 
-              pattern="[a-z0-9_]+"
-              title="Solo lettere minuscole, numeri e underscore"
-              required>
-            <small>Solo lettere minuscole, numeri e underscore (_)</small>
-          </div>
-
-          <div class="form-group">
-            <label for="preset-name">Nome Gioco *</label>
-            <input 
-              type="text" 
-              id="preset-name" 
-              placeholder="es: Mio Gioco Preferito" 
-              maxlength="50"
-              required>
-          </div>
-        </div>
-
-        <div class="form-row">
-          <!-- ✅ NASCOSTO: Il codice viene auto-generato dal nome -->
+          <!-- ✅ NASCOSTO v1.3.3: Il codice viene auto-generato dal nome -->
           <div class="form-group" style="display:none;">
             <label for="preset-key">Codice Preset</label>
             <input 
@@ -143,7 +119,7 @@
               <!-- ✅ RIMOSSO required - non più necessario -->
             <small>Auto-generato dal nome del gioco</small>
           </div>
-        
+
           <div class="form-group">
             <label for="preset-name">Nome Gioco *</label>
             <input 
@@ -155,7 +131,29 @@
             <small>Il codice verrà generato automaticamente da questo nome</small>
           </div>
         </div>
-        
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="preset-mode">Modalità Vittoria *</label>
+            <select id="preset-mode" required>
+              <option value="max">📈 Vince chi fa PIÙ punti</option>
+              <option value="min">📉 Vince chi fa MENO punti</option>
+              <option value="rounds">🏆 Vince chi vince più ROUNDS</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="preset-target">Punteggio Obiettivo *</label>
+            <input 
+              type="number" 
+              id="preset-target" 
+              min="0" 
+              max="999999"
+              placeholder="es: 100" 
+              required>
+          </div>
+        </div>
+
         <!-- 🆕 NUOVO: Campi Rounds -->
         <div id="preset-round-mode-field" style="display: none;">
           <div class="form-group">
