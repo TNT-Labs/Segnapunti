@@ -225,6 +225,7 @@ const GameStateModule = (() => {
   let modalitaVittoria = 'max';
   let punteggioObiettivo = 100;
   let roundsObiettivo = 3;
+  let roundMode = 'max'; // ✅ FIX #11: Chi vince il round (max/min) - solo per mode='rounds'
   let giocatori = [];
   let partitaTerminata = false;
   let nomeGiocoCorrente = ''; // ✅ NUOVO: Nome del gioco/preset corrente
@@ -236,6 +237,7 @@ const GameStateModule = (() => {
   const getModalitaVittoria = () => modalitaVittoria;
   const getPunteggioObiettivo = () => punteggioObiettivo;
   const getRoundsObiettivo = () => roundsObiettivo;
+  const getRoundMode = () => roundMode; // ✅ FIX #11: Getter per roundMode
   const getGiocatori = () => [...giocatori];
   const isPartitaTerminata = () => partitaTerminata;
   const getNomeGiocoCorrente = () => nomeGiocoCorrente; // ✅ NUOVO
@@ -325,9 +327,72 @@ const GameStateModule = (() => {
     if (giocatore) {
       giocatore.punti += delta;
       saveCurrentState();
+      
+      // ✅ FIX #11: NON chiamare checkAndAssignRoundWinner qui
+      // Lo facciamo nell'UI dopo updatePunteggio per avere il return value
+      
       return true;
     }
     return false;
+  };
+
+  // ✅ FIX #11: Controlla se qualcuno ha vinto il round e assegna automaticamente
+  const checkAndAssignRoundWinner = () => {
+    if (giocatori.length === 0) return null;
+    
+    const puntiMappa = giocatori.map(g => g.punti);
+    const maxPunti = Math.max(...puntiMappa);
+    const minPunti = Math.min(...puntiMappa);
+    
+    let roundWinner = null;
+    let winningPoints = 0;
+    
+    // Determina se qualcuno ha raggiunto il target
+    if (roundMode === 'max' && maxPunti >= punteggioObiettivo) {
+      // Vince chi ha PIÙ punti
+      winningPoints = maxPunti;
+      const winners = giocatori.filter(g => g.punti === maxPunti);
+      
+      if (winners.length === 1) {
+        roundWinner = winners[0];
+      } else if (winners.length > 1) {
+        // Pareggio: nessuno vince il round, continua
+        return null;
+      }
+    } else if (roundMode === 'min' && maxPunti >= punteggioObiettivo) {
+      // Vince chi ha MENO punti (quando qualcuno raggiunge target)
+      winningPoints = minPunti;
+      const winners = giocatori.filter(g => g.punti === minPunti);
+      
+      if (winners.length === 1) {
+        roundWinner = winners[0];
+      } else if (winners.length > 1) {
+        // Pareggio: nessuno vince il round
+        return null;
+      }
+    }
+    
+    // Se c'è un vincitore, assegna round e resetta punti
+    if (roundWinner) {
+      roundWinner.rounds += 1;
+      
+      // Resetta tutti i punti a 0 per nuovo round
+      giocatori.forEach(g => {
+        g.punti = 0;
+      });
+      
+      saveCurrentState();
+      
+      // Restituisci info per notifica UI
+      return {
+        winnerId: roundWinner.id,
+        winnerName: roundWinner.nome,
+        winningPoints: winningPoints,
+        newRoundCount: roundWinner.rounds
+      };
+    }
+    
+    return null;
   };
 
   const updateRounds = (playerId, delta) => {
@@ -363,8 +428,16 @@ const GameStateModule = (() => {
     modalitaVittoria = preset.mode;
     punteggioObiettivo = preset.target;
     
-    if (preset.roundsTarget) {
-      roundsObiettivo = preset.roundsTarget;
+    // ✅ FIX #11: Salva roundMode dal preset
+    if (preset.mode === 'rounds') {
+      roundMode = preset.roundMode || 'max'; // Default 'max' se non specificato
+      roundsObiettivo = preset.roundsTarget || 3;
+    } else {
+      // Per mode='max' o 'min', roundMode non serve ma impostiamo comunque
+      roundMode = preset.mode;
+      if (preset.roundsTarget) {
+        roundsObiettivo = preset.roundsTarget;
+      }
     }
     
     // ✅ NUOVO: Salva il nome del gioco
@@ -417,6 +490,7 @@ const GameStateModule = (() => {
       modalitaVittoria,
       punteggioObiettivo,
       roundsObiettivo,
+      roundMode, // ✅ FIX #11: Salva roundMode
       giocatori,
       partitaTerminata,
       darkMode,
@@ -429,6 +503,7 @@ const GameStateModule = (() => {
       modalitaVittoria = state.modalitaVittoria || 'max';
       punteggioObiettivo = state.punteggioObiettivo || 100;
       roundsObiettivo = state.roundsObiettivo || 3;
+      roundMode = state.roundMode || 'max'; // ✅ FIX #11: Carica roundMode
       giocatori = state.giocatori || [];
       partitaTerminata = state.partitaTerminata || false;
       nomeGiocoCorrente = state.nomeGiocoCorrente || ''; // ✅ NUOVO: Carica nome gioco
@@ -482,6 +557,7 @@ const GameStateModule = (() => {
     getModalitaVittoria,
     getPunteggioObiettivo,
     getRoundsObiettivo,
+    getRoundMode, // ✅ FIX #11: Esporta getter
     getGiocatori,
     isPartitaTerminata,
     getNomeGiocoCorrente, // ✅ NUOVO
@@ -498,6 +574,7 @@ const GameStateModule = (() => {
     resetPunteggi,
     applyPreset,
     checkVittoria,
+    checkAndAssignRoundWinner, // ✅ FIX #11: Esporta nuova funzione
     saveCurrentState,
     loadFromState,
     saveToHistory
@@ -680,6 +757,13 @@ const UIModule = (() => {
       const handler = () => {
         if (GameStateModule.updatePunteggio(giocatore.id, btn.value)) {
           animatePunteggio(giocatore.id, btn.value);
+          
+          // ✅ FIX #11: Controlla se round vinto e mostra notifica
+          const roundWon = GameStateModule.checkAndAssignRoundWinner();
+          if (roundWon) {
+            showRoundWonNotification(roundWon);
+          }
+          
           renderGiocatoriPartita();
           checkAndDisplayVittoria();
         }
@@ -777,6 +861,87 @@ const UIModule = (() => {
     
     roundsElement.addEventListener('animationend', cleanup, { once: true });
     setTimeout(cleanup, 500);
+  };
+
+  // ✅ FIX #11: Mostra notifica quando un round viene vinto
+  const showRoundWonNotification = (roundInfo) => {
+    // Crea elemento notifica
+    const notification = document.createElement('div');
+    notification.className = 'round-won-notification';
+    notification.style.cssText = `
+      position: fixed;
+      top: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, #FFD700, #FFA500);
+      color: #333;
+      padding: 20px 30px;
+      border-radius: 16px;
+      font-size: 1.2em;
+      font-weight: 700;
+      box-shadow: 0 8px 24px rgba(255, 215, 0, 0.5);
+      z-index: 9998;
+      animation: slideInTop 0.5s ease-out, slideOutTop 0.5s ease-in 2.5s;
+      max-width: 90%;
+      text-align: center;
+    `;
+    
+    const modalita = GameStateModule.getModalitaVittoria();
+    let roundLabel = 'Round';
+    
+    // Determina etichetta corretta per il tipo di gioco
+    const nomeGioco = GameStateModule.getNomeGiocoCorrente().toLowerCase();
+    if (nomeGioco.includes('tennis') || nomeGioco.includes('pallavolo') || nomeGioco.includes('volleyball')) {
+      roundLabel = 'Set';
+    } else if (nomeGioco.includes('poker')) {
+      roundLabel = 'Mano';
+    }
+    
+    notification.innerHTML = `
+      <div style="font-size: 2em; margin-bottom: 5px;">🏆</div>
+      <div><strong>${roundInfo.winnerName}</strong> vince il ${roundLabel}!</div>
+      <div style="font-size: 0.9em; opacity: 0.9; margin-top: 5px;">
+        ${roundInfo.winningPoints} punti • ${roundLabel} vinti: ${roundInfo.newRoundCount}
+      </div>
+    `;
+    
+    // Aggiungi animazioni CSS se non esistono
+    if (!document.querySelector('#round-notification-animations')) {
+      const style = document.createElement('style');
+      style.id = 'round-notification-animations';
+      style.textContent = `
+        @keyframes slideInTop {
+          from {
+            transform: translate(-50%, -150%);
+            opacity: 0;
+          }
+          to {
+            transform: translate(-50%, 0);
+            opacity: 1;
+          }
+        }
+        @keyframes slideOutTop {
+          from {
+            transform: translate(-50%, 0);
+            opacity: 1;
+          }
+          to {
+            transform: translate(-50%, -150%);
+            opacity: 0;
+          }
+        }
+      `;
+      document.head.appendChild(style);
+    }
+    
+    document.body.appendChild(notification);
+    
+    // Rimuovi dopo animazione
+    setTimeout(() => {
+      if (notification.parentNode) {
+        notification.remove();
+      }
+    }, 3000);
   };
 
   const animatePunteggio = (playerId, delta) => {
@@ -902,6 +1067,13 @@ const UIModule = (() => {
     
     if (GameStateModule.updatePunteggio(globalPlayerIdToUpdate, deltaPunti)) {
       animatePunteggio(globalPlayerIdToUpdate, deltaPunti);
+      
+      // ✅ FIX #11: Controlla se round vinto e mostra notifica
+      const roundWon = GameStateModule.checkAndAssignRoundWinner();
+      if (roundWon) {
+        showRoundWonNotification(roundWon);
+      }
+      
       renderGiocatoriPartita();
       checkAndDisplayVittoria();
     }
