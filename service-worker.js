@@ -1,5 +1,5 @@
-// ✅ Cache aggiornata con QUICK_FIXES + VERSIONE INCREMENTATA
-const CACHE_NAME = 'segnapunti-cache-v1.3.0';  // ⚠️ Incrementa ad ogni deploy!
+// ✅ Cache aggiornata con MOBILE OPTIMIZATION + VERSIONE INCREMENTATA
+const CACHE_NAME = 'segnapunti-cache-v1.3.1';  // ⚠️ Incrementa ad ogni deploy!
 
 // ✅ Lista completa asset (VERIFICATA + storage-helper.js)
 const ASSETS_TO_CACHE = [
@@ -13,6 +13,7 @@ const ASSETS_TO_CACHE = [
   'storage-helper.js', // ✅ FIX #2: Safari storage helper
   'segnapunti.js',
   'segnapunti.css',
+  'segnapunti-mobile.css', // ✅ MOBILE OPTIMIZATION
   'preset-manager.js',
   'preset-manager.css',
   'billing-module.js', // ✅ NUOVO
