@@ -301,10 +301,13 @@ const GameStateModule = (() => {
       throw new Error("Questo nome esiste già!");
     }
 
+    // ✅ DARTS FIX: Se modalità darts, inizia dal punteggio target
+    const startingScore = modalitaVittoria === 'darts' ? punteggioObiettivo : 0;
+
     const newPlayer = {
       id: generatePlayerId(),
       nome: nomeTrimmed,
-      punti: 0,
+      punti: startingScore,
       rounds: 0,
       createdAt: Date.now()
     };
@@ -330,7 +333,24 @@ const GameStateModule = (() => {
     
     const giocatore = giocatori.find(g => g.id === playerId);
     if (giocatore) {
-      giocatore.punti += delta;
+      // ✅ DARTS FIX: Gestione speciale per modalità freccette
+      if (modalitaVittoria === 'darts') {
+        const previousScore = giocatore.punti;
+        const newScore = previousScore + delta;
+        
+        // Controlla se va sotto zero
+        if (newScore < 0) {
+          // Torna al punteggio precedente (non cambia nulla)
+          return false;
+        }
+        
+        // Aggiorna normalmente
+        giocatore.punti = newScore;
+      } else {
+        // Modalità normale
+        giocatore.punti += delta;
+      }
+      
       saveCurrentState();
       
       // ✅ FIX #11: NON chiamare checkAndAssignRoundWinner qui
@@ -418,7 +438,8 @@ const GameStateModule = (() => {
 
   const resetPunteggi = () => {
     giocatori.forEach(g => {
-      g.punti = 0;
+      // ✅ DARTS FIX: Se modalità darts, resetta al punteggio iniziale
+      g.punti = modalitaVittoria === 'darts' ? punteggioObiettivo : 0;
       g.rounds = 0;
     });
     partitaTerminata = false;
@@ -432,6 +453,19 @@ const GameStateModule = (() => {
     
     modalitaVittoria = preset.mode;
     punteggioObiettivo = preset.target;
+    
+    // ✅ DARTS FIX: Se ci sono giocatori esistenti e cambio a modalità darts, resetta punteggi
+    if (preset.mode === 'darts' && giocatori.length > 0) {
+      giocatori.forEach(g => {
+        g.punti = preset.startingScore || preset.target;
+      });
+    }
+    // Se cambio da darts ad altra modalità, resetta a 0
+    else if (modalitaVittoria !== 'darts' && preset.mode !== 'darts' && giocatori.length > 0) {
+      giocatori.forEach(g => {
+        g.punti = 0;
+      });
+    }
     
     // ✅ FIX #11: Salva roundMode dal preset
     if (preset.mode === 'rounds') {
@@ -475,6 +509,12 @@ const GameStateModule = (() => {
       vincitori = giocatori.filter(g => g.rounds === maxRounds).map(g => g.nome);
       roundsVincitore = maxRounds;
       puntiVincitore = giocatori.filter(g => g.rounds === maxRounds)[0]?.punti || 0;
+    }
+    // ✅ DARTS FIX: Vince chi arriva esattamente a 0
+    else if (modalitaVittoria === 'darts' && minPunti === 0) {
+      hasWinner = true;
+      vincitori = giocatori.filter(g => g.punti === 0).map(g => g.nome);
+      puntiVincitore = 0;
     }
     else if (modalitaVittoria === 'max' && maxPunti >= punteggioObiettivo) {
       hasWinner = true;

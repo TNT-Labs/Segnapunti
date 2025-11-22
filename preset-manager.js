@@ -79,19 +79,21 @@ const PresetManagerModule = (() => {
     },
     freccette501: { 
       name: 'Freccette 501', 
-      mode: 'min', 
-      target: 0, 
-      description: '🎯 Freccette 501: Si parte da 501, vince chi arriva esattamente a 0.',
+      mode: 'darts', 
+      target: 501, 
+      description: '🎯 Freccette 501: Si parte da 501, vince chi arriva esattamente a 0. Se vai sotto zero, torni al punteggio precedente.',
       isDefault: true,
-      category: 'altri'
+      category: 'altri',
+      startingScore: 501
     },
     freccette301: { 
       name: 'Freccette 301', 
-      mode: 'min', 
-      target: 0, 
-      description: '🎯 Freccette 301: Si parte da 301, vince chi arriva esattamente a 0.',
+      mode: 'darts', 
+      target: 301, 
+      description: '🎯 Freccette 301: Si parte da 301, vince chi arriva esattamente a 0. Se vai sotto zero, torni al punteggio precedente.',
       isDefault: true,
-      category: 'altri'
+      category: 'altri',
+      startingScore: 301
     }
   };
 
