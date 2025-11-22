@@ -105,7 +105,48 @@ const PresetManagerModule = (() => {
     altri: '🎯',
     custom: '⭐'
   };
-
+  
+  // ✅ NUOVO: Funzione per generare codice preset automatico da nome
+  const generatePresetKey = (name) => {
+    if (!name || typeof name !== 'string') {
+      return `custom_${Date.now()}`;
+    }
+    
+    // Converti in slug: rimuovi caratteri speciali, lowercase, sostituisci spazi con _
+    let slug = name
+      .toLowerCase()
+      .trim()
+      // Normalizza caratteri accentati
+      .replace(/[àáâãäå]/g, 'a')
+      .replace(/[èéêë]/g, 'e')
+      .replace(/[ìíîï]/g, 'i')
+      .replace(/[òóôõö]/g, 'o')
+      .replace(/[ùúûü]/g, 'u')
+      .replace(/[^a-z0-9\s]/g, '') // Rimuovi caratteri speciali
+      .replace(/\s+/g, '_'); // Sostituisci spazi con underscore
+    
+    // Se troppo lungo, tronca
+    if (slug.length > 30) {
+      slug = slug.substring(0, 30);
+    }
+    
+    // Se vuoto dopo cleaning, usa timestamp
+    if (!slug || slug === '') {
+      slug = `custom_${Date.now()}`;
+    }
+    
+    // Assicurati che sia unico
+    const allPresets = getAllPresets();
+    let finalKey = slug;
+    let counter = 1;
+    
+    while (allPresets[finalKey]) {
+      finalKey = `${slug}_${counter}`;
+      counter++;
+    }
+    
+    return finalKey;
+  };
   const loadCustomPresets = () => {
     try {
       const stored = StorageHelper.getItem(PRESET_STORAGE_KEY);
@@ -148,13 +189,13 @@ const PresetManagerModule = (() => {
     return categorized;
   };
 
-  const createPreset = (key, presetData) => {
-    if (!key || key.trim() === '') {
-      throw new Error('Il codice del preset non può essere vuoto');
-    }
-
+  const createPreset = (keyOrNull, presetData) => {
+    // ✅ NUOVO: Auto-genera key se non fornita o vuota
+    const key = (keyOrNull && keyOrNull.trim() !== '') ? keyOrNull : generatePresetKey(presetData.name);
+    
+    // ✅ Validazione formato key (per sicurezza)
     if (!/^[a-z0-9_]+$/.test(key)) {
-      throw new Error('Il codice può contenere solo lettere minuscole, numeri e underscore');
+      throw new Error('Errore nella generazione del codice preset');
     }
 
     if (!presetData.name || presetData.name.trim() === '') {
@@ -301,9 +342,15 @@ const PresetManagerModule = (() => {
     delete customPresets[key];
     
     if (saveCustomPresets(customPresets)) {
+      // ✅ NUOVO: Aggiorna contatore dopo delete
+      if (typeof window !== 'undefined' && window.PresetUI && typeof window.PresetUI.updateCreateButtonState === 'function') {
+        setTimeout(() => {
+          window.PresetUI.updateCreateButtonState();
+        }, 100);
+      }
       return true;
     } else {
-      throw new Error('Errore nell\'eliminazione del preset');
+      throw new Error('Errore nel salvataggio delle modifiche');
     }
   };
 
@@ -431,7 +478,8 @@ const PresetManagerModule = (() => {
     exportPresets,
     importPresets,
     duplicatePreset,
-    canCreatePreset, // 🆕
+    canCreatePreset,
+    loadCustomPresets, // ✅ NUOVO: Esponi per conteggio
     FREE_CUSTOM_LIMIT
   };
 })();
@@ -467,11 +515,11 @@ const PresetUIModule = (() => {
     const isPremium = window.BillingModule?.isPremium() || false;
     
     if (!isPremium) {
-      // ✅ FIX #12: Usa PresetManagerModule.getAllPresets() invece di getAllPresets()
-      const customCount = Object.values(PresetManagerModule.getAllPresets())
-        .filter(p => p.category === 'custom').length;
+      // ✅ FIX: Usa loadCustomPresets() per contare SOLO custom (non default)
+      const customPresets = PresetManagerModule.loadCustomPresets();
+      const customCount = Object.keys(customPresets).length;
       
-      btn.innerHTML = `➕ Nuovo Preset <small>(${customCount}/1)</small>`;
+      btn.innerHTML = `➕ Nuovo Preset <small style="font-size:0.7em;opacity:0.8;margin-left:6px;">(${customCount}/1)</small>`;
       
       if (customCount >= 1) {
         btn.style.opacity = '0.6';
@@ -675,20 +723,24 @@ const PresetUIModule = (() => {
     currentEditingKey = null;
     const modal = document.getElementById('preset-edit-modal');
     const form = document.getElementById('preset-form');
-    
+.    
     if (!modal || !form) return;
 
-    document.getElementById('preset-modal-title').textContent = '➕ Nuovo Preset';
-    form.reset();
-    
     const keyInput = document.getElementById('preset-key');
+    const keyFormGroup = keyInput?.closest('.form-group');
+    
     if (keyInput) {
       keyInput.value = '';
       keyInput.disabled = false;
     }
     
-    toggleRoundsFields('max'); // Default
+    // ✅ NUOVO: Nascondi campo codice per creazione (auto-generato)
+    if (keyFormGroup) {
+      keyFormGroup.style.display = 'none';
+    }
     
+    toggleRoundsFields('max');
+  
     modal.style.display = 'flex';
   };
 
@@ -721,9 +773,16 @@ const PresetUIModule = (() => {
     document.getElementById('preset-modal-title').textContent = '✏️ Modifica Preset';
     
     const keyInput = document.getElementById('preset-key');
+    const keyFormGroup = keyInput?.closest('.form-group');
+    
     if (keyInput) {
       keyInput.value = key;
       keyInput.disabled = true;
+    }
+    
+    // ✅ NUOVO: Mostra campo codice in modifica (read-only)
+    if (keyFormGroup) {
+      keyFormGroup.style.display = 'block';
     }
     
     const nameInput = document.getElementById('preset-name');
@@ -807,8 +866,9 @@ const PresetUIModule = (() => {
     const categorySelect = document.getElementById('preset-category');
     
     if (!keyInput || !nameInput || !modeSelect || !targetInput) return;
-    
-    const key = keyInput.value.trim();
+        
+    // ✅ NUOVO: Per creazione passa null (sarà auto-generata da nome)
+    const key = currentEditingKey ? currentEditingKey : null;
     const name = nameInput.value.trim();
     const mode = modeSelect.value;
     const target = targetInput.value;
@@ -965,3 +1025,12 @@ const PresetUIModule = (() => {
 
 window.PresetManager = PresetManagerModule;
 window.PresetUI = PresetUIModule;
+
+// ✅ NUOVO: Esponi updateCreateButtonState globalmente per debugging
+if (typeof window !== 'undefined') {
+  window.updatePresetButtonState = () => {
+    if (PresetUIModule && typeof PresetUIModule.updateCreateButtonState === 'function') {
+      PresetUIModule.updateCreateButtonState();
+    }
+  };
+}
