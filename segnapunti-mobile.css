@@ -94,6 +94,10 @@ body.dark-mode .giocatori-lista li {
   border: none;
   cursor: pointer;
   transition: all 0.2s;
+  /* ✅ FIX OVERFLOW TESTO */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 .giocatore-actions button:active {
@@ -203,6 +207,10 @@ body.dark-mode .giocatori-lista li {
     padding: 10px 8px;
     font-size: 0.9em;
     min-height: 44px;
+    /* ✅ FIX OVERFLOW TESTO */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   /* ✅ FIX: Modal mobile friendly */

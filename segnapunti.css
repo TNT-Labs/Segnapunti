@@ -266,6 +266,10 @@ button {
   align-items: center;
   justify-content: center;
   gap: 6px;
+  /* ✅ FIX OVERFLOW TESTO */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 button:hover {
   background: var(--colore-primario);
@@ -621,6 +625,10 @@ body.dark-mode .giocatore-rounds {
   font-size: 0.95em;
   font-weight: 700;
   min-height: var(--touch-target-min);
+  /* ✅ FIX OVERFLOW TESTO */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .btn-rimuovi {
@@ -638,6 +646,10 @@ body.dark-mode .giocatore-rounds {
   background: var(--colore-pulsante-custom);
   grid-column: span 3;
   font-weight: 700;
+  /* ✅ FIX OVERFLOW TESTO */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .btn-custom-score:hover {
@@ -843,6 +855,10 @@ body.dark-mode .storico-toolbar {
   font-size: 1em;
   font-weight: 700;
   min-height: var(--touch-target-comfortable);
+  /* ✅ FIX OVERFLOW TESTO */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* Modal actions */
@@ -858,6 +874,10 @@ body.dark-mode .storico-toolbar {
   font-size: 1em;
   font-weight: 700;
   min-height: var(--touch-target-comfortable);
+  /* ✅ FIX OVERFLOW TESTO */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* ✅ FIX CRITICO #13: Loader sempre visibile */
@@ -970,6 +990,11 @@ body.dark-mode .nav-item.active {
   font-weight: 600;
   text-align: center;
   line-height: 1.2;
+  /* ✅ FIX OVERFLOW TESTO */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
 }
 
 /* ===================================================================
