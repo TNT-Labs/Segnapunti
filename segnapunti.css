@@ -13,9 +13,9 @@
   --colore-reset: #c62828; 
   --colore-blocco: rgba(0, 0, 0, 0.6); 
   --colore-header-bordo: #e0e0e0;
-  --colore-rounds: #ff9800; /* 🆕 NUOVO: Colore per rounds */
+  --colore-rounds: #ff9800;
   
-  /* ✅ FIX #9: Spacing variables */
+  /* ✅ Spacing variables */
   --spacing-xs: 4px;
   --spacing-sm: 8px;
   --spacing-md: 16px;
@@ -129,6 +129,7 @@ body {
   transition: background-color 0.3s;
 }
 
+/* ✅ FIX CRITICO #1: Container padding corretto per evitare sovrapposizioni */
 .container {
   max-width: 550px; 
   margin: 0 auto; 
@@ -137,8 +138,10 @@ body {
   box-shadow: none; 
   padding: var(--spacing-xl) var(--spacing-lg);
   transition: background-color 0.3s, box-shadow 0.3s;
-  padding-top: calc(var(--header-height) + var(--spacing-md));
-  padding-bottom: calc(var(--nav-height) + var(--spacing-md));
+  padding-top: calc(var(--header-height) + var(--spacing-lg));
+  padding-bottom: calc(var(--nav-height) + var(--spacing-lg));
+  min-height: 100vh;
+  box-sizing: border-box;
 }
 
 /* Header e Titoli */
@@ -147,7 +150,11 @@ body {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 10px;
 }
+
+/* ✅ FIX CRITICO #2: Header fisso con corretta visibilità */
 .header-controls.fixed-header {
     position: fixed; 
     top: 0;
@@ -155,15 +162,17 @@ body {
     right: 0;
     max-width: 550px; 
     margin: 0 auto;
-    z-index: 100; 
+    z-index: var(--z-header);
     background: var(--colore-card); 
-    padding: 15px 24px 10px 24px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    border-bottom: 1px solid var(--colore-header-bordo);
-    border-radius: 0 0 16px 16px; 
+    padding: 15px 24px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    border-bottom: 2px solid var(--colore-header-bordo);
+    border-radius: 0 0 16px 16px;
+    min-height: var(--header-height);
+    box-sizing: border-box;
 }
 body.dark-mode .header-controls.fixed-header {
-    box-shadow: 0 2px 5px rgba(255, 255, 255, 0.05);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
 }
 
 h1 {
@@ -173,38 +182,54 @@ h1 {
   font-weight: 800; 
   font-size: 1.8em;
   margin: 0;
+  /* ✅ FIX: Supporto badge premium */
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  line-height: 1.2;
 }
 
+/* ✅ FIX CRITICO #3: Pulsanti header sempre visibili */
 .top-buttons {
     display: flex;
     gap: 8px;
     flex-shrink: 0;
+    align-items: center;
 }
 .top-buttons button {
     background: var(--colore-secondario);
     color: white;
     padding: 10px 12px;
     border-radius: 8px;
-    font-weight: 500;
+    font-weight: 600;
     min-width: 48px;
     min-height: 48px;
     box-sizing: border-box;
     display: flex;
     align-items: center;
     justify-content: center;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
 }
 .top-buttons button:hover {
     background: var(--colore-primario);
+    transform: scale(1.05);
 }
+.top-buttons button:active {
+    transform: scale(0.98);
+}
+
 #toggle-dark-mode {
-    background: none !important;
-    border: 1px solid var(--colore-primario) !important;
+    background: transparent !important;
+    border: 2px solid var(--colore-primario) !important;
     color: var(--colore-primario) !important;
     width: 48px; 
     height: 48px; 
     padding: 0;
     border-radius: 50% !important;
-    font-size: 1.2em;
+    font-size: 1.3em;
     line-height: 1;
     flex-shrink: 0;
 }
@@ -224,28 +249,38 @@ body.dark-mode #toggle-dark-mode {
     margin: 30px 0;
 }
 
-/* Pulsanti Generici */
+/* ✅ FIX CRITICO #4: Pulsanti con dimensioni touch-friendly */
 button {
-  font-size: 0.9em;
-  padding: 8px 12px;
-  border-radius: 6px;
+  font-size: 0.95em;
+  padding: 10px 16px;
+  border-radius: var(--radius-md);
   border: none;
   cursor: pointer;
-  transition: background 0.2s, transform 0.1s;
+  transition: all 0.2s;
   color: #fff;
   background: var(--colore-secondario);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  min-height: var(--touch-target-min);
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
 }
 button:hover {
   background: var(--colore-primario);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 button:active {
   transform: translateY(1px);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 button:disabled {
     opacity: 0.5;
     cursor: not-allowed;
     box-shadow: none;
+    transform: none;
 }
 
 .btn-primary { 
@@ -261,16 +296,46 @@ button:disabled {
     background: var(--sfondo-rimuovi);
 }
 
+/* ✅ FIX CRITICO #5: Winner message sempre visibile */
+.winner-message {
+  background: linear-gradient(135deg, var(--sfondo-vincitore) 0%, rgba(21, 87, 36, 0.1) 100%);
+  color: var(--colore-vincitore);
+  padding: 20px;
+  margin: 20px 0;
+  border-radius: var(--radius-lg);
+  border-left: 5px solid var(--colore-vincitore);
+  font-weight: 700;
+  font-size: 1.2em;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(21, 87, 36, 0.2);
+  animation: slideIn 0.4s ease-out;
+}
+
+body.dark-mode .winner-message {
+  background: linear-gradient(135deg, var(--sfondo-vincitore) 0%, rgba(184, 224, 184, 0.05) 100%);
+  box-shadow: 0 4px 12px rgba(184, 224, 184, 0.1);
+}
+
+/* ✅ FIX CRITICO #6: Game over actions visibili */
 .game-over-actions {
     text-align: center;
-    margin: 20px 0;
+    margin: 25px 0;
+    padding: 15px;
+    background: rgba(42, 77, 105, 0.05);
+    border-radius: var(--radius-lg);
 }
+
+body.dark-mode .game-over-actions {
+    background: rgba(122, 174, 214, 0.05);
+}
+
 .game-over-actions button {
     font-size: 1.1em;
-    padding: 15px 30px;
+    padding: 16px 32px;
     font-weight: 700;
     min-width: 250px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    min-height: var(--touch-target-large);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 h3 {
@@ -278,8 +343,9 @@ h3 {
   margin-top: 28px;
   margin-bottom: 12px;
   border-bottom: 2px solid #e0e0e0;
-  padding-bottom: 5px;
-  font-weight: 600;
+  padding-bottom: 8px;
+  font-weight: 700;
+  font-size: 1.3em;
 }
 body.dark-mode h3 {
     border-bottom-color: #333;
@@ -290,38 +356,45 @@ body.dark-mode h3 {
     display: flex;
     gap: 10px;
     margin-bottom: 20px;
+    flex-wrap: wrap;
 }
 .aggiungi-giocatore-form input {
     flex-grow: 1;
-    margin-bottom: 0; 
+    margin-bottom: 0;
+    min-width: 200px;
 }
 
 label {
   display: block;
   margin: 15px 0 8px 0;
-  font-weight: 500;
+  font-weight: 600;
   color: #555;
+  font-size: 0.95em;
 }
 body.dark-mode label {
     color: #bbb;
 }
 
+/* ✅ FIX CRITICO #7: Preset info box sempre visibile */
 .preset-info {
-  background: rgba(42, 77, 105, 0.1);
+  background: rgba(42, 77, 105, 0.12);
   border-left: 4px solid var(--colore-primario);
-  padding: 12px 15px;
-  margin: 15px 0;
-  border-radius: 4px;
+  padding: 15px 18px;
+  margin: 18px 0;
+  border-radius: var(--radius-md);
   animation: slideIn 0.3s ease-out;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 body.dark-mode .preset-info {
-  background: rgba(122, 174, 214, 0.1);
+  background: rgba(122, 174, 214, 0.12);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 .preset-info p {
   margin: 0;
   font-size: 0.95em;
-  line-height: 1.5;
+  line-height: 1.6;
   color: var(--colore-testo);
+  font-weight: 500;
 }
 @keyframes slideIn {
   from {
@@ -334,439 +407,497 @@ body.dark-mode .preset-info {
   }
 }
 
-input[type="text"], input[type="number"], select {
-  font-size: 16px; /* ✅ FIX #6: Previene zoom automatico iOS */
-  padding: 10px 12px;
-  border-radius: 8px;
-  border: 1px solid #bfc9d1;
+/* ✅ FIX CRITICO #8: Input con dimensioni corrette per iOS */
+input[type="text"], input[type="number"], select, textarea {
+  font-size: 16px; /* Previene zoom automatico iOS */
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  border: 2px solid #bfc9d1;
   width: 100%;
   box-sizing: border-box;
-  transition: border-color 0.3s;
-  min-height: var(--touch-target-comfortable); /* ✅ FIX #4 */
+  transition: all 0.3s;
+  min-height: var(--touch-target-comfortable);
+  font-family: 'Inter', sans-serif;
+  background: var(--colore-card);
+  color: var(--colore-testo);
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--colore-primario);
+  box-shadow: 0 0 0 3px rgba(42, 77, 105, 0.2);
+}
+
+body.dark-mode input:focus, 
+body.dark-mode select:focus,
+body.dark-mode textarea:focus {
+  box-shadow: 0 0 0 3px rgba(122, 174, 214, 0.3);
 }
 
 .action-buttons {
   display: flex;
   gap: 10px;
   margin-top: 20px;
+  flex-wrap: wrap;
 }
 .action-buttons button {
-  flex-grow: 1;
+  flex: 1 1 auto;
+  min-width: 140px;
   font-weight: 600;
-  padding: 10px;
+  padding: 12px 16px;
 }
 
-/* 🆕 NUOVO: Campo Rounds (mostra/nascondi) */
 #rounds-field {
   display: none;
 }
 
-/* Lista Giocatori */
+/* ✅ FIX CRITICO #9: Lista giocatori con spaziatura corretta */
 .giocatori-lista {
   margin: 0 0 20px 0;
   padding: 0;
   list-style: none;
 }
+
 .giocatore-item {
   display: flex;
   flex-direction: column; 
   align-items: flex-start;
   background: #f0f4fa;
-  border-radius: 8px;
-  padding: 12px 15px;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
+  padding: 15px;
+  border-radius: var(--radius-lg);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  border: 2px solid transparent;
+  transition: all 0.3s;
   position: relative;
-  transition: all 0.3s ease;
 }
 
-/* 🆕 Nome Giocatore in Evidenza */
+body.dark-mode .giocatore-item {
+  background: #2a2a2a;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.giocatore-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+body.dark-mode .giocatore-item:hover {
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.08);
+}
+
+/* Winner highlight */
+.giocatore-item.winner-highlight {
+  background: linear-gradient(135deg, var(--sfondo-vincitore) 0%, rgba(21, 87, 36, 0.15) 100%);
+  border-color: var(--bordo-vincitore);
+  box-shadow: 0 0 25px rgba(21, 87, 36, 0.4), 0 4px 15px rgba(0, 0, 0, 0.2);
+  animation: winnerPulse 2s ease-in-out infinite;
+}
+
+@keyframes winnerPulse {
+  0%, 100% { 
+    box-shadow: 0 0 25px rgba(21, 87, 36, 0.4), 0 4px 15px rgba(0, 0, 0, 0.2);
+  }
+  50% { 
+    box-shadow: 0 0 35px rgba(21, 87, 36, 0.6), 0 6px 20px rgba(0, 0, 0, 0.3);
+  }
+}
+
+.giocatore-item.winner-highlight::before {
+  content: '🏆';
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  font-size: 2em;
+  animation: trophyFloat 3s ease-in-out infinite;
+  z-index: 1;
+}
+
+@keyframes trophyFloat {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(5deg); }
+}
+
 .giocatore-nome {
-  font-size: 1.4em;
+  font-size: 1.3em;
   font-weight: 700;
   color: var(--colore-primario);
-  margin-bottom: 8px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+  word-break: break-word;
+  line-height: 1.3;
 }
 
-.giocatore-item.game-over::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: var(--colore-blocco); 
-    border-radius: 8px;
-    pointer-events: none; 
-    z-index: 10;
-}
-.giocatore-item.game-over.winner-highlight::after {
-    display: none; 
-}
-
-.giocatore-item.winner-highlight {
-  background: var(--sfondo-vincitore); 
-  border: 3px solid var(--bordo-vincitore);
-  box-shadow: 0 0 20px rgba(212, 237, 218, 1), 0 4px 12px rgba(0, 0, 0, 0.15);
-  position: relative;
-  transform: scale(1.02);
-}
-.giocatore-item.winner-highlight::before {
-  content: '👑';
-  position: absolute;
-  top: -8px;
-  right: -8px;
-  font-size: 1.8em;
-  z-index: 5;
-  animation: crownBounce 1s ease-in-out infinite;
-}
-@keyframes crownBounce {
-  0%, 100% { transform: translateY(0px) rotate(0deg); }
-  50% { transform: translateY(-5px) rotate(10deg); }
-}
-
-/* 🆕 NUOVO: Container Stats (Rounds + Punti) */
 .giocatore-stats {
   display: flex;
   gap: 15px;
-  align-items: center;
-  margin: 5px 0;
+  margin-bottom: 12px;
   flex-wrap: wrap;
-}
-
-/* 🆕 NUOVO: Stile Rounds */
-.giocatore-rounds {
-  font-size: 1.1em;
-  color: var(--colore-rounds);
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-.giocatore-rounds strong {
-  font-weight: 900;
-  font-size: 1.5em;
-  color: var(--colore-rounds);
 }
 
 .giocatore-punti {
-  font-size: 1.1em;
-  color: #555;
-  font-weight: 500;
-  min-width: 100px;
-  position: relative;
+  font-size: 0.9em;
+  color: #666;
 }
+
 body.dark-mode .giocatore-punti {
-    color: #bbb;
+  color: #aaa;
 }
 
 .giocatore-punti strong {
-  font-weight: 800; 
+  font-size: 1.6em;
+  font-weight: 800;
   color: var(--colore-primario);
-  font-size: 1.8em; 
   display: inline-block;
-  margin-right: 5px;
-  line-height: 1;
+  margin-left: 6px;
 }
 
-.giocatore-item.winner-highlight .giocatore-punti strong {
-  font-size: 2.2em;
-  color: var(--colore-vincitore);
-  font-weight: 900;
+/* Rounds display */
+.giocatore-rounds {
+  font-size: 0.9em;
+  color: #666;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
+body.dark-mode .giocatore-rounds {
+  color: #aaa;
+}
+
+.giocatore-rounds strong {
+  font-size: 1.4em;
+  font-weight: 800;
+  color: var(--colore-rounds);
+  display: inline-block;
+}
+
+/* Controls container */
 .punti-e-controlli {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  margin-top: 5px;
   gap: 10px;
+  width: 100%;
   flex-wrap: wrap;
+  margin-top: 8px;
 }
 
-/* 🆕 NUOVO: Controlli Rounds */
+/* Rounds controls */
 .rounds-controls {
   display: flex;
   gap: 6px;
-}
-.rounds-controls button {
-  padding: 8px 12px;
-  font-size: 0.95em;
-  min-width: 70px;
-  min-height: 44px;
-  font-weight: 600;
-}
-.btn-round-plus {
-  background: var(--colore-rounds) !important;
-  color: white;
-}
-.btn-round-plus:hover {
-  background: #f57c00 !important;
-}
-.btn-round-minus {
-  background: #9e9e9e !important;
-  color: white;
-}
-.btn-round-minus:hover {
-  background: #757575 !important;
+  align-items: center;
 }
 
-/* Layout Controlli Punteggio */
+.rounds-controls button {
+  background: var(--colore-rounds);
+  color: white;
+  padding: 8px 12px;
+  min-width: 40px;
+  font-weight: 700;
+  font-size: 0.95em;
+}
+
+.rounds-controls button:hover {
+  background: #f57c00;
+}
+
+.rounds-controls .rounds-label {
+  font-size: 0.85em;
+  font-weight: 600;
+  color: var(--colore-rounds);
+  margin: 0 4px;
+}
+
+/* Score controls */
 .punteggio-controls {
-  display: grid; 
-  grid-template-columns: repeat(3, 1fr); 
-  gap: 6px; 
-  flex-grow: 1; 
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  flex-grow: 1;
 }
+
 .punteggio-controls button {
-  padding: 8px 10px; 
-  font-size: 1em; 
-  min-width: 48px; 
-  min-height: 48px; 
-  box-sizing: border-box; 
+  padding: 10px 8px;
+  font-size: 0.95em;
+  font-weight: 700;
+  min-height: var(--touch-target-min);
 }
-.punteggio-controls .btn-rimuovi {
+
+.btn-rimuovi {
   background: var(--colore-rimuovi);
+  color: white;
+  padding: 10px 14px;
+  font-weight: 700;
 }
-.punteggio-controls .btn-rimuovi:hover {
+
+.btn-rimuovi:hover {
   background: var(--sfondo-rimuovi);
 }
-.punteggio-controls .btn-custom-score {
+
+.btn-custom-score {
   background: var(--colore-pulsante-custom);
+  grid-column: span 3;
   font-weight: 700;
-  grid-column: span 3; 
+}
+
+.btn-custom-score:hover {
+  background: #007099;
+}
+
+/* ✅ FIX CRITICO #10: Storico completamente visibile */
+.storico-lista {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 30px 0;
+}
+
+.storico-item {
+  background: var(--colore-card);
+  border: 2px solid #e0e0e0;
+  border-radius: var(--radius-lg);
+  padding: 18px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s;
+}
+
+body.dark-mode .storico-item {
+  border-color: #333;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.storico-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.storico-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #e0e0e0;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+body.dark-mode .storico-header {
+  border-bottom-color: #333;
+}
+
+.storico-data {
+  font-size: 0.9em;
+  color: #666;
+  font-weight: 600;
+}
+
+body.dark-mode .storico-data {
+  color: #aaa;
+}
+
+.storico-gioco {
+  font-size: 0.85em;
+  background: var(--colore-secondario);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-weight: 600;
+}
+
+.storico-classifica {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.storico-classifica li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+body.dark-mode .storico-classifica li {
+  border-bottom-color: #2a2a2a;
+}
+
+.storico-classifica li:last-child {
+  border-bottom: none;
+}
+
+.storico-posizione {
+  font-weight: 700;
+  color: var(--colore-primario);
+  min-width: 30px;
+}
+
+.storico-nome {
+  flex-grow: 1;
+  font-weight: 600;
+  margin-left: 10px;
+}
+
+.storico-punti {
+  font-weight: 700;
+  color: var(--colore-primario);
   font-size: 1.1em;
 }
-.punteggio-controls .btn-custom-score:hover {
-  background: #006b8c;
+
+/* ✅ FIX CRITICO #11: Toolbar storico visibile */
+.storico-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  gap: 15px;
+  flex-wrap: wrap;
+  padding: 15px;
+  background: rgba(42, 77, 105, 0.05);
+  border-radius: var(--radius-lg);
 }
 
-#giocatori-lista-settings .punteggio-controls {
-    grid-template-columns: 1fr;
+body.dark-mode .storico-toolbar {
+  background: rgba(122, 174, 214, 0.05);
 }
 
-/* Stile Messaggio Vincitore */
-.winner {
-    text-align: center;
-    padding: 15px;
-    margin-top: 20px;
-    border-radius: 12px;
-    background-color: var(--sfondo-vincitore);
-    border: 2px solid var(--bordo-vincitore);
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.1em;
-    color: var(--colore-vincitore);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-.winner .fireworks {
-    font-size: 1.8em;
-    margin: 0 10px;
-}
-.winner .winner-text strong {
-    font-size: 1.3em;
-    display: block;
-    margin-bottom: 5px;
+.storico-stats {
+  font-size: 1.1em;
+  font-weight: 700;
+  color: var(--colore-primario);
 }
 
-/* Animazioni Punti (Feedback Visivo) */
-@keyframes scaleBounce {
-    0% { transform: scale(1.0); }
-    50% { transform: scale(1.15); }
-    100% { transform: scale(1.0); }
-}
-.giocatore-punti.anim-up strong, .giocatore-rounds.anim-up strong {
-  color: #4CAF50 !important; 
-  animation: scaleBounce 0.3s ease-in-out;
-}
-.giocatore-punti.anim-down strong, .giocatore-rounds.anim-down strong {
-  color: #F44336 !important; 
-  animation: scaleBounce 0.3s ease-in-out;
-}
-
-/* Animazione Floating Number */
-.floating-number {
-  position: absolute;
-  font-size: 1.5em;
-  font-weight: 800;
-  pointer-events: none;
-  z-index: 20;
-  animation: floatUp 1.2s ease-out forwards;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-}
-.floating-number.positive {
-  color: #4CAF50;
-}
-.floating-number.negative {
-  color: #F44336;
-}
-@keyframes floatUp {
-  0% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-  50% {
-    opacity: 1;
-    transform: translateY(-20px) scale(1.1);
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(-40px) scale(0.8);
-  }
-}
-
-/* Stili per la Lista Storico */
-.storico-lista {
-    list-style: none;
-    padding: 0;
-}
-.storico-item {
-    background: var(--colore-card);
-    border: 1px solid #ddd;
-    padding: 15px;
-    margin-bottom: 10px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    transition: background-color 0.3s;
-}
-
-/* Modal Overlay */
-.modal-overlay, .loader-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.7);
-    display: flex;
-    justify-content: center;
-    align-items: flex-start; /* ✅ FIX: flex-start invece di center per mobile */
-    overflow-y: auto; /* ✅ FIX: Abilita scroll verticale */
-    z-index: 1000;
-    padding: 20px 0; /* ✅ FIX: Padding per spaziare dal bordo */
-}
-
-/* ✅ FIX: Su desktop torna al centramento classico */
-@media (min-height: 700px) {
-  .modal-overlay {
-    align-items: center;
-    padding: 0;
-  }
+/* ✅ FIX CRITICO #12: Modal sempre visibile e accessibile */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--z-modal);
+  padding: 20px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  animation: fadeIn 0.3s;
 }
 
 .modal-content {
-    background: var(--colore-card);
-    padding: 25px;
-    border-radius: 12px;
-    width: 90%;
-    max-width: 400px;
-    max-height: 90vh; /* ✅ FIX: Limita altezza massima */
-    overflow-y: auto; /* ✅ FIX: Scroll interno se necessario */
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    text-align: center;
-    transform: scale(0.9);
-    opacity: 0;
-    animation: modalFadeIn 0.3s forwards;
-    margin: auto 0; /* ✅ FIX: Centra quando possibile */
+  background: var(--colore-card);
+  padding: 30px;
+  border-radius: var(--radius-xl);
+  max-width: 500px;
+  width: 95%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s;
+  box-sizing: border-box;
 }
 
-/* ✅ FIX: Su mobile riduci padding per più spazio */
-@media (max-width: 500px) {
-  .modal-content {
-    padding: 20px 15px;
-    width: 95%;
-    max-height: 85vh; /* ✅ Più spazio su mobile */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(50px);
   }
-}
-@keyframes modalFadeIn {
-    to {
-        transform: scale(1);
-        opacity: 1;
-    }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .modal-content h2 {
-    color: var(--colore-primario);
-    margin-top: 0;
-    margin-bottom: 20px;
-    font-size: 1.5em;
-    font-weight: 700;
+  color: var(--colore-primario);
+  margin: 0 0 20px 0;
+  font-size: 1.5em;
+  font-weight: 800;
 }
 
+/* ✅ FIX: Input modal con font-size corretto */
 #punteggio-input-custom {
-    text-align: center;
-    font-size: 1.5em;
-    margin-bottom: 20px;
-    height: 55px;
+  width: 100%;
+  padding: 14px;
+  font-size: 16px; /* Previene zoom iOS */
+  border: 2px solid var(--colore-primario);
+  border-radius: var(--radius-md);
+  margin-bottom: 15px;
+  text-align: center;
+  font-weight: 700;
+  min-height: var(--touch-target-comfortable);
 }
 
+/* Quick score buttons */
 .quick-score-buttons {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    margin-bottom: 20px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
 }
+
 .quick-score-buttons button {
-    padding: 12px 0;
-    font-size: 1em;
-    font-weight: 600;
+  padding: 14px;
+  font-size: 1em;
+  font-weight: 700;
+  min-height: var(--touch-target-comfortable);
 }
 
+/* Modal actions */
 .modal-action-buttons {
-    display: flex;
-    gap: 10px;
-    margin-top: 20px; /* ✅ FIX: Spazio sopra */
-    padding-top: 15px; /* ✅ FIX: Padding extra */
-    border-top: 1px solid rgba(0,0,0,0.1); /* ✅ FIX: Separatore visivo */
-}
-
-body.dark-mode .modal-action-buttons {
-    border-top-color: rgba(255,255,255,0.1);
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
 }
 
 .modal-action-buttons button {
-    flex-grow: 1;
-    min-height: 48px; /* ✅ FIX: Altezza minima touch-friendly */
-    font-weight: 600;
+  flex: 1;
+  padding: 14px;
+  font-size: 1em;
+  font-weight: 700;
+  min-height: var(--touch-target-comfortable);
 }
 
-/* ✅ FIX: Su mobile rendi bottoni più grandi e verticali se necessario */
-@media (max-width: 400px) {
-  .modal-action-buttons {
-    flex-direction: column; /* Stack verticale su schermi molto piccoli */
-    gap: 12px;
-  }
-  
-  .modal-action-buttons button {
-    width: 100%;
-    min-height: 50px; /* Ancora più grandi */
-  }
-}
+/* ✅ FIX CRITICO #13: Loader sempre visibile */
+.loader-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.9);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: var(--z-loader);
+  animation: fadeIn 0.3s;
 }
 
-/* Stili per Loader */
-.loader-overlay p {
-    color: white;
-    margin-top: 20px;
-}
 .loader-spinner {
-    border: 4px solid rgba(255, 255, 255, 0.3);
-    border-top: 4px solid var(--colore-primario);
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    animation: spin 1s linear infinite;
-}
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+  border: 5px solid rgba(255, 255, 255, 0.3);
+  border-top: 5px solid var(--colore-primario);
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  animation: spin 1s linear infinite;
 }
 
-/* Bottom Navigation Bar - 5 tabs optimized */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loader-overlay p {
+  color: white;
+  margin-top: 25px;
+  font-size: 1.1em;
+  font-weight: 600;
+}
+
+/* ✅ FIX CRITICO #14: Bottom Navigation sempre visibile */
 .bottom-nav {
   position: fixed;
   bottom: 0;
@@ -775,18 +906,21 @@ body.dark-mode .modal-action-buttons {
   max-width: 550px;
   margin: 0 auto;
   background: var(--colore-card);
-  border-top: 1px solid var(--colore-header-bordo);
+  border-top: 2px solid var(--colore-header-bordo);
   display: flex;
   justify-content: space-around;
   align-items: center;
   padding: var(--spacing-sm) 0;
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.15);
   z-index: var(--z-nav);
   height: var(--nav-height);
+  box-sizing: border-box;
 }
+
 body.dark-mode .bottom-nav {
-  box-shadow: 0 -2px 10px rgba(255, 255, 255, 0.05);
+  box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.5);
 }
+
 .nav-item {
   display: flex;
   flex-direction: column;
@@ -798,227 +932,110 @@ body.dark-mode .bottom-nav {
   border-radius: var(--radius-md);
   transition: all 0.3s ease;
   min-width: 70px;
-  min-height: var(--touch-target-large); /* ✅ FIX #4: Comfortable touch target */
-  opacity: 0.6;
+  min-height: var(--touch-target-large);
+  opacity: 0.65;
   position: relative;
+  flex: 1;
 }
+
 .nav-item:hover {
   opacity: 1;
   background: rgba(42, 77, 105, 0.1);
+  transform: translateY(-2px);
 }
+
 body.dark-mode .nav-item:hover {
   background: rgba(122, 174, 214, 0.1);
 }
+
 .nav-item.active {
   opacity: 1;
   color: var(--colore-primario);
   background: rgba(42, 77, 105, 0.15);
+  font-weight: 700;
 }
+
 body.dark-mode .nav-item.active {
   background: rgba(122, 174, 214, 0.15);
 }
+
 .nav-icon {
-  font-size: 1.3em;
+  font-size: 1.4em;
   margin-bottom: 4px;
+  line-height: 1;
 }
+
 .nav-label {
   font-size: 0.7em;
   font-weight: 600;
   text-align: center;
-}
-
-/* Responsive adjustments for 5-tab bottom nav */
-@media (max-width: 500px) {
-  .bottom-nav {
-    height: var(--nav-height);
-  }
-  
-  .bottom-nav .nav-item {
-    min-width: 60px;
-    padding: var(--spacing-xs) var(--spacing-sm);
-    min-height: var(--touch-target-comfortable); /* ✅ FIX #4: Still comfortable on small screens */
-  }
-  
-  .bottom-nav .nav-icon {
-    font-size: 1.3em;
-  }
-  
-  .bottom-nav .nav-label {
-    font-size: 0.68em;
-  }
-}
-
-/* Media Query per Mobile */
-@media (max-width: 500px) {
-  .container {
-    padding-top: 90px; 
-  }
-  .giocatore-item {
-      padding: 10px 15px;
-  }
-  .giocatore-item.winner-highlight::before {
-      font-size: 1.5em;
-      top: -5px;
-      right: -5px;
-  }
-  .giocatore-stats {
-      margin-bottom: 10px;
-  }
-  .punti-e-controlli {
-      flex-direction: column;
-      align-items: flex-start;
-  }
-  
-  /* 🆕 Rounds controls su mobile */
-  .rounds-controls {
-      width: 100%;
-      margin-bottom: 8px;
-  }
-  .rounds-controls button {
-      flex: 1;
-      min-width: 0;
-  }
-  
-  .punteggio-controls {
-      grid-template-columns: repeat(3, 1fr);
-      gap: 4px;
-      width: 100%;
-  }
-  .punteggio-controls button {
-      padding: 9px 6px;
-      font-size: 0.9em;
-      min-width: auto;
-      min-height: 42px;
-  }
-  .punteggio-controls .btn-custom-score {
-      grid-column: span 3;
-      font-size: 1.05em;
-      order: 10;
-  }
-  .header-controls.fixed-header {
-    border-radius: 0;
-  }
-}
-
-/* Media Query per Desktop/Tablet */
-@media (min-width: 501px) {
-  .giocatore-item {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    padding: 15px 20px;
-  }
-  .giocatore-nome {
-    margin-bottom: 0;
-    flex-basis: 20%;
-    font-size: 1.5em;
-  }
-  .giocatore-stats {
-      flex-basis: 25%;
-      margin: 0;
-  }
-  .punti-e-controlli {
-    width: auto;
-    flex-grow: 1;
-    justify-content: flex-end;
-    flex-wrap: nowrap;
-  }
-  
-  /* 🆕 Rounds controls desktop */
-  .rounds-controls {
-      margin-right: 10px;
-  }
-  
-  .punteggio-controls {
-    display: flex;
-    gap: 6px;
-    grid-template-columns: none;
-    flex-wrap: wrap;
-  }
-  .punteggio-controls button {
-    flex: 0 0 auto;
-  }
-  .punteggio-controls .btn-custom-score {
-    grid-column: span 1;
-    font-size: 1em;
-  }
+  line-height: 1.2;
 }
 
 /* ===================================================================
-   ✅ MONETIZATION SYSTEM STYLES - DA AGGIUNGERE A segnapunti.css
+   ✅ MONETIZATION SYSTEM STYLES
    =================================================================== */
 
 /* Ad Banner Container */
 #ad-banner-container {
   position: fixed;
-  bottom: 70px;
+  bottom: var(--nav-height);
   left: 0;
   right: 0;
   max-width: 550px;
   margin: 0 auto;
-  height: 50px;
-  background: #f0f0f0;
+  height: var(--banner-height);
+  background: #f5f5f5;
   border-top: 1px solid #ddd;
-  z-index: 98;
+  z-index: var(--z-banner);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 0.85em;
   color: #666;
   box-sizing: border-box;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
 }
 
 body.dark-mode #ad-banner-container {
   background: #2a2a2a;
   border-top-color: #444;
   color: #aaa;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.3);
 }
 
-/* ✅ FIX: Compensa spazio banner quando presente */
+/* ✅ FIX: Padding container con banner */
 body.has-ad-banner .container {
-  padding-bottom: 130px !important; /* 50px banner + 70px nav + 10px margin */
+  padding-bottom: calc(var(--nav-height) + var(--banner-height) + var(--spacing-lg)) !important;
 }
 
-@media (max-width: 500px) {
-  body.has-ad-banner .container {
-    padding-bottom: 140px !important;
-  }
-}
-
-/* Premium Badge in Header */
+/* Premium Badge */
 .premium-badge {
   display: inline-block;
   background: linear-gradient(135deg, #FFD700, #FFA500);
   color: #333;
-  padding: 4px 12px;
-  border-radius: 12px;
+  padding: 5px 14px;
+  border-radius: 14px;
   font-size: 0.5em;
-  font-weight: 700;
+  font-weight: 800;
   margin-left: 10px;
   vertical-align: middle;
-  box-shadow: 0 2px 8px rgba(255, 215, 0, 0.4);
+  box-shadow: 0 2px 10px rgba(255, 215, 0, 0.5);
   animation: premiumPulse 2s infinite;
   line-height: 1.4;
+  letter-spacing: 0.5px;
 }
 
 @keyframes premiumPulse {
   0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
+  50% { transform: scale(1.08); }
 }
 
-/* ✅ FIX: Assicura che il badge non rompa il layout header */
-.fixed-header h1 {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 5px;
-}
-
-/* Premium Nav Item Highlight */
+/* Premium Nav Highlight */
 .nav-item-premium {
   position: relative;
-  background: linear-gradient(135deg, rgba(255,215,0,0.1), rgba(255,165,0,0.1)) !important;
-  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(255,215,0,0.15), rgba(255,165,0,0.15)) !important;
+  border-radius: var(--radius-md);
 }
 
 .nav-item-premium .nav-icon {
@@ -1027,50 +1044,13 @@ body.has-ad-banner .container {
 
 .nav-item-premium .nav-label {
   color: #FFD700 !important;
-  font-weight: 700 !important;
-}
-
-/* NEW Badge on Premium Tab */
-.nav-item-premium .new-badge {
-  position: absolute;
-  top: -5px;
-  right: -5px;
-  background: #ff4444;
-  color: white;
-  font-size: 0.65em;
-  padding: 2px 6px;
-  border-radius: 10px;
-  font-weight: 700;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-  z-index: 1;
-}
-
-/* Premium Locked Modal */
-.premium-locked-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0,0,0,0.85);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10000;
-  animation: fadeIn 0.3s;
-  padding: 20px;
-  box-sizing: border-box;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  font-weight: 800 !important;
 }
 
 /* Premium Promo Banner */
 #premium-promo-banner {
   position: fixed;
-  top: 70px;
+  top: var(--header-height);
   left: 0;
   right: 0;
   max-width: 550px;
@@ -1081,7 +1061,7 @@ body.has-ad-banner .container {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  z-index: 99;
+  z-index: calc(var(--z-header) - 1);
   box-shadow: 0 4px 15px rgba(0,0,0,0.3);
   animation: slideDown 0.5s;
   box-sizing: border-box;
@@ -1098,43 +1078,176 @@ body.has-ad-banner .container {
   }
 }
 
-/* ✅ FIX: Assicura che il promo banner non sovrappponga header */
-body.has-promo-banner .fixed-header {
-  position: relative;
-  z-index: 100;
-}
+/* ===================================================================
+   RESPONSIVE MEDIA QUERIES
+   =================================================================== */
 
-/* Responsive adjustments */
+/* Mobile fino a 500px */
 @media (max-width: 500px) {
-  #premium-promo-banner {
-    flex-direction: column;
-    gap: 10px;
-    padding: 12px 15px;
+  .container {
+    padding: var(--spacing-lg) var(--spacing-md);
+    padding-top: calc(var(--header-height) + var(--spacing-md));
+    padding-bottom: calc(var(--nav-height) + var(--spacing-lg));
+  }
+  
+  body.has-ad-banner .container {
+    padding-bottom: calc(var(--nav-height) + var(--banner-height) + var(--spacing-md)) !important;
+  }
+  
+  h1 {
+    font-size: 1.5em;
+  }
+  
+  .header-controls.fixed-header {
+    padding: 12px 16px;
+    border-radius: 0;
+  }
+  
+  .top-buttons button {
+    min-width: 44px;
+    min-height: 44px;
+    padding: 8px;
+  }
+  
+  #toggle-dark-mode {
+    width: 44px;
+    height: 44px;
+    font-size: 1.2em;
+  }
+  
+  .giocatore-item {
+    padding: 12px;
+  }
+  
+  .giocatore-nome {
+    font-size: 1.1em;
+  }
+  
+  .giocatore-punti strong {
+    font-size: 1.4em;
+  }
+  
+  .punteggio-controls button {
+    padding: 9px 6px;
+    font-size: 0.9em;
+  }
+  
+  .quick-score-buttons {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  
+  .quick-score-buttons button {
+    padding: 12px 8px;
+    font-size: 0.9em;
+  }
+  
+  .modal-content {
+    padding: 20px;
+    width: 92%;
+  }
+  
+  .bottom-nav {
+    height: 65px;
+  }
+  
+  .nav-item {
+    min-width: 60px;
+    padding: 6px 8px;
+    min-height: 48px;
+  }
+  
+  .nav-icon {
+    font-size: 1.3em;
+  }
+  
+  .nav-label {
+    font-size: 0.65em;
   }
   
   .premium-badge {
     font-size: 0.45em;
-    padding: 3px 8px;
+    padding: 4px 10px;
   }
 }
 
-/* ✅ FIX: Previeni overflow su schermi piccoli */
+/* Schermi molto piccoli sotto 380px */
 @media (max-width: 380px) {
-  .nav-item-premium .nav-label {
-    font-size: 0.6em;
+  h1 {
+    font-size: 1.3em;
   }
   
   .premium-badge {
-    display: none; /* Nascondi su schermi molto piccoli */
+    display: none;
+  }
+  
+  .nav-label {
+    font-size: 0.6em;
+  }
+  
+  .giocatore-nome {
+    font-size: 1em;
   }
 }
 
-/* ✅ IMPORTANTE: Z-index hierarchy */
-/*
-  Navigation bar: 99
-  Ad banner: 98
-  Promo banner: 99
-  Header: 100
-  Modals: 1000+
-  Loader: 9999
-*/
+/* Tablet e desktop sopra 500px */
+@media (min-width: 501px) {
+  .giocatore-item {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 24px;
+  }
+  
+  .giocatore-nome {
+    margin-bottom: 0;
+    flex-basis: 25%;
+    font-size: 1.4em;
+  }
+  
+  .giocatore-stats {
+    flex-basis: 30%;
+    margin: 0;
+  }
+  
+  .punti-e-controlli {
+    width: auto;
+    flex-grow: 1;
+    justify-content: flex-end;
+    flex-wrap: nowrap;
+    margin-top: 0;
+  }
+  
+  .rounds-controls {
+    margin-right: 10px;
+  }
+  
+  .punteggio-controls {
+    display: flex;
+    gap: 8px;
+    grid-template-columns: none;
+  }
+  
+  .punteggio-controls button {
+    flex: 0 0 auto;
+    padding: 10px 14px;
+  }
+  
+  .punteggio-controls .btn-custom-score {
+    grid-column: span 1;
+  }
+}
+
+/* Large screens sopra 768px */
+@media (min-width: 769px) {
+  .container {
+    border-radius: var(--radius-xl);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+    margin-bottom: 20px;
+  }
+  
+  body.dark-mode .container {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  }
+}

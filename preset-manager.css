@@ -1,8 +1,11 @@
 /* ===================================================================
-   PRESET MANAGER STYLES
+   PRESET MANAGER STYLES - Ottimizzato per tutti i dispositivi
    =================================================================== */
 
-/* Toolbar */
+/* ========================================
+   TOOLBAR
+   ======================================== */
+
 .preset-toolbar {
   display: flex;
   justify-content: space-between;
@@ -10,6 +13,15 @@
   gap: 15px;
   margin-bottom: 25px;
   flex-wrap: wrap;
+  padding: 16px;
+  background: rgba(42, 77, 105, 0.05);
+  border-radius: 12px;
+  border: 2px solid rgba(42, 77, 105, 0.1);
+}
+
+body.dark-mode .preset-toolbar {
+  background: rgba(122, 174, 214, 0.05);
+  border-color: rgba(122, 174, 214, 0.1);
 }
 
 .preset-toolbar-actions {
@@ -20,25 +32,34 @@
 
 .preset-toolbar button {
   white-space: nowrap;
+  min-height: 44px;
+  padding: 10px 16px;
+  font-weight: 600;
 }
 
-/* Info Box */
+/* ========================================
+   INFO BOX
+   ======================================== */
+
 .info-box {
-  background: rgba(42, 77, 105, 0.1);
-  border-left: 4px solid var(--colore-primario);
-  padding: 15px 20px;
+  background: rgba(42, 77, 105, 0.08);
+  border-left: 5px solid var(--colore-primario);
+  padding: 18px 22px;
   margin-bottom: 30px;
-  border-radius: 8px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 body.dark-mode .info-box {
-  background: rgba(122, 174, 214, 0.1);
+  background: rgba(122, 174, 214, 0.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .info-box p {
-  margin: 0 0 10px 0;
-  font-weight: 600;
+  margin: 0 0 12px 0;
+  font-weight: 700;
   color: var(--colore-primario);
+  font-size: 1.05em;
 }
 
 .info-box ul {
@@ -48,166 +69,245 @@ body.dark-mode .info-box {
 }
 
 .info-box li {
-  margin: 5px 0;
+  margin: 8px 0;
   padding-left: 0;
-  line-height: 1.6;
+  line-height: 1.7;
+  font-size: 0.95em;
+  position: relative;
+  padding-left: 28px;
 }
 
 .info-box li::before {
-  content: '';
-  margin-right: 8px;
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: var(--colore-primario);
+  font-weight: 700;
+  font-size: 1.2em;
 }
 
-/* Preset List Container */
+#free-limit-info {
+  background: rgba(255, 215, 0, 0.12);
+  padding: 8px 14px;
+  border-radius: 6px;
+  margin-top: 8px;
+  border-left: 3px solid #FFD700;
+}
+
+#free-limit-info::before {
+  color: #FFD700;
+}
+
+/* ========================================
+   PRESET LIST
+   ======================================== */
+
 .preset-list-container {
-  margin-bottom: 20px;
+  margin-bottom: 25px;
 }
 
-/* Category Section */
 .preset-category {
   margin-bottom: 40px;
 }
 
 .preset-category-header {
   color: var(--colore-primario);
-  font-size: 1.4em;
-  font-weight: 700;
-  margin-bottom: 15px;
-  padding-bottom: 8px;
-  border-bottom: 2px solid var(--colore-primario);
+  font-size: 1.5em;
+  font-weight: 800;
+  margin-bottom: 18px;
+  padding-bottom: 10px;
+  border-bottom: 3px solid var(--colore-primario);
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 body.dark-mode .preset-category-header {
   border-bottom-color: var(--colore-secondario);
 }
 
-/* Preset Grid */
+/* ========================================
+   PRESET GRID
+   ======================================== */
+
 .preset-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 18px;
 }
 
 @media (max-width: 768px) {
   .preset-grid {
     grid-template-columns: 1fr;
+    gap: 14px;
   }
 }
 
-/* Preset Card */
+/* ========================================
+   PRESET CARD
+   ======================================== */
+
 .preset-card {
   background: var(--colore-card);
   border: 2px solid #e0e0e0;
-  border-radius: 12px;
+  border-radius: 14px;
   padding: 20px;
   transition: all 0.3s ease;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  position: relative;
+  overflow: hidden;
 }
 
 body.dark-mode .preset-card {
-  border-color: #333;
+  border-color: #3a3a3a;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .preset-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  border-color: var(--colore-primario);
 }
 
 body.dark-mode .preset-card:hover {
-  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+  box-shadow: 0 6px 20px rgba(255, 255, 255, 0.08);
 }
 
+/* ✅ FIX: Default preset styling */
 .preset-card.preset-default {
   border-color: var(--colore-primario);
-  background: linear-gradient(135deg, var(--colore-card) 0%, rgba(42, 77, 105, 0.05) 100%);
+  background: linear-gradient(135deg, var(--colore-card) 0%, rgba(42, 77, 105, 0.06) 100%);
+  border-width: 2px;
+}
+
+.preset-card.preset-default::before {
+  content: '⭐';
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 1.5em;
+  opacity: 0.3;
 }
 
 body.dark-mode .preset-card.preset-default {
-  background: linear-gradient(135deg, var(--colore-card) 0%, rgba(122, 174, 214, 0.05) 100%);
+  background: linear-gradient(135deg, var(--colore-card) 0%, rgba(122, 174, 214, 0.06) 100%);
 }
 
+/* ✅ FIX: Custom preset styling */
 .preset-card.preset-custom {
   border-color: #ffa500;
   border-style: dashed;
+  border-width: 2px;
+  background: linear-gradient(135deg, var(--colore-card) 0%, rgba(255, 165, 0, 0.04) 100%);
 }
 
-/* Card Header */
+.preset-card.preset-custom::before {
+  content: '✨';
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 1.5em;
+  opacity: 0.3;
+}
+
+/* ========================================
+   CARD HEADER
+   ======================================== */
+
 .preset-card-header {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 8px;
+  gap: 14px;
+  margin-bottom: 10px;
 }
 
 .preset-icon {
-  font-size: 2em;
+  font-size: 2.2em;
   line-height: 1;
+  flex-shrink: 0;
 }
 
 .preset-title {
-  font-size: 1.2em;
-  font-weight: 700;
+  font-size: 1.25em;
+  font-weight: 800;
   color: var(--colore-primario);
   margin: 0;
   flex-grow: 1;
+  line-height: 1.3;
+  word-break: break-word;
 }
 
-/* Card Body */
+/* ========================================
+   CARD BODY
+   ======================================== */
+
 .preset-card-body {
   flex-grow: 1;
 }
 
 .preset-card-body p {
-  margin: 8px 0;
+  margin: 10px 0;
   font-size: 0.95em;
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
 .preset-mode,
 .preset-target {
   color: var(--colore-testo);
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .preset-mode strong,
 .preset-target strong {
   color: var(--colore-primario);
-  font-weight: 600;
+  font-weight: 700;
+  font-size: 1.05em;
 }
 
 .preset-description {
   font-size: 0.9em;
   color: #666;
   font-style: italic;
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid #e0e0e0;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid #e8e8e8;
+  line-height: 1.6;
 }
 
 body.dark-mode .preset-description {
   color: #aaa;
-  border-top-color: #333;
+  border-top-color: #3a3a3a;
 }
 
-/* Card Actions */
+/* ========================================
+   CARD ACTIONS
+   ======================================== */
+
 .preset-card-actions {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid #e0e0e0;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 2px solid #f0f0f0;
 }
 
 body.dark-mode .preset-card-actions {
-  border-top-color: #333;
+  border-top-color: #3a3a3a;
 }
 
 .btn-small {
-  padding: 6px 12px;
-  font-size: 0.85em;
-  min-height: auto;
+  padding: 8px 14px;
+  font-size: 0.88em;
+  min-height: 38px;
+  font-weight: 600;
+  flex: 1 1 auto;
+  min-width: 100px;
 }
 
 .btn-secondary {
@@ -223,97 +323,105 @@ body.dark-mode .preset-card-actions {
   display: inline-block;
   background: var(--colore-primario);
   color: white;
-  padding: 6px 12px;
-  border-radius: 6px;
+  padding: 6px 14px;
+  border-radius: 8px;
   font-size: 0.8em;
-  font-weight: 600;
+  font-weight: 700;
+  letter-spacing: 0.3px;
 }
 
-/* Modal Large */
-/* Modal Large */
+/* ========================================
+   MODAL FORM
+   ======================================== */
+
 .modal-large {
-  max-width: 600px;
+  max-width: 650px;
   width: 95%;
-  text-align: left; /* ✅ FIX: Form meglio allineato a sinistra */
+  text-align: left;
 }
 
-/* ✅ FIX: Su mobile ottimizza spazio e leggibilità */
 @media (max-width: 600px) {
   .modal-large {
     width: 95%;
     max-width: none;
-    border-radius: 8px; /* Bordi meno arrotondati su mobile */
+    border-radius: 12px;
+    padding: 20px;
   }
   
   .modal-large h2 {
-    font-size: 1.3em; /* Titolo più piccolo */
-    text-align: center; /* Titolo centrato */
+    font-size: 1.35em;
+    text-align: center;
+    margin-bottom: 18px;
   }
 }
 
-/* Form Styles */
+/* ========================================
+   FORM LAYOUT
+   ======================================== */
+
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 15px;
-  margin-bottom: 15px;
+  gap: 16px;
+  margin-bottom: 16px;
 }
 
 @media (max-width: 600px) {
   .form-row {
     grid-template-columns: 1fr;
+    gap: 12px;
   }
 }
 
 .form-group {
-  margin-bottom: 15px;
-  text-align: left; /* ✅ FIX: Allineamento labels */
+  margin-bottom: 18px;
+  text-align: left;
 }
 
 .form-group label {
   display: block;
-  margin-bottom: 6px;
-  font-weight: 600;
+  margin-bottom: 8px;
+  font-weight: 700;
   color: var(--colore-primario);
   font-size: 0.95em;
 }
 
+/* ✅ FIX: Input ottimizzati per mobile */
 .form-group input,
 .form-group select,
 .form-group textarea {
   width: 100%;
-  padding: 10px 12px;
-  border: 1px solid #bfc9d1;
-  border-radius: 8px;
-  font-size: 16px; /* ✅ FIX #6: Previene zoom automatico iOS */
+  padding: 12px 14px;
+  border: 2px solid #bfc9d1;
+  border-radius: 10px;
+  font-size: 16px; /* Previene zoom iOS */
   font-family: 'Inter', sans-serif;
-  transition: border-color 0.3s;
+  transition: all 0.3s;
   box-sizing: border-box;
   background: var(--colore-card);
   color: var(--colore-testo);
-  min-height: 44px; /* ✅ FIX: Altezza minima touch-friendly */
+  min-height: 48px;
 }
 
-/* ✅ FIX: Su mobile aumenta dimensioni input */
 @media (max-width: 600px) {
   .form-group input,
   .form-group select {
-    font-size: 16px; /* ✅ Previene zoom su iOS */
-    padding: 12px 14px;
-    min-height: 48px;
+    font-size: 16px; /* Previene zoom iOS */
+    padding: 13px 15px;
+    min-height: 50px;
   }
   
   .form-group textarea {
     font-size: 16px;
-    padding: 12px 14px;
+    padding: 13px 15px;
   }
   
   .form-group label {
-    font-size: 0.9em;
+    font-size: 0.92em;
   }
   
   .form-group small {
-    font-size: 0.8em;
+    font-size: 0.82em;
   }
 }
 
@@ -321,7 +429,7 @@ body.dark-mode .form-group input,
 body.dark-mode .form-group select,
 body.dark-mode .form-group textarea {
   background: #2a2a2a;
-  border-color: #444;
+  border-color: #4a4a4a;
 }
 
 .form-group input:focus,
@@ -329,20 +437,21 @@ body.dark-mode .form-group textarea {
 .form-group textarea:focus {
   outline: none;
   border-color: var(--colore-primario);
-  box-shadow: 0 0 0 2px rgba(42, 77, 105, 0.2);
+  box-shadow: 0 0 0 3px rgba(42, 77, 105, 0.2);
 }
 
 body.dark-mode .form-group input:focus,
 body.dark-mode .form-group select:focus,
 body.dark-mode .form-group textarea:focus {
-  box-shadow: 0 0 0 2px rgba(122, 174, 214, 0.3);
+  box-shadow: 0 0 0 3px rgba(122, 174, 214, 0.3);
 }
 
 .form-group small {
   display: block;
-  margin-top: 4px;
+  margin-top: 6px;
   font-size: 0.85em;
   color: #666;
+  line-height: 1.4;
 }
 
 body.dark-mode .form-group small {
@@ -351,24 +460,43 @@ body.dark-mode .form-group small {
 
 .form-group textarea {
   resize: vertical;
-  min-height: 80px;
+  min-height: 90px;
+  line-height: 1.5;
 }
 
-/* Empty State */
+/* ========================================
+   EMPTY STATE
+   ======================================== */
+
 .preset-list-container:empty::after {
-  content: 'Nessun preset trovato. Crea il tuo primo preset personalizzato!';
+  content: '🎮 Nessun preset trovato. Crea il tuo primo preset personalizzato!';
   display: block;
   text-align: center;
-  padding: 40px 20px;
+  padding: 50px 25px;
   color: #999;
   font-style: italic;
+  font-size: 1.05em;
+  background: rgba(42, 77, 105, 0.05);
+  border-radius: 12px;
+  border: 2px dashed #ccc;
 }
 
-/* Responsive Adjustments */
+body.dark-mode .preset-list-container:empty::after {
+  background: rgba(122, 174, 214, 0.05);
+  border-color: #555;
+  color: #888;
+}
+
+/* ========================================
+   RESPONSIVE MOBILE
+   ======================================== */
+
 @media (max-width: 600px) {
   .preset-toolbar {
     flex-direction: column;
     align-items: stretch;
+    padding: 12px;
+    gap: 12px;
   }
 
   .preset-toolbar-actions {
@@ -378,25 +506,61 @@ body.dark-mode .form-group small {
 
   .preset-toolbar button {
     flex: 1;
+    min-width: 0;
   }
 
   .container {
-    padding-bottom: 100px; /* Extra space for 4-tab bottom nav */
+    padding-bottom: 110px;
+  }
+
+  .preset-card {
+    padding: 16px;
+  }
+
+  .preset-icon {
+    font-size: 1.9em;
+  }
+
+  .preset-title {
+    font-size: 1.15em;
+  }
+
+  .preset-card-actions {
+    gap: 6px;
+  }
+
+  .btn-small {
+    min-width: 80px;
+    font-size: 0.85em;
+    padding: 8px 10px;
+  }
+
+  .info-box {
+    padding: 14px 16px;
+    margin-bottom: 22px;
+  }
+
+  .info-box li {
+    font-size: 0.9em;
+    margin: 6px 0;
   }
 }
 
-/* Bottom Nav with 4 items */
+/* ========================================
+   BOTTOM NAV 5 TABS
+   ======================================== */
+
 .bottom-nav {
   padding: 6px 0;
 }
 
 .bottom-nav .nav-item {
-  min-width: 60px;
+  min-width: 65px;
   padding: 6px 10px;
 }
 
 .bottom-nav .nav-icon {
-  font-size: 1.3em;
+  font-size: 1.35em;
 }
 
 .bottom-nav .nav-label {
@@ -405,12 +569,27 @@ body.dark-mode .form-group small {
 
 @media (max-width: 500px) {
   .bottom-nav .nav-item {
-    min-width: 50px;
-    padding: 4px 8px;
+    min-width: 58px;
+    padding: 5px 8px;
   }
   
   .bottom-nav .nav-icon {
-    font-size: 1.2em;
+    font-size: 1.3em;
+  }
+  
+  .bottom-nav .nav-label {
+    font-size: 0.68em;
+  }
+}
+
+@media (max-width: 400px) {
+  .bottom-nav .nav-item {
+    min-width: 54px;
+    padding: 4px 6px;
+  }
+  
+  .bottom-nav .nav-icon {
+    font-size: 1.25em;
   }
   
   .bottom-nav .nav-label {
@@ -418,7 +597,10 @@ body.dark-mode .form-group small {
   }
 }
 
-/* Animation for card appearance */
+/* ========================================
+   ANIMATIONS
+   ======================================== */
+
 @keyframes cardFadeIn {
   from {
     opacity: 0;
@@ -431,13 +613,74 @@ body.dark-mode .form-group small {
 }
 
 .preset-card {
-  animation: cardFadeIn 0.3s ease-out;
+  animation: cardFadeIn 0.4s ease-out;
 }
 
-/* Stagger animation for cards */
+/* Stagger animation */
 .preset-card:nth-child(1) { animation-delay: 0.05s; }
 .preset-card:nth-child(2) { animation-delay: 0.1s; }
 .preset-card:nth-child(3) { animation-delay: 0.15s; }
 .preset-card:nth-child(4) { animation-delay: 0.2s; }
 .preset-card:nth-child(5) { animation-delay: 0.25s; }
 .preset-card:nth-child(6) { animation-delay: 0.3s; }
+
+/* ========================================
+   ACCESSIBILITY
+   ======================================== */
+
+.preset-card:focus-within {
+  outline: 3px solid var(--colore-primario);
+  outline-offset: 2px;
+}
+
+button:focus-visible {
+  outline: 3px solid var(--colore-primario);
+  outline-offset: 2px;
+}
+
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid var(--colore-primario);
+  outline-offset: 2px;
+}
+
+/* ========================================
+   DARK MODE ENHANCEMENTS
+   ======================================== */
+
+body.dark-mode .preset-card {
+  background: #2a2a2a;
+}
+
+body.dark-mode .preset-title {
+  color: var(--colore-secondario);
+}
+
+body.dark-mode .preset-mode strong,
+body.dark-mode .preset-target strong {
+  color: var(--colore-secondario);
+}
+
+/* ========================================
+   PRINT STYLES
+   ======================================== */
+
+@media print {
+  .preset-toolbar,
+  .bottom-nav,
+  .fixed-header,
+  .preset-card-actions {
+    display: none !important;
+  }
+
+  .preset-card {
+    page-break-inside: avoid;
+    box-shadow: none;
+    border: 1px solid #ccc;
+  }
+
+  .preset-grid {
+    grid-template-columns: 1fr;
+  }
+}
