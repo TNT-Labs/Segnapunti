@@ -467,7 +467,8 @@ const PresetUIModule = (() => {
     const isPremium = window.BillingModule?.isPremium() || false;
     
     if (!isPremium) {
-      const customCount = Object.values(getAllPresets())
+      // ✅ FIX #12: Usa PresetManagerModule.getAllPresets() invece di getAllPresets()
+      const customCount = Object.values(PresetManagerModule.getAllPresets())
         .filter(p => p.category === 'custom').length;
       
       btn.innerHTML = `➕ Nuovo Preset <small>(${customCount}/1)</small>`;
@@ -488,49 +489,69 @@ const PresetUIModule = (() => {
 
   const renderPresetList = () => {
     const container = document.getElementById('preset-list-container');
-    if (!container) return;
+    if (!container) {
+      console.warn('[PresetUI] Container non trovato');
+      return;
+    }
 
-    container.innerHTML = '';
+    try {
+      container.innerHTML = '';
 
-    const categorized = PresetManagerModule.getPresetsByCategory();
-    
-    CATEGORY_ORDER.forEach(categoryKey => {
-      const presets = categorized[categoryKey];
-      if (!presets || presets.length === 0) return;
+      const categorized = PresetManagerModule.getPresetsByCategory();
+      
+      CATEGORY_ORDER.forEach(categoryKey => {
+        const presets = categorized[categoryKey];
+        if (!presets || presets.length === 0) return;
 
-      const categorySection = document.createElement('div');
-      categorySection.className = 'preset-category';
+        const categorySection = document.createElement('div');
+        categorySection.className = 'preset-category';
 
-      const categoryHeader = document.createElement('h2');
-      categoryHeader.className = 'preset-category-header';
-      categoryHeader.textContent = CATEGORY_NAMES[categoryKey] || categoryKey;
+        const categoryHeader = document.createElement('h2');
+        categoryHeader.className = 'preset-category-header';
+        categoryHeader.textContent = CATEGORY_NAMES[categoryKey] || categoryKey;
 
-      const presetGrid = document.createElement('div');
-      presetGrid.className = 'preset-grid';
+        const presetGrid = document.createElement('div');
+        presetGrid.className = 'preset-grid';
 
-      const sortedPresets = presets.sort((a, b) => a.name.localeCompare(b.name));
+        const sortedPresets = presets.sort((a, b) => a.name.localeCompare(b.name));
 
-      sortedPresets.forEach(preset => {
-        const card = createPresetCard(preset);
-        presetGrid.appendChild(card);
+        sortedPresets.forEach(preset => {
+          const card = createPresetCard(preset);
+          presetGrid.appendChild(card);
+        });
+
+        categorySection.appendChild(categoryHeader);
+        categorySection.appendChild(presetGrid);
+        container.appendChild(categorySection);
       });
 
-      categorySection.appendChild(categoryHeader);
-      categorySection.appendChild(presetGrid);
-      container.appendChild(categorySection);
-    });
-
-    if (container.children.length === 0) {
-      const emptyMessage = document.createElement('p');
-      emptyMessage.textContent = 'Nessun preset disponibile.';
-      emptyMessage.style.textAlign = 'center';
-      emptyMessage.style.color = '#999';
-      emptyMessage.style.padding = '40px 20px';
-      container.appendChild(emptyMessage);
+      if (container.children.length === 0) {
+        const emptyMessage = document.createElement('p');
+        emptyMessage.textContent = 'Nessun preset disponibile.';
+        emptyMessage.style.textAlign = 'center';
+        emptyMessage.style.color = '#999';
+        emptyMessage.style.padding = '40px 20px';
+        container.appendChild(emptyMessage);
+      }
+      
+      // ✅ FIX #7: Aggiorna stato pulsante create
+      updateCreateButtonState();
+      
+    } catch (error) {
+      console.error('[PresetUI] Errore render preset list:', error);
+      
+      // Mostra messaggio errore all'utente
+      container.innerHTML = `
+        <div style="text-align: center; padding: 40px 20px; color: #ff6b6b;">
+          <h3>⚠️ Errore Caricamento Preset</h3>
+          <p>Si è verificato un errore durante il caricamento dei preset.</p>
+          <p style="font-size: 0.9em; opacity: 0.8;">${error.message}</p>
+          <button onclick="location.reload()" style="margin-top: 20px; padding: 10px 20px; background: #4A148C; color: white; border: none; border-radius: 8px; cursor: pointer;">
+            🔄 Ricarica Pagina
+          </button>
+        </div>
+      `;
     }
-    
-    // ✅ FIX #7: Aggiorna stato pulsante create
-    updateCreateButtonState();
   };
 
   const createPresetCard = (preset) => {

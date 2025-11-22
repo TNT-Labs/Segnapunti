@@ -306,10 +306,18 @@
         }
         
       } finally {
-        // Render preset list
-        if (window.PresetUI) {
-          PresetUI.renderPresetList();
-          PresetUI.setupEventListeners();
+        // ✅ FIX #12: Render preset list con error handling
+        try {
+          if (window.PresetUI) {
+            PresetUI.renderPresetList();
+            PresetUI.setupEventListeners();
+          } else {
+            console.error('PresetUI not loaded!');
+            hasError = true;
+          }
+        } catch (renderError) {
+          console.error('Error rendering presets:', renderError);
+          hasError = true;
         }
 
         // ✅ FIX #8: Nascondi loader SEMPRE, con delay maggiore se c'è errore
