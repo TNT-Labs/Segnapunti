@@ -524,6 +524,7 @@ body.dark-mode .preset-list-container:empty::after {
 
   .container {
     padding-bottom: 69px; /* ✅ OTTIMIZZATO: 65px nav + 4px = 69px (era 110px) */
+    padding-top: 95px !important; /* ✅ FIX CRITICO: Spazio sufficiente per header + toolbar */
   }
 
   .preset-card {
