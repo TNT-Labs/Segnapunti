@@ -115,9 +115,10 @@
         });
     }
     
-  // ✅ FIX #3: Error handling con finally
+  // ✅ FIX #3: Error handling con finally migliorato
   document.addEventListener('DOMContentLoaded', async () => {
     const loader = document.getElementById('loader-overlay');
+    let hasError = false;
     
     try {
       // 1. Init billing PRIMA
@@ -133,8 +134,9 @@
       
     } catch (error) {
       console.error('Monetization init error:', error);
+      hasError = true;
       
-      // ✅ NUOVO: Mostra messaggio errore user-friendly
+      // ✅ FIX #8: Mostra messaggio errore user-friendly
       if (loader) {
         const loaderText = loader.querySelector('p');
         if (loaderText) {
@@ -144,11 +146,15 @@
       }
       
     } finally {
-      // ✅ CRITICAL: Nascondi loader SEMPRE
+      // ✅ FIX #8: Nascondi loader SEMPRE, con delay maggiore se c'è errore
       if (loader) {
+        const delay = hasError ? 2000 : 300;
         setTimeout(() => {
-          loader.style.display = 'none';
-        }, 2000); // Mostra errore per 2 secondi
+          // ✅ Verifica che l'elemento esista ancora prima di nasconderlo
+          if (loader && loader.parentNode) {
+            loader.style.display = 'none';
+          }
+        }, delay);
       }
     }
   });

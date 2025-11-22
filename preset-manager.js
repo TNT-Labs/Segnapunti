@@ -753,6 +753,12 @@ const PresetUIModule = (() => {
     const newKey = prompt('Inserisci il codice per il nuovo preset (lettere minuscole, numeri, underscore):');
     if (!newKey) return;
 
+    // ✅ FIX #7: Validazione formato key PRIMA di procedere
+    if (!/^[a-z0-9_]+$/.test(newKey)) {
+      alert('❌ Errore: Il codice può contenere solo lettere minuscole, numeri e underscore (_)');
+      return;
+    }
+
     const newName = prompt('Inserisci il nome per il nuovo preset:');
     if (!newName) return;
 
@@ -878,21 +884,19 @@ const PresetUIModule = (() => {
     const btnCreate = document.getElementById('btn-create-preset');
     if (btnCreate) {
       btnCreate.addEventListener('click', () => {
-        // ✅ FIX #7: Controlla limite free users
-        const isPremium = window.BillingModule?.isPremium() || false;
+        // ✅ FIX #4: Usa PresetManagerModule.getAllPresets() invece di getAllPresets()
+        const canCreate = PresetManagerModule.canCreatePreset();
         
-        if (!isPremium) {
-          const customCount = Object.values(getAllPresets())
-            .filter(p => p.category === 'custom').length;
-          
-          if (customCount >= 1) {
-            alert(
-              'Limite raggiunto! 🎁\n\n' +
-              'Gli utenti free possono creare solo 1 preset.\n' +
-              'Passa a Premium per preset illimitati!'
+        if (!canCreate.allowed) {
+          if (window.PremiumUIModule) {
+            window.PremiumUIModule.showFeatureLockedModal(
+              'Preset Personalizzati Illimitati',
+              canCreate.message
             );
-            return;
+          } else {
+            alert(canCreate.message);
           }
+          return;
         }
         
         showCreateModal();

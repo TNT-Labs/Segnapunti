@@ -250,9 +250,11 @@
   <script src="premium-ui.js"></script>
   
   <script>
-    // ✅ FIX #3: Inizializzazione with Error Handling
+    // ✅ FIX #3 & #8: Inizializzazione with improved error handling
     document.addEventListener('DOMContentLoaded', async () => {
       const loader = document.getElementById('loader-overlay');
+      let hasError = false;
+      
       if (loader) loader.style.display = 'flex';
 
       // Update dark mode icon
@@ -265,7 +267,7 @@
         iconBtn.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
       }
 
-      // ✅ FIX #3: Initialize Monetization with proper error handling
+      // ✅ FIX #3 & #8: Initialize Monetization with proper error handling
       try {
         // 1. Init billing PRIMA
         await BillingModule.init();
@@ -292,8 +294,9 @@
         
       } catch (error) {
         console.error('Monetization init error:', error);
+        hasError = true;
         
-        // ✅ FIX #3: Mostra messaggio errore user-friendly
+        // ✅ FIX #8: Mostra messaggio errore user-friendly
         if (loader) {
           const loaderText = loader.querySelector('p');
           if (loaderText) {
@@ -309,11 +312,15 @@
           PresetUI.setupEventListeners();
         }
 
-        // ✅ FIX #3 CRITICAL: Nascondi loader SEMPRE
+        // ✅ FIX #8: Nascondi loader SEMPRE, con delay maggiore se c'è errore
         if (loader) {
+          const delay = hasError ? 2000 : 300;
           setTimeout(() => {
-            loader.style.display = 'none';
-          }, 300);
+            // ✅ Verifica che l'elemento esista ancora prima di nasconderlo
+            if (loader && loader.parentNode) {
+              loader.style.display = 'none';
+            }
+          }, delay);
         }
       }
     });

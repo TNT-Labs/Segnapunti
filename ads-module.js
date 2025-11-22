@@ -342,8 +342,13 @@ const AdsModule = (() => {
   };
 
   // ===================================================================
-  // 🎛️ SETUP LISTENERS (✅ FIX #1: Prevent multiple initialization)
+  // 🎛️ SETUP LISTENERS (✅ FIX #1 & #5: Prevent multiple initialization + cleanup)
   // ===================================================================
+  
+  // ✅ FIX #5: Salva riferimenti ai listener per poterli rimuovere
+  let navigationHandler = null;
+  let premiumChangeHandler = null;
+  let gameCompletedHandler = null;
   
   const setupEventListeners = () => {
     // Prevent multiple initialization
@@ -352,17 +357,32 @@ const AdsModule = (() => {
       return;
     }
     
+    // ✅ FIX #5: Rimuovi vecchi listener se esistono
+    if (navigationHandler) {
+      document.removeEventListener('click', navigationHandler, { capture: true });
+    }
+    if (premiumChangeHandler) {
+      document.removeEventListener('premiumStatusChanged', premiumChangeHandler);
+    }
+    if (gameCompletedHandler) {
+      document.removeEventListener('gameCompleted', gameCompletedHandler);
+    }
+    
     // Use event delegation for navigation
-    document.addEventListener('click', (e) => {
+    navigationHandler = (e) => {
       const navItem = e.target.closest('.nav-item');
       if (navItem) {
         onNavigation();
       }
-    }, { capture: true });
+    };
+    document.addEventListener('click', navigationHandler, { capture: true });
     
     // Custom events with named handlers
-    document.addEventListener('gameCompleted', onGameSaved);
-    document.addEventListener('premiumStatusChanged', handlePremiumChange);
+    gameCompletedHandler = onGameSaved;
+    document.addEventListener('gameCompleted', gameCompletedHandler);
+    
+    premiumChangeHandler = handlePremiumChange;
+    document.addEventListener('premiumStatusChanged', premiumChangeHandler);
     
     // Track history page
     if (window.location.pathname.includes('storico.html')) {
@@ -380,10 +400,30 @@ const AdsModule = (() => {
     }
   };
 
-  // ✅ FIX #1: Aggiungi metodo reset per test
+  // ✅ FIX #5: Aggiungi metodo reset per test
   const resetInitialization = () => {
     isInitialized = false;
     console.log('[Ads] Initialization reset');
+  };
+  
+  // ✅ FIX #9: Aggiungi metodo cleanup
+  const cleanup = () => {
+    if (navigationHandler) {
+      document.removeEventListener('click', navigationHandler, { capture: true });
+      navigationHandler = null;
+    }
+    if (premiumChangeHandler) {
+      document.removeEventListener('premiumStatusChanged', premiumChangeHandler);
+      premiumChangeHandler = null;
+    }
+    if (gameCompletedHandler) {
+      document.removeEventListener('gameCompleted', gameCompletedHandler);
+      gameCompletedHandler = null;
+    }
+    
+    hideAllAds();
+    isInitialized = false;
+    console.log('[Ads] Cleanup completed');
   };
 
   // ===================================================================
@@ -409,7 +449,7 @@ const AdsModule = (() => {
   };
 
   // ===================================================================
-  // 📊 API PUBBLICA (✅ FIX #1: Added _resetInit)
+  // 📊 API PUBBLICA (✅ FIX #1 & #9: Added _resetInit and cleanup)
   // ===================================================================
   
   return {
@@ -424,6 +464,9 @@ const AdsModule = (() => {
     onNavigation,
     onGameSaved,
     onHistoryView,
+    
+    // Lifecycle
+    cleanup, // ✅ FIX #9: Aggiungi cleanup method
     
     // Debug only
     _resetInit: resetInitialization
