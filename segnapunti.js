@@ -983,8 +983,10 @@ const UIModule = (() => {
     
     const rect = puntiElement.getBoundingClientRect();
     floatingNumber.style.position = 'fixed';
-    floatingNumber.style.left = `${rect.right + 10}px`;
-    floatingNumber.style.top = `${rect.top}px`;
+    // ✅ FIX: Posizione centrata sopra il punteggio invece che a destra
+    floatingNumber.style.left = `${rect.left + (rect.width / 2) - 20}px`;
+    floatingNumber.style.top = `${rect.top - 10}px`;
+    floatingNumber.style.zIndex = '1000';
     
     document.body.appendChild(floatingNumber);
     

@@ -33,7 +33,7 @@ body.dark-mode .giocatori-lista li {
   margin-bottom: 10px;
   gap: 12px;
   width: 100%;
-  padding-right: 5px;
+  padding-right: 0; /* Rimosso padding destro */
 }
 
 .giocatore-nome {
@@ -47,7 +47,7 @@ body.dark-mode .giocatori-lista li {
   writing-mode: horizontal-tb;
   text-orientation: mixed;
   /* ✅ FIX: Max width per nomi lunghi */
-  max-width: calc(100% - 90px);
+  max-width: calc(100% - 75px); /* Ridotto da 90px */
   overflow-wrap: break-word;
 }
 
@@ -55,12 +55,13 @@ body.dark-mode .giocatori-lista li {
   font-size: 1.9em;
   font-weight: 900;
   color: var(--colore-primario);
-  min-width: 75px;
+  min-width: 60px; /* Ridotto da 75px */
   text-align: right;
   flex-shrink: 0;
   letter-spacing: -0.5px;
-  /* ✅ FIX: Padding per centrare meglio */
-  padding-left: 8px;
+  /* ✅ FIX: Rimuovi padding per spostare a sinistra */
+  padding-left: 0;
+  padding-right: 8px; /* Aggiunto piccolo padding destro */
 }
 
 /* Sezione rounds */
@@ -172,7 +173,8 @@ body.dark-mode .giocatori-lista li {
 
   .giocatore-punteggio {
     font-size: 1.75em;
-    min-width: 70px;
+    min-width: 55px; /* Ridotto da 70px */
+    padding-right: 5px;
   }
 
   /* Rounds compatti */
@@ -489,12 +491,13 @@ body.has-ad-banner .container {
   
   .giocatore-nome {
     font-size: 1.1em;
-    max-width: calc(100% - 80px);
+    max-width: calc(100% - 65px); /* Ridotto */
   }
   
   .giocatore-punteggio {
     font-size: 1.6em;
-    min-width: 65px;
+    min-width: 50px; /* Ridotto da 65px */
+    padding-right: 5px;
   }
 
   h1 {
