@@ -31,12 +31,13 @@ body.dark-mode .giocatori-lista li {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 10px;
-  gap: 10px;
+  gap: 12px;
   width: 100%;
+  padding-right: 5px;
 }
 
 .giocatore-nome {
-  font-size: 1.15em;
+  font-size: 1.3em;
   font-weight: 700;
   color: var(--colore-primario);
   flex-grow: 1;
@@ -45,15 +46,21 @@ body.dark-mode .giocatori-lista li {
   /* ✅ FIX: Testo orizzontale, mai verticale */
   writing-mode: horizontal-tb;
   text-orientation: mixed;
+  /* ✅ FIX: Max width per nomi lunghi */
+  max-width: calc(100% - 90px);
+  overflow-wrap: break-word;
 }
 
 .giocatore-punteggio {
-  font-size: 1.5em;
-  font-weight: 800;
+  font-size: 1.9em;
+  font-weight: 900;
   color: var(--colore-primario);
-  min-width: 65px;
+  min-width: 75px;
   text-align: right;
   flex-shrink: 0;
+  letter-spacing: -0.5px;
+  /* ✅ FIX: Padding per centrare meglio */
+  padding-left: 8px;
 }
 
 /* Sezione rounds */
@@ -61,22 +68,24 @@ body.dark-mode .giocatori-lista li {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 8px;
-  font-size: 0.9em;
-  padding: 6px 0;
+  margin-bottom: 10px;
+  font-size: 0.95em;
+  padding: 8px 10px;
   width: 100%;
+  background: rgba(255, 152, 0, 0.08);
+  border-radius: 8px;
 }
 
 .giocatore-rounds-label {
   color: var(--colore-testo);
-  opacity: 0.8;
+  opacity: 0.85;
   font-weight: 600;
 }
 
 .giocatore-rounds-count {
-  font-weight: 700;
+  font-weight: 800;
   color: var(--colore-rounds);
-  font-size: 1.2em;
+  font-size: 1.3em;
 }
 
 /* ✅ FIX: Azioni giocatore touch-friendly */
@@ -154,27 +163,28 @@ body.dark-mode .giocatori-lista li {
 
   .giocatore-header {
     margin-bottom: 8px;
+    gap: 10px;
   }
 
   .giocatore-nome {
-    font-size: 1.05em;
+    font-size: 1.2em;
   }
 
   .giocatore-punteggio {
-    font-size: 1.35em;
-    min-width: 55px;
+    font-size: 1.75em;
+    min-width: 70px;
   }
 
   /* Rounds compatti */
   .giocatore-rounds {
-    font-size: 0.85em;
-    margin-bottom: 6px;
+    font-size: 0.9em;
+    margin-bottom: 8px;
     gap: 6px;
-    padding: 4px 0;
+    padding: 6px 8px;
   }
 
   .giocatore-rounds-count {
-    font-size: 1.15em;
+    font-size: 1.25em;
   }
 
   /* ✅ FIX: Layout azioni a 2 colonne su schermi piccoli */
@@ -499,11 +509,13 @@ body.has-ad-banner .container {
   }
   
   .giocatore-nome {
-    font-size: 1em;
+    font-size: 1.1em;
+    max-width: calc(100% - 80px);
   }
   
   .giocatore-punteggio {
-    font-size: 1.25em;
+    font-size: 1.6em;
+    min-width: 65px;
   }
 
   h1 {
@@ -513,11 +525,28 @@ body.has-ad-banner .container {
   h3 {
     font-size: 1.1em;
   }
+  
+  .giocatore-rounds {
+    font-size: 0.85em;
+    padding: 6px 8px;
+  }
+  
+  .giocatore-rounds-count {
+    font-size: 1.2em;
+  }
 }
 
 @media (min-width: 401px) and (max-width: 600px) {
   html {
     font-size: 15px;
+  }
+  
+  .giocatore-nome {
+    font-size: 1.25em;
+  }
+  
+  .giocatore-punteggio {
+    font-size: 1.8em;
   }
 }
 

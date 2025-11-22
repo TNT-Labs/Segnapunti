@@ -532,26 +532,33 @@ body.dark-mode .giocatore-item:hover {
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  margin-bottom: 10px;
-  gap: 10px;
+  margin-bottom: 12px;
+  gap: 15px;
+  padding-right: 5px;
 }
 
 .giocatore-nome {
-  font-size: 1.3em;
+  font-size: 1.5em;
   font-weight: 700;
   color: var(--colore-primario);
   word-break: break-word;
   line-height: 1.3;
   flex-grow: 1;
+  /* ✅ FIX: Max width per nomi lunghi */
+  max-width: calc(100% - 100px);
+  overflow-wrap: break-word;
 }
 
 .giocatore-punteggio {
-  font-size: 1.8em;
-  font-weight: 800;
+  font-size: 2.2em;
+  font-weight: 900;
   color: var(--colore-primario);
   flex-shrink: 0;
-  min-width: 70px;
+  min-width: 80px;
   text-align: right;
+  letter-spacing: -0.5px;
+  /* ✅ FIX: Padding per non essere troppo a destra */
+  padding-left: 10px;
 }
 
 .giocatore-stats {
@@ -584,24 +591,28 @@ body.dark-mode .giocatore-punti {
   align-items: center;
   gap: 8px;
   margin-bottom: 12px;
-  font-size: 0.95em;
-  padding: 6px 0;
+  font-size: 1em;
+  padding: 8px 0;
+  background: rgba(255, 152, 0, 0.08);
+  border-radius: 8px;
+  padding: 8px 12px;
 }
 
 .giocatore-rounds-label {
   color: var(--colore-testo);
-  opacity: 0.8;
+  opacity: 0.85;
   font-weight: 600;
 }
 
 .giocatore-rounds-count {
-  font-weight: 700;
+  font-weight: 800;
   color: var(--colore-rounds);
-  font-size: 1.3em;
+  font-size: 1.4em;
 }
 
 body.dark-mode .giocatore-rounds {
   color: #aaa;
+  background: rgba(255, 183, 77, 0.12);
 }
 
 .giocatore-rounds strong {
