@@ -715,38 +715,43 @@ const UIModule = (() => {
     li.className = 'giocatore-item';
     li.id = `giocatore-${giocatore.id}`;
     
+    // ✅ FIX: Header con nome e punteggio orizzontali
+    const headerDiv = document.createElement('div');
+    headerDiv.className = 'giocatore-header';
+    
     const nomeDiv = document.createElement('div');
     nomeDiv.className = 'giocatore-nome';
     nomeDiv.textContent = giocatore.nome;
     
-    const statsDiv = document.createElement('div');
-    statsDiv.className = 'giocatore-stats';
+    const punteggioDiv = document.createElement('div');
+    punteggioDiv.className = 'giocatore-punteggio';
+    punteggioDiv.id = `punti-${giocatore.id}`;
+    punteggioDiv.textContent = giocatore.punti;
     
+    headerDiv.appendChild(nomeDiv);
+    headerDiv.appendChild(punteggioDiv);
+    
+    // ✅ Rounds (se modalità rounds)
+    let roundsDiv = null;
     if (isRoundsMode) {
-      const roundsSpan = document.createElement('span');
-      roundsSpan.className = 'giocatore-rounds';
-      roundsSpan.id = `rounds-${giocatore.id}`;
-      roundsSpan.innerHTML = `🏆 <strong>${giocatore.rounds}</strong>`;
-      roundsSpan.title = 'Rounds vinti';
-      statsDiv.appendChild(roundsSpan);
+      roundsDiv = document.createElement('div');
+      roundsDiv.className = 'giocatore-rounds';
+      roundsDiv.innerHTML = `
+        <span class="giocatore-rounds-label">Rounds vinti:</span>
+        <span class="giocatore-rounds-count" id="rounds-${giocatore.id}">${giocatore.rounds}</span>
+      `;
     }
     
-    const puntiSpan = document.createElement('span');
-    puntiSpan.className = 'giocatore-punti';
-    puntiSpan.id = `punti-${giocatore.id}`;
-    puntiSpan.innerHTML = `<strong>${giocatore.punti}</strong> ${isRoundsMode ? 'pt' : 'punti'}`;
-    statsDiv.appendChild(puntiSpan);
-    
-    const controlsDiv = document.createElement('div');
-    controlsDiv.className = 'punti-e-controlli';
+    // ✅ Pulsanti azioni
+    const actionsDiv = document.createElement('div');
+    actionsDiv.className = 'giocatore-actions';
     
     if (isRoundsMode) {
       const roundsControls = createRoundsControls(giocatore.id);
-      controlsDiv.appendChild(roundsControls);
+      roundsControls.style.gridColumn = '1 / -1';
+      roundsControls.style.marginBottom = '8px';
+      actionsDiv.appendChild(roundsControls);
     }
-    
-    const scoreControls = document.createElement('div');
-    scoreControls.className = 'punteggio-controls';
     
     const buttons = [
       { text: '+1', value: 1 },
@@ -779,25 +784,27 @@ const UIModule = (() => {
       };
       registerListener(button, 'click', handler);
       
-      scoreControls.appendChild(button);
+      actionsDiv.appendChild(button);
     });
     
     const customBtn = document.createElement('button');
     customBtn.textContent = '± Personalizza';
     customBtn.className = 'btn-custom-score';
     customBtn.disabled = partitaTerminata;
+    customBtn.style.gridColumn = '1 / -1';
     
     // ✅ FIX #2: Registra listener
     const customHandler = () => showModal(giocatore.id);
     registerListener(customBtn, 'click', customHandler);
     
-    scoreControls.appendChild(customBtn);
+    actionsDiv.appendChild(customBtn);
     
-    controlsDiv.appendChild(scoreControls);
-    
-    li.appendChild(nomeDiv);
-    li.appendChild(statsDiv);
-    li.appendChild(controlsDiv);
+    // ✅ Assembla il box
+    li.appendChild(headerDiv);
+    if (roundsDiv) {
+      li.appendChild(roundsDiv);
+    }
+    li.appendChild(actionsDiv);
     
     return li;
   };
@@ -844,9 +851,6 @@ const UIModule = (() => {
     const roundsElement = document.getElementById(`rounds-${playerId}`);
     if (!roundsElement) return;
     
-    const strongElement = roundsElement.querySelector('strong');
-    if (!strongElement) return;
-    
     const animKey = `anim-rounds-${playerId}`;
     if (activeAnimations.has(animKey)) return;
     
@@ -860,7 +864,7 @@ const UIModule = (() => {
     
     const giocatore = GameStateModule.getGiocatoreById(playerId);
     if (giocatore) {
-      strongElement.textContent = giocatore.rounds;
+      roundsElement.textContent = giocatore.rounds;
     }
     
     const cleanup = () => {
@@ -957,9 +961,6 @@ const UIModule = (() => {
     const puntiElement = document.getElementById(`punti-${playerId}`);
     if (!puntiElement) return;
     
-    const strongElement = puntiElement.querySelector('strong');
-    if (!strongElement) return;
-    
     const animKey = `anim-${playerId}`;
     if (activeAnimations.has(animKey)) return;
     
@@ -973,14 +974,14 @@ const UIModule = (() => {
     
     const giocatore = GameStateModule.getGiocatoreById(playerId);
     if (giocatore) {
-      strongElement.textContent = giocatore.punti;
+      puntiElement.textContent = giocatore.punti;
     }
     
     const floatingNumber = document.createElement('span');
     floatingNumber.className = `floating-number ${delta >= 0 ? 'positive' : 'negative'}`;
     floatingNumber.textContent = delta >= 0 ? `+${delta}` : delta;
     
-    const rect = strongElement.getBoundingClientRect();
+    const rect = puntiElement.getBoundingClientRect();
     floatingNumber.style.position = 'fixed';
     floatingNumber.style.left = `${rect.right + 10}px`;
     floatingNumber.style.top = `${rect.top}px`;

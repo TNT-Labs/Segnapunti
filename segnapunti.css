@@ -474,6 +474,8 @@ body.dark-mode textarea:focus {
   border: 2px solid transparent;
   transition: all 0.3s;
   position: relative;
+  /* ✅ FIX: Overflow visible per la coppa */
+  overflow: visible;
 }
 
 body.dark-mode .giocatore-item {
@@ -514,7 +516,9 @@ body.dark-mode .giocatore-item:hover {
   right: -10px;
   font-size: 2em;
   animation: trophyFloat 3s ease-in-out infinite;
-  z-index: 1;
+  /* ✅ FIX CRITICO: z-index alto per evitare che sparisca sotto */
+  z-index: 10;
+  pointer-events: none;
 }
 
 @keyframes trophyFloat {
@@ -522,13 +526,32 @@ body.dark-mode .giocatore-item:hover {
   50% { transform: translateY(-10px) rotate(5deg); }
 }
 
+/* ✅ NUOVO: Header con nome e punteggio affiancati */
+.giocatore-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 10px;
+  gap: 10px;
+}
+
 .giocatore-nome {
   font-size: 1.3em;
   font-weight: 700;
   color: var(--colore-primario);
-  margin-bottom: 10px;
   word-break: break-word;
   line-height: 1.3;
+  flex-grow: 1;
+}
+
+.giocatore-punteggio {
+  font-size: 1.8em;
+  font-weight: 800;
+  color: var(--colore-primario);
+  flex-shrink: 0;
+  min-width: 70px;
+  text-align: right;
 }
 
 .giocatore-stats {
@@ -557,11 +580,24 @@ body.dark-mode .giocatore-punti {
 
 /* Rounds display */
 .giocatore-rounds {
-  font-size: 0.9em;
-  color: #666;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
+  margin-bottom: 12px;
+  font-size: 0.95em;
+  padding: 6px 0;
+}
+
+.giocatore-rounds-label {
+  color: var(--colore-testo);
+  opacity: 0.8;
+  font-weight: 600;
+}
+
+.giocatore-rounds-count {
+  font-weight: 700;
+  color: var(--colore-rounds);
+  font-size: 1.3em;
 }
 
 body.dark-mode .giocatore-rounds {
@@ -573,6 +609,26 @@ body.dark-mode .giocatore-rounds {
   font-weight: 800;
   color: var(--colore-rounds);
   display: inline-block;
+}
+
+/* ✅ NUOVO: Actions grid */
+.giocatore-actions {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.giocatore-actions button {
+  padding: 10px 8px;
+  font-size: 0.95em;
+  font-weight: 700;
+  min-height: var(--touch-target-min);
+  /* ✅ FIX OVERFLOW TESTO */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* Controls container */

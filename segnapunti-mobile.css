@@ -15,6 +15,8 @@
   background: var(--colore-card);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   border: 2px solid #e8ecf1;
+  /* ✅ FIX: Overflow visible per la coppa */
+  overflow: visible !important;
 }
 
 body.dark-mode .giocatori-lista li {
@@ -30,6 +32,7 @@ body.dark-mode .giocatori-lista li {
   align-items: center;
   margin-bottom: 10px;
   gap: 10px;
+  width: 100%;
 }
 
 .giocatore-nome {
@@ -39,6 +42,9 @@ body.dark-mode .giocatori-lista li {
   flex-grow: 1;
   line-height: 1.3;
   word-break: break-word;
+  /* ✅ FIX: Testo orizzontale, mai verticale */
+  writing-mode: horizontal-tb;
+  text-orientation: mixed;
 }
 
 .giocatore-punteggio {
@@ -58,6 +64,7 @@ body.dark-mode .giocatori-lista li {
   margin-bottom: 8px;
   font-size: 0.9em;
   padding: 6px 0;
+  width: 100%;
 }
 
 .giocatore-rounds-label {
@@ -75,9 +82,10 @@ body.dark-mode .giocatori-lista li {
 /* ✅ FIX: Azioni giocatore touch-friendly */
 .giocatore-actions {
   display: grid;
-  grid-template-columns: 1fr 1fr auto;
+  grid-template-columns: repeat(3, 1fr);
   gap: 8px;
   margin-top: 10px;
+  width: 100%;
 }
 
 .giocatore-actions button {
@@ -102,6 +110,11 @@ body.dark-mode .giocatori-lista li {
 
 .giocatore-actions button:active {
   transform: scale(0.96);
+}
+
+/* Pulsante personalizza full-width */
+.giocatore-actions .btn-custom-score {
+  grid-column: 1 / -1;
 }
 
 /* Pulsante elimina */
