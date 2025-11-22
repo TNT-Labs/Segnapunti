@@ -23,7 +23,7 @@
     <div class="header-controls fixed-header"> 
       <h1>🃏 Punteggi Attuali</h1>
       <div class="top-buttons">
-          <button id="toggle-dark-mode" title="Attiva/Disattiva Modalità Scura" aria-label="Attiva modalità scura" onclick="toggleDarkMode()">🌙</button>
+          <button id="toggle-dark-mode" title="Attiva/Disattiva Modalità Scura" onclick="toggleDarkMode()">🌙</button>
       </div>
     </div>
     
@@ -34,24 +34,24 @@
       <button id="btn-ricomincia-partita" class="btn-primary">🔄 Ricomincia Partita</button>
     </div>
     
-    <ul class="giocatori-lista" id="giocatori-lista-partita" role="list" aria-label="Lista giocatori">
+    <ul class="giocatori-lista" id="giocatori-lista-partita">
     </ul>
     
     <hr class="separator">
 
-    <div id="modal-overlay" class="modal-overlay" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="modal-title-player-name">
+    <div id="modal-overlay" class="modal-overlay" style="display: none;">
       <div class="modal-content">
           <h2 id="modal-title-player-name">Aggiungi Punti</h2>
           <form id="modal-input-form">
-              <input type="number" id="punteggio-input-custom" placeholder="Inserisci punti (es. 20 o -5)" required inputmode="numeric" aria-label="Inserisci punteggio personalizzato">
+              <input type="number" id="punteggio-input-custom" placeholder="Inserisci punti (es. 20 o -5)" required inputmode="numeric">
               
               <div class="quick-score-buttons">
-                  <button type="button" id="btn-quick-plus10" class="btn-primary" aria-label="Aggiungi 10 punti">+10</button>
-                  <button type="button" id="btn-quick-minus10" class="btn-rimuovi" aria-label="Rimuovi 10 punti">-10</button>
-                  <button type="button" id="btn-quick-plus20" class="btn-primary" aria-label="Aggiungi 20 punti">+20</button>
-                  <button type="button" id="btn-quick-minus20" class="btn-rimuovi" aria-label="Rimuovi 20 punti">-20</button>
-                  <button type="button" id="btn-quick-plus50" class="btn-primary" aria-label="Aggiungi 50 punti">+50</button>
-                  <button type="button" id="btn-quick-minus50" class="btn-rimuovi" aria-label="Rimuovi 50 punti">-50</button>
+                  <button type="button" id="btn-quick-plus10" class="btn-primary">+10</button>
+                  <button type="button" id="btn-quick-minus10" class="btn-rimuovi">-10</button>
+                  <button type="button" id="btn-quick-plus20" class="btn-primary">+20</button>
+                  <button type="button" id="btn-quick-minus20" class="btn-rimuovi">-20</button>
+                  <button type="button" id="btn-quick-plus50" class="btn-primary">+50</button>
+                  <button type="button" id="btn-quick-minus50" class="btn-rimuovi">-50</button>
               </div>
 
               <div class="modal-action-buttons">
@@ -62,36 +62,36 @@
       </div>
   </div>
   
-  <div id="loader-overlay" class="loader-overlay" style="display: flex;" role="status" aria-live="polite">
-      <div class="loader-spinner" aria-hidden="true"></div>
-      <p id="loader-text">Caricamento dati...</p>
+  <div id="loader-overlay" class="loader-overlay" style="display: flex;">
+      <div class="loader-spinner"></div>
+      <p>Caricamento dati...</p>
   </div>
   
   <!-- Bottom Navigation Bar -->
-  <nav class="bottom-nav" role="navigation" aria-label="Navigazione principale">
-    <a href="index.html" class="nav-item active" aria-label="Partita" aria-current="page">
-      <span class="nav-icon" aria-hidden="true">🃏</span>
+  <nav class="bottom-nav">
+    <a href="index.html" class="nav-item active">
+      <span class="nav-icon">🃏</span>
       <span class="nav-label">Partita</span>
     </a>
-    <a href="storico.html" class="nav-item" aria-label="Storico">
-      <span class="nav-icon" aria-hidden="true">📜</span>
+    <a href="storico.html" class="nav-item">
+      <span class="nav-icon">📜</span>
       <span class="nav-label">Storico</span>
     </a>
-    <a href="settings.html" class="nav-item" aria-label="Impostazioni">
-      <span class="nav-icon" aria-hidden="true">⚙️</span>
+    <a href="settings.html" class="nav-item">
+      <span class="nav-icon">⚙️</span>
       <span class="nav-label">Settings</span>
     </a>
-    <a href="preset-manager.html" class="nav-item" aria-label="Gestione preset">
-      <span class="nav-icon" aria-hidden="true">🎮</span>
+    <a href="preset-manager.html" class="nav-item">
+      <span class="nav-icon">🎮</span>
       <span class="nav-label">Preset</span>
     </a>
-    <a href="premium.html" class="nav-item" aria-label="Premium">
-      <span class="nav-icon" aria-hidden="true">✨</span>
+    <a href="premium.html" class="nav-item">
+      <span class="nav-icon">✨</span>
       <span class="nav-label">Premium</span>
     </a>
   </nav>
 
-  <!-- ✅ FIX #2: Storage Helper PRIMA di tutto -->
+  <!-- Storage Helper (Safari private mode support) -->
   <script src="storage-helper.js"></script>
   <script src="segnapunti.js"></script>
   <script src="preset-manager.js"></script>
@@ -102,129 +102,56 @@
   <script src="premium-ui.js"></script>
   
   <script>
-    // ✅ Global error handler per unhandled promise rejections
-    window.addEventListener('unhandledrejection', (event) => {
-      console.error('❌ Unhandled promise rejection:', event.reason);
-      event.preventDefault();
-      
-      const message = event.reason?.message || 'Si è verificato un errore';
-      
-      // Non spammare l'utente con errori
-      if (!window._lastErrorTime || Date.now() - window._lastErrorTime > 5000) {
-        alert(`⚠️ ${message}\n\nRicarica la pagina se il problema persiste.`);
-        window._lastErrorTime = Date.now();
-      }
-    });
-
-    // ✅ Service Worker con gestione aggiornamenti
+    // Service Worker
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('service-worker.js')
                 .then(registration => {
-                    console.log('✅ Service Worker registrato:', registration.scope);
-                    
-                    // Controlla aggiornamenti
-                    registration.addEventListener('updatefound', () => {
-                      console.log('🔄 Nuovo Service Worker trovato');
-                    });
+                    console.log('Service Worker registrato con successo:', registration.scope);
                 })
                 .catch(error => {
-                    console.error('❌ Registrazione Service Worker fallita:', error);
+                    console.error('Registrazione Service Worker fallita:', error);
                 });
-        });
-        
-        // Notifica quando il SW cambia (nuova versione disponibile)
-        navigator.serviceWorker.addEventListener('controllerchange', () => {
-          console.log('🎉 Nuova versione disponibile');
-          
-          // Mostra banner di aggiornamento
-          const banner = document.createElement('div');
-          banner.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            background: #4CAF50;
-            color: white;
-            padding: 12px 20px;
-            text-align: center;
-            z-index: 10002;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-            animation: slideDown 0.3s ease-out;
-          `;
-          banner.innerHTML = `
-            <strong>🎉 Nuova versione disponibile!</strong>
-            <button onclick="location.reload()" style="
-              margin-left: 15px;
-              background: white;
-              color: #4CAF50;
-              border: none;
-              padding: 6px 16px;
-              border-radius: 4px;
-              font-weight: 600;
-              cursor: pointer;
-              font-size: 0.9em;
-            ">Ricarica ora</button>
-          `;
-          document.body.prepend(banner);
         });
     }
     
-    // ✅ FIX #1: Loader error handling con finally
-    document.addEventListener('DOMContentLoaded', async () => {
-      const loader = document.getElementById('loader-overlay');
-      const loaderText = document.getElementById('loader-text');
+  // ✅ FIX #3: Error handling con finally
+  document.addEventListener('DOMContentLoaded', async () => {
+    const loader = document.getElementById('loader-overlay');
+    
+    try {
+      // 1. Init billing PRIMA
+      await BillingModule.init();
       
-      try {
-        // Mostra warning se storage non disponibile (Safari private mode)
-        if (typeof StorageHelper !== 'undefined') {
-          StorageHelper.showWarningIfUnavailable();
-        }
-        
-        // 1. Init billing PRIMA
-        if (typeof BillingModule !== 'undefined') {
-          await BillingModule.init();
-          console.log('✅ BillingModule inizializzato');
-        }
-        
-        // 2. Init ads solo se non premium
-        if (typeof BillingModule !== 'undefined' && typeof AdsModule !== 'undefined') {
-          if (!BillingModule.isPremium()) {
-            await AdsModule.init();
-            console.log('✅ AdsModule inizializzato');
-          } else {
-            console.log('⏭️ AdsModule skipped (utente premium)');
-          }
-        }
-        
-        // 3. Init Premium UI DOPO billing
-        if (typeof PremiumUIModule !== 'undefined') {
-          await PremiumUIModule.init();
-          console.log('✅ PremiumUIModule inizializzato');
-        }
-        
-      } catch (error) {
-        console.error('❌ Monetization init error:', error);
-        
-        // Mostra messaggio errore user-friendly
+      // 2. Init ads solo se non premium
+      if (!BillingModule.isPremium()) {
+        await AdsModule.init();
+      }
+      
+      // 3. Init Premium UI DOPO billing
+      await PremiumUIModule.init();
+      
+    } catch (error) {
+      console.error('Monetization init error:', error);
+      
+      // ✅ NUOVO: Mostra messaggio errore user-friendly
+      if (loader) {
+        const loaderText = loader.querySelector('p');
         if (loaderText) {
           loaderText.textContent = '⚠️ Errore caricamento. Ricarica la pagina.';
           loaderText.style.color = '#ff6b6b';
         }
-        
-        // Continua comunque con l'app (modalità degradata)
-        console.warn('⚠️ App in modalità degradata senza monetization');
-        
-      } finally {
-        // ✅ CRITICAL: Nascondi loader SEMPRE
-        if (loader) {
-          setTimeout(() => {
-            loader.style.display = 'none';
-            console.log('✅ Loader nascosto');
-          }, 500);
-        }
       }
-    });
+      
+    } finally {
+      // ✅ CRITICAL: Nascondi loader SEMPRE
+      if (loader) {
+        setTimeout(() => {
+          loader.style.display = 'none';
+        }, 2000); // Mostra errore per 2 secondi
+      }
+    }
+  });
   </script>
 </body>
 </html>

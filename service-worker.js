@@ -1,7 +1,7 @@
-// ✅ Cache aggiornata con monetization files + VERSIONE INCREMENTATA
-const CACHE_NAME = 'segnapunti-cache-v1.2.3';  // ⚠️ Incrementa ad ogni deploy!
+// ✅ Cache aggiornata con QUICK_FIXES + VERSIONE INCREMENTATA
+const CACHE_NAME = 'segnapunti-cache-v1.3.0';  // ⚠️ Incrementa ad ogni deploy!
 
-// ✅ Lista completa asset (VERIFICATA)
+// ✅ Lista completa asset (VERIFICATA + storage-helper.js)
 const ASSETS_TO_CACHE = [
   './',  // ✅ FIX: Aggiungi './' oltre a '/'
   '/', 
@@ -10,6 +10,7 @@ const ASSETS_TO_CACHE = [
   'storico.html',
   'preset-manager.html',
   'premium.html', // ✅ NUOVO
+  'storage-helper.js', // ✅ FIX #2: Safari storage helper
   'segnapunti.js',
   'segnapunti.css',
   'preset-manager.js',
@@ -34,7 +35,7 @@ const ASSETS_TO_CACHE = [
 
 // 1. Installazione del Service Worker
 self.addEventListener('install', event => {
-  console.log('[Service Worker] Installazione v1.2.3 completata. Avvio caching...');
+  console.log('[Service Worker] Installazione v1.3.0 completata. Avvio caching...');
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
@@ -61,7 +62,7 @@ self.addEventListener('install', event => {
 
 // 2. Attivazione del Service Worker
 self.addEventListener('activate', event => {
-  console.log('[Service Worker] Attivazione v1.1.2 in corso...');
+  console.log('[Service Worker] Attivazione v1.3.0 in corso...');
   // Rimuove le vecchie cache
   event.waitUntil(
     caches.keys().then(cacheNames => {

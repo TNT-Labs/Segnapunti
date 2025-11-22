@@ -108,7 +108,7 @@ const PresetManagerModule = (() => {
 
   const loadCustomPresets = () => {
     try {
-      const stored = localStorage.getItem(PRESET_STORAGE_KEY);
+      const stored = StorageHelper.getItem(PRESET_STORAGE_KEY);
       if (stored) {
         return JSON.parse(stored);
       }
@@ -120,7 +120,7 @@ const PresetManagerModule = (() => {
 
   const saveCustomPresets = (presets) => {
     try {
-      localStorage.setItem(PRESET_STORAGE_KEY, JSON.stringify(presets));
+      StorageHelper.setItem(PRESET_STORAGE_KEY, JSON.stringify(presets));
       return true;
     } catch (error) {
       console.error('Errore nel salvataggio dei preset:', error);
@@ -309,7 +309,7 @@ const PresetManagerModule = (() => {
 
   const restoreDefaults = () => {
     if (confirm('Sei sicuro di voler eliminare tutti i preset personalizzati? Questa azione non può essere annullata.')) {
-      localStorage.removeItem(PRESET_STORAGE_KEY);
+      StorageHelper.removeItem(PRESET_STORAGE_KEY);
       return true;
     }
     return false;
@@ -459,6 +459,33 @@ const PresetUIModule = (() => {
     custom: '⭐'
   };
 
+  // ✅ FIX #7: Aggiorna stato pulsante create in base a limite free
+  const updateCreateButtonState = () => {
+    const btn = document.getElementById('btn-create-preset');
+    if (!btn) return;
+    
+    const isPremium = window.BillingModule?.isPremium() || false;
+    
+    if (!isPremium) {
+      const customCount = Object.values(getAllPresets())
+        .filter(p => p.category === 'custom').length;
+      
+      btn.innerHTML = `➕ Nuovo Preset <small>(${customCount}/1)</small>`;
+      
+      if (customCount >= 1) {
+        btn.style.opacity = '0.6';
+        btn.title = 'Limite free raggiunto. Passa a Premium per preset illimitati!';
+      } else {
+        btn.style.opacity = '1';
+        btn.title = 'Crea un nuovo preset personalizzato';
+      }
+    } else {
+      btn.innerHTML = '➕ Nuovo Preset';
+      btn.style.opacity = '1';
+      btn.title = 'Crea un nuovo preset personalizzato';
+    }
+  };
+
   const renderPresetList = () => {
     const container = document.getElementById('preset-list-container');
     if (!container) return;
@@ -501,6 +528,9 @@ const PresetUIModule = (() => {
       emptyMessage.style.padding = '40px 20px';
       container.appendChild(emptyMessage);
     }
+    
+    // ✅ FIX #7: Aggiorna stato pulsante create
+    updateCreateButtonState();
   };
 
   const createPresetCard = (preset) => {
@@ -847,7 +877,26 @@ const PresetUIModule = (() => {
   const setupEventListeners = () => {
     const btnCreate = document.getElementById('btn-create-preset');
     if (btnCreate) {
-      btnCreate.addEventListener('click', showCreateModal);
+      btnCreate.addEventListener('click', () => {
+        // ✅ FIX #7: Controlla limite free users
+        const isPremium = window.BillingModule?.isPremium() || false;
+        
+        if (!isPremium) {
+          const customCount = Object.values(getAllPresets())
+            .filter(p => p.category === 'custom').length;
+          
+          if (customCount >= 1) {
+            alert(
+              'Limite raggiunto! 🎁\n\n' +
+              'Gli utenti free possono creare solo 1 preset.\n' +
+              'Passa a Premium per preset illimitati!'
+            );
+            return;
+          }
+        }
+        
+        showCreateModal();
+      });
     }
 
     const btnCloseModal = document.getElementById('btn-close-preset-modal');

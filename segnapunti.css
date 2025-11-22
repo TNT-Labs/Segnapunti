@@ -14,6 +14,40 @@
   --colore-blocco: rgba(0, 0, 0, 0.6); 
   --colore-header-bordo: #e0e0e0;
   --colore-rounds: #ff9800; /* 🆕 NUOVO: Colore per rounds */
+  
+  /* ✅ FIX #9: Spacing variables */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-xxl: 48px;
+  
+  /* Component heights */
+  --header-height: 70px;
+  --nav-height: 70px;
+  --banner-height: 50px;
+  
+  /* Touch targets */
+  --touch-target-min: 44px;
+  --touch-target-comfortable: 48px;
+  --touch-target-large: 56px;
+  
+  /* Border radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  
+  /* Z-index scale */
+  --z-base: 1;
+  --z-dropdown: 50;
+  --z-sticky: 90;
+  --z-banner: 98;
+  --z-nav: 99;
+  --z-header: 100;
+  --z-modal: 1000;
+  --z-loader: 9999;
 }
 
 /* --- Dark Mode Variables --- */
@@ -101,10 +135,10 @@ body {
   background: var(--colore-card);
   border-radius: 0;
   box-shadow: none; 
-  padding: 32px 24px;
+  padding: var(--spacing-xl) var(--spacing-lg);
   transition: background-color 0.3s, box-shadow 0.3s;
-  padding-top: 80px;
-  padding-bottom: 80px;
+  padding-top: calc(var(--header-height) + var(--spacing-md));
+  padding-bottom: calc(var(--nav-height) + var(--spacing-md));
 }
 
 /* Header e Titoli */
@@ -301,14 +335,14 @@ body.dark-mode .preset-info {
 }
 
 input[type="text"], input[type="number"], select {
-  font-size: 1em;
+  font-size: 16px; /* ✅ FIX #6: Previene zoom automatico iOS */
   padding: 10px 12px;
   border-radius: 8px;
   border: 1px solid #bfc9d1;
   width: 100%;
   box-sizing: border-box;
   transition: border-color 0.3s;
-  min-height: 48px; 
+  min-height: var(--touch-target-comfortable); /* ✅ FIX #4 */
 }
 
 .action-buttons {
@@ -745,9 +779,10 @@ body.dark-mode .modal-action-buttons {
   display: flex;
   justify-content: space-around;
   align-items: center;
-  padding: 6px 0;
+  padding: var(--spacing-sm) 0;
   box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-  z-index: 99;
+  z-index: var(--z-nav);
+  height: var(--nav-height);
 }
 body.dark-mode .bottom-nav {
   box-shadow: 0 -2px 10px rgba(255, 255, 255, 0.05);
@@ -759,11 +794,13 @@ body.dark-mode .bottom-nav {
   justify-content: center;
   text-decoration: none;
   color: var(--colore-testo);
-  padding: 6px 10px;
-  border-radius: 8px;
+  padding: var(--spacing-sm) 10px;
+  border-radius: var(--radius-md);
   transition: all 0.3s ease;
-  min-width: 60px;
+  min-width: 70px;
+  min-height: var(--touch-target-large); /* ✅ FIX #4: Comfortable touch target */
   opacity: 0.6;
+  position: relative;
 }
 .nav-item:hover {
   opacity: 1;
@@ -792,17 +829,22 @@ body.dark-mode .nav-item.active {
 
 /* Responsive adjustments for 5-tab bottom nav */
 @media (max-width: 500px) {
+  .bottom-nav {
+    height: var(--nav-height);
+  }
+  
   .bottom-nav .nav-item {
-    min-width: 50px;
-    padding: 4px 8px;
+    min-width: 60px;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    min-height: var(--touch-target-comfortable); /* ✅ FIX #4: Still comfortable on small screens */
   }
   
   .bottom-nav .nav-icon {
-    font-size: 1.2em;
+    font-size: 1.3em;
   }
   
   .bottom-nav .nav-label {
-    font-size: 0.65em;
+    font-size: 0.68em;
   }
 }
 

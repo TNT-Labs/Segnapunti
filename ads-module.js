@@ -173,19 +173,26 @@ const AdsModule = (() => {
   const hideBanner = () => {
     if (!bannerShown) return;
     
+    // Remove banner from DOM
     const bannerContainer = document.getElementById('ad-banner-container');
     if (bannerContainer) {
-      bannerContainer.style.display = 'none';
+      bannerContainer.remove();
     }
     
+    // Hide AdMob banner if native
     if (window.admob) {
-      window.admob.banner.hide();
+      try {
+        window.admob.banner.hide();
+      } catch (e) {
+        console.warn('AdMob banner hide failed:', e);
+      }
     }
     
-    // ✅ FIX #5: Rimuovi SOLO classe (CSS gestisce padding)
+    // Remove CSS class (CSS handles padding)
     document.body.classList.remove('has-ad-banner');
     
     bannerShown = false;
+    console.log('[Ads] Banner hidden');
   };
 
   // ===================================================================
@@ -339,31 +346,31 @@ const AdsModule = (() => {
   // ===================================================================
   
   const setupEventListeners = () => {
-    // ✅ FIX #1: Previeni re-setup multipli
+    // Prevent multiple initialization
     if (isInitialized) {
       console.log('[Ads] Already initialized, skipping setup');
       return;
     }
     
-    // Setup navigation tracking - SENZA removeEventListener
-    const navLinks = document.querySelectorAll('.nav-item');
-    navLinks.forEach(link => {
-      link.addEventListener('click', onNavigation, { once: false });
-    });
+    // Use event delegation for navigation
+    document.addEventListener('click', (e) => {
+      const navItem = e.target.closest('.nav-item');
+      if (navItem) {
+        onNavigation();
+      }
+    }, { capture: true });
     
-    // Track salvataggio partite (custom event)
-    document.addEventListener('gameCompleted', onGameSaved, { once: false });
+    // Custom events with named handlers
+    document.addEventListener('gameCompleted', onGameSaved);
+    document.addEventListener('premiumStatusChanged', handlePremiumChange);
     
-    // Track vista storico
+    // Track history page
     if (window.location.pathname.includes('storico.html')) {
       onHistoryView();
     }
     
-    // Premium status change
-    document.addEventListener('premiumStatusChanged', handlePremiumChange, { once: false });
-    
-    isInitialized = true; // ✅ Marca come inizializzato
-    console.log('[Ads] Event listeners configurati');
+    isInitialized = true;
+    console.log('[Ads] Event listeners configured');
   };
   
   // ✅ Handler separato per evitare closure problems
