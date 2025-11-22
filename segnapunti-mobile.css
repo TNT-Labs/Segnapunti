@@ -115,7 +115,7 @@ body.dark-mode .giocatori-lista li {
 @media (max-width: 600px) {
   /* Container ottimizzato */
   .container {
-    padding: 16px 14px 90px 14px;
+    padding: 16px 14px 69px 14px; /* ✅ OTTIMIZZATO: 65px nav + 4px = 69px (era 90px) */
   }
 
   /* Header compatto */
@@ -443,12 +443,12 @@ body.dark-mode .giocatori-lista li:nth-child(even) {
 
 /* ✅ FIX: Compensazione corretta banner ads */
 body.has-ad-banner .container {
-  padding-bottom: 135px !important;
+  padding-bottom: 119px !important; /* ✅ OTTIMIZZATO: 65px nav + 50px banner + 4px = 119px (era 135px) */
 }
 
 @media (max-width: 500px) {
   body.has-ad-banner .container {
-    padding-bottom: 130px !important;
+    padding-bottom: 119px !important; /* ✅ OTTIMIZZATO: stesso valore per consistenza */
   }
 }
 
