@@ -510,8 +510,8 @@ body.dark-mode .giocatore-item:hover {
   right: -10px;
   font-size: 2em;
   animation: trophyFloat 3s ease-in-out infinite;
-  /* ✅ FIX CRITICO: z-index alto per evitare che sparisca sotto */
-  z-index: 10;
+  /* ✅ FIX #14: z-index molto alto per non sparire mai sotto altri elementi */
+  z-index: 100;
   pointer-events: none;
 }
 
@@ -1269,7 +1269,8 @@ body.has-ad-banner .container {
 @media (max-width: 500px) {
   .container {
     padding: var(--spacing-lg) var(--spacing-md);
-    padding-top: 95px !important; /* ✅ FIX: 70px header effettivo + 25px spazio = spazio sufficiente */
+    /* ✅ FIX #16: Usa CSS variable per calcolo dinamico invece di valore fisso */
+    padding-top: calc(var(--header-height) + var(--spacing-lg)) !important;
     padding-bottom: calc(65px + var(--spacing-xs)); /* ✅ OTTIMIZZATO: 65px nav + 4px = 69px totale */
   }
   

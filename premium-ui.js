@@ -4,15 +4,21 @@
 
 const PremiumUIModule = (() => {
   let isPremium = false;
+  let badgeAdded = false; // ✅ FIX #24: Flag per prevenire badge duplicati
 
   // ===================================================================
   // 🎨 BADGE PREMIUM IN HEADER
   // ===================================================================
-  
+
   const addPremiumBadge = () => {
     const header = document.querySelector('.fixed-header h1');
     if (!header) return;
-    
+
+    // ✅ FIX #24: Previeni duplicazione con flag
+    if (badgeAdded && header.querySelector('.premium-badge')) {
+      return; // Badge già presente
+    }
+
     // ✅ FIX: Rimuovi badge esistente prima di aggiungerne uno nuovo
     const existingBadge = header.querySelector('.premium-badge');
     if (existingBadge) {
@@ -50,12 +56,14 @@ const PremiumUIModule = (() => {
     }
     
     header.appendChild(badge);
+    badgeAdded = true; // ✅ FIX #24: Imposta flag dopo aggiunta
   };
-  
+
   // ✅ NUOVO: Metodo per rimuovere badge
   const removePremiumBadge = () => {
     const badges = document.querySelectorAll('.premium-badge');
     badges.forEach(badge => badge.remove());
+    badgeAdded = false; // ✅ FIX #24: Reset flag dopo rimozione
   };
 
   // ===================================================================
