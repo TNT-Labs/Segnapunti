@@ -376,8 +376,12 @@ const GameStateModule = (() => {
   let nomeGiocoCorrente = ''; // ✅ NUOVO: Nome del gioco/preset corrente
   let presetKeySelezionato = ''; // ✅ NUOVO v1.3.3: Salva la key del preset attivo
 
+  // ✅ FIX BUG #35: Counter per prevenire collisioni ID
+  let playerIdCounter = 0;
+
   const generatePlayerId = () => {
-    return `player_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    playerIdCounter++;
+    return `player_${Date.now()}_${playerIdCounter}_${Math.random().toString(36).substr(2, 9)}`;
   };
 
   const getModalitaVittoria = () => modalitaVittoria;
@@ -835,6 +839,9 @@ const UIModule = (() => {
 
   // ✅ FIX CRITICO #2: Tracking floating numbers per cleanup
   let activeFloatingNumbers = new Set();
+
+  // ✅ FIX BUG #29: Tracking escape key listener per cleanup
+  let escapeKeyHandler = null;
 
   // ✅ FIX #8: Queue per notifiche round/bust per evitare sovrapposizioni
   let notificationQueue = [];
@@ -1802,10 +1809,36 @@ const UIModule = (() => {
     GameStateModule.saveCurrentState();
   };
 
+  // ✅ FIX BUG #29: Setup escape key listener
+  const setupEscapeKey = () => {
+    // Rimuovi listener esistente se presente
+    if (escapeKeyHandler) {
+      document.removeEventListener('keydown', escapeKeyHandler);
+    }
+
+    // Crea nuovo handler e traccialo
+    escapeKeyHandler = (e) => {
+      if (e.key === 'Escape') {
+        hideModal();
+      }
+    };
+
+    document.addEventListener('keydown', escapeKeyHandler);
+  };
+
+  // ✅ FIX BUG #29: Cleanup escape key listener
+  const cleanupEscapeKey = () => {
+    if (escapeKeyHandler) {
+      document.removeEventListener('keydown', escapeKeyHandler);
+      escapeKeyHandler = null;
+    }
+  };
+
   // ✅ FIX CRITICO #2: Cleanup globale completo
   const cleanupAll = () => {
     cleanupButtonListeners();
     cleanupFloatingNumbers();
+    cleanupEscapeKey(); // ✅ FIX BUG #29: Aggiungi cleanup escape key
     activeAnimations.clear();
   };
 
@@ -1823,10 +1856,12 @@ const UIModule = (() => {
     hideLoader,
     updateDarkModeIcon,
     toggleDarkMode,
+    setupEscapeKey, // ✅ FIX BUG #29: Esponi setup method
     // ✅ FIX CRITICO #2: Esponi cleanup per gestione memory leaks
     cleanupAll,
     cleanupFloatingNumbers,
-    cleanupButtonListeners
+    cleanupButtonListeners,
+    cleanupEscapeKey // ✅ FIX BUG #29: Esponi cleanup method
   };
 })();
 
@@ -2187,12 +2222,9 @@ const AppController = (() => {
         element.addEventListener('click', () => UIModule.applyCustomScore(btn.value));
       }
     });
-    
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        UIModule.hideModal();
-      }
-    });
+
+    // ✅ FIX BUG #29: Usa setupEscapeKey invece di listener anonimo
+    UIModule.setupEscapeKey();
     
     const btnRicomincia = document.getElementById('btn-ricomincia-partita');
     if (btnRicomincia) {
@@ -2233,6 +2265,20 @@ const AppController = (() => {
 // -------------------------------------------------------------------
 document.addEventListener('DOMContentLoaded', () => {
   AppController.init();
+});
+
+// ✅ FIX BUG #36: Listener per sincronizzazione dark mode cross-tab
+window.addEventListener('storage', (e) => {
+  if (e.key === 'darkMode') {
+    const isDark = e.newValue === 'true';
+    if (isDark) {
+      document.body.classList.add('dark-mode');
+    } else {
+      document.body.classList.remove('dark-mode');
+    }
+    UIModule.updateDarkModeIcon();
+    console.log('[DarkMode] Synced from other tab:', isDark);
+  }
 });
 
 // -------------------------------------------------------------------
