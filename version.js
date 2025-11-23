@@ -8,7 +8,7 @@
 // - L'app principale può usarla per display e logging
 // ===================================================================
 
-const APP_VERSION = '1.3.3';
+const APP_VERSION = '1.3.4';
 
 // Export per uso in Service Worker e altri moduli
 if (typeof module !== 'undefined' && module.exports) {
