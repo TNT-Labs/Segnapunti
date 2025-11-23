@@ -129,11 +129,13 @@ body {
   margin: 0 auto; 
   background: var(--colore-card);
   border-radius: 0;
-  box-shadow: none; 
+  box-shadow: none;
   padding: var(--spacing-xl) var(--spacing-lg);
   transition: background-color 0.3s, box-shadow 0.3s;
-  padding-top: 100px; /* ✅ FIX: Aumentato da 94px (70+24) a 100px per sicurezza */
-  padding-bottom: calc(var(--nav-height) + var(--spacing-sm)); /* ✅ RIDOTTO: solo 8px invece di 24px */
+  /* ✅ FIX BUG #16: Usa CSS variable per padding dinamico */
+  padding-top: calc(var(--header-height) + 30px);
+  /* ✅ FIX BUG #17: Usa CSS variable per padding bottom */
+  padding-bottom: calc(var(--nav-height) + var(--spacing-sm));
   min-height: 100vh;
   box-sizing: border-box;
 }
@@ -1191,9 +1193,9 @@ body.dark-mode #ad-banner-container {
   box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.3);
 }
 
-/* ✅ FIX: Padding container con banner */
+/* ✅ FIX BUG #17: Padding container con banner (rimosso !important) */
 body.has-ad-banner .container {
-  padding-bottom: calc(var(--nav-height) + var(--banner-height) + var(--spacing-lg)) !important;
+  padding-bottom: calc(var(--nav-height) + var(--banner-height) + var(--spacing-lg));
 }
 
 /* Premium Badge */
