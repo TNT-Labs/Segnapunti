@@ -20,7 +20,7 @@ const BillingModule = (() => {
   // ===================================================================
   
   const init = async () => {
-    console.log('[Billing] Inizializzazione...');
+    Logger.log('[Billing] Inizializzazione...');
     
     // Carica stato premium da storage locale
     loadPremiumStatus();
@@ -29,7 +29,7 @@ const BillingModule = (() => {
     if (isAndroidTWA()) {
       await initGooglePlayBilling();
     } else {
-      console.log('[Billing] Non in ambiente TWA, modalità demo attiva');
+      Logger.log('[Billing] Non in ambiente TWA, modalità demo attiva');
     }
     
     return isPremiumUser;
@@ -46,15 +46,15 @@ const BillingModule = (() => {
         const service = await window.getDigitalGoodsService('https://play.google.com/billing');
         billingClient = service;
         
-        console.log('[Billing] Digital Goods API connessa');
+        Logger.log('[Billing] Digital Goods API connessa');
         
         // Verifica acquisti esistenti
         await checkExistingPurchases();
       } else {
-        console.warn('[Billing] Digital Goods API non disponibile');
+        Logger.warn('[Billing] Digital Goods API non disponibile');
       }
     } catch (error) {
-      console.error('[Billing] Errore inizializzazione:', error);
+      Logger.error('[Billing] Errore inizializzazione:', error);
     }
   };
 
@@ -68,12 +68,12 @@ const BillingModule = (() => {
         const premiumPurchase = purchases.find(p => p.itemId === PREMIUM_SKU);
         
         if (premiumPurchase) {
-          console.log('[Billing] Acquisto premium trovato:', premiumPurchase);
+          Logger.log('[Billing] Acquisto premium trovato:', premiumPurchase);
           activatePremium(premiumPurchase.purchaseToken);
         }
       }
     } catch (error) {
-      console.error('[Billing] Errore verifica acquisti:', error);
+      Logger.error('[Billing] Errore verifica acquisti:', error);
     }
   };
 
@@ -88,7 +88,7 @@ const BillingModule = (() => {
     }
     
     try {
-      console.log('[Billing] Avvio acquisto premium...');
+      Logger.log('[Billing] Avvio acquisto premium...');
       
       // Ottieni dettagli prodotto
       const details = await billingClient.getDetails([PREMIUM_SKU]);
@@ -130,7 +130,7 @@ const BillingModule = (() => {
       };
       
     } catch (error) {
-      console.error('[Billing] Errore acquisto:', error);
+      Logger.error('[Billing] Errore acquisto:', error);
       
       if (error.name === 'AbortError') {
         return { success: false, cancelled: true };
@@ -149,12 +149,12 @@ const BillingModule = (() => {
   
   const restorePurchases = async () => {
     if (!billingClient) {
-      console.log('[Billing] Ripristino non disponibile in demo mode');
+      Logger.log('[Billing] Ripristino non disponibile in demo mode');
       return { success: false, message: 'Disponibile solo su Google Play' };
     }
     
     try {
-      console.log('[Billing] Ripristino acquisti...');
+      Logger.log('[Billing] Ripristino acquisti...');
       
       await checkExistingPurchases();
       
@@ -171,7 +171,7 @@ const BillingModule = (() => {
       }
       
     } catch (error) {
-      console.error('[Billing] Errore ripristino:', error);
+      Logger.error('[Billing] Errore ripristino:', error);
       return { 
         success: false, 
         error: error.message 
@@ -197,7 +197,7 @@ const BillingModule = (() => {
       return true;
     } catch (e) {
       // SecurityError in Safari private mode, QuotaExceededError, etc.
-      console.warn(`[Billing] ${storageType}Storage non disponibile:`, e.name);
+      Logger.warn(`[Billing] ${storageType}Storage non disponibile:`, e.name);
       return false;
     }
   };
@@ -208,10 +208,10 @@ const BillingModule = (() => {
       return { type: 'localStorage', storage: localStorage };
     }
     if (isStorageAvailable('session')) {
-      console.warn('[Billing] localStorage non disponibile, uso sessionStorage (dati persi al chiudere tab)');
+      Logger.warn('[Billing] localStorage non disponibile, uso sessionStorage (dati persi al chiudere tab)');
       return { type: 'sessionStorage', storage: sessionStorage };
     }
-    console.warn('[Billing] Nessun storage persistente disponibile, uso memoria');
+    Logger.warn('[Billing] Nessun storage persistente disponibile, uso memoria');
     return { type: 'memory', storage: null };
   };
   
@@ -230,7 +230,7 @@ const BillingModule = (() => {
     try {
       if (storage) {
         storage.setItem(BILLING_STORAGE_KEY, JSON.stringify(premiumData));
-        console.log(`[Billing] ✅ Premium salvato in ${storageType}`);
+        Logger.log(`[Billing] ✅ Premium salvato in ${storageType}`);
 
         // ✅ FIX CRITICO #4: Se usando sessionStorage, avvisa l'utente
         if (storageType === 'sessionStorage') {
@@ -238,18 +238,18 @@ const BillingModule = (() => {
         }
       } else {
         memoryStorage[BILLING_STORAGE_KEY] = premiumData;
-        console.log('[Billing] ⚠️ Premium salvato in memoria (nessun storage persistente disponibile)');
+        Logger.log('[Billing] ⚠️ Premium salvato in memoria (nessun storage persistente disponibile)');
       }
 
       // ✅ FIX CRITICO #4: Salva anche in memoria come backup
       memoryStorage[BILLING_STORAGE_KEY] = premiumData;
 
     } catch (error) {
-      console.error('[Billing] ⚠️ Errore salvataggio, uso solo memoria:', error);
+      Logger.error('[Billing] ⚠️ Errore salvataggio, uso solo memoria:', error);
       memoryStorage[BILLING_STORAGE_KEY] = premiumData;
     }
 
-    console.log('[Billing] ✅ Premium attivato!');
+    Logger.log('[Billing] ✅ Premium attivato!');
 
     // Notifica cambio stato
     try {
@@ -257,7 +257,7 @@ const BillingModule = (() => {
         detail: { isPremium: true }
       }));
     } catch (error) {
-      console.error('[Billing] Errore dispatch evento:', error);
+      Logger.error('[Billing] Errore dispatch evento:', error);
     }
 
     // Rimuovi ads se attivi
@@ -265,7 +265,7 @@ const BillingModule = (() => {
       try {
         window.AdsModule.hideAllAds();
       } catch (error) {
-        console.error('[Billing] Errore nascondere ads:', error);
+        Logger.error('[Billing] Errore nascondere ads:', error);
       }
     }
   };
@@ -323,7 +323,7 @@ const BillingModule = (() => {
         if (stored) {
           const premiumData = JSON.parse(stored);
           isPremiumUser = premiumData.active === true;
-          console.log('[Billing] Stato premium caricato da localStorage:', isPremiumUser);
+          Logger.log('[Billing] Stato premium caricato da localStorage:', isPremiumUser);
           return;
         }
       }
@@ -334,7 +334,7 @@ const BillingModule = (() => {
         if (stored) {
           const premiumData = JSON.parse(stored);
           isPremiumUser = premiumData.active === true;
-          console.log('[Billing] Stato premium caricato da sessionStorage:', isPremiumUser);
+          Logger.log('[Billing] Stato premium caricato da sessionStorage:', isPremiumUser);
           return;
         }
       }
@@ -343,13 +343,13 @@ const BillingModule = (() => {
       const stored = memoryStorage[BILLING_STORAGE_KEY];
       if (stored) {
         isPremiumUser = stored.active === true;
-        console.log('[Billing] Stato premium caricato da memoria:', isPremiumUser);
+        Logger.log('[Billing] Stato premium caricato da memoria:', isPremiumUser);
         return;
       }
 
       isPremiumUser = false;
     } catch (error) {
-      console.error('[Billing] Errore caricamento stato:', error);
+      Logger.error('[Billing] Errore caricamento stato:', error);
       isPremiumUser = false;
     }
   };
@@ -363,19 +363,19 @@ const BillingModule = (() => {
         localStorage.removeItem(BILLING_STORAGE_KEY);
       }
     } catch (error) {
-      console.warn('[Billing] Impossibile rimuovere da localStorage:', error);
+      Logger.warn('[Billing] Impossibile rimuovere da localStorage:', error);
     }
     
     memoryStorage[BILLING_STORAGE_KEY] = null;
     
-    console.log('[Billing] Premium revocato (solo per test)');
+    Logger.log('[Billing] Premium revocato (solo per test)');
     
     try {
       document.dispatchEvent(new CustomEvent('premiumStatusChanged', { 
         detail: { isPremium: false } 
       }));
     } catch (error) {
-      console.error('[Billing] Errore dispatch evento:', error);
+      Logger.error('[Billing] Errore dispatch evento:', error);
     }
   };
 
@@ -385,7 +385,7 @@ const BillingModule = (() => {
   
   const simulatePurchase = () => {
     return new Promise((resolve) => {
-      console.log('[Billing] 🧪 DEMO MODE: Simulazione acquisto...');
+      Logger.log('[Billing] 🧪 DEMO MODE: Simulazione acquisto...');
       
       const confirmed = confirm(
         '🧪 DEMO MODE\n\n' +

@@ -7,6 +7,8 @@
   
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#4A148C">
+  <!-- ✅ FIX BUG #44: Content Security Policy -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self';">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"> 
@@ -51,6 +53,7 @@
   <link rel="stylesheet" href="segnapunti.css">
   <link rel="stylesheet" href="preset-manager.css">
   <link rel="stylesheet" href="segnapunti-mobile.css">
+  <link rel="stylesheet" href="utility-classes.css">
 </head>
 <body>
   <div class="container">
@@ -246,6 +249,13 @@
 
   <!-- Scripts -->
   <!-- Storage Helper (Safari private mode support) -->
+  <!-- ✅ FIX BUG #41: Production-safe logging -->
+  <!-- ✅ FIX BUG #43: Polyfills for older browsers -->
+  <script src="polyfills.js"></script>
+
+  <script src="logger.js"></script>
+  <script src="error-handler.js"></script>
+
   <script src="storage-helper.js"></script>
   <script src="preset-manager.js"></script>
   
@@ -298,7 +308,7 @@
         await PremiumUIModule.init();
         
       } catch (error) {
-        console.error('Monetization init error:', error);
+        Logger.error('Monetization init error:', error);
         hasError = true;
         
         // ✅ FIX #8: Mostra messaggio errore user-friendly
@@ -317,11 +327,11 @@
             PresetUI.renderPresetList();
             PresetUI.setupEventListeners();
           } else {
-            console.error('PresetUI not loaded!');
+            Logger.error('PresetUI not loaded!');
             hasError = true;
           }
         } catch (renderError) {
-          console.error('Error rendering presets:', renderError);
+          Logger.error('Error rendering presets:', renderError);
           hasError = true;
         }
 
@@ -343,10 +353,10 @@
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('service-worker.js')
                 .then(registration => {
-                    console.log('Service Worker registrato con successo:', registration.scope);
+                    Logger.log('Service Worker registrato con successo:', registration.scope);
                 })
                 .catch(error => {
-                    console.error('Registrazione Service Worker fallita:', error);
+                    Logger.error('Registrazione Service Worker fallita:', error);
                 });
         });
     }

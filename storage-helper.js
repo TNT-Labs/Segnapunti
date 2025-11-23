@@ -24,7 +24,7 @@ const StorageHelper = (() => {
       isAvailable = true;
       return true;
     } catch (e) {
-      console.warn('⚠️ localStorage unavailable:', e.name);
+      Logger.warn('⚠️ localStorage unavailable:', e.name);
       isAvailable = false;
       return false;
     }
@@ -35,7 +35,7 @@ const StorageHelper = (() => {
       try {
         return localStorage.getItem(key);
       } catch (e) {
-        console.warn('localStorage.getItem failed:', e);
+        Logger.warn('localStorage.getItem failed:', e);
       }
     }
 
@@ -58,7 +58,7 @@ const StorageHelper = (() => {
       try {
         localStorage.setItem(key, value);
       } catch (e) {
-        console.warn('localStorage.setItem failed:', e);
+        Logger.warn('localStorage.setItem failed:', e);
       }
     }
 
@@ -67,7 +67,7 @@ const StorageHelper = (() => {
       // Rimuovi il meno recentemente usato (primo elemento)
       const oldest = cacheKeys.shift();
       delete memoryCache[oldest];
-      console.log(`[StorageHelper] LRU evicted: ${oldest}`);
+      Logger.log(`[StorageHelper] LRU evicted: ${oldest}`);
     }
 
     // Aggiorna o aggiungi nuovo elemento
@@ -85,7 +85,7 @@ const StorageHelper = (() => {
       try {
         localStorage.removeItem(key);
       } catch (e) {
-        console.warn('localStorage.removeItem failed:', e);
+        Logger.warn('localStorage.removeItem failed:', e);
       }
     }
 
@@ -102,7 +102,7 @@ const StorageHelper = (() => {
       try {
         localStorage.clear();
       } catch (e) {
-        console.warn('localStorage.clear failed:', e);
+        Logger.warn('localStorage.clear failed:', e);
       }
     }
     memoryCache = {};

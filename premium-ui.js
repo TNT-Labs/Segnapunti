@@ -3,6 +3,12 @@
 // ===================================================================
 
 const PremiumUIModule = (() => {
+  // ✅ FIX BUG #42: Costanti per magic numbers
+  const PROMO_BANNER_AUTO_HIDE_MS = 10000; // 10 secondi
+  const PROMO_BANNER_DELAY_MS = 5000; // 5 secondi
+  const MIN_SESSION_FOR_PROMO = 3;
+  const MAX_SESSION_FOR_PROMO = 10;
+
   let isPremium = false;
   let badgeAdded = false; // ✅ FIX #24: Flag per prevenire badge duplicati
 
@@ -192,7 +198,7 @@ const PremiumUIModule = (() => {
     try {
       if (sessionStorage.getItem('promo_banner_closed')) return;
     } catch (e) {
-      console.warn('sessionStorage non disponibile:', e);
+      Logger.warn('sessionStorage non disponibile:', e);
       // Continua comunque, mostra il banner
     }
     
@@ -274,7 +280,7 @@ const PremiumUIModule = (() => {
       try {
         sessionStorage.setItem('promo_banner_closed', 'true');
       } catch (e) {
-        console.warn('sessionStorage non disponibile:', e);
+        Logger.warn('sessionStorage non disponibile:', e);
       }
 
       if (container) {
@@ -290,7 +296,7 @@ const PremiumUIModule = (() => {
           container.style.paddingTop = '80px';
         }
       }
-    }, 10000);
+    }, PROMO_BANNER_AUTO_HIDE_MS);
   };
 
   // ===================================================================
@@ -304,14 +310,14 @@ const PremiumUIModule = (() => {
     try {
       sessionCount = parseInt(localStorage.getItem('app_session_count') || '0');
     } catch (e) {
-      console.warn('localStorage non disponibile:', e);
+      Logger.warn('localStorage non disponibile:', e);
       // Usa valore di default 0
     }
 
-    if (sessionCount >= 3 && sessionCount <= 10 && !isPremium) {
+    if (sessionCount >= MIN_SESSION_FOR_PROMO && sessionCount <= MAX_SESSION_FOR_PROMO && !isPremium) {
       setTimeout(() => {
         showPromoBanner();
-      }, 5000); // 5 secondi dopo il caricamento
+      }, PROMO_BANNER_DELAY_MS); // 5 secondi dopo il caricamento
     }
   };
 
@@ -347,7 +353,7 @@ const PremiumUIModule = (() => {
       const sessionCount = parseInt(localStorage.getItem('app_session_count') || '0');
       localStorage.setItem('app_session_count', (sessionCount + 1).toString());
     } catch (e) {
-      console.warn('localStorage non disponibile per session count:', e);
+      Logger.warn('localStorage non disponibile per session count:', e);
       // Non critico, continua senza incrementare
     }
     
@@ -436,7 +442,7 @@ const PremiumUIModule = (() => {
       presetTab.removeEventListener('click', handlePresetClick);
     }
 
-    console.log('✅ PremiumUIModule cleanup completato');
+    Logger.log('✅ PremiumUIModule cleanup completato');
   };
 
   // ===================================================================

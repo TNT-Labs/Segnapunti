@@ -51,13 +51,13 @@ const DatabaseModule = (() => {
       };
 
       request.onerror = (event) => {
-        console.error("Errore IndexedDB:", event.target.errorCode);
+        Logger.error("Errore IndexedDB:", event.target.errorCode);
         
         // ✅ FIX #1: Retry logic invece di reject immediato
         if (retryCount < MAX_RETRIES) {
           retryCount++;
           dbPromise = null;
-          console.log(`Retry ${retryCount}/${MAX_RETRIES}...`);
+          Logger.log(`Retry ${retryCount}/${MAX_RETRIES}...`);
           
           setTimeout(() => {
             openDB().then(resolve).catch(reject);
@@ -82,7 +82,7 @@ const DatabaseModule = (() => {
         const request = store.get(STATE_KEY);
 
         transaction.onerror = () => {
-          console.error('Errore durante il caricamento dello stato');
+          Logger.error('Errore durante il caricamento dello stato');
           resolve(null);
         };
 
@@ -91,7 +91,7 @@ const DatabaseModule = (() => {
         };
 
         request.onerror = () => {
-          console.error('Errore nella richiesta di caricamento');
+          Logger.error('Errore nella richiesta di caricamento');
           resolve(null);
         };
       });
@@ -102,33 +102,33 @@ const DatabaseModule = (() => {
       }
 
       // ✅ FIX CRITICO #3: Prova fallback localStorage se IndexedDB vuoto
-      console.log('IndexedDB vuoto, provo fallback localStorage...');
+      Logger.log('IndexedDB vuoto, provo fallback localStorage...');
       const fallbackData = StorageHelper.getItem(LOCALSTORAGE_FALLBACK_KEY);
       if (fallbackData) {
         try {
           const parsedState = JSON.parse(fallbackData);
-          console.log('✅ Stato caricato da localStorage fallback');
+          Logger.log('✅ Stato caricato da localStorage fallback');
           return parsedState;
         } catch (parseError) {
-          console.error('Errore parsing localStorage fallback:', parseError);
+          Logger.error('Errore parsing localStorage fallback:', parseError);
         }
       }
 
       return null;
 
     } catch (error) {
-      console.error("Errore nel caricamento dello stato:", error);
+      Logger.error("Errore nel caricamento dello stato:", error);
 
       // ✅ FIX CRITICO #3: Se IndexedDB fallisce completamente, usa fallback
       try {
         const fallbackData = StorageHelper.getItem(LOCALSTORAGE_FALLBACK_KEY);
         if (fallbackData) {
           const parsedState = JSON.parse(fallbackData);
-          console.log('✅ Stato caricato da localStorage fallback (IndexedDB non disponibile)');
+          Logger.log('✅ Stato caricato da localStorage fallback (IndexedDB non disponibile)');
           return parsedState;
         }
       } catch (fallbackError) {
-        console.error('Fallback localStorage fallito:', fallbackError);
+        Logger.error('Fallback localStorage fallito:', fallbackError);
       }
 
       return null;
@@ -190,7 +190,7 @@ const DatabaseModule = (() => {
         await savePromise;
       } catch (e) {
         // Ignora errori del salvataggio precedente
-        console.warn('Salvataggio precedente fallito, procedo con il nuovo:', e);
+        Logger.warn('Salvataggio precedente fallito, procedo con il nuovo:', e);
       }
     }
 
@@ -209,7 +209,7 @@ const DatabaseModule = (() => {
             resolve();
           };
           transaction.onerror = () => {
-            console.error('Errore durante il salvataggio dello stato');
+            Logger.error('Errore durante il salvataggio dello stato');
             reject(new Error('Transaction failed'));
           };
 
@@ -217,25 +217,25 @@ const DatabaseModule = (() => {
         });
 
       } catch (error) {
-      console.error(`Errore nel salvataggio dello stato (tentativo ${retries + 1}/${MAX_RETRIES + 1}):`, error);
+      Logger.error(`Errore nel salvataggio dello stato (tentativo ${retries + 1}/${MAX_RETRIES + 1}):`, error);
 
       consecutiveErrors++;
 
       // ✅ FIX CRITICO #3: Retry con exponential backoff
       if (retries < MAX_RETRIES) {
         const delay = Math.pow(2, retries) * 500; // 500ms, 1s, 2s
-        console.log(`Retry salvataggio tra ${delay}ms...`);
+        Logger.log(`Retry salvataggio tra ${delay}ms...`);
 
         await new Promise(resolve => setTimeout(resolve, delay));
         return saveState(state, retries + 1);
       }
 
       // ✅ FIX CRITICO #3: Tutti i retry falliti, usa fallback localStorage
-      console.warn('IndexedDB non disponibile, uso fallback localStorage');
+      Logger.warn('IndexedDB non disponibile, uso fallback localStorage');
 
       try {
         StorageHelper.setItem(LOCALSTORAGE_FALLBACK_KEY, JSON.stringify(state));
-        console.log('✅ Stato salvato in localStorage fallback');
+        Logger.log('✅ Stato salvato in localStorage fallback');
 
         // Notifica utente solo dopo 3 errori consecutivi
         if (consecutiveErrors >= 3) {
@@ -243,7 +243,7 @@ const DatabaseModule = (() => {
         }
 
       } catch (fallbackError) {
-        console.error('CRITICO: Fallback localStorage fallito:', fallbackError);
+        Logger.error('CRITICO: Fallback localStorage fallito:', fallbackError);
 
         // Show critical error
         showPersistentSaveError();
@@ -270,14 +270,14 @@ const DatabaseModule = (() => {
         // ✅ FIX #7: Transaction completion
         transaction.oncomplete = () => resolve();
         transaction.onerror = () => {
-          console.error('Errore salvataggio storico');
+          Logger.error('Errore salvataggio storico');
           reject();
         };
         
         request.onerror = () => reject();
       });
     } catch (error) {
-      console.error("Errore nel salvataggio dello storico:", error);
+      Logger.error("Errore nel salvataggio dello storico:", error);
     }
   };
 
@@ -290,7 +290,7 @@ const DatabaseModule = (() => {
         const request = store.getAll();
 
         transaction.onerror = () => {
-          console.error('Errore durante il caricamento dello storico');
+          Logger.error('Errore durante il caricamento dello storico');
           resolve([]);
         };
 
@@ -300,12 +300,12 @@ const DatabaseModule = (() => {
         };
         
         request.onerror = () => {
-          console.error('Errore nella richiesta dello storico');
+          Logger.error('Errore nella richiesta dello storico');
           resolve([]);
         };
       });
     } catch (error) {
-      console.error("Errore nel caricamento dello storico:", error);
+      Logger.error("Errore nel caricamento dello storico:", error);
       return [];
     }
   };
@@ -320,22 +320,22 @@ const DatabaseModule = (() => {
 
         // ✅ FIX #7: Transaction completion
         transaction.oncomplete = () => {
-          console.log('Storico cancellato con successo');
+          Logger.log('Storico cancellato con successo');
           resolve();
         };
         
         transaction.onerror = () => {
-          console.error('Errore durante la cancellazione dello storico');
+          Logger.error('Errore durante la cancellazione dello storico');
           reject();
         };
         
         request.onerror = () => {
-          console.error('Errore nella richiesta di cancellazione');
+          Logger.error('Errore nella richiesta di cancellazione');
           reject();
         };
       });
     } catch (error) {
-      console.error("Errore nella cancellazione dello storico:", error);
+      Logger.error("Errore nella cancellazione dello storico:", error);
       throw error;
     }
   };
@@ -348,7 +348,7 @@ const DatabaseModule = (() => {
           await navigator.storage.persist();
         }
       } catch (error) {
-        console.error('Errore richiesta storage persistente:', error);
+        Logger.error('Errore richiesta storage persistente:', error);
       }
     }
   };
@@ -611,7 +611,7 @@ const GameStateModule = (() => {
 
     // ✅ FIX #10: Valida esistenza preset
     if (!preset) {
-      console.error(`[GameState] Preset "${presetKey}" not found`);
+      Logger.error(`[GameState] Preset "${presetKey}" not found`);
       // Reset preset selection
       presetKeySelezionato = '';
       saveCurrentState();
@@ -842,6 +842,10 @@ const UIModule = (() => {
 
   // ✅ FIX BUG #29: Tracking escape key listener per cleanup
   let escapeKeyHandler = null;
+
+  // ✅ FIX BUG #42: Costanti per animation timing (magic numbers)
+  const CLEANUP_ANIMATION_DELAY_MS = 500;
+  const FLOATING_SCORE_ANIMATION_MS = 1200;
 
   // ✅ FIX #8: Queue per notifiche round/bust per evitare sovrapposizioni
   let notificationQueue = [];
@@ -1159,7 +1163,7 @@ const UIModule = (() => {
     };
     
     roundsElement.addEventListener('animationend', cleanup, { once: true });
-    setTimeout(cleanup, 500);
+    setTimeout(cleanup, CLEANUP_ANIMATION_DELAY_MS);
   };
 
   // ✅ FIX #8: Processa queue di notifiche FIFO
@@ -1381,18 +1385,18 @@ const UIModule = (() => {
     };
 
     // Rimuovi dopo animazione (1.2s)
-    setTimeout(removeFloating, 1200);
-    
+    setTimeout(removeFloating, FLOATING_SCORE_ANIMATION_MS);
+
     const cleanup = () => {
       puntiElement.classList.remove(animClass);
       activeAnimations.delete(animKey);
       removeFloating(); // ✅ FIX #3: Assicura rimozione anche se animazione interrotta
     };
-    
+
     puntiElement.addEventListener('animationend', cleanup, { once: true });
-    
+
     // Fallback cleanup dopo 500ms
-    setTimeout(cleanup, 500);
+    setTimeout(cleanup, CLEANUP_ANIMATION_DELAY_MS);
   };
 
   const showModal = (playerId) => {
@@ -1673,7 +1677,7 @@ const UIModule = (() => {
       await renderStorico();
     } catch (error) {
       alert('❌ Errore durante l\'eliminazione dello storico. Riprova.');
-      console.error('Errore clear storico:', error);
+      Logger.error('Errore clear storico:', error);
     }
   };
 
@@ -1802,7 +1806,7 @@ const UIModule = (() => {
     try {
       localStorage.setItem('darkMode', isDark.toString());
     } catch (error) {
-      console.warn('[DarkMode] Cannot save to localStorage:', error);
+      Logger.warn('[DarkMode] Cannot save to localStorage:', error);
     }
 
     updateDarkModeIcon();
@@ -1895,7 +1899,7 @@ const SettingsModule = (() => {
 
       // ✅ FIX #10: Valida che il preset esista ancora
       if (!preset) {
-        console.warn(`[Settings] Preset "${presetKey}" non trovato, reset a default`);
+        Logger.warn(`[Settings] Preset "${presetKey}" non trovato, reset a default`);
         // Reset preset selection
         presetSelectElement.value = '';
         if (presetInfoElement) {
@@ -2128,7 +2132,7 @@ const AppController = (() => {
         await PremiumUIModule.init();
 
       } catch (monetizationError) {
-        console.error('Monetization init error:', monetizationError);
+        Logger.error('Monetization init error:', monetizationError);
         // Non bloccare l'app se la monetizzazione fallisce
       }
 
@@ -2155,7 +2159,7 @@ const AppController = (() => {
       }
 
     } catch (error) {
-      console.error('App init error:', error);
+      Logger.error('App init error:', error);
       hasError = true;
 
       // ✅ FIX #1: Mostra messaggio errore user-friendly
@@ -2277,7 +2281,7 @@ window.addEventListener('storage', (e) => {
       document.body.classList.remove('dark-mode');
     }
     UIModule.updateDarkModeIcon();
-    console.log('[DarkMode] Synced from other tab:', isDark);
+    Logger.log('[DarkMode] Synced from other tab:', isDark);
   }
 });
 
