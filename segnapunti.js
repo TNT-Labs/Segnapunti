@@ -22,6 +22,9 @@ const DatabaseModule = (() => {
   let consecutiveErrors = 0;
   let hasShownPersistentErrorWarning = false;
 
+  // ✅ FIX BUG #27: Lock per prevenire race condition su saveState
+  let savePromise = null;
+
   const openDB = () => {
     if (dbPromise) return dbPromise;
     if (db) return Promise.resolve(db);
@@ -179,28 +182,41 @@ const DatabaseModule = (() => {
   };
 
   // ✅ FIX CRITICO #3: Salvataggio con retry e fallback
+  // ✅ FIX BUG #27: Aggiunto lock per prevenire race condition
   const saveState = async (state, retries = 0) => {
-    try {
-      const db = await openDB();
-      await new Promise((resolve, reject) => {
-        const transaction = db.transaction([STORE_NAME], 'readwrite');
-        const store = transaction.objectStore(STORE_NAME);
-        const request = store.put({ id: STATE_KEY, ...state });
+    // ✅ FIX BUG #27: Se c'è già un salvataggio in corso, aspetta che finisca
+    if (savePromise) {
+      try {
+        await savePromise;
+      } catch (e) {
+        // Ignora errori del salvataggio precedente
+        console.warn('Salvataggio precedente fallito, procedo con il nuovo:', e);
+      }
+    }
 
-        // ✅ FIX #7: Usa transaction.oncomplete invece di request.onsuccess
-        transaction.oncomplete = () => {
-          consecutiveErrors = 0; // Reset counter su successo
-          resolve();
-        };
-        transaction.onerror = () => {
-          console.error('Errore durante il salvataggio dello stato');
-          reject(new Error('Transaction failed'));
-        };
+    // ✅ FIX BUG #27: Crea una nuova Promise e salvala in savePromise
+    savePromise = (async () => {
+      try {
+        const db = await openDB();
+        await new Promise((resolve, reject) => {
+          const transaction = db.transaction([STORE_NAME], 'readwrite');
+          const store = transaction.objectStore(STORE_NAME);
+          const request = store.put({ id: STATE_KEY, ...state });
 
-        request.onerror = () => reject(new Error('Put request failed'));
-      });
+          // ✅ FIX #7: Usa transaction.oncomplete invece di request.onsuccess
+          transaction.oncomplete = () => {
+            consecutiveErrors = 0; // Reset counter su successo
+            resolve();
+          };
+          transaction.onerror = () => {
+            console.error('Errore durante il salvataggio dello stato');
+            reject(new Error('Transaction failed'));
+          };
 
-    } catch (error) {
+          request.onerror = () => reject(new Error('Put request failed'));
+        });
+
+      } catch (error) {
       console.error(`Errore nel salvataggio dello stato (tentativo ${retries + 1}/${MAX_RETRIES + 1}):`, error);
 
       consecutiveErrors++;
@@ -233,7 +249,14 @@ const DatabaseModule = (() => {
         showPersistentSaveError();
         throw new Error('Impossibile salvare i dati: sia IndexedDB che localStorage non disponibili');
       }
+    } finally {
+      // ✅ FIX BUG #27: Reset savePromise quando il salvataggio è completato
+      savePromise = null;
     }
+    })();
+
+    // ✅ FIX BUG #27: Ritorna la Promise del salvataggio
+    return savePromise;
   };
 
   const saveHistory = async (partita) => {

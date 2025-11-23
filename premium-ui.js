@@ -188,7 +188,13 @@ const PremiumUIModule = (() => {
   
   const showPromoBanner = () => {
     // Non mostrare se già chiuso in questa sessione
-    if (sessionStorage.getItem('promo_banner_closed')) return;
+    // ✅ FIX BUG #26: Safe storage access per Safari private mode
+    try {
+      if (sessionStorage.getItem('promo_banner_closed')) return;
+    } catch (e) {
+      console.warn('sessionStorage non disponibile:', e);
+      // Continua comunque, mostra il banner
+    }
     
     const banner = document.createElement('div');
     banner.id = 'premium-promo-banner';
@@ -264,8 +270,13 @@ const PremiumUIModule = (() => {
     // Close handler
     banner.querySelector('#close-promo-banner').addEventListener('click', () => {
       banner.remove();
-      sessionStorage.setItem('promo_banner_closed', 'true');
-      
+      // ✅ FIX BUG #26: Safe storage access per Safari private mode
+      try {
+        sessionStorage.setItem('promo_banner_closed', 'true');
+      } catch (e) {
+        console.warn('sessionStorage non disponibile:', e);
+      }
+
       if (container) {
         container.style.paddingTop = '80px';
       }
@@ -288,8 +299,15 @@ const PremiumUIModule = (() => {
   
   const checkAndShowPromo = () => {
     // Mostra promo banner dopo 3 sessioni
-    const sessionCount = parseInt(localStorage.getItem('app_session_count') || '0');
-    
+    // ✅ FIX BUG #26: Safe storage access per Safari private mode
+    let sessionCount = 0;
+    try {
+      sessionCount = parseInt(localStorage.getItem('app_session_count') || '0');
+    } catch (e) {
+      console.warn('localStorage non disponibile:', e);
+      // Usa valore di default 0
+    }
+
     if (sessionCount >= 3 && sessionCount <= 10 && !isPremium) {
       setTimeout(() => {
         showPromoBanner();
@@ -324,8 +342,14 @@ const PremiumUIModule = (() => {
     }
     
     // Incrementa session count
-    const sessionCount = parseInt(localStorage.getItem('app_session_count') || '0');
-    localStorage.setItem('app_session_count', (sessionCount + 1).toString());
+    // ✅ FIX BUG #26: Safe storage access per Safari private mode
+    try {
+      const sessionCount = parseInt(localStorage.getItem('app_session_count') || '0');
+      localStorage.setItem('app_session_count', (sessionCount + 1).toString());
+    } catch (e) {
+      console.warn('localStorage non disponibile per session count:', e);
+      // Non critico, continua senza incrementare
+    }
     
     // ✅ FIX: Listener per cambio stato premium
     document.addEventListener('premiumStatusChanged', handlePremiumStatusChange);
