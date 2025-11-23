@@ -458,32 +458,36 @@ const GameStateModule = (() => {
 
   const updatePunteggio = (playerId, delta) => {
     if (partitaTerminata) return false;
-    
+
     const giocatore = giocatori.find(g => g.id === playerId);
     if (giocatore) {
-      // ✅ DARTS FIX: Gestione speciale per modalità freccette
+      // ✅ FIX #6: Gestione speciale per modalità freccette con bust detection
       if (modalitaVittoria === 'darts') {
         const previousScore = giocatore.punti;
         const newScore = previousScore + delta;
-        
-        // Controlla se va sotto zero
+
+        // ✅ FIX #6: BUST se va sotto zero
         if (newScore < 0) {
-          // Torna al punteggio precedente (non cambia nulla)
-          return false;
+          return 'bust'; // Ritorna 'bust' invece di false
         }
-        
+
+        // ✅ FIX #6: BUST se arriva esattamente a 1 (impossibile double-out da 1)
+        if (newScore === 1) {
+          return 'bust';
+        }
+
         // Aggiorna normalmente
         giocatore.punti = newScore;
       } else {
         // Modalità normale
         giocatore.punti += delta;
       }
-      
+
       saveCurrentState();
-      
+
       // ✅ FIX #11: NON chiamare checkAndAssignRoundWinner qui
       // Lo facciamo nell'UI dopo updatePunteggio per avere il return value
-      
+
       return true;
     }
     return false;
@@ -577,7 +581,15 @@ const GameStateModule = (() => {
   const applyPreset = (presetKey) => {
     const presets = getPresets();
     const preset = presets[presetKey];
-    if (!preset) return null;
+
+    // ✅ FIX #10: Valida esistenza preset
+    if (!preset) {
+      console.error(`[GameState] Preset "${presetKey}" not found`);
+      // Reset preset selection
+      presetKeySelezionato = '';
+      saveCurrentState();
+      return null;
+    }
     
     modalitaVittoria = preset.mode;
     punteggioObiettivo = preset.target;
@@ -695,34 +707,66 @@ const GameStateModule = (() => {
         return g;
       });
       
-      // ✅ FIX #8: Sincronizza dark mode correttamente
-      if (state.darkMode === true) {
-        document.body.classList.add('dark-mode');
-      } else if (state.darkMode === false) {
-        document.body.classList.remove('dark-mode');
+      // ✅ FIX #12: Sincronizza dark mode da localStorage (source of truth)
+      try {
+        const localStorageDarkMode = localStorage.getItem('darkMode');
+        if (localStorageDarkMode !== null) {
+          // localStorage has precedence
+          const isDark = localStorageDarkMode === 'true';
+          if (isDark) {
+            document.body.classList.add('dark-mode');
+          } else {
+            document.body.classList.remove('dark-mode');
+          }
+        } else if (state.darkMode === true) {
+          // Fallback a state.darkMode se localStorage non disponibile
+          document.body.classList.add('dark-mode');
+        } else if (state.darkMode === false) {
+          document.body.classList.remove('dark-mode');
+        }
+      } catch (error) {
+        // Fallback a state.darkMode se localStorage fallisce
+        if (state.darkMode === true) {
+          document.body.classList.add('dark-mode');
+        } else if (state.darkMode === false) {
+          document.body.classList.remove('dark-mode');
+        }
       }
-      // Se undefined, mantieni stato corrente
     }
   };
 
   const saveToHistory = async (vincitori, puntiVincitore, roundsVincitore) => {
+    // ✅ FIX #9: Calcola durata partita (usa timestamp più vecchio dei giocatori)
+    const now = Date.now();
+    const oldestPlayerTime = Math.min(...giocatori.map(g => g.createdAt || now));
+    const duration = now - oldestPlayerTime;
+
     const partita = {
-      timestamp: Date.now(),
+      timestamp: now,
       data: new Date().toLocaleString('it-IT', { dateStyle: 'short', timeStyle: 'short' }),
       vincitori: vincitori,
       puntiVincitore: puntiVincitore,
       roundsVincitore: roundsVincitore || 0,
       modalita: modalitaVittoria,
       nomeGioco: nomeGiocoCorrente || '', // ✅ NUOVO: Salva nome gioco
-      giocatori: giocatori.map(g => ({ 
-        nome: g.nome, 
-        punti: g.punti, 
+
+      // ✅ FIX #9: Aggiungi campi mancanti
+      roundMode: roundMode, // Come si vincevano i round (max/min)
+      punteggioObiettivo: punteggioObiettivo, // Target originale
+      roundsObiettivo: roundsObiettivo, // Rounds target se mode='rounds'
+      startTime: oldestPlayerTime, // Timestamp inizio (giocatore più vecchio)
+      endTime: now, // Timestamp fine
+      duration: duration, // Durata in millisecondi
+
+      giocatori: giocatori.map(g => ({
+        nome: g.nome,
+        punti: g.punti,
         rounds: g.rounds || 0
       }))
     };
-    
+
     await DatabaseModule.saveHistory(partita);
-    
+
     // ✅ FIX: Dispatch evento per ads module
     document.dispatchEvent(new CustomEvent('gameCompleted', {
       detail: { partita }
@@ -768,6 +812,10 @@ const UIModule = (() => {
 
   // ✅ FIX CRITICO #2: Tracking floating numbers per cleanup
   let activeFloatingNumbers = new Set();
+
+  // ✅ FIX #8: Queue per notifiche round/bust per evitare sovrapposizioni
+  let notificationQueue = [];
+  let isShowingNotification = false;
 
   const elements = {
     modal: null,
@@ -949,24 +997,34 @@ const UIModule = (() => {
       const button = document.createElement('button');
       button.textContent = btn.text;
       button.disabled = partitaTerminata;
-      
-      // ✅ FIX #2: Registra listener per cleanup
+
+      // ✅ FIX #2 & #6: Registra listener con bust detection
       const handler = () => {
-        if (GameStateModule.updatePunteggio(giocatore.id, btn.value)) {
+        const result = GameStateModule.updatePunteggio(giocatore.id, btn.value);
+
+        // ✅ FIX #6: Mostra notifica BUST se modalità darts
+        if (result === 'bust') {
+          const player = GameStateModule.getGiocatoreById(giocatore.id);
+          const attemptedScore = player.punti + btn.value;
+          showBustNotification(player.nome, attemptedScore);
+          return; // Non aggiornare UI se bust
+        }
+
+        if (result) {
           animatePunteggio(giocatore.id, btn.value);
-          
+
           // ✅ FIX #11: Controlla se round vinto e mostra notifica
           const roundWon = GameStateModule.checkAndAssignRoundWinner();
           if (roundWon) {
             showRoundWonNotification(roundWon);
           }
-          
+
           renderGiocatoriPartita();
           checkAndDisplayVittoria();
         }
       };
       registerListener(button, 'click', handler);
-      
+
       actionsDiv.appendChild(button);
     });
     
@@ -1059,8 +1117,30 @@ const UIModule = (() => {
     setTimeout(cleanup, 500);
   };
 
-  // ✅ FIX #11: Mostra notifica quando un round viene vinto
+  // ✅ FIX #8: Processa queue di notifiche FIFO
+  const processNotificationQueue = () => {
+    if (isShowingNotification || notificationQueue.length === 0) {
+      return; // Already showing one, or queue is empty
+    }
+
+    isShowingNotification = true;
+    const { type, data } = notificationQueue.shift();
+
+    if (type === 'round_won') {
+      _showRoundWonNotificationInternal(data);
+    } else if (type === 'bust') {
+      _showBustNotificationInternal(data);
+    }
+  };
+
+  // ✅ FIX #11: Mostra notifica quando un round viene vinto (con queue)
   const showRoundWonNotification = (roundInfo) => {
+    notificationQueue.push({ type: 'round_won', data: roundInfo });
+    processNotificationQueue();
+  };
+
+  // ✅ FIX #11: Implementazione interna (chiamata dalla queue)
+  const _showRoundWonNotificationInternal = (roundInfo) => {
     // Crea elemento notifica
     const notification = document.createElement('div');
     notification.className = 'round-won-notification';
@@ -1081,10 +1161,10 @@ const UIModule = (() => {
       max-width: 90%;
       text-align: center;
     `;
-    
+
     const modalita = GameStateModule.getModalitaVittoria();
     let roundLabel = 'Round';
-    
+
     // Determina etichetta corretta per il tipo di gioco
     const nomeGioco = GameStateModule.getNomeGiocoCorrente().toLowerCase();
     if (nomeGioco.includes('tennis') || nomeGioco.includes('pallavolo') || nomeGioco.includes('volleyball')) {
@@ -1092,7 +1172,7 @@ const UIModule = (() => {
     } else if (nomeGioco.includes('poker')) {
       roundLabel = 'Mano';
     }
-    
+
     notification.innerHTML = `
       <div style="font-size: 2em; margin-bottom: 5px;">🏆</div>
       <div><strong>${roundInfo.winnerName}</strong> vince il ${roundLabel}!</div>
@@ -1100,7 +1180,7 @@ const UIModule = (() => {
         ${roundInfo.winningPoints} punti • ${roundLabel} vinti: ${roundInfo.newRoundCount}
       </div>
     `;
-    
+
     // Aggiungi animazioni CSS se non esistono
     if (!document.querySelector('#round-notification-animations')) {
       const style = document.createElement('style');
@@ -1129,15 +1209,84 @@ const UIModule = (() => {
       `;
       document.head.appendChild(style);
     }
-    
+
     document.body.appendChild(notification);
-    
-    // Rimuovi dopo animazione
+
+    // ✅ FIX #8: Rimuovi dopo animazione e processa prossima notifica
     setTimeout(() => {
       if (notification.parentNode) {
         notification.remove();
       }
+      isShowingNotification = false;
+      processNotificationQueue(); // Process next in queue
     }, 3000);
+  };
+
+  // ✅ FIX #6: Mostra notifica BUST per modalità darts (con queue)
+  const showBustNotification = (playerName, attemptedScore) => {
+    notificationQueue.push({ type: 'bust', data: { playerName, attemptedScore } });
+    processNotificationQueue();
+  };
+
+  // ✅ FIX #6: Implementazione interna (chiamata dalla queue)
+  const _showBustNotificationInternal = ({ playerName, attemptedScore }) => {
+    const notification = document.createElement('div');
+    notification.className = 'bust-notification';
+    notification.style.cssText = `
+      position: fixed;
+      top: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, #f44336, #d32f2f);
+      color: white;
+      padding: 20px 30px;
+      border-radius: 16px;
+      font-size: 1.3em;
+      font-weight: 700;
+      box-shadow: 0 8px 24px rgba(244, 67, 54, 0.6);
+      z-index: 9999;
+      animation: bustShake 0.6s ease-out, slideOutTop 0.5s ease-in 1.5s;
+      max-width: 90%;
+      text-align: center;
+    `;
+
+    let bustReason = '';
+    if (attemptedScore < 0) {
+      bustReason = 'Sforamento!';
+    } else if (attemptedScore === 1) {
+      bustReason = 'Non puoi finire a 1!';
+    }
+
+    notification.innerHTML = `
+      <div style="font-size: 2.5em; margin-bottom: 5px;">💥</div>
+      <div style="font-size: 1.5em; margin-bottom: 8px;">BUST!</div>
+      <div style="font-size: 0.85em; opacity: 0.95;">${bustReason}</div>
+    `;
+
+    // Aggiungi animazione shake se non esiste
+    if (!document.querySelector('#bust-animation')) {
+      const style = document.createElement('style');
+      style.id = 'bust-animation';
+      style.textContent = `
+        @keyframes bustShake {
+          0%, 100% { transform: translate(-50%, 0); }
+          10%, 30%, 50%, 70%, 90% { transform: translate(-55%, 0); }
+          20%, 40%, 60%, 80% { transform: translate(-45%, 0); }
+        }
+      `;
+      document.head.appendChild(style);
+    }
+
+    document.body.appendChild(notification);
+
+    // ✅ FIX #8: Rimuovi dopo 2 secondi e processa prossima notifica
+    setTimeout(() => {
+      if (notification.parentNode) {
+        notification.remove();
+      }
+      isShowingNotification = false;
+      processNotificationQueue(); // Process next in queue
+    }, 2000);
   };
 
   const animatePunteggio = (playerId, delta) => {
@@ -1241,42 +1390,53 @@ const UIModule = (() => {
       hideModal();
       return;
     }
-    
+
     let deltaPunti = 0;
 
     if (punti !== null && typeof punti === 'number') {
       deltaPunti = punti;
     } else {
       let val = parseInt(elements.modalInput.value, 10);
-      
+
       if (isNaN(val) || elements.modalInput.value.trim() === '') {
         alert("Devi inserire un punteggio numerico valido.");
         elements.modalInput.focus();
         return;
       }
-      
+
       if (val < -99999 || val > 99999) {
         alert("Il punteggio deve essere tra -99999 e 99999.");
         elements.modalInput.focus();
         return;
       }
-      
+
       deltaPunti = val;
     }
-    
-    if (GameStateModule.updatePunteggio(globalPlayerIdToUpdate, deltaPunti)) {
+
+    const result = GameStateModule.updatePunteggio(globalPlayerIdToUpdate, deltaPunti);
+
+    // ✅ FIX #6: Mostra notifica BUST se modalità darts
+    if (result === 'bust') {
+      const player = GameStateModule.getGiocatoreById(globalPlayerIdToUpdate);
+      const attemptedScore = player.punti + deltaPunti;
+      showBustNotification(player.nome, attemptedScore);
+      hideModal();
+      return; // Non aggiornare UI se bust
+    }
+
+    if (result) {
       animatePunteggio(globalPlayerIdToUpdate, deltaPunti);
-      
+
       // ✅ FIX #11: Controlla se round vinto e mostra notifica
       const roundWon = GameStateModule.checkAndAssignRoundWinner();
       if (roundWon) {
         showRoundWonNotification(roundWon);
       }
-      
+
       renderGiocatoriPartita();
       checkAndDisplayVittoria();
     }
-    
+
     hideModal();
   };
 
@@ -1372,7 +1532,7 @@ const UIModule = (() => {
       const details = document.createElement('div');
       details.className = 'storico-details';
       
-      // ✅ MODIFICATO: Mostra nome gioco se disponibile, altrimenti modalità
+      // ✅ FIX #9: Mostra informazioni complete della partita
       const infoP = document.createElement('p');
       if (partita.nomeGioco && partita.nomeGioco.trim() !== '') {
         infoP.innerHTML = `Gioco: <strong>${partita.nomeGioco}</strong>`;
@@ -1383,10 +1543,38 @@ const UIModule = (() => {
           modalitaText = 'Rounds';
         } else if (partita.modalita === 'max') {
           modalitaText = 'Più punti';
+        } else if (partita.modalita === 'darts') {
+          modalitaText = 'Darts';
         } else {
           modalitaText = 'Meno punti';
         }
         infoP.innerHTML = `Modalità: <strong>${modalitaText}</strong>`;
+      }
+
+      // ✅ FIX #9: Aggiungi informazioni dettagliate se disponibili
+      const detailsP = document.createElement('p');
+      let detailsText = '';
+
+      if (partita.punteggioObiettivo) {
+        detailsText += `Obiettivo: <strong>${partita.punteggioObiettivo}</strong> punti`;
+      }
+
+      if (partita.roundsObiettivo && partita.modalita === 'rounds') {
+        if (detailsText) detailsText += ' • ';
+        detailsText += `Best of <strong>${partita.roundsObiettivo}</strong> rounds`;
+      }
+
+      if (partita.duration) {
+        const minutes = Math.floor(partita.duration / 60000);
+        const seconds = Math.floor((partita.duration % 60000) / 1000);
+        if (detailsText) detailsText += ' • ';
+        detailsText += `Durata: <strong>${minutes}m ${seconds}s</strong>`;
+      }
+
+      if (detailsText) {
+        detailsP.innerHTML = detailsText;
+        detailsP.style.fontSize = '0.9em';
+        detailsP.style.opacity = '0.8';
       }
       
       const partecipantiP = document.createElement('p');
@@ -1406,6 +1594,9 @@ const UIModule = (() => {
       });
       
       details.appendChild(infoP);
+      if (detailsText) {
+        details.appendChild(detailsP);
+      }
       details.appendChild(partecipantiP);
       details.appendChild(giocatoriUl);
       
@@ -1560,6 +1751,15 @@ const UIModule = (() => {
 
   const toggleDarkMode = () => {
     document.body.classList.toggle('dark-mode');
+    const isDark = document.body.classList.contains('dark-mode');
+
+    // ✅ FIX #12: Sync dark mode to localStorage for cross-page consistency
+    try {
+      localStorage.setItem('darkMode', isDark.toString());
+    } catch (error) {
+      console.warn('[DarkMode] Cannot save to localStorage:', error);
+    }
+
     updateDarkModeIcon();
     GameStateModule.saveCurrentState();
   };
@@ -1614,14 +1814,27 @@ const SettingsModule = (() => {
     
     populatePresetSelect();
     
-    // ✅ NUOVO v1.3.3: Ripristina selezione preset salvata
+    // ✅ FIX #10: Ripristina e valida selezione preset salvata
     const presetKey = GameStateModule.getPresetKeySelezionato();
     if (presetKey && presetSelectElement) {
-      presetSelectElement.value = presetKey;
-      
-      // Mostra info preset senza ri-applicarlo (evita loop)
       const presets = GameStateModule.getPresets();
       const preset = presets[presetKey];
+
+      // ✅ FIX #10: Valida che il preset esista ancora
+      if (!preset) {
+        console.warn(`[Settings] Preset "${presetKey}" non trovato, reset a default`);
+        // Reset preset selection
+        presetSelectElement.value = '';
+        if (presetInfoElement) {
+          presetInfoElement.style.display = 'none';
+        }
+        // Non salvare lo stato ora per evitare di sovrascrivere altre impostazioni
+        return;
+      }
+
+      presetSelectElement.value = presetKey;
+
+      // Mostra info preset senza ri-applicarlo (evita loop)
       if (preset && presetInfoElement && presetDescriptionElement) {
         let infoText = `<strong>📋 ${preset.name}</strong><br><br>`;
         

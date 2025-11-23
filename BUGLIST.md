@@ -11,12 +11,12 @@
 | Priorità | Quantità | Categoria | Status |
 |----------|----------|-----------|--------|
 | 🔴 Critica | 5 | Security, Data Loss, Memory Leaks | ✅ FIXED |
-| 🟡 Alta | 8 | Funzionalità, Logica Business | ⏳ TODO |
-| 🟠 Media | 5 | UI/UX, Visual | ⏳ TODO |
+| 🟡 Alta | 8 | Funzionalità, Logica Business | ✅ FIXED |
+| 🟠 Media | 5 | UI/UX, Visual | ✅ FIXED (4/5) |
 | 🔵 Bassa | 4 | Accessibilità, Usabilità | ⏳ TODO |
-| 🟣 Performance | 3 | Ottimizzazioni | ⏳ TODO |
+| 🟣 Performance | 3 | Ottimizzazioni | ✅ FIXED (2/3) |
 
-**TOTALE: 25 problemi identificati**
+**TOTALE: 25 problemi | ✅ FIXED: 19 | ⏳ REMAINING: 6**
 
 ---
 
@@ -150,13 +150,13 @@ Possibile XSS se i nomi vengono condivisi/esportati, compromissione sicurezza
 
 ---
 
-# 🟡 BUGS FUNZIONALI (Priorità Alta) - ⏳ TODO
+# 🟡 BUGS FUNZIONALI (Priorità Alta) - ✅ FIXED
 
-## 6. Modalità Darts non gestisce regole complete
+## 6. Modalità Darts non gestisce regole complete ✅
 
-**File:** `segnapunti.js:336-348`
+**File:** `segnapunti.js:465-493`
 **Severità:** 🟡 Alta
-**Status:** ⏳ TODO
+**Status:** ✅ FIXED
 
 ### Problema
 La modalità freccette 501/301 controlla solo `newScore < 0` ma manca:
@@ -168,20 +168,20 @@ La modalità freccette 501/301 controlla solo `newScore < 0` ma manca:
 ### Impatto
 UX confusa per utenti che giocano a freccette reali, regole incomplete
 
-### Soluzione Proposta
-- Aggiungere opzione "Double Out" nei preset freccette
-- Implementare check bust a 1 punto
-- Mostrare notifica toast "BUST!" quando si va sotto zero o a 1
-- Aggiungere modal per confermare finish con doppio
-- Storico tiri per undo
+### Soluzione Implementata
+- ✅ Check bust a 1 punto (impossibile double-out)
+- ✅ Check bust sotto zero
+- ✅ Notifica visiva "BUST!" con animazione shake
+- ✅ Score non viene aggiornato in caso di bust
+- ✅ Return value 'bust' da updatePunteggio per gestione UI
 
 ---
 
-## 7. Nomi giocatori duplicabili con spazi diversi
+## 7. Nomi giocatori duplicabili con spazi diversi ✅
 
-**File:** `segnapunti.js:299-302`
+**File:** `segnapunti.js:424-430`
 **Severità:** 🟡 Alta
-**Status:** ⏳ TODO
+**Status:** ✅ FIXED (come parte di FIX #5)
 
 ### Problema
 La normalizzazione considera "Mario Bros" e "Mario  Bros" (doppio spazio) come nomi diversi.
@@ -189,18 +189,17 @@ La normalizzazione considera "Mario Bros" e "Mario  Bros" (doppio spazio) come n
 ### Impatto
 Confusione, possibili duplicati non voluti
 
-### Soluzione Proposta
-```javascript
-const nomeNormalizzato = nomeTrimmed.replace(/\s+/g, ' ').trim().toLowerCase();
-```
+### Soluzione Implementata
+✅ Nome sanificato con `replace(/\s+/g, ' ')` prima del confronto
+✅ Normalizzazione completa: trim + lowercase + collapse spaces
 
 ---
 
-## 8. Round Won notifications si sovrappongono
+## 8. Round Won notifications si sovrappongono ✅
 
-**File:** `segnapunti.js:920-997`
+**File:** `segnapunti.js:1080-1094`
 **Severità:** 🟡 Alta
-**Status:** ⏳ TODO
+**Status:** ✅ FIXED
 
 ### Problema
 Se due round vengono vinti rapidamente:
@@ -218,11 +217,11 @@ L'utente potrebbe perdere notifiche importanti
 
 ---
 
-## 9. Storico partite incompleto
+## 9. Storico partite incompleto ✅
 
 **File:** `segnapunti.js:580-596`
 **Severità:** 🟡 Alta
-**Status:** ⏳ TODO
+**Status:** ✅ FIXED
 
 ### Problema
 Lo storico NON salva:
@@ -251,11 +250,11 @@ Aggiungere campi:
 
 ---
 
-## 10. Preset selection può fallire se cancellato
+## 10. Preset selection può fallire se cancellato ✅
 
 **File:** `settings.html` preset logic
 **Severità:** 🟡 Alta
-**Status:** ⏳ TODO
+**Status:** ✅ FIXED
 
 ### Problema
 Se un preset salvato come "selezionato" viene cancellato, rimane mostrato ma non funziona.
@@ -270,11 +269,11 @@ Confusione utente, possibili crash
 
 ---
 
-## 11. Import preset non valida completamente
+## 11. Import preset non valida completamente ✅
 
 **File:** `preset-manager.js:400-414`
 **Severità:** 🟡 Alta
-**Status:** ⏳ TODO
+**Status:** ✅ FIXED
 
 ### Problema
 L'import valida solo `name`, `mode`, `target` ma non:
@@ -292,11 +291,11 @@ Preset importati corrotti possono crashare l'app
 
 ---
 
-## 12. Dark mode non sincronizzato tra pagine
+## 12. Dark mode non sincronizzato tra pagine ✅
 
 **File:** Tutti gli HTML
 **Severità:** 🟡 Media
-**Status:** ⏳ TODO
+**Status:** ✅ FIXED
 
 ### Problema
 Ogni pagina gestisce dark mode diversamente:
@@ -314,11 +313,11 @@ Dark mode inconsistente tra pagine
 
 ---
 
-## 13. Duplicate preset non controlla conflitti
+## 13. Duplicate preset non controlla conflitti ✅
 
 **File:** `preset-manager.js:427-449`
 **Severità:** 🟡 Media
-**Status:** ⏳ TODO
+**Status:** ✅ FIXED
 
 ### Problema
 `duplicatePreset()` non valida se `newKey` esiste già prima di creare.
@@ -341,7 +340,7 @@ if (allPresets[newKey]) {
 
 **File:** `segnapunti.css:506-516`
 **Severità:** 🟠 Media
-**Status:** ⏳ TODO
+**Status:** ✅ FIXED
 
 ### Problema
 Il trofeo `::before` ha `z-index: 10` ma elementi con `position: relative` superiore lo coprono.
@@ -566,7 +565,7 @@ Event listener duplicati, memory leak
 
 **File:** `premium-ui.js:17-19`
 **Severità:** 🟣 Bassa
-**Status:** ⏳ TODO
+**Status:** ✅ FIXED
 
 ### Problema
 Anche con controllo remove, chiamate rapide multiple creano badge duplicati.

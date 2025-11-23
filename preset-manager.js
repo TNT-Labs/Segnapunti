@@ -403,11 +403,75 @@ const PresetManagerModule = (() => {
         } else if (customPresets[key]) {
           skipped++;
         } else {
-          // Validazione base
-          if (preset.name && preset.mode && preset.target !== undefined) {
-            customPresets[key] = preset;
+          // ✅ FIX #11: Validazione completa del preset
+          try {
+            // Valida key
+            if (!key || typeof key !== 'string' || key.trim() === '') {
+              throw new Error('Invalid key');
+            }
+
+            // Valida name (no HTML/script tags, max length)
+            if (!preset.name || typeof preset.name !== 'string') {
+              throw new Error('Invalid name');
+            }
+            const safeName = preset.name.trim().slice(0, 50);
+            if (!/^[\p{L}\p{N}\s'\-,.:!]+$/u.test(safeName)) {
+              throw new Error('Invalid characters in name');
+            }
+
+            // Valida mode
+            if (!['max', 'min', 'rounds', 'darts'].includes(preset.mode)) {
+              throw new Error('Invalid mode');
+            }
+
+            // Valida e converti target a numero
+            const target = parseInt(preset.target, 10);
+            if (isNaN(target) || target <= 0 || target > 100000) {
+              throw new Error('Invalid target');
+            }
+
+            // Valida roundMode e roundsTarget se mode='rounds'
+            let roundMode = preset.roundMode || 'max';
+            let roundsTarget = preset.roundsTarget ? parseInt(preset.roundsTarget, 10) : 3;
+
+            if (preset.mode === 'rounds') {
+              if (!['max', 'min'].includes(roundMode)) {
+                roundMode = 'max'; // Fallback sicuro
+              }
+              if (isNaN(roundsTarget) || roundsTarget <= 0) {
+                roundsTarget = 3; // Fallback sicuro
+              }
+            }
+
+            // Sanifica description
+            let description = '';
+            if (preset.description && typeof preset.description === 'string') {
+              description = preset.description.trim().slice(0, 200);
+            }
+
+            // Category
+            const category = preset.category || 'custom';
+
+            // Crea preset validato
+            const validatedPreset = {
+              name: safeName,
+              mode: preset.mode,
+              target: target,
+              description: description,
+              category: category
+            };
+
+            // Aggiungi campi rounds solo se necessario
+            if (preset.mode === 'rounds') {
+              validatedPreset.roundMode = roundMode;
+              validatedPreset.roundsTarget = roundsTarget;
+            }
+
+            customPresets[key.trim()] = validatedPreset;
             imported++;
-          } else {
+
+          } catch (validationError) {
+            console.warn(`[Import] Preset "${key}" skipped:`, validationError.message);
             skipped++;
           }
         }
@@ -427,9 +491,14 @@ const PresetManagerModule = (() => {
   const duplicatePreset = (sourceKey, newKey, newName) => {
     const allPresets = getAllPresets();
     const sourcePreset = allPresets[sourceKey];
-    
+
     if (!sourcePreset) {
       throw new Error('Preset sorgente non trovato');
+    }
+
+    // ✅ FIX #13: Valida che newKey non esista già
+    if (allPresets[newKey]) {
+      throw new Error('Codice preset già esistente. Scegli un codice diverso.');
     }
 
     const presetData = {
