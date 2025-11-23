@@ -24,7 +24,8 @@
     <div class="header-controls fixed-header"> 
       <h1>🃏 Punteggi Attuali</h1>
       <div class="top-buttons">
-          <button id="toggle-dark-mode" title="Attiva/Disattiva Modalità Scura" onclick="toggleDarkMode()">🌙</button>
+          <!-- ✅ FIX BUG #19: Aggiunto aria-label per accessibilità -->
+          <button id="toggle-dark-mode" title="Attiva/Disattiva Modalità Scura" aria-label="Attiva o disattiva modalità scura" onclick="toggleDarkMode()">🌙</button>
       </div>
     </div>
     
@@ -40,7 +41,8 @@
     
     <hr class="separator">
 
-    <div id="modal-overlay" class="modal-overlay" style="display: none;">
+    <!-- ✅ FIX BUG #19: Aggiunto role="dialog" e aria-labelledby per accessibilità -->
+    <div id="modal-overlay" class="modal-overlay" role="dialog" aria-labelledby="modal-title-player-name" aria-modal="true" style="display: none;">
       <div class="modal-content">
           <h2 id="modal-title-player-name">Aggiungi Punti</h2>
           <form id="modal-input-form">
@@ -69,25 +71,26 @@
   </div>
   
   <!-- Bottom Navigation Bar -->
-  <nav class="bottom-nav">
-    <a href="index.html" class="nav-item active">
-      <span class="nav-icon">🃏</span>
+  <!-- ✅ FIX BUG #19: Aggiunto aria-current e aria-label per accessibilità -->
+  <nav class="bottom-nav" role="navigation" aria-label="Navigazione principale">
+    <a href="index.html" class="nav-item active" aria-current="page" aria-label="Partita (pagina corrente)">
+      <span class="nav-icon" aria-hidden="true">🃏</span>
       <span class="nav-label">Partita</span>
     </a>
-    <a href="storico.html" class="nav-item">
-      <span class="nav-icon">📜</span>
+    <a href="storico.html" class="nav-item" aria-label="Storico partite">
+      <span class="nav-icon" aria-hidden="true">📜</span>
       <span class="nav-label">Storico</span>
     </a>
-    <a href="settings.html" class="nav-item">
-      <span class="nav-icon">⚙️</span>
+    <a href="settings.html" class="nav-item" aria-label="Impostazioni">
+      <span class="nav-icon" aria-hidden="true">⚙️</span>
       <span class="nav-label">Settings</span>
     </a>
-    <a href="preset-manager.html" class="nav-item">
-      <span class="nav-icon">🎮</span>
+    <a href="preset-manager.html" class="nav-item" aria-label="Gestione preset">
+      <span class="nav-icon" aria-hidden="true">🎮</span>
       <span class="nav-label">Preset</span>
     </a>
-    <a href="premium.html" class="nav-item">
-      <span class="nav-icon">✨</span>
+    <a href="premium.html" class="nav-item" aria-label="Premium">
+      <span class="nav-icon" aria-hidden="true">✨</span>
       <span class="nav-label">Premium</span>
     </a>
   </nav>

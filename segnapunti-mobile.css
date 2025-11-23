@@ -143,7 +143,8 @@ body.dark-mode .giocatori-lista li {
   /* Container ottimizzato */
   .container {
     padding: 16px 14px 69px 14px; /* ✅ OTTIMIZZATO: 65px nav + 4px = 69px (era 90px) */
-    padding-top: 95px !important; /* ✅ FIX CRITICO: Spazio sufficiente per header fisso */
+    /* ✅ FIX BUG #16: Usa CSS variable + margine per titoli lunghi/badge premium */
+    padding-top: calc(var(--header-height, 70px) + 30px) !important;
   }
 
   /* Header compatto */
