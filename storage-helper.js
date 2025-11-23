@@ -4,6 +4,8 @@
 
 const StorageHelper = (() => {
   let memoryCache = {};
+  let cacheKeys = []; // ✅ FIX BUG #40: LRU queue per memory cache
+  const MAX_CACHE_ITEMS = 100; // ✅ FIX BUG #40: Limite per prevenire memory leak
   let isAvailable = null;
   
   // Test localStorage availability
@@ -36,7 +38,19 @@ const StorageHelper = (() => {
         console.warn('localStorage.getItem failed:', e);
       }
     }
-    return memoryCache[key] || null;
+
+    // ✅ FIX BUG #40: Update LRU on access
+    const value = memoryCache[key];
+    if (value !== undefined) {
+      // Move to end (most recently used)
+      const index = cacheKeys.indexOf(key);
+      if (index > -1) {
+        cacheKeys.splice(index, 1);
+        cacheKeys.push(key);
+      }
+    }
+
+    return value || null;
   };
   
   const setItem = (key, value) => {
@@ -47,6 +61,22 @@ const StorageHelper = (() => {
         console.warn('localStorage.setItem failed:', e);
       }
     }
+
+    // ✅ FIX BUG #40: LRU eviction quando cache piena
+    if (memoryCache[key] === undefined && cacheKeys.length >= MAX_CACHE_ITEMS) {
+      // Rimuovi il meno recentemente usato (primo elemento)
+      const oldest = cacheKeys.shift();
+      delete memoryCache[oldest];
+      console.log(`[StorageHelper] LRU evicted: ${oldest}`);
+    }
+
+    // Aggiorna o aggiungi nuovo elemento
+    const existingIndex = cacheKeys.indexOf(key);
+    if (existingIndex > -1) {
+      // Key già esiste, muovi alla fine
+      cacheKeys.splice(existingIndex, 1);
+    }
+    cacheKeys.push(key);
     memoryCache[key] = value;
   };
   
@@ -57,6 +87,12 @@ const StorageHelper = (() => {
       } catch (e) {
         console.warn('localStorage.removeItem failed:', e);
       }
+    }
+
+    // ✅ FIX BUG #40: Rimuovi anche da LRU queue
+    const index = cacheKeys.indexOf(key);
+    if (index > -1) {
+      cacheKeys.splice(index, 1);
     }
     delete memoryCache[key];
   };
@@ -70,6 +106,7 @@ const StorageHelper = (() => {
       }
     }
     memoryCache = {};
+    cacheKeys = []; // ✅ FIX BUG #40: Reset anche LRU queue
   };
   
   return {

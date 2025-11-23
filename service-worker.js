@@ -8,9 +8,14 @@
 // - Update: skipWaiting() per update immediati
 // ===================================================================
 
-const CACHE_VERSION = '1.3.2';  // ⚠️ Incrementa ad ogni deploy!
+// ✅ FIX BUG #34: Import versione da file centralizzato
+importScripts('version.js');
+
+const CACHE_VERSION = typeof APP_VERSION !== 'undefined' ? APP_VERSION : '1.3.2';
 const CACHE_NAME = `segnapunti-cache-v${CACHE_VERSION}`;
 const MAX_CACHE_AGE_DAYS = 30; // Expiration cache immagini
+
+console.log(`[Service Worker] Version: ${CACHE_VERSION}`);
 
 // ✅ Lista completa asset (VERIFICATA + storage-helper.js)
 const ASSETS_TO_CACHE = [
@@ -22,6 +27,7 @@ const ASSETS_TO_CACHE = [
   'preset-manager.html',
   'premium.html', // ✅ NUOVO
   'storage-helper.js', // ✅ FIX #2: Safari storage helper
+  'version.js', // ✅ FIX BUG #34: Versione centralizzata
   'segnapunti.js',
   'segnapunti.css',
   'segnapunti-mobile.css', // ✅ MOBILE OPTIMIZATION

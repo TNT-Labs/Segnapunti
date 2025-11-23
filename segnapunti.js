@@ -376,8 +376,12 @@ const GameStateModule = (() => {
   let nomeGiocoCorrente = ''; // ✅ NUOVO: Nome del gioco/preset corrente
   let presetKeySelezionato = ''; // ✅ NUOVO v1.3.3: Salva la key del preset attivo
 
+  // ✅ FIX BUG #35: Counter per prevenire collisioni ID
+  let playerIdCounter = 0;
+
   const generatePlayerId = () => {
-    return `player_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    playerIdCounter++;
+    return `player_${Date.now()}_${playerIdCounter}_${Math.random().toString(36).substr(2, 9)}`;
   };
 
   const getModalitaVittoria = () => modalitaVittoria;
@@ -2261,6 +2265,20 @@ const AppController = (() => {
 // -------------------------------------------------------------------
 document.addEventListener('DOMContentLoaded', () => {
   AppController.init();
+});
+
+// ✅ FIX BUG #36: Listener per sincronizzazione dark mode cross-tab
+window.addEventListener('storage', (e) => {
+  if (e.key === 'darkMode') {
+    const isDark = e.newValue === 'true';
+    if (isDark) {
+      document.body.classList.add('dark-mode');
+    } else {
+      document.body.classList.remove('dark-mode');
+    }
+    UIModule.updateDarkModeIcon();
+    console.log('[DarkMode] Synced from other tab:', isDark);
+  }
 });
 
 // -------------------------------------------------------------------

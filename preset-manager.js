@@ -210,10 +210,17 @@ const PresetManagerModule = (() => {
     // ✅ FIX #22: Lista chiavi riservate JavaScript
     const RESERVED_KEYS = ['__proto__', 'constructor', 'prototype', 'default', 'toString', 'valueOf', 'hasOwnProperty'];
 
-    // ✅ FIX #22: Validazione formato key rafforzata
+    // ✅ FIX #22 + BUG #39: Validazione formato key rafforzata
     // - Deve iniziare con lettera (non numero/underscore)
     // - Solo lettere minuscole, numeri, underscore
     // - Non può essere una chiave riservata
+    // - Lunghezza massima 50 caratteri
+    const MAX_KEY_LENGTH = 50;
+
+    if (key.length > MAX_KEY_LENGTH) {
+      throw new Error(`Il codice preset non può superare ${MAX_KEY_LENGTH} caratteri`);
+    }
+
     if (!/^[a-z][a-z0-9_]*$/.test(key)) {
       throw new Error('Il codice preset deve iniziare con una lettera e contenere solo lettere minuscole, numeri e underscore');
     }
@@ -224,6 +231,17 @@ const PresetManagerModule = (() => {
 
     if (!presetData.name || presetData.name.trim() === '') {
       throw new Error('Il nome del gioco non può essere vuoto');
+    }
+
+    // ✅ FIX BUG #37: Validazione name più rigorosa
+    const safeName = presetData.name.trim().slice(0, 50);
+    if (!/^[\p{L}\p{N}\s'\-]+$/u.test(safeName)) {
+      throw new Error('Il nome può contenere solo lettere, numeri, spazi, apostrofi e trattini');
+    }
+
+    // ✅ FIX BUG #37: Rimuovi HTML tags per sicurezza
+    if (/<[^>]*>/g.test(safeName)) {
+      throw new Error('Il nome non può contenere tag HTML');
     }
 
     if (!['max', 'min', 'rounds'].includes(presetData.mode)) {
@@ -258,14 +276,14 @@ const PresetManagerModule = (() => {
     let autoDescription = '';
     if (presetData.mode === 'rounds') {
       const roundModeText = presetData.roundMode === 'max' ? 'più punti' : 'meno punti';
-      autoDescription = `${presetData.name} - Ogni round finisce a ${target} punti (vince chi fa ${roundModeText}). Vince chi vince ${presetData.roundsTarget} round.`;
+      autoDescription = `${safeName} - Ogni round finisce a ${target} punti (vince chi fa ${roundModeText}). Vince chi vince ${presetData.roundsTarget} round.`;
     } else {
       const modeText = presetData.mode === 'max' ? 'Più punti' : 'Meno punti';
-      autoDescription = `${presetData.name} - Modalità ${modeText}, Obiettivo: ${target}`;
+      autoDescription = `${safeName} - Modalità ${modeText}, Obiettivo: ${target}`;
     }
     
     const newPreset = {
-      name: presetData.name.trim(),
+      name: safeName, // ✅ FIX BUG #37: Usa safeName validato
       mode: presetData.mode,
       target: target,
       description: presetData.description?.trim() || autoDescription,
@@ -595,7 +613,18 @@ const PresetManagerModule = (() => {
 
 const PresetUIModule = (() => {
   let currentEditingKey = null;
-  
+
+  // ✅ FIX BUG #38: Traccia handler per cleanup
+  const eventHandlers = {
+    btnCreateClick: null,
+    btnCloseModalClick: null,
+    btnSavePresetClick: null,
+    modeSelectChange: null,
+    btnExportClick: null,
+    btnImportClick: null,
+    btnRestoreClick: null
+  };
+
   const CATEGORY_ORDER = ['carte', 'tavolo', 'sport', 'altri', 'custom'];
   const CATEGORY_NAMES = {
     carte: '🃏 Giochi di Carte',
@@ -1089,12 +1118,15 @@ const PresetUIModule = (() => {
   };
 
   const setupEventListeners = () => {
+    // ✅ FIX BUG #38: Cleanup esistenti prima di aggiungere nuovi
+    cleanup();
+
     const btnCreate = document.getElementById('btn-create-preset');
     if (btnCreate) {
-      btnCreate.addEventListener('click', () => {
+      eventHandlers.btnCreateClick = () => {
         // ✅ FIX #4: Usa PresetManagerModule.getAllPresets() invece di getAllPresets()
         const canCreate = PresetManagerModule.canCreatePreset();
-        
+
         if (!canCreate.allowed) {
           if (window.PremiumUIModule) {
             window.PremiumUIModule.showFeatureLockedModal(
@@ -1106,47 +1138,117 @@ const PresetUIModule = (() => {
           }
           return;
         }
-        
+
         showCreateModal();
-      });
+      };
+      btnCreate.addEventListener('click', eventHandlers.btnCreateClick);
     }
 
     const btnCloseModal = document.getElementById('btn-close-preset-modal');
     if (btnCloseModal) {
-      btnCloseModal.addEventListener('click', closeModal);
+      eventHandlers.btnCloseModalClick = closeModal;
+      btnCloseModal.addEventListener('click', eventHandlers.btnCloseModalClick);
     }
 
     const btnSavePreset = document.getElementById('btn-save-preset');
     if (btnSavePreset) {
-      btnSavePreset.addEventListener('click', savePreset);
+      eventHandlers.btnSavePresetClick = savePreset;
+      btnSavePreset.addEventListener('click', eventHandlers.btnSavePresetClick);
     }
 
     const modeSelect = document.getElementById('preset-mode');
     if (modeSelect) {
-      modeSelect.addEventListener('change', (e) => {
+      eventHandlers.modeSelectChange = (e) => {
         toggleRoundsFields(e.target.value);
-      });
+      };
+      modeSelect.addEventListener('change', eventHandlers.modeSelectChange);
     }
 
     const btnExport = document.getElementById('btn-export-presets');
     if (btnExport) {
-      btnExport.addEventListener('click', exportPresets);
+      eventHandlers.btnExportClick = exportPresets;
+      btnExport.addEventListener('click', eventHandlers.btnExportClick);
     }
 
     const btnImport = document.getElementById('btn-import-presets');
     if (btnImport) {
-      btnImport.addEventListener('click', importPresets);
+      eventHandlers.btnImportClick = importPresets;
+      btnImport.addEventListener('click', eventHandlers.btnImportClick);
     }
 
     const btnRestore = document.getElementById('btn-restore-defaults');
     if (btnRestore) {
-      btnRestore.addEventListener('click', restoreDefaults);
+      eventHandlers.btnRestoreClick = restoreDefaults;
+      btnRestore.addEventListener('click', eventHandlers.btnRestoreClick);
     }
+  };
+
+  // ✅ FIX BUG #38: Cleanup method per rimuovere event listeners
+  const cleanup = () => {
+    if (eventHandlers.btnCreateClick) {
+      const btnCreate = document.getElementById('btn-create-preset');
+      if (btnCreate) {
+        btnCreate.removeEventListener('click', eventHandlers.btnCreateClick);
+      }
+      eventHandlers.btnCreateClick = null;
+    }
+
+    if (eventHandlers.btnCloseModalClick) {
+      const btnCloseModal = document.getElementById('btn-close-preset-modal');
+      if (btnCloseModal) {
+        btnCloseModal.removeEventListener('click', eventHandlers.btnCloseModalClick);
+      }
+      eventHandlers.btnCloseModalClick = null;
+    }
+
+    if (eventHandlers.btnSavePresetClick) {
+      const btnSavePreset = document.getElementById('btn-save-preset');
+      if (btnSavePreset) {
+        btnSavePreset.removeEventListener('click', eventHandlers.btnSavePresetClick);
+      }
+      eventHandlers.btnSavePresetClick = null;
+    }
+
+    if (eventHandlers.modeSelectChange) {
+      const modeSelect = document.getElementById('preset-mode');
+      if (modeSelect) {
+        modeSelect.removeEventListener('change', eventHandlers.modeSelectChange);
+      }
+      eventHandlers.modeSelectChange = null;
+    }
+
+    if (eventHandlers.btnExportClick) {
+      const btnExport = document.getElementById('btn-export-presets');
+      if (btnExport) {
+        btnExport.removeEventListener('click', eventHandlers.btnExportClick);
+      }
+      eventHandlers.btnExportClick = null;
+    }
+
+    if (eventHandlers.btnImportClick) {
+      const btnImport = document.getElementById('btn-import-presets');
+      if (btnImport) {
+        btnImport.removeEventListener('click', eventHandlers.btnImportClick);
+      }
+      eventHandlers.btnImportClick = null;
+    }
+
+    if (eventHandlers.btnRestoreClick) {
+      const btnRestore = document.getElementById('btn-restore-defaults');
+      if (btnRestore) {
+        btnRestore.removeEventListener('click', eventHandlers.btnRestoreClick);
+      }
+      eventHandlers.btnRestoreClick = null;
+    }
+
+    console.log('✅ PresetUIModule cleanup completato');
   };
 
   return {
     renderPresetList,
-    setupEventListeners
+    setupEventListeners,
+    cleanup, // ✅ FIX BUG #38: Esponi cleanup method
+    updateCreateButtonState
   };
 })();
 
