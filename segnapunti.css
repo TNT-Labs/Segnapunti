@@ -639,10 +639,12 @@ body.dark-mode .giocatore-rounds {
 
 .giocatore-actions button {
   padding: 10px 8px;
-  font-size: 0.95em;
+  /* ✅ FIX #15: Font-size responsive con clamp() */
+  font-size: clamp(0.85em, 2vw, 0.95em);
   font-weight: 700;
   min-height: var(--touch-target-min);
-  /* ✅ FIX OVERFLOW TESTO */
+  /* ✅ FIX #15: Overflow testo gestito con max-width */
+  max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -695,10 +697,12 @@ body.dark-mode .giocatore-rounds {
 
 .punteggio-controls button {
   padding: 10px 8px;
-  font-size: 0.95em;
+  /* ✅ FIX #15: Font-size responsive con clamp() */
+  font-size: clamp(0.85em, 2vw, 0.95em);
   font-weight: 700;
   min-height: var(--touch-target-min);
-  /* ✅ FIX OVERFLOW TESTO */
+  /* ✅ FIX #15: Overflow testo gestito con max-width */
+  max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
