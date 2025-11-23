@@ -60,7 +60,23 @@
       <div id="preset-info" class="preset-info" style="display: none;">
         <p id="preset-description"></p>
       </div>
-      
+
+      <hr class="separator">
+
+      <!-- 🎨 TEMI PREMIUM -->
+      <h3>🎨 Temi</h3>
+      <label for="theme-selector">Seleziona Tema:</label>
+      <select id="theme-selector">
+        <option value="default">Default (Gratuito)</option>
+        <option value="theme-ocean" data-premium="true">✨ Ocean (Premium)</option>
+        <option value="theme-sunset" data-premium="true">✨ Sunset (Premium)</option>
+        <option value="theme-forest" data-premium="true">✨ Forest (Premium)</option>
+      </select>
+
+      <p style="font-size: 0.85em; color: var(--colore-testo); opacity: 0.7; margin-top: 8px;">
+        I temi premium sono disponibili solo con abbonamento Premium.
+      </p>
+
       <hr class="separator">
 
       <h3>Gestione Dati</h3>
@@ -141,10 +157,49 @@
         }
 
         await PremiumUIModule.init();
+
+        // 🎨 TEMI PREMIUM: Inizializza selettore temi
+        initThemeSelector();
       } catch (error) {
         Logger.error('Monetization init error:', error);
       }
     });
+
+    // 🎨 TEMI PREMIUM: Gestione selettore temi
+    function initThemeSelector() {
+      const themeSelector = document.getElementById('theme-selector');
+      if (!themeSelector) return;
+
+      // Carica il tema corrente
+      const currentTheme = getCurrentTheme();
+      themeSelector.value = currentTheme;
+
+      // Listener per cambio tema
+      themeSelector.addEventListener('change', function(e) {
+        const selectedTheme = e.target.value;
+        const isPremiumTheme = e.target.selectedOptions[0].hasAttribute('data-premium');
+
+        // Se è un tema premium e l'utente non è premium
+        if (isPremiumTheme && !BillingModule.isPremium()) {
+          // Mostra modal premium
+          if (typeof PremiumUIModule !== 'undefined' && PremiumUIModule.showFeatureLockedModal) {
+            PremiumUIModule.showFeatureLockedModal('Temi Premium', 'Sblocca temi esclusivi con Premium!');
+          }
+          // Ripristina il tema precedente
+          themeSelector.value = currentTheme;
+          return;
+        }
+
+        // Cambia il tema
+        const success = changeTheme(selectedTheme);
+        if (!success) {
+          // Se il cambio è fallito, ripristina il tema precedente
+          themeSelector.value = currentTheme;
+        }
+      });
+
+      Logger.log('[Theme] Selettore temi inizializzato. Tema corrente:', currentTheme);
+    }
   </script>
 </body>
 </html>
