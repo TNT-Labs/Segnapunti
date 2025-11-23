@@ -1,19 +1,19 @@
 :root {
   --colore-primario: #2a4d69;
-  --colore-secondario: #4b86b4;
+  --colore-secondario: #2563a8;  /* ✅ FIX: Scurito per miglior contrasto con testo bianco in light mode */
   --colore-sfondo: #f4f6fb;
   --colore-card: #ffffff;
   --colore-testo: #222;
   --colore-vincitore: #155724;
   --sfondo-vincitore: #d4edda;
   --bordo-vincitore: #c3e6cb;
-  --colore-rimuovi: #e57373;
-  --sfondo-rimuovi: #c62828;
+  --colore-rimuovi: #c62828;  /* ✅ FIX: Scurito per miglior contrasto con testo bianco in light mode */
+  --sfondo-rimuovi: #a02020;  /* ✅ FIX: Scurito ulteriormente per hover */
   --colore-pulsante-custom: #008CBA;
-  --colore-reset: #c62828; 
-  --colore-blocco: rgba(0, 0, 0, 0.6); 
+  --colore-reset: #c62828;
+  --colore-blocco: rgba(0, 0, 0, 0.6);
   --colore-header-bordo: #e0e0e0;
-  --colore-rounds: #ff9800;
+  --colore-rounds: #e67e00;  /* ✅ FIX: Scurito per miglior contrasto con testo bianco in light mode */
   
   /* ✅ Spacing variables */
   --spacing-xs: 4px;
@@ -679,7 +679,7 @@ body.dark-mode .giocatore-rounds {
 }
 
 .rounds-controls button:hover {
-  background: #f57c00;
+  background: #cc6600;  /* ✅ FIX: Scurito per coerenza con il nuovo colore rounds */
 }
 
 .rounds-controls .rounds-label {
