@@ -183,57 +183,83 @@ const BillingModule = (() => {
   // 💾 GESTIONE STATO PREMIUM (✅ FIX #2: Safari private mode support)
   // ===================================================================
   
-  // ✅ FIX #2: Helper per verificare disponibilità localStorage
-  const isStorageAvailable = () => {
+  // ✅ FIX CRITICO #4: Helper per verificare disponibilità storage con fallback
+  const isStorageAvailable = (storageType = 'local') => {
     try {
-      if (typeof localStorage === 'undefined') return false;
-      
+      const storage = storageType === 'local' ? localStorage : sessionStorage;
+
+      if (typeof storage === 'undefined') return false;
+
       // Test write per verificare disponibilità effettiva
       const testKey = '__storage_test__';
-      localStorage.setItem(testKey, 'test');
-      localStorage.removeItem(testKey);
+      storage.setItem(testKey, 'test');
+      storage.removeItem(testKey);
       return true;
     } catch (e) {
       // SecurityError in Safari private mode, QuotaExceededError, etc.
-      console.warn('[Billing] localStorage non disponibile:', e.name);
+      console.warn(`[Billing] ${storageType}Storage non disponibile:`, e.name);
       return false;
     }
+  };
+
+  // ✅ FIX CRITICO #4: Determina miglior storage disponibile
+  const getBestAvailableStorage = () => {
+    if (isStorageAvailable('local')) {
+      return { type: 'localStorage', storage: localStorage };
+    }
+    if (isStorageAvailable('session')) {
+      console.warn('[Billing] localStorage non disponibile, uso sessionStorage (dati persi al chiudere tab)');
+      return { type: 'sessionStorage', storage: sessionStorage };
+    }
+    console.warn('[Billing] Nessun storage persistente disponibile, uso memoria');
+    return { type: 'memory', storage: null };
   };
   
   const activatePremium = (purchaseToken = null) => {
     isPremiumUser = true;
-    
+
     const premiumData = {
       active: true,
       purchaseDate: Date.now(),
       purchaseToken: purchaseToken
     };
-    
-    // ✅ FIX #2: Try localStorage con fallback memory
+
+    // ✅ FIX CRITICO #4: Salva in tutti i layer disponibili per massima resilienza
+    const { type: storageType, storage } = getBestAvailableStorage();
+
     try {
-      if (isStorageAvailable()) {
-        localStorage.setItem(BILLING_STORAGE_KEY, JSON.stringify(premiumData));
-        console.log('[Billing] ✅ Premium salvato in localStorage');
+      if (storage) {
+        storage.setItem(BILLING_STORAGE_KEY, JSON.stringify(premiumData));
+        console.log(`[Billing] ✅ Premium salvato in ${storageType}`);
+
+        // ✅ FIX CRITICO #4: Se usando sessionStorage, avvisa l'utente
+        if (storageType === 'sessionStorage') {
+          showSafariPrivateModeWarning();
+        }
       } else {
         memoryStorage[BILLING_STORAGE_KEY] = premiumData;
-        console.log('[Billing] ⚠️ Premium salvato in memoria (localStorage non disponibile)');
+        console.log('[Billing] ⚠️ Premium salvato in memoria (nessun storage persistente disponibile)');
       }
+
+      // ✅ FIX CRITICO #4: Salva anche in memoria come backup
+      memoryStorage[BILLING_STORAGE_KEY] = premiumData;
+
     } catch (error) {
-      console.error('[Billing] ⚠️ Errore salvataggio, uso memoria:', error);
+      console.error('[Billing] ⚠️ Errore salvataggio, uso solo memoria:', error);
       memoryStorage[BILLING_STORAGE_KEY] = premiumData;
     }
-    
+
     console.log('[Billing] ✅ Premium attivato!');
-    
+
     // Notifica cambio stato
     try {
-      document.dispatchEvent(new CustomEvent('premiumStatusChanged', { 
-        detail: { isPremium: true } 
+      document.dispatchEvent(new CustomEvent('premiumStatusChanged', {
+        detail: { isPremium: true }
       }));
     } catch (error) {
       console.error('[Billing] Errore dispatch evento:', error);
     }
-    
+
     // Rimuovi ads se attivi
     if (window.AdsModule) {
       try {
@@ -244,28 +270,83 @@ const BillingModule = (() => {
     }
   };
 
+  // ✅ FIX CRITICO #4: Warning per Safari private mode
+  const showSafariPrivateModeWarning = () => {
+    // Mostra solo una volta per sessione
+    if (sessionStorage.getItem('safari_private_warning_shown')) return;
+    sessionStorage.setItem('safari_private_warning_shown', 'true');
+
+    const banner = document.createElement('div');
+    banner.style.cssText = `
+      position: fixed;
+      top: 70px;
+      left: 0;
+      right: 0;
+      background: #FF9800;
+      color: white;
+      padding: 15px;
+      text-align: center;
+      z-index: 9999;
+      font-weight: 600;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    `;
+    banner.innerHTML = `
+      ⚠️ Modalità Privata Rilevata: Lo status Premium sarà perso alla chiusura del tab.
+      <button onclick="this.parentElement.remove()" style="
+        margin-left: 15px;
+        padding: 5px 12px;
+        background: white;
+        color: #FF9800;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+      ">OK</button>
+    `;
+
+    document.body.appendChild(banner);
+
+    // Auto-remove dopo 10 secondi
+    setTimeout(() => {
+      if (banner.parentNode) {
+        banner.remove();
+      }
+    }, 10000);
+  };
+
   const loadPremiumStatus = () => {
-    // ✅ FIX #2: Try localStorage prima, poi fallback memoria
+    // ✅ FIX CRITICO #4: Fallback chain completo con tutti gli storage disponibili
     try {
-      if (isStorageAvailable()) {
+      // 1. Prova localStorage (preferito)
+      if (isStorageAvailable('local')) {
         const stored = localStorage.getItem(BILLING_STORAGE_KEY);
-        
         if (stored) {
           const premiumData = JSON.parse(stored);
           isPremiumUser = premiumData.active === true;
           console.log('[Billing] Stato premium caricato da localStorage:', isPremiumUser);
           return;
         }
-      } else {
-        // Fallback memoria
-        const stored = memoryStorage[BILLING_STORAGE_KEY];
+      }
+
+      // 2. Prova sessionStorage (fallback Safari private mode)
+      if (isStorageAvailable('session')) {
+        const stored = sessionStorage.getItem(BILLING_STORAGE_KEY);
         if (stored) {
-          isPremiumUser = stored.active === true;
-          console.log('[Billing] Stato premium caricato da memoria:', isPremiumUser);
+          const premiumData = JSON.parse(stored);
+          isPremiumUser = premiumData.active === true;
+          console.log('[Billing] Stato premium caricato da sessionStorage:', isPremiumUser);
           return;
         }
       }
-      
+
+      // 3. Fallback memoria (ultimo fallback)
+      const stored = memoryStorage[BILLING_STORAGE_KEY];
+      if (stored) {
+        isPremiumUser = stored.active === true;
+        console.log('[Billing] Stato premium caricato da memoria:', isPremiumUser);
+        return;
+      }
+
       isPremiumUser = false;
     } catch (error) {
       console.error('[Billing] Errore caricamento stato:', error);

@@ -115,50 +115,9 @@
                 });
         });
     }
-    
-  // ✅ FIX #3: Error handling con finally migliorato
-  document.addEventListener('DOMContentLoaded', async () => {
-    const loader = document.getElementById('loader-overlay');
-    let hasError = false;
-    
-    try {
-      // 1. Init billing PRIMA
-      await BillingModule.init();
-      
-      // 2. Init ads solo se non premium
-      if (!BillingModule.isPremium()) {
-        await AdsModule.init();
-      }
-      
-      // 3. Init Premium UI DOPO billing
-      await PremiumUIModule.init();
-      
-    } catch (error) {
-      console.error('Monetization init error:', error);
-      hasError = true;
-      
-      // ✅ FIX #8: Mostra messaggio errore user-friendly
-      if (loader) {
-        const loaderText = loader.querySelector('p');
-        if (loaderText) {
-          loaderText.textContent = '⚠️ Errore caricamento. Ricarica la pagina.';
-          loaderText.style.color = '#ff6b6b';
-        }
-      }
-      
-    } finally {
-      // ✅ FIX #8: Nascondi loader SEMPRE, con delay maggiore se c'è errore
-      if (loader) {
-        const delay = hasError ? 2000 : 300;
-        setTimeout(() => {
-          // ✅ Verifica che l'elemento esista ancora prima di nasconderlo
-          if (loader && loader.parentNode) {
-            loader.style.display = 'none';
-          }
-        }, delay);
-      }
-    }
-  });
+
+    // ✅ FIX CRITICO #1: Loader gestito completamente in AppController.init()
+    // per evitare race condition con il caricamento dello stato del gioco
   </script>
 </body>
 </html>
