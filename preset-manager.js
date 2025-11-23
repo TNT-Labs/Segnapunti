@@ -547,11 +547,6 @@ const PresetManagerModule = (() => {
       throw new Error('Preset sorgente non trovato');
     }
 
-    // ✅ FIX #13: Valida che newKey non esista già
-    if (allPresets[newKey]) {
-      throw new Error('Codice preset già esistente. Scegli un codice diverso.');
-    }
-
     const presetData = {
       name: newName || sourcePreset.name + ' (Copia)',
       mode: sourcePreset.mode,
@@ -566,7 +561,10 @@ const PresetManagerModule = (() => {
       presetData.roundsTarget = sourcePreset.roundsTarget;
     }
 
-    return createPreset(newKey, presetData);
+    // ✅ NUOVO: Auto-genera key da nome se non fornita (passa null a createPreset)
+    // createPreset gestirà l'auto-generazione e la validazione di unicità
+    const keyToUse = (newKey && newKey.trim() !== '') ? newKey : null;
+    return createPreset(keyToUse, presetData);
   };
 
   // 🆕 NUOVO: Check limite free
@@ -954,7 +952,7 @@ const PresetUIModule = (() => {
   const showDuplicateModal = (sourceKey) => {
     // 🆕 CHECK: Verifica limite free prima di duplicare
     const canCreate = PresetManagerModule.canCreatePreset();
-    
+
     if (!canCreate.allowed) {
       if (window.PremiumUIModule) {
         window.PremiumUIModule.showFeatureLockedModal(
@@ -966,21 +964,14 @@ const PresetUIModule = (() => {
       }
       return;
     }
-    
-    const newKey = prompt('Inserisci il codice per il nuovo preset (lettere minuscole, numeri, underscore):');
-    if (!newKey) return;
 
-    // ✅ FIX #7: Validazione formato key PRIMA di procedere
-    if (!/^[a-z0-9_]+$/.test(newKey)) {
-      alert('❌ Errore: Il codice può contenere solo lettere minuscole, numeri e underscore (_)');
-      return;
-    }
-
+    // ✅ NUOVO: Richiedi solo il nome, il codice sarà auto-generato
     const newName = prompt('Inserisci il nome per il nuovo preset:');
-    if (!newName) return;
+    if (!newName || newName.trim() === '') return;
 
     try {
-      PresetManagerModule.duplicatePreset(sourceKey, newKey, newName);
+      // ✅ NUOVO: Passa null come newKey per auto-generazione
+      PresetManagerModule.duplicatePreset(sourceKey, null, newName);
       alert('✅ Preset duplicato con successo!');
       renderPresetList();
     } catch (error) {
