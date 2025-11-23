@@ -11,11 +11,16 @@ const DatabaseModule = (() => {
   const STORE_NAME = 'stato_partita';
   const HISTORY_STORE_NAME = 'storico_partite';
   const STATE_KEY = 'current_state';
+  const LOCALSTORAGE_FALLBACK_KEY = 'segnapunti_state_fallback';
 
   let db = null;
   let dbPromise = null;
   let retryCount = 0;
   const MAX_RETRIES = 3;
+
+  // ✅ FIX CRITICO #3: Tracking errori per notificare utente
+  let consecutiveErrors = 0;
+  let hasShownPersistentErrorWarning = false;
 
   const openDB = () => {
     if (dbPromise) return dbPromise;
@@ -64,10 +69,11 @@ const DatabaseModule = (() => {
     return dbPromise;
   };
 
+  // ✅ FIX CRITICO #3: Caricamento con fallback localStorage
   const loadState = async () => {
     try {
       const db = await openDB();
-      return new Promise((resolve) => {
+      const state = await new Promise((resolve) => {
         const transaction = db.transaction([STORE_NAME], 'readonly');
         const store = transaction.objectStore(STORE_NAME);
         const request = store.get(STATE_KEY);
@@ -80,37 +86,153 @@ const DatabaseModule = (() => {
         request.onsuccess = (event) => {
           resolve(event.target.result || null);
         };
-        
+
         request.onerror = () => {
           console.error('Errore nella richiesta di caricamento');
           resolve(null);
         };
       });
+
+      // Se IndexedDB ha restituito dati, usali
+      if (state) {
+        return state;
+      }
+
+      // ✅ FIX CRITICO #3: Prova fallback localStorage se IndexedDB vuoto
+      console.log('IndexedDB vuoto, provo fallback localStorage...');
+      const fallbackData = StorageHelper.getItem(LOCALSTORAGE_FALLBACK_KEY);
+      if (fallbackData) {
+        try {
+          const parsedState = JSON.parse(fallbackData);
+          console.log('✅ Stato caricato da localStorage fallback');
+          return parsedState;
+        } catch (parseError) {
+          console.error('Errore parsing localStorage fallback:', parseError);
+        }
+      }
+
+      return null;
+
     } catch (error) {
       console.error("Errore nel caricamento dello stato:", error);
+
+      // ✅ FIX CRITICO #3: Se IndexedDB fallisce completamente, usa fallback
+      try {
+        const fallbackData = StorageHelper.getItem(LOCALSTORAGE_FALLBACK_KEY);
+        if (fallbackData) {
+          const parsedState = JSON.parse(fallbackData);
+          console.log('✅ Stato caricato da localStorage fallback (IndexedDB non disponibile)');
+          return parsedState;
+        }
+      } catch (fallbackError) {
+        console.error('Fallback localStorage fallito:', fallbackError);
+      }
+
       return null;
     }
   };
 
-  const saveState = async (state) => {
+  // ✅ FIX CRITICO #3: Helper per notificare errore persistente
+  const showPersistentSaveError = () => {
+    if (hasShownPersistentErrorWarning) return;
+
+    hasShownPersistentErrorWarning = true;
+
+    // Crea banner di warning persistente
+    const banner = document.createElement('div');
+    banner.id = 'save-error-banner';
+    banner.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: #f44336;
+      color: white;
+      padding: 15px;
+      text-align: center;
+      z-index: 10000;
+      font-weight: 600;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    `;
+    banner.innerHTML = `
+      ⚠️ Impossibile salvare i dati. I progressi potrebbero andare persi!
+      <button onclick="this.parentElement.remove()" style="
+        margin-left: 15px;
+        padding: 5px 12px;
+        background: white;
+        color: #f44336;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+      ">OK</button>
+    `;
+
+    document.body.appendChild(banner);
+
+    // Auto-remove dopo 10 secondi
+    setTimeout(() => {
+      if (banner.parentNode) {
+        banner.remove();
+      }
+    }, 10000);
+  };
+
+  // ✅ FIX CRITICO #3: Salvataggio con retry e fallback
+  const saveState = async (state, retries = 0) => {
     try {
       const db = await openDB();
-      return new Promise((resolve, reject) => {
+      await new Promise((resolve, reject) => {
         const transaction = db.transaction([STORE_NAME], 'readwrite');
         const store = transaction.objectStore(STORE_NAME);
         const request = store.put({ id: STATE_KEY, ...state });
-        
+
         // ✅ FIX #7: Usa transaction.oncomplete invece di request.onsuccess
-        transaction.oncomplete = () => resolve();
+        transaction.oncomplete = () => {
+          consecutiveErrors = 0; // Reset counter su successo
+          resolve();
+        };
         transaction.onerror = () => {
           console.error('Errore durante il salvataggio dello stato');
           reject(new Error('Transaction failed'));
         };
-        
+
         request.onerror = () => reject(new Error('Put request failed'));
       });
+
     } catch (error) {
-      console.error("Errore nel salvataggio dello stato:", error);
+      console.error(`Errore nel salvataggio dello stato (tentativo ${retries + 1}/${MAX_RETRIES + 1}):`, error);
+
+      consecutiveErrors++;
+
+      // ✅ FIX CRITICO #3: Retry con exponential backoff
+      if (retries < MAX_RETRIES) {
+        const delay = Math.pow(2, retries) * 500; // 500ms, 1s, 2s
+        console.log(`Retry salvataggio tra ${delay}ms...`);
+
+        await new Promise(resolve => setTimeout(resolve, delay));
+        return saveState(state, retries + 1);
+      }
+
+      // ✅ FIX CRITICO #3: Tutti i retry falliti, usa fallback localStorage
+      console.warn('IndexedDB non disponibile, uso fallback localStorage');
+
+      try {
+        StorageHelper.setItem(LOCALSTORAGE_FALLBACK_KEY, JSON.stringify(state));
+        console.log('✅ Stato salvato in localStorage fallback');
+
+        // Notifica utente solo dopo 3 errori consecutivi
+        if (consecutiveErrors >= 3) {
+          showPersistentSaveError();
+        }
+
+      } catch (fallbackError) {
+        console.error('CRITICO: Fallback localStorage fallito:', fallbackError);
+
+        // Show critical error
+        showPersistentSaveError();
+        throw new Error('Impossibile salvare i dati: sia IndexedDB che localStorage non disponibili');
+      }
     }
   };
 
@@ -285,19 +407,25 @@ const GameStateModule = (() => {
 
   const addGiocatore = (nome) => {
     const nomeTrimmed = nome.trim().slice(0, 30);
-    
+
     if (nomeTrimmed === '') {
       throw new Error("Inserisci un nome valido.");
     }
 
-    // ✅ FIX #9: Validazione più robusta contro XSS
-    const dangerousChars = /[<>"'`]/;
-    if (dangerousChars.test(nomeTrimmed)) {
-      throw new Error("Il nome contiene caratteri non ammessi.");
+    // ✅ FIX CRITICO #5: Validazione WHITELIST invece di blacklist (più sicura)
+    // Permette solo: lettere (tutte le lingue Unicode), numeri, spazi, apostrofi, trattini
+    const allowedCharsPattern = /^[\p{L}\p{N}\s'\-]+$/u;
+
+    if (!allowedCharsPattern.test(nomeTrimmed)) {
+      throw new Error("Il nome può contenere solo lettere, numeri, spazi, apostrofi e trattini.");
     }
 
-    const nomeNormalizzato = nomeTrimmed.replace(/\s+/g, ' ').toLowerCase();
-    if (giocatori.some(g => g.nome.replace(/\s+/g, ' ').toLowerCase() === nomeNormalizzato)) {
+    // ✅ FIX CRITICO #5: Sanificazione aggiuntiva - rimuovi spazi multipli
+    const nomeSanitized = nomeTrimmed.replace(/\s+/g, ' ').trim();
+
+    // ✅ FIX CRITICO #5: Normalizzazione migliorata per check duplicati
+    const nomeNormalizzato = nomeSanitized.toLowerCase();
+    if (giocatori.some(g => g.nome.replace(/\s+/g, ' ').trim().toLowerCase() === nomeNormalizzato)) {
       throw new Error("Questo nome esiste già!");
     }
 
@@ -306,7 +434,7 @@ const GameStateModule = (() => {
 
     const newPlayer = {
       id: generatePlayerId(),
-      nome: nomeTrimmed,
+      nome: nomeSanitized, // ✅ FIX CRITICO #5: Usa nome sanificato
       punti: startingScore,
       rounds: 0,
       createdAt: Date.now()
@@ -638,6 +766,9 @@ const UIModule = (() => {
   let activeAnimations = new Set();
   let globalPlayerIdToUpdate = null;
 
+  // ✅ FIX CRITICO #2: Tracking floating numbers per cleanup
+  let activeFloatingNumbers = new Set();
+
   const elements = {
     modal: null,
     modalTitle: null,
@@ -662,9 +793,21 @@ const UIModule = (() => {
     elements.storicoLista = document.getElementById('storico-lista');
   };
 
+  // ✅ FIX CRITICO #2: Cleanup completo dei floating numbers
+  const cleanupFloatingNumbers = () => {
+    activeFloatingNumbers.forEach(floatingNumber => {
+      if (floatingNumber && floatingNumber.parentNode) {
+        floatingNumber.parentNode.removeChild(floatingNumber);
+      }
+    });
+    activeFloatingNumbers.clear();
+  };
+
+  // ✅ FIX CRITICO #2: Cleanup migliorato con verifica esistenza
   const cleanupButtonListeners = () => {
     currentButtonListeners.forEach(({ element, event, handler }) => {
-      if (element) {
+      // Verifica che l'elemento esista ancora prima di rimuovere il listener
+      if (element && element.parentNode) {
         element.removeEventListener(event, handler);
       }
     });
@@ -1000,45 +1143,49 @@ const UIModule = (() => {
   const animatePunteggio = (playerId, delta) => {
     const puntiElement = document.getElementById(`punti-${playerId}`);
     if (!puntiElement) return;
-    
+
     const animKey = `anim-${playerId}`;
     if (activeAnimations.has(animKey)) return;
-    
+
     activeAnimations.add(animKey);
-    
+
     const animClass = delta >= 0 ? 'anim-up' : 'anim-down';
-    
+
     puntiElement.classList.remove('anim-up', 'anim-down');
     void puntiElement.offsetWidth;
     puntiElement.classList.add(animClass);
-    
+
     const giocatore = GameStateModule.getGiocatoreById(playerId);
     if (giocatore) {
       puntiElement.textContent = giocatore.punti;
     }
-    
+
     const floatingNumber = document.createElement('span');
     floatingNumber.className = `floating-number ${delta >= 0 ? 'positive' : 'negative'}`;
     floatingNumber.textContent = delta >= 0 ? `+${delta}` : delta;
-    
+
     const rect = puntiElement.getBoundingClientRect();
     floatingNumber.style.position = 'fixed';
     // ✅ FIX: Posizione centrata sopra il punteggio invece che a destra
     floatingNumber.style.left = `${rect.left + (rect.width / 2) - 20}px`;
     floatingNumber.style.top = `${rect.top - 10}px`;
     floatingNumber.style.zIndex = '1000';
-    
+
     document.body.appendChild(floatingNumber);
-    
-    // ✅ FIX #3: Cleanup corretto floating number
+
+    // ✅ FIX CRITICO #2: Traccia floating number per cleanup
+    activeFloatingNumbers.add(floatingNumber);
+
+    // ✅ FIX CRITICO #2: Cleanup garantito con doppio meccanismo
     let floatingRemoved = false;
     const removeFloating = () => {
       if (!floatingRemoved && floatingNumber && floatingNumber.parentNode) {
         floatingNumber.parentNode.removeChild(floatingNumber);
+        activeFloatingNumbers.delete(floatingNumber);
         floatingRemoved = true;
       }
     };
-    
+
     // Rimuovi dopo animazione (1.2s)
     setTimeout(removeFloating, 1200);
     
@@ -1136,7 +1283,9 @@ const UIModule = (() => {
   const renderGiocatoriPartita = () => {
     if (!elements.giocatoriListaPartita) return;
 
+    // ✅ FIX CRITICO #2: Cleanup completo prima del re-render
     cleanupButtonListeners();
+    cleanupFloatingNumbers();
 
     const giocatori = GameStateModule.getGiocatori();
     const modalita = GameStateModule.getModalitaVittoria();
@@ -1415,6 +1564,13 @@ const UIModule = (() => {
     GameStateModule.saveCurrentState();
   };
 
+  // ✅ FIX CRITICO #2: Cleanup globale completo
+  const cleanupAll = () => {
+    cleanupButtonListeners();
+    cleanupFloatingNumbers();
+    activeAnimations.clear();
+  };
+
   return {
     cacheElements,
     showModal,
@@ -1428,9 +1584,20 @@ const UIModule = (() => {
     showLoader,
     hideLoader,
     updateDarkModeIcon,
-    toggleDarkMode
+    toggleDarkMode,
+    // ✅ FIX CRITICO #2: Esponi cleanup per gestione memory leaks
+    cleanupAll,
+    cleanupFloatingNumbers,
+    cleanupButtonListeners
   };
 })();
+
+// ✅ FIX CRITICO #2: Cleanup globale al beforeunload
+window.addEventListener('beforeunload', () => {
+  if (UIModule && UIModule.cleanupAll) {
+    UIModule.cleanupAll();
+  }
+});
 
 // -------------------------------------------------------------------
 // 🎛️ SETTINGS MODULE
@@ -1650,34 +1817,84 @@ const SettingsModule = (() => {
 // -------------------------------------------------------------------
 const AppController = (() => {
   const init = async () => {
-    UIModule.cacheElements();
-    UIModule.showLoader();
+    // ✅ FIX CRITICO #1: Gestione loader centralizzata con error handling
+    const loader = document.getElementById('loader-overlay');
+    let hasError = false;
 
-    const modal = document.getElementById('modal-overlay');
-    if (modal) modal.style.display = 'none';
+    try {
+      UIModule.cacheElements();
+      UIModule.showLoader();
 
-    const state = await DatabaseModule.loadState();
-    GameStateModule.loadFromState(state);
-    
-    await DatabaseModule.requestPersistentStorage();
+      const modal = document.getElementById('modal-overlay');
+      if (modal) modal.style.display = 'none';
 
-    UIModule.updateDarkModeIcon();
+      // ✅ FIX #1: Init monetizzazione PRIMA di caricare lo stato del gioco
+      try {
+        // 1. Init billing PRIMA
+        await BillingModule.init();
 
-    const currentPage = getCurrentPage();
-    
-    switch (currentPage) {
-      case 'partita':
-        initPartitaPage();
-        break;
-      case 'settings':
-        initSettingsPage();
-        break;
-      case 'storico':
-        initStoricoPage();
-        break;
+        // 2. Init ads solo se non premium
+        if (!BillingModule.isPremium()) {
+          await AdsModule.init();
+        }
+
+        // 3. Init Premium UI DOPO billing
+        await PremiumUIModule.init();
+
+      } catch (monetizationError) {
+        console.error('Monetization init error:', monetizationError);
+        // Non bloccare l'app se la monetizzazione fallisce
+      }
+
+      // Carica stato gioco
+      const state = await DatabaseModule.loadState();
+      GameStateModule.loadFromState(state);
+
+      await DatabaseModule.requestPersistentStorage();
+
+      UIModule.updateDarkModeIcon();
+
+      const currentPage = getCurrentPage();
+
+      switch (currentPage) {
+        case 'partita':
+          initPartitaPage();
+          break;
+        case 'settings':
+          initSettingsPage();
+          break;
+        case 'storico':
+          initStoricoPage();
+          break;
+      }
+
+    } catch (error) {
+      console.error('App init error:', error);
+      hasError = true;
+
+      // ✅ FIX #1: Mostra messaggio errore user-friendly
+      if (loader) {
+        const loaderText = loader.querySelector('p');
+        if (loaderText) {
+          loaderText.textContent = '⚠️ Errore caricamento. Ricarica la pagina.';
+          loaderText.style.color = '#ff6b6b';
+        }
+
+        // Aggiungi bottone ricarica
+        const reloadBtn = document.createElement('button');
+        reloadBtn.textContent = '🔄 Ricarica';
+        reloadBtn.style.cssText = 'margin-top: 20px; padding: 12px 24px; background: #4A148C; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600;';
+        reloadBtn.onclick = () => window.location.reload();
+        loader.appendChild(reloadBtn);
+      }
+
+    } finally {
+      // ✅ FIX #1: Nascondi loader SOLO se tutto è andato bene
+      // Se c'è errore, mantieni visibile con messaggio
+      if (!hasError) {
+        UIModule.hideLoader();
+      }
     }
-
-    UIModule.hideLoader();
   };
 
   const getCurrentPage = () => {
