@@ -141,12 +141,23 @@ const PresetManagerModule = (() => {
     const allPresets = getAllPresets();
     let finalKey = slug;
     let counter = 1;
-    
-    while (allPresets[finalKey]) {
+
+    // ✅ FIX BUG #30: Limite massimo iterazioni per prevenire infinite loop
+    const MAX_ITERATIONS = 1000;
+    let iterations = 0;
+
+    while (allPresets[finalKey] && iterations < MAX_ITERATIONS) {
       finalKey = `${slug}_${counter}`;
       counter++;
+      iterations++;
     }
-    
+
+    // ✅ FIX BUG #30: Fallback con timestamp se raggiunto limite
+    if (iterations >= MAX_ITERATIONS) {
+      console.warn('generatePresetKey: Raggiunto limite iterazioni, uso timestamp');
+      finalKey = `${slug}_${Date.now()}`;
+    }
+
     return finalKey;
   };
 
@@ -425,7 +436,8 @@ const PresetManagerModule = (() => {
               throw new Error('Invalid name');
             }
             const safeName = preset.name.trim().slice(0, 50);
-            if (!/^[\p{L}\p{N}\s'\-,.:!]+$/u.test(safeName)) {
+            // ✅ FIX BUG #31: Pattern più restrittivo (rimossi :,.:!)
+            if (!/^[\p{L}\p{N}\s'\-]+$/u.test(safeName)) {
               throw new Error('Invalid characters in name');
             }
 
@@ -435,9 +447,11 @@ const PresetManagerModule = (() => {
             }
 
             // Valida e converti target a numero
+            // ✅ FIX BUG #31: Limite più sicuro per prevenire overflow
+            const MAX_SAFE_TARGET = 999999;
             const target = parseInt(preset.target, 10);
-            if (isNaN(target) || target <= 0 || target > 100000) {
-              throw new Error('Invalid target');
+            if (isNaN(target) || target <= 0 || target > MAX_SAFE_TARGET) {
+              throw new Error(`Invalid target (must be 1-${MAX_SAFE_TARGET})`);
             }
 
             // Valida roundMode e roundsTarget se mode='rounds'
@@ -454,13 +468,22 @@ const PresetManagerModule = (() => {
             }
 
             // Sanifica description
+            // ✅ FIX BUG #31: Rimuovi HTML tags per prevenire XSS
             let description = '';
             if (preset.description && typeof preset.description === 'string') {
-              description = preset.description.trim().slice(0, 200);
+              description = preset.description
+                .replace(/<[^>]*>/g, '') // Rimuovi tutti i tag HTML
+                .trim()
+                .slice(0, 200);
             }
 
             // Category
-            const category = preset.category || 'custom';
+            // ✅ FIX BUG #31: Whitelist per category
+            const ALLOWED_CATEGORIES = ['carte', 'tavolo', 'sport', 'altri', 'custom'];
+            let category = preset.category || 'custom';
+            if (!ALLOWED_CATEGORIES.includes(category)) {
+              category = 'custom'; // Fallback sicuro
+            }
 
             // Crea preset validato
             const validatedPreset = {
@@ -1024,7 +1047,20 @@ const PresetUIModule = (() => {
       if (!file) return;
 
       const reader = new FileReader();
+
+      // ✅ FIX BUG #33: Aggiungi error handler per FileReader
+      reader.onerror = () => {
+        alert('❌ Errore lettura file. Il file potrebbe essere corrotto o non leggibile.');
+      };
+
+      // ✅ FIX BUG #33: Aggiungi timeout per file grandi
+      const timeout = setTimeout(() => {
+        reader.abort();
+        alert('⏱️ Timeout: File troppo grande o lettura bloccata.');
+      }, 10000); // 10s timeout
+
       reader.onload = (event) => {
+        clearTimeout(timeout); // ✅ FIX BUG #33: Cancella timeout su successo
         try {
           const result = PresetManagerModule.importPresets(event.target.result);
           alert(`✅ Import completato!\nImportati: ${result.imported}\nIgnorati: ${result.skipped}`);
@@ -1033,6 +1069,12 @@ const PresetUIModule = (() => {
           alert('❌ ' + error.message);
         }
       };
+
+      // ✅ FIX BUG #33: Cleanup su fine lettura (successo o errore)
+      reader.onloadend = () => {
+        clearTimeout(timeout);
+      };
+
       reader.readAsText(file);
     };
     

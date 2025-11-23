@@ -351,21 +351,24 @@ const AdsModule = (() => {
   let gameCompletedHandler = null;
   
   const setupEventListeners = () => {
-    // Prevent multiple initialization
+    // ✅ FIX BUG #23: Sempre pulisci listener esistenti prima di aggiungerne di nuovi
+    // Non usare early return basato su isInitialized per prevenire race condition
     if (isInitialized) {
-      console.log('[Ads] Already initialized, skipping setup');
-      return;
+      console.log('[Ads] Re-initialization detected, cleaning up existing listeners');
     }
-    
-    // ✅ FIX #5: Rimuovi vecchi listener se esistono
+
+    // ✅ FIX #5 + BUG #23: Rimuovi SEMPRE vecchi listener per prevenire duplicati
     if (navigationHandler) {
       document.removeEventListener('click', navigationHandler, { capture: true });
+      navigationHandler = null;
     }
     if (premiumChangeHandler) {
       document.removeEventListener('premiumStatusChanged', premiumChangeHandler);
+      premiumChangeHandler = null;
     }
     if (gameCompletedHandler) {
       document.removeEventListener('gameCompleted', gameCompletedHandler);
+      gameCompletedHandler = null;
     }
     
     // Use event delegation for navigation

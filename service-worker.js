@@ -168,12 +168,14 @@ self.addEventListener('fetch', event => {
           })
           .catch(error => {
             console.log('[Service Worker] Richiesta fallita e non in cache:', event.request.url);
-            
-            // ✅ Fallback per HTML: restituisci index.html dalla cache
-            if (event.request.headers.get('accept').includes('text/html')) {
+
+            // ✅ FIX BUG #32: Null check su headers per prevenire crash
+            // Fallback per HTML: restituisci index.html dalla cache
+            const acceptHeader = event.request.headers?.get('accept');
+            if (acceptHeader?.includes('text/html')) {
               return caches.match('index.html');
             }
-            
+
             throw error;
           });
       })

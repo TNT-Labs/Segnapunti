@@ -422,16 +422,37 @@ const PremiumUIModule = (() => {
   };
 
   // ===================================================================
+  // 🧹 CLEANUP
+  // ===================================================================
+
+  // ✅ FIX BUG #28: Cleanup method per rimuovere event listeners
+  const cleanup = () => {
+    // Rimuovi listener per cambio stato premium
+    document.removeEventListener('premiumStatusChanged', handlePremiumStatusChange);
+
+    // Rimuovi listener preset tab se presente
+    const presetTab = document.getElementById('nav-preset');
+    if (presetTab) {
+      presetTab.removeEventListener('click', handlePresetClick);
+    }
+
+    console.log('✅ PremiumUIModule cleanup completato');
+  };
+
+  // ===================================================================
   // 📊 API PUBBLICA
   // ===================================================================
-  
+
   return {
     init,
+    cleanup, // ✅ FIX BUG #28: Esposto cleanup method
     lockFeature,
     showFeatureLockedModal,
     showPromoBanner,
     addPremiumBadge,
-    removePremiumBadge
+    removePremiumBadge,
+    lockPresetTab,
+    unlockPresetTab
   };
 })();
 
