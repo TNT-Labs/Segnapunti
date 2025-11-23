@@ -7,6 +7,8 @@
   
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#4A148C">
+  <!-- ✅ FIX BUG #44: Content Security Policy -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self';">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -370,6 +372,13 @@
   </div>
 
   <!-- Storage Helper (Safari private mode support) -->
+  <!-- ✅ FIX BUG #41: Production-safe logging -->
+  <!-- ✅ FIX BUG #43: Polyfills for older browsers -->
+  <script src="polyfills.js"></script>
+
+  <script src="logger.js"></script>
+  <script src="error-handler.js"></script>
+
   <script src="storage-helper.js"></script>
   <script src="billing-module.js"></script>
   <script src="ads-module.js"></script>

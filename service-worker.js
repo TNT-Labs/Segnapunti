@@ -10,17 +10,19 @@
 
 // ✅ FIX BUG #34: Import versione da file centralizzato
 importScripts('version.js');
+// ✅ FIX BUG #41: Import logger per production-safe logging
+importScripts('logger.js');
 
 const CACHE_VERSION = typeof APP_VERSION !== 'undefined' ? APP_VERSION : '1.3.2';
 const CACHE_NAME = `segnapunti-cache-v${CACHE_VERSION}`;
 const MAX_CACHE_AGE_DAYS = 30; // Expiration cache immagini
 
-console.log(`[Service Worker] Version: ${CACHE_VERSION}`);
+Logger.log(`[Service Worker] Version: ${CACHE_VERSION}`);
 
 // ✅ Lista completa asset (VERIFICATA + storage-helper.js)
 const ASSETS_TO_CACHE = [
   './',  // ✅ FIX: Aggiungi './' oltre a '/'
-  '/', 
+  '/',
   'index.html',
   'settings.html',
   'storico.html',
@@ -28,16 +30,20 @@ const ASSETS_TO_CACHE = [
   'premium.html', // ✅ NUOVO
   'storage-helper.js', // ✅ FIX #2: Safari storage helper
   'version.js', // ✅ FIX BUG #34: Versione centralizzata
+  'logger.js', // ✅ FIX BUG #41: Production-safe logging
+  'error-handler.js', // ✅ FIX BUG #46: Global error boundary
+  'polyfills.js', // ✅ FIX BUG #43: Browser compatibility
   'segnapunti.js',
   'segnapunti.css',
   'segnapunti-mobile.css', // ✅ MOBILE OPTIMIZATION
+  'utility-classes.css', // ✅ FIX BUG #45: Reusable CSS classes
   'preset-manager.js',
   'preset-manager.css',
   'billing-module.js', // ✅ NUOVO
   'ads-module.js', // ✅ NUOVO
   'premium-ui.js', // ✅ NUOVO
   'manifest.json',
-  'icon-192.png', 
+  'icon-192.png',
   'icon-512.png',
   // Icone complete
   'Segnapunti72x72.png',
@@ -53,26 +59,26 @@ const ASSETS_TO_CACHE = [
 
 // 1. Installazione del Service Worker
 self.addEventListener('install', event => {
-  console.log('[Service Worker] Installazione v1.3.0 completata. Avvio caching...');
+  Logger.log('[Service Worker] Installazione v1.3.0 completata. Avvio caching...');
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
-        console.log('[Service Worker] Caching assets...');
+        Logger.log('[Service Worker] Caching assets...');
         return cache.addAll(ASSETS_TO_CACHE)
           .catch(error => {
-            console.error('[Service Worker] Errore caching assets:', error);
+            Logger.error('[Service Worker] Errore caching assets:', error);
             // Continua comunque anche se alcuni asset falliscono
             return Promise.all(
               ASSETS_TO_CACHE.map(asset => {
                 return cache.add(asset).catch(err => {
-                  console.warn(`[Service Worker] Impossibile cachare: ${asset}`, err);
+                  Logger.warn(`[Service Worker] Impossibile cachare: ${asset}`, err);
                 });
               })
             );
           });
       })
       .then(() => {
-        console.log('[Service Worker] Cache completata');
+        Logger.log('[Service Worker] Cache completata');
         return self.skipWaiting();
       })
   );
@@ -80,20 +86,20 @@ self.addEventListener('install', event => {
 
 // 2. Attivazione del Service Worker
 self.addEventListener('activate', event => {
-  console.log('[Service Worker] Attivazione v1.3.0 in corso...');
+  Logger.log('[Service Worker] Attivazione v1.3.0 in corso...');
   // Rimuove le vecchie cache
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(
         cacheNames.map(cacheName => {
           if (cacheName !== CACHE_NAME) {
-            console.log('[Service Worker] Eliminazione cache obsoleta:', cacheName);
+            Logger.log('[Service Worker] Eliminazione cache obsoleta:', cacheName);
             return caches.delete(cacheName);
           }
         })
       );
     }).then(() => {
-      console.log('[Service Worker] Attivazione completata');
+      Logger.log('[Service Worker] Attivazione completata');
       return self.clients.claim();
     })
   );
@@ -132,7 +138,7 @@ self.addEventListener('fetch', event => {
         // ✅ FIX #25: Check expiration per immagini
         if (cachedResponse && isImageRequest(event.request)) {
           if (isCacheExpired(cachedResponse)) {
-            console.log('[SW] Cache expired per:', event.request.url);
+            Logger.log('[SW] Cache expired per:', event.request.url);
             // Cache expired, forza network fetch
             cachedResponse = null;
           }
@@ -173,7 +179,7 @@ self.addEventListener('fetch', event => {
             return networkResponse;
           })
           .catch(error => {
-            console.log('[Service Worker] Richiesta fallita e non in cache:', event.request.url);
+            Logger.log('[Service Worker] Richiesta fallita e non in cache:', event.request.url);
 
             // ✅ FIX BUG #32: Null check su headers per prevenire crash
             // Fallback per HTML: restituisci index.html dalla cache

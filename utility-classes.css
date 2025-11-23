@@ -1,0 +1,184 @@
+/* ===================================================================
+   🎨 UTILITY CLASSES - Reusable CSS Classes
+   =================================================================== */
+/* ✅ FIX BUG #45: CSS classes per ridurre inline styles
+
+   NOTE: Molti stili inline nell'app sono necessari per:
+   - Modal dinamici creati via JS
+   - Animazioni parametriche
+   - Stili dipendenti da stato runtime
+
+   Queste utility classes forniscono alternative per pattern comuni.
+*/
+
+/* -------------------------------------------------------------------
+   LAYOUT UTILITIES
+   ------------------------------------------------------------------- */
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.flex-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* -------------------------------------------------------------------
+   MODAL & OVERLAY UTILITIES
+   ------------------------------------------------------------------- */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 10000;
+  animation: fadeIn 0.3s;
+}
+
+.modal-content {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 20px;
+  padding: 40px 30px;
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+  color: white;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  animation: slideUp 0.3s;
+}
+
+/* -------------------------------------------------------------------
+   BUTTON UTILITIES
+   ------------------------------------------------------------------- */
+.btn-primary {
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  color: #333;
+  border: none;
+  padding: 16px;
+  border-radius: 12px;
+  font-size: 1.2em;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 1em;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-full-width {
+  width: 100%;
+}
+
+/* -------------------------------------------------------------------
+   TEXT UTILITIES
+   ------------------------------------------------------------------- */
+.text-center {
+  text-align: center;
+}
+
+.text-large {
+  font-size: 2.5em;
+  font-weight: 800;
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* -------------------------------------------------------------------
+   SPACING UTILITIES
+   ------------------------------------------------------------------- */
+.mb-sm { margin-bottom: 10px; }
+.mb-md { margin-bottom: 20px; }
+.mb-lg { margin-bottom: 30px; }
+
+.mt-sm { margin-top: 10px; }
+.mt-md { margin-top: 20px; }
+.mt-lg { margin-top: 30px; }
+
+.p-sm { padding: 10px; }
+.p-md { padding: 20px; }
+.p-lg { padding: 30px; }
+
+/* -------------------------------------------------------------------
+   ANIMATIONS
+   ------------------------------------------------------------------- */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideDown {
+  from { transform: translateY(-100%); }
+  to { transform: translateY(0); }
+}
+
+/* -------------------------------------------------------------------
+   BADGE UTILITIES
+   ------------------------------------------------------------------- */
+.badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.8em;
+  font-weight: 700;
+}
+
+.badge-premium {
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  color: #333;
+  box-shadow: 0 2px 8px rgba(255, 215, 0, 0.4);
+  animation: premiumPulse 2s infinite;
+}
+
+@keyframes premiumPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+/* -------------------------------------------------------------------
+   CARD UTILITIES
+   ------------------------------------------------------------------- */
+.card {
+  background: rgba(255, 255, 255, 0.15);
+  padding: 15px;
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+}
+
+.card-highlight {
+  background: rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}

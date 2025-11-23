@@ -21,18 +21,21 @@ const AdsModule = (() => {
     gameSave: 3    // Ogni 3 partite salvate
   };
 
+  // ✅ FIX BUG #42: Costante per magic number
+  const INTERSTITIAL_RELOAD_DELAY_MS = 1000; // 1 secondo
+
   // ===================================================================
   // 🔧 INIZIALIZZAZIONE
   // ===================================================================
   
   const init = async () => {
-    console.log('[Ads] Inizializzazione...');
+    Logger.log('[Ads] Inizializzazione...');
     
     // Verifica stato premium
     const isPremium = window.BillingModule?.isPremium() || false;
     
     if (isPremium) {
-      console.log('[Ads] Utente premium, ads disabilitati');
+      Logger.log('[Ads] Utente premium, ads disabilitati');
       adsEnabled = false;
       return;
     }
@@ -58,7 +61,7 @@ const AdsModule = (() => {
     try {
       // In ambiente TWA/Android, usa AdMob nativo
       if (window.admob) {
-        console.log('[Ads] AdMob nativo disponibile');
+        Logger.log('[Ads] AdMob nativo disponibile');
         
         await window.admob.start();
         
@@ -71,12 +74,12 @@ const AdsModule = (() => {
       } 
       // Fallback: AdSense per web
       else {
-        console.log('[Ads] Usando AdSense web fallback');
+        Logger.log('[Ads] Usando AdSense web fallback');
         loadAdSenseScript();
         return true;
       }
     } catch (error) {
-      console.error('[Ads] Errore inizializzazione:', error);
+      Logger.error('[Ads] Errore inizializzazione:', error);
       return false;
     }
   };
@@ -115,12 +118,12 @@ const AdsModule = (() => {
           size: 'smart_banner'
         });
         
-        console.log('[Ads] Banner mostrato (AdMob)');
+        Logger.log('[Ads] Banner mostrato (AdMob)');
       } 
       // Fallback AdSense
       else {
         renderAdSenseBanner(bannerContainer);
-        console.log('[Ads] Banner mostrato (AdSense)');
+        Logger.log('[Ads] Banner mostrato (AdSense)');
       }
       
       bannerShown = true;
@@ -129,7 +132,7 @@ const AdsModule = (() => {
       document.body.classList.add('has-ad-banner');
       
     } catch (error) {
-      console.error('[Ads] Errore mostra banner:', error);
+      Logger.error('[Ads] Errore mostra banner:', error);
     }
   };
 
@@ -166,7 +169,7 @@ const AdsModule = (() => {
     try {
       (window.adsbygoogle = window.adsbygoogle || []).push({});
     } catch (e) {
-      console.error('[Ads] Errore push AdSense:', e);
+      Logger.error('[Ads] Errore push AdSense:', e);
     }
   };
 
@@ -184,7 +187,7 @@ const AdsModule = (() => {
       try {
         window.admob.banner.hide();
       } catch (e) {
-        console.warn('AdMob banner hide failed:', e);
+        Logger.warn('AdMob banner hide failed:', e);
       }
     }
     
@@ -192,7 +195,7 @@ const AdsModule = (() => {
     document.body.classList.remove('has-ad-banner');
     
     bannerShown = false;
-    console.log('[Ads] Banner hidden');
+    Logger.log('[Ads] Banner hidden');
   };
 
   // ===================================================================
@@ -209,10 +212,10 @@ const AdsModule = (() => {
         });
         
         interstitialReady = true;
-        console.log('[Ads] Interstitial caricato');
+        Logger.log('[Ads] Interstitial caricato');
       }
     } catch (error) {
-      console.error('[Ads] Errore caricamento interstitial:', error);
+      Logger.error('[Ads] Errore caricamento interstitial:', error);
       interstitialReady = false;
     }
   };
@@ -221,21 +224,21 @@ const AdsModule = (() => {
     if (!adsEnabled || !interstitialReady) return;
     
     try {
-      console.log('[Ads] Mostra interstitial:', trigger);
+      Logger.log('[Ads] Mostra interstitial:', trigger);
       
       if (window.admob) {
         await window.admob.interstitial.show();
         
         // Ricarica per prossima volta
         interstitialReady = false;
-        setTimeout(() => loadInterstitial(), 1000);
+        setTimeout(() => loadInterstitial(), INTERSTITIAL_RELOAD_DELAY_MS);
       } else {
         // Fallback: mostra overlay "fake" per test
         showTestInterstitial();
       }
       
     } catch (error) {
-      console.error('[Ads] Errore mostra interstitial:', error);
+      Logger.error('[Ads] Errore mostra interstitial:', error);
     }
   };
 
@@ -354,7 +357,7 @@ const AdsModule = (() => {
     // ✅ FIX BUG #23: Sempre pulisci listener esistenti prima di aggiungerne di nuovi
     // Non usare early return basato su isInitialized per prevenire race condition
     if (isInitialized) {
-      console.log('[Ads] Re-initialization detected, cleaning up existing listeners');
+      Logger.log('[Ads] Re-initialization detected, cleaning up existing listeners');
     }
 
     // ✅ FIX #5 + BUG #23: Rimuovi SEMPRE vecchi listener per prevenire duplicati
@@ -393,7 +396,7 @@ const AdsModule = (() => {
     }
     
     isInitialized = true;
-    console.log('[Ads] Event listeners configured');
+    Logger.log('[Ads] Event listeners configured');
   };
   
   // ✅ Handler separato per evitare closure problems
@@ -406,7 +409,7 @@ const AdsModule = (() => {
   // ✅ FIX #5: Aggiungi metodo reset per test
   const resetInitialization = () => {
     isInitialized = false;
-    console.log('[Ads] Initialization reset');
+    Logger.log('[Ads] Initialization reset');
   };
   
   // ✅ FIX #9: Aggiungi metodo cleanup
@@ -426,7 +429,7 @@ const AdsModule = (() => {
     
     hideAllAds();
     isInitialized = false;
-    console.log('[Ads] Cleanup completed');
+    Logger.log('[Ads] Cleanup completed');
   };
 
   // ===================================================================
@@ -440,7 +443,7 @@ const AdsModule = (() => {
     // Assicura che la classe venga rimossa
     document.body.classList.remove('has-ad-banner');
     
-    console.log('[Ads] Tutti gli ads nascosti (Premium attivo)');
+    Logger.log('[Ads] Tutti gli ads nascosti (Premium attivo)');
   };
 
   const enableAds = () => {
@@ -448,7 +451,7 @@ const AdsModule = (() => {
     showBanner();
     loadInterstitial();
     
-    console.log('[Ads] Ads riabilitati');
+    Logger.log('[Ads] Ads riabilitati');
   };
 
   // ===================================================================

@@ -154,7 +154,7 @@ const PresetManagerModule = (() => {
 
     // ✅ FIX BUG #30: Fallback con timestamp se raggiunto limite
     if (iterations >= MAX_ITERATIONS) {
-      console.warn('generatePresetKey: Raggiunto limite iterazioni, uso timestamp');
+      Logger.warn('generatePresetKey: Raggiunto limite iterazioni, uso timestamp');
       finalKey = `${slug}_${Date.now()}`;
     }
 
@@ -168,7 +168,7 @@ const PresetManagerModule = (() => {
         return JSON.parse(stored);
       }
     } catch (error) {
-      console.error('Errore nel caricamento dei preset personalizzati:', error);
+      Logger.error('Errore nel caricamento dei preset personalizzati:', error);
     }
     return {};
   };
@@ -178,7 +178,7 @@ const PresetManagerModule = (() => {
       StorageHelper.setItem(PRESET_STORAGE_KEY, JSON.stringify(presets));
       return true;
     } catch (error) {
-      console.error('Errore nel salvataggio dei preset:', error);
+      Logger.error('Errore nel salvataggio dei preset:', error);
       return false;
     }
   };
@@ -522,7 +522,7 @@ const PresetManagerModule = (() => {
             imported++;
 
           } catch (validationError) {
-            console.warn(`[Import] Preset "${key}" skipped:`, validationError.message);
+            Logger.warn(`[Import] Preset "${key}" skipped:`, validationError.message);
             skipped++;
           }
         }
@@ -672,7 +672,7 @@ const PresetUIModule = (() => {
   const renderPresetList = () => {
     const container = document.getElementById('preset-list-container');
     if (!container) {
-      console.warn('[PresetUI] Container non trovato');
+      Logger.warn('[PresetUI] Container non trovato');
       return;
     }
 
@@ -720,7 +720,7 @@ const PresetUIModule = (() => {
       updateCreateButtonState();
       
     } catch (error) {
-      console.error('[PresetUI] Errore render preset list:', error);
+      Logger.error('[PresetUI] Errore render preset list:', error);
       
       // Mostra messaggio errore all'utente
       container.innerHTML = `
@@ -1241,7 +1241,7 @@ const PresetUIModule = (() => {
       eventHandlers.btnRestoreClick = null;
     }
 
-    console.log('✅ PresetUIModule cleanup completato');
+    Logger.log('✅ PresetUIModule cleanup completato');
   };
 
   return {
