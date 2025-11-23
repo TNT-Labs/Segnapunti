@@ -1,5 +1,16 @@
-// ✅ Cache aggiornata con MOBILE OPTIMIZATION + VERSIONE INCREMENTATA
-const CACHE_NAME = 'segnapunti-cache-v1.3.1';  // ⚠️ Incrementa ad ogni deploy!
+// ===================================================================
+// ✅ FIX #25: SERVICE WORKER STRATEGY - Cache con versioning
+// ===================================================================
+// Strategia:
+// - Static Assets (HTML/CSS/JS): Cache First + Stale-While-Revalidate
+// - Immagini: Cache First con max age 30 giorni
+// - Network: Network fallback se cache non disponibile
+// - Update: skipWaiting() per update immediati
+// ===================================================================
+
+const CACHE_VERSION = '1.3.2';  // ⚠️ Incrementa ad ogni deploy!
+const CACHE_NAME = `segnapunti-cache-v${CACHE_VERSION}`;
+const MAX_CACHE_AGE_DAYS = 30; // Expiration cache immagini
 
 // ✅ Lista completa asset (VERIFICATA + storage-helper.js)
 const ASSETS_TO_CACHE = [
@@ -82,6 +93,25 @@ self.addEventListener('activate', event => {
   );
 });
 
+// ✅ FIX #25: Helper per verificare età cache
+const isCacheExpired = (cachedResponse) => {
+  if (!cachedResponse || !cachedResponse.headers) return true;
+
+  const dateHeader = cachedResponse.headers.get('date');
+  if (!dateHeader) return true; // Nessuna data, considera expired
+
+  const cachedTime = new Date(dateHeader).getTime();
+  const now = Date.now();
+  const ageInDays = (now - cachedTime) / (1000 * 60 * 60 * 24);
+
+  return ageInDays > MAX_CACHE_AGE_DAYS;
+};
+
+// ✅ FIX #25: Determina se richiesta è per immagine
+const isImageRequest = (request) => {
+  return request.url.match(/\.(png|jpg|jpeg|svg|gif|webp|ico)$/i);
+};
+
 // 3. Gestione delle Richieste (Caching)
 self.addEventListener('fetch', event => {
   // Skip per richieste non-GET o chrome-extension
@@ -89,15 +119,25 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // Strategia: Cache-First con Network Fallback e Update
+  // ✅ FIX #25: Strategia Cache-First con expiration per immagini
   event.respondWith(
     caches.match(event.request)
       .then(cachedResponse => {
+        // ✅ FIX #25: Check expiration per immagini
+        if (cachedResponse && isImageRequest(event.request)) {
+          if (isCacheExpired(cachedResponse)) {
+            console.log('[SW] Cache expired per:', event.request.url);
+            // Cache expired, forza network fetch
+            cachedResponse = null;
+          }
+        }
+
         if (cachedResponse) {
-          // ✅ Trovato in cache, restituiscilo immediatamente
-          
-          // ✅ Aggiorna la cache in background (Stale-While-Revalidate)
-          fetch(event.request).then(
+          // ✅ Trovato in cache e non expired, restituiscilo immediatamente
+
+          // ✅ Aggiorna la cache in background (Stale-While-Revalidate) solo per HTML/CSS/JS
+          if (!isImageRequest(event.request)) {
+            fetch(event.request).then(
             networkResponse => {
               // Solo se la risposta è OK
               if (networkResponse && networkResponse.status === 200) {
@@ -108,8 +148,9 @@ self.addEventListener('fetch', event => {
             }
           ).catch(() => {
             // Network error, ma abbiamo già la cache
-          }); 
-          
+          });
+          }
+
           return cachedResponse;
         }
 

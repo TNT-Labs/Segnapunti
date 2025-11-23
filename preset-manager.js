@@ -195,10 +195,20 @@ const PresetManagerModule = (() => {
   const createPreset = (keyOrNull, presetData) => {
     // ✅ NUOVO v1.3.3: Auto-genera key se non fornita o vuota
     const key = (keyOrNull && keyOrNull.trim() !== '') ? keyOrNull : generatePresetKey(presetData.name);
-    
-    // ✅ Validazione formato key (per sicurezza)
-    if (!/^[a-z0-9_]+$/.test(key)) {
-      throw new Error('Errore nella generazione del codice preset');
+
+    // ✅ FIX #22: Lista chiavi riservate JavaScript
+    const RESERVED_KEYS = ['__proto__', 'constructor', 'prototype', 'default', 'toString', 'valueOf', 'hasOwnProperty'];
+
+    // ✅ FIX #22: Validazione formato key rafforzata
+    // - Deve iniziare con lettera (non numero/underscore)
+    // - Solo lettere minuscole, numeri, underscore
+    // - Non può essere una chiave riservata
+    if (!/^[a-z][a-z0-9_]*$/.test(key)) {
+      throw new Error('Il codice preset deve iniziare con una lettera e contenere solo lettere minuscole, numeri e underscore');
+    }
+
+    if (RESERVED_KEYS.includes(key.toLowerCase())) {
+      throw new Error(`La chiave "${key}" è riservata e non può essere utilizzata`);
     }
 
     if (!presetData.name || presetData.name.trim() === '') {

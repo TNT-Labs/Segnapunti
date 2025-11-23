@@ -902,12 +902,18 @@ const UIModule = (() => {
   const createRoundsControls = (playerId) => {
     const container = document.createElement('div');
     container.className = 'rounds-controls';
-    
+
+    const player = GameStateModule.getGiocatoreById(playerId);
+    const playerName = player ? player.nome : 'giocatore';
+
     const btnMinus = document.createElement('button');
     btnMinus.textContent = '-1 🏆';
     btnMinus.className = 'btn-round-minus';
     btnMinus.title = 'Rimuovi 1 round';
-    
+
+    // ✅ FIX #19: Aria-label per accessibilità
+    btnMinus.setAttribute('aria-label', `Rimuovi 1 round da ${playerName}`);
+
     // ✅ FIX #2: Usa addEventListener + registrazione per cleanup
     const minusHandler = () => {
       if (GameStateModule.updateRounds(playerId, -1)) {
@@ -922,7 +928,10 @@ const UIModule = (() => {
     btnPlus.textContent = '+1 🏆';
     btnPlus.className = 'btn-round-plus';
     btnPlus.title = 'Aggiungi 1 round vinto';
-    
+
+    // ✅ FIX #19: Aria-label per accessibilità
+    btnPlus.setAttribute('aria-label', `Aggiungi 1 round vinto a ${playerName}`);
+
     const plusHandler = () => {
       if (GameStateModule.updateRounds(playerId, 1)) {
         animateRounds(playerId, 1);
@@ -998,6 +1007,9 @@ const UIModule = (() => {
       button.textContent = btn.text;
       button.disabled = partitaTerminata;
 
+      // ✅ FIX #19: Aria-label per accessibilità
+      button.setAttribute('aria-label', `Aggiungi ${btn.value > 0 ? '+' : ''}${btn.value} punti a ${giocatore.nome}`);
+
       // ✅ FIX #2 & #6: Registra listener con bust detection
       const handler = () => {
         const result = GameStateModule.updatePunteggio(giocatore.id, btn.value);
@@ -1033,7 +1045,10 @@ const UIModule = (() => {
     customBtn.className = 'btn-custom-score';
     customBtn.disabled = partitaTerminata;
     customBtn.style.gridColumn = '1 / -1';
-    
+
+    // ✅ FIX #19: Aria-label per accessibilità
+    customBtn.setAttribute('aria-label', `Inserisci punteggio personalizzato per ${giocatore.nome}`);
+
     // ✅ FIX #2: Registra listener
     const customHandler = () => showModal(giocatore.id);
     registerListener(customBtn, 'click', customHandler);
