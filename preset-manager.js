@@ -965,14 +965,14 @@ const PresetUIModule = (() => {
       return;
     }
 
-    // ✅ NUOVO: Richiedi solo il nome, il codice sarà auto-generato
+    // ✅ FIX: Richiedi solo il nome, il codice sarà auto-generato dal nome
     const newName = prompt('Inserisci il nome per il nuovo preset:');
     if (!newName || newName.trim() === '') return;
 
     try {
-      // ✅ NUOVO: Passa null come newKey per auto-generazione
-      PresetManagerModule.duplicatePreset(sourceKey, null, newName);
-      alert('✅ Preset duplicato con successo!');
+      // ✅ FIX: Passa null come newKey - il codice verrà auto-generato dal nome in createPreset
+      const duplicatedPreset = PresetManagerModule.duplicatePreset(sourceKey, null, newName);
+      alert(`✅ Preset "${duplicatedPreset.name}" duplicato con successo!\nCodice: ${duplicatedPreset.key}`);
       renderPresetList();
     } catch (error) {
       alert('❌ Errore: ' + error.message);
