@@ -1,5 +1,5 @@
 // ===================================================================
-// 🎮 PRESET MANAGER MODULE v1.2.0 - ROUNDS LOGIC MIGLIORATA
+// 🎮 PRESET MANAGER MODULE v1.3.4 - FIX CRITICO DARTS
 // ===================================================================
 
 const PresetManagerModule = (() => {
@@ -84,7 +84,7 @@ const PresetManagerModule = (() => {
       description: '🎯 Freccette 501: Si parte da 501, vince chi arriva esattamente a 0. Se vai sotto zero, torni al punteggio precedente.',
       isDefault: true,
       category: 'altri',
-      startingScore: 501
+      startingScore: 501 // 🎯 Campo essenziale per DARTS
     },
     freccette301: { 
       name: 'Freccette 301', 
@@ -93,7 +93,7 @@ const PresetManagerModule = (() => {
       description: '🎯 Freccette 301: Si parte da 301, vince chi arriva esattamente a 0. Se vai sotto zero, torni al punteggio precedente.',
       isDefault: true,
       category: 'altri',
-      startingScore: 301
+      startingScore: 301 // 🎯 Campo essenziale per DARTS
     }
   };
 
@@ -244,8 +244,8 @@ const PresetManagerModule = (() => {
       throw new Error('Il nome non può contenere tag HTML');
     }
 
-    if (!['max', 'min', 'rounds'].includes(presetData.mode)) {
-      throw new Error('La modalità deve essere "max", "min" o "rounds"');
+    if (!['max', 'min', 'rounds', 'darts'].includes(presetData.mode)) {
+      throw new Error('La modalità deve essere "max", "min", "rounds" o "darts"');
     }
 
     const target = parseInt(presetData.target, 10);
@@ -265,6 +265,13 @@ const PresetManagerModule = (() => {
         throw new Error('Per modalità rounds devi specificare come si vince il round: "max" (più punti) o "min" (meno punti)');
       }
     }
+    
+    // 🎯 Validazione darts
+    if (presetData.mode === 'darts') {
+        if (target <= 0) {
+            throw new Error('Per la modalità freccette (darts), il punteggio di partenza deve essere positivo');
+        }
+    }
 
     if (DEFAULT_PRESETS[key]) {
       throw new Error('Non puoi sovrascrivere un preset predefinito. Usa un altro codice.');
@@ -272,18 +279,20 @@ const PresetManagerModule = (() => {
 
     const customPresets = loadCustomPresets();
     
-    // 🆕 Genera descrizione più dettagliata per rounds
+    // 🆕 Genera descrizione più dettagliata per rounds e darts
     let autoDescription = '';
     if (presetData.mode === 'rounds') {
       const roundModeText = presetData.roundMode === 'max' ? 'più punti' : 'meno punti';
       autoDescription = `${safeName} - Ogni round finisce a ${target} punti (vince chi fa ${roundModeText}). Vince chi vince ${presetData.roundsTarget} round.`;
+    } else if (presetData.mode === 'darts') { 
+      autoDescription = `${safeName} - 🎯 Partenza da ${target}, vince chi arriva a 0.`;
     } else {
       const modeText = presetData.mode === 'max' ? 'Più punti' : 'Meno punti';
       autoDescription = `${safeName} - Modalità ${modeText}, Obiettivo: ${target}`;
     }
     
     const newPreset = {
-      name: safeName, // ✅ FIX BUG #37: Usa safeName validato
+      name: safeName, 
       mode: presetData.mode,
       target: target,
       description: presetData.description?.trim() || autoDescription,
@@ -293,10 +302,13 @@ const PresetManagerModule = (() => {
       modifiedAt: Date.now()
     };
 
-    // 🆕 Salva roundMode e roundsTarget per modalità rounds
+    // 🆕 Salva campi specifici per modalità (rounds e darts)
     if (presetData.mode === 'rounds') {
       newPreset.roundMode = presetData.roundMode;
       newPreset.roundsTarget = parseInt(presetData.roundsTarget, 10);
+    } else if (presetData.mode === 'darts') { 
+      // ✅ FIX CRITICO: Aggiungi startingScore per la modalità darts
+      newPreset.startingScore = target;
     }
 
     customPresets[key] = newPreset;
@@ -323,8 +335,8 @@ const PresetManagerModule = (() => {
       throw new Error('Il nome del gioco non può essere vuoto');
     }
 
-    if (!['max', 'min', 'rounds'].includes(presetData.mode)) {
-      throw new Error('La modalità deve essere "max", "min" o "rounds"');
+    if (!['max', 'min', 'rounds', 'darts'].includes(presetData.mode)) {
+      throw new Error('La modalità deve essere "max", "min", "rounds" o "darts"');
     }
 
     const target = parseInt(presetData.target, 10);
@@ -343,6 +355,14 @@ const PresetManagerModule = (() => {
         throw new Error('Per modalità rounds devi specificare come si vince il round: "max" (più punti) o "min" (meno punti)');
       }
     }
+    
+    // 🎯 Validazione darts
+    if (presetData.mode === 'darts') {
+        if (target <= 0) {
+            throw new Error('Per la modalità freccette (darts), il punteggio di partenza deve essere positivo');
+        }
+    }
+
 
     customPresets[key] = {
       ...customPresets[key],
@@ -354,13 +374,20 @@ const PresetManagerModule = (() => {
       modifiedAt: Date.now()
     };
 
-    // 🆕 Gestisci roundMode e roundsTarget
+    // 🆕 Gestisci roundMode, roundsTarget e startingScore (per darts)
     if (presetData.mode === 'rounds') {
       customPresets[key].roundMode = presetData.roundMode;
       customPresets[key].roundsTarget = parseInt(presetData.roundsTarget, 10);
+      delete customPresets[key].startingScore; // Cleanup se era darts o max/min
+    } else if (presetData.mode === 'darts') {
+      // ✅ FIX CRITICO: Usa target come startingScore per la modalità darts
+      customPresets[key].startingScore = target; 
+      delete customPresets[key].roundMode; // Cleanup se era rounds
+      delete customPresets[key].roundsTarget; // Cleanup se era rounds
     } else {
       delete customPresets[key].roundMode;
       delete customPresets[key].roundsTarget;
+      delete customPresets[key].startingScore; // Cleanup per max/min
     }
 
     if (saveCustomPresets(customPresets)) {
@@ -385,10 +412,8 @@ const PresetManagerModule = (() => {
     
     if (saveCustomPresets(customPresets)) {
       // ✅ NUOVO v1.3.3: Aggiorna contatore dopo delete
-      if (typeof window !== 'undefined' && window.PresetUI && typeof window.PresetUI.updateCreateButtonState === 'function') {
-        setTimeout(() => {
-          window.PresetUI.updateCreateButtonState();
-        }, 100);
+      if (typeof window !== 'undefined' && window.PresetUI) {
+        window.PresetUI.updateCreateButtonState();
       }
       return true;
     } else {
@@ -396,807 +421,617 @@ const PresetManagerModule = (() => {
     }
   };
 
-  const restoreDefaults = () => {
-    if (confirm('Sei sicuro di voler eliminare tutti i preset personalizzati? Questa azione non può essere annullata.')) {
-      StorageHelper.removeItem(PRESET_STORAGE_KEY);
-      return true;
+  const canCreateNewPreset = () => {
+    // Utenti premium hanno limite superiore (e gestito dal billing module)
+    if (typeof window !== 'undefined' && window.BillingModule && window.BillingModule.isPremium()) {
+      return true; 
     }
-    return false;
+    
+    // Utenti free: limite di FREE_CUSTOM_LIMIT
+    const customPresets = loadCustomPresets();
+    const currentCount = Object.keys(customPresets).length;
+    return currentCount < FREE_CUSTOM_LIMIT;
+  };
+  
+  const getPreset = (key) => {
+    const all = getAllPresets();
+    const preset = all[key];
+    if (!preset) {
+      throw new Error(`Preset con chiave "${key}" non trovato.`);
+    }
+    return { key, ...preset };
   };
 
+  // ------------------------------------------------------------------
+  // 💾 EXPORT/IMPORT
+  // ------------------------------------------------------------------
+  
   const exportPresets = () => {
-    const customPresets = loadCustomPresets();
-    const exportData = {
-      version: '1.2.0',
-      exportDate: new Date().toISOString(),
-      presets: customPresets
-    };
-
-    const dataStr = JSON.stringify(exportData, null, 2);
-    const dataBlob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(dataBlob);
-    
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `segnapunti-presets-${Date.now()}.json`;
-    link.click();
-    
-    URL.revokeObjectURL(url);
+    try {
+      const customPresets = loadCustomPresets();
+      if (Object.keys(customPresets).length === 0) {
+        return null;
+      }
+      return JSON.stringify(customPresets, null, 2);
+    } catch (error) {
+      Logger.error('Errore durante l\'export dei preset:', error);
+      throw new Error('Impossibile esportare i preset');
+    }
   };
 
   const importPresets = (jsonString) => {
     try {
-      const importData = JSON.parse(jsonString);
+      const importedPresets = JSON.parse(jsonString);
       
-      if (!importData.presets || typeof importData.presets !== 'object') {
-        throw new Error('File non valido: formato preset non riconosciuto');
+      if (typeof importedPresets !== 'object' || importedPresets === null) {
+        throw new Error('Formato dati non valido: non è un oggetto');
+      }
+      
+      const customPresets = loadCustomPresets();
+      let importedCount = 0;
+      let skippedCount = 0;
+      let failedCount = 0;
+      
+      const allPresets = getAllPresets();
+
+      for (const [key, data] of Object.entries(importedPresets)) {
+        // Ignora preset predefiniti o già esistenti (con la stessa key)
+        if (DEFAULT_PRESETS[key] || allPresets[key]) {
+          skippedCount++;
+          continue;
+        }
+
+        try {
+            // Validazione minima per l'import (più leggera che per la creazione)
+            if (!data.name || !data.mode || typeof data.target !== 'number') {
+                failedCount++;
+                continue;
+            }
+            
+            // Cleanup e normalizzazione (es. garantisci che non sia un default)
+            data.isDefault = false;
+            data.category = data.category || 'custom';
+            data.createdAt = data.createdAt || Date.now();
+            data.modifiedAt = Date.now();
+            
+            // ✅ FIX CRITICO: Assicurati che startingScore sia presente per darts
+            if (data.mode === 'darts' && !data.startingScore) {
+                data.startingScore = data.target;
+            }
+            
+            // Pulisci campi specifici se il mode è cambiato
+            if (data.mode !== 'rounds') {
+                delete data.roundMode;
+                delete data.roundsTarget;
+            }
+            if (data.mode !== 'darts') {
+                delete data.startingScore;
+            }
+
+
+            customPresets[key] = data;
+            importedCount++;
+
+        } catch (e) {
+            Logger.warn(`Errore durante l'import del preset ${key}:`, e.message);
+            failedCount++;
+        }
       }
 
-      const customPresets = loadCustomPresets();
-      let imported = 0;
-      let skipped = 0;
-
-      Object.entries(importData.presets).forEach(([key, preset]) => {
-        if (DEFAULT_PRESETS[key]) {
-          skipped++;
-        } else if (customPresets[key]) {
-          skipped++;
-        } else {
-          // ✅ FIX #11: Validazione completa del preset
-          try {
-            // Valida key
-            if (!key || typeof key !== 'string' || key.trim() === '') {
-              throw new Error('Invalid key');
-            }
-
-            // Valida name (no HTML/script tags, max length)
-            if (!preset.name || typeof preset.name !== 'string') {
-              throw new Error('Invalid name');
-            }
-            const safeName = preset.name.trim().slice(0, 50);
-            // ✅ FIX BUG #31: Pattern più restrittivo (rimossi :,.:!)
-            if (!/^[\p{L}\p{N}\s'\-]+$/u.test(safeName)) {
-              throw new Error('Invalid characters in name');
-            }
-
-            // Valida mode
-            if (!['max', 'min', 'rounds', 'darts'].includes(preset.mode)) {
-              throw new Error('Invalid mode');
-            }
-
-            // Valida e converti target a numero
-            // ✅ FIX BUG #31: Limite più sicuro per prevenire overflow
-            const MAX_SAFE_TARGET = 999999;
-            const target = parseInt(preset.target, 10);
-            if (isNaN(target) || target <= 0 || target > MAX_SAFE_TARGET) {
-              throw new Error(`Invalid target (must be 1-${MAX_SAFE_TARGET})`);
-            }
-
-            // Valida roundMode e roundsTarget se mode='rounds'
-            let roundMode = preset.roundMode || 'max';
-            let roundsTarget = preset.roundsTarget ? parseInt(preset.roundsTarget, 10) : 3;
-
-            if (preset.mode === 'rounds') {
-              if (!['max', 'min'].includes(roundMode)) {
-                roundMode = 'max'; // Fallback sicuro
-              }
-              if (isNaN(roundsTarget) || roundsTarget <= 0) {
-                roundsTarget = 3; // Fallback sicuro
-              }
-            }
-
-            // Sanifica description
-            // ✅ FIX BUG #31: Rimuovi HTML tags per prevenire XSS
-            let description = '';
-            if (preset.description && typeof preset.description === 'string') {
-              description = preset.description
-                .replace(/<[^>]*>/g, '') // Rimuovi tutti i tag HTML
-                .trim()
-                .slice(0, 200);
-            }
-
-            // Category
-            // ✅ FIX BUG #31: Whitelist per category
-            const ALLOWED_CATEGORIES = ['carte', 'tavolo', 'sport', 'altri', 'custom'];
-            let category = preset.category || 'custom';
-            if (!ALLOWED_CATEGORIES.includes(category)) {
-              category = 'custom'; // Fallback sicuro
-            }
-
-            // Crea preset validato
-            const validatedPreset = {
-              name: safeName,
-              mode: preset.mode,
-              target: target,
-              description: description,
-              category: category
-            };
-
-            // Aggiungi campi rounds solo se necessario
-            if (preset.mode === 'rounds') {
-              validatedPreset.roundMode = roundMode;
-              validatedPreset.roundsTarget = roundsTarget;
-            }
-
-            customPresets[key.trim()] = validatedPreset;
-            imported++;
-
-          } catch (validationError) {
-            Logger.warn(`[Import] Preset "${key}" skipped:`, validationError.message);
-            skipped++;
-          }
-        }
-      });
-
       if (saveCustomPresets(customPresets)) {
-        return { imported, skipped };
+        // ✅ NUOVO v1.3.3: Aggiorna stato dopo import
+        if (typeof window !== 'undefined' && window.PresetUI) {
+          window.PresetUI.updateCreateButtonState();
+        }
+        return { imported: importedCount, skipped: skippedCount, failed: failedCount };
       } else {
         throw new Error('Errore nel salvataggio dei preset importati');
       }
 
     } catch (error) {
-      throw new Error('Errore nell\'importazione: ' + error.message);
+      Logger.error('Errore durante l\'import dei preset:', error);
+      throw new Error(`Import fallito: ${error.message}`);
     }
   };
-
-  const duplicatePreset = (sourceKey, newKey, newName) => {
-    const allPresets = getAllPresets();
-    const sourcePreset = allPresets[sourceKey];
-
-    if (!sourcePreset) {
-      throw new Error('Preset sorgente non trovato');
-    }
-
-    const presetData = {
-      name: newName || sourcePreset.name + ' (Copia)',
-      mode: sourcePreset.mode,
-      target: sourcePreset.target,
-      description: sourcePreset.description,
-      category: sourcePreset.category || 'custom'
-    };
-
-    // 🆕 Copia anche roundMode e roundsTarget se presenti
-    if (sourcePreset.mode === 'rounds') {
-      presetData.roundMode = sourcePreset.roundMode;
-      presetData.roundsTarget = sourcePreset.roundsTarget;
-    }
-
-    // ✅ NUOVO: Auto-genera key da nome se non fornita (passa null a createPreset)
-    // createPreset gestirà l'auto-generazione e la validazione di unicità
-    const keyToUse = (newKey && newKey.trim() !== '') ? newKey : null;
-    return createPreset(keyToUse, presetData);
-  };
-
-  // 🆕 NUOVO: Check limite free
-  const canCreatePreset = () => {
-    const isPremium = window.BillingModule?.isPremium() || false;
-    
-    if (isPremium) {
-      return { allowed: true, reason: 'premium' };
-    }
-    
-    const customPresets = loadCustomPresets();
-    const customCount = Object.keys(customPresets).length;
-    
-    if (customCount < FREE_CUSTOM_LIMIT) {
-      return { allowed: true, reason: 'free_limit_ok' };
-    }
-    
-    return { 
-      allowed: false, 
-      reason: 'free_limit_reached',
-      message: `Hai raggiunto il limite di ${FREE_CUSTOM_LIMIT} preset personalizzato.\n\nPassa a Premium per creare preset illimitati!`
-    };
-  };
+  
+  // ------------------------------------------------------------------
+  // ⚙️ UI Module (per interazione con preset-manager.html)
+  // ------------------------------------------------------------------
+  
+  // Questo modulo gestisce solo la logica dei dati. 
+  // La parte UI (PresetUIModule in segnapunti.js o preset-manager.html) 
+  // si interfaccia con queste funzioni.
 
   return {
     getAllPresets,
     getPresetsByCategory,
+    getPreset,
     createPreset,
     updatePreset,
     deletePreset,
-    restoreDefaults,
+    canCreateNewPreset,
     exportPresets,
     importPresets,
-    duplicatePreset,
-    canCreatePreset, // 🆕
-    loadCustomPresets, // ✅ NUOVO v1.3.3: Esponi per conteggio
-    FREE_CUSTOM_LIMIT
+    DEFAULT_PRESETS,
+    generatePresetKey, // Esposto per utilità di debug/test
+    CATEGORY_ICONS // Esposto per la UI
   };
 })();
 
-// ===================================================================
-// 🎨 PRESET UI MODULE
-// ===================================================================
+// Export globale
+if (typeof window !== 'undefined') {
+  window.PresetManagerModule = PresetManagerModule;
+}
 
+// ===================================================================
+// 🖥️ PRESET UI MODULE (Integra la logica del modulo dati)
+// ===================================================================
+// Questo è il modulo che si occupa di renderizzare la UI in preset-manager.html
 const PresetUIModule = (() => {
-  let currentEditingKey = null;
+  // Riferimenti agli elementi UI
+  const presetListContainer = document.getElementById('preset-list-container');
+  const modal = document.getElementById('preset-modal');
+  const modalTitle = document.getElementById('preset-modal-title');
+  const btnSavePreset = document.getElementById('btn-save-preset');
+  const btnCreatePreset = document.getElementById('btn-create-preset');
+  const modalForm = document.getElementById('preset-form');
+  const modeSelect = document.getElementById('preset-mode');
+  const roundsFields = document.getElementById('rounds-fields');
+  const targetLabel = document.getElementById('target-label');
+  const infoBox = document.getElementById('preset-info-box');
+  const infoMessage = document.getElementById('preset-info-message');
 
-  // ✅ FIX BUG #38: Traccia handler per cleanup
-  const eventHandlers = {
-    btnCreateClick: null,
-    btnCloseModalClick: null,
-    btnSavePresetClick: null,
-    modeSelectChange: null,
-    btnExportClick: null,
-    btnImportClick: null,
-    btnRestoreClick: null
-  };
+  let currentEditingKey = null; // Mantiene la chiave del preset che si sta modificando
+  const eventHandlers = {}; // Mappa per gestire la rimozione degli event listeners
 
-  const CATEGORY_ORDER = ['carte', 'tavolo', 'sport', 'altri', 'custom'];
-  const CATEGORY_NAMES = {
-    carte: '🃏 Giochi di Carte',
-    tavolo: '🎲 Giochi da Tavolo',
-    sport: '⚽ Sport',
-    altri: '🎯 Altri Giochi',
-    custom: '⭐ Personalizzati'
-  };
-  const CATEGORY_ICONS = {
-    carte: '🃏',
-    tavolo: '🎲',
-    sport: '⚽',
-    altri: '🎯',
-    custom: '⭐'
-  };
-
-  // ✅ FIX #7: Aggiorna stato pulsante create in base a limite free
-  const updateCreateButtonState = () => {
-    const btn = document.getElementById('btn-create-preset');
-    if (!btn) return;
+  const showModal = (title, key = null, preset = {}) => {
+    currentEditingKey = key;
+    modalTitle.textContent = title;
     
-    const isPremium = window.BillingModule?.isPremium() || false;
+    // Resetta il form
+    modalForm.reset();
     
-    if (!isPremium) {
-      // ✅ FIX v1.3.3: Usa loadCustomPresets() per contare SOLO custom (non default)
-      const customPresets = PresetManagerModule.loadCustomPresets();
-      const customCount = Object.keys(customPresets).length;
+    // Pre-popola se è in modalità modifica
+    if (key && preset.name) {
+      document.getElementById('preset-code').value = key;
+      document.getElementById('preset-code').disabled = true; // Non si cambia la key in modifica
       
-      btn.innerHTML = `➕ Nuovo Preset <small style="font-size:0.7em;opacity:0.8;margin-left:6px;">(${customCount}/1)</small>`;
+      document.getElementById('preset-name').value = preset.name;
+      modeSelect.value = preset.mode;
+      document.getElementById('preset-target').value = preset.target;
+      document.getElementById('preset-description').value = preset.description || '';
+      document.getElementById('preset-category').value = preset.category || 'custom';
       
-      if (customCount >= 1) {
-        btn.style.opacity = '0.6';
-        btn.title = 'Limite free raggiunto. Passa a Premium per preset illimitati!';
-      } else {
-        btn.style.opacity = '1';
-        btn.title = 'Crea un nuovo preset personalizzato';
+      // Campi rounds
+      document.getElementById('rounds-target').value = preset.roundsTarget || 0;
+      document.getElementById('round-mode-max').checked = preset.roundMode === 'max';
+      document.getElementById('round-mode-min').checked = preset.roundMode === 'min';
+
+    } else {
+      // Modalità creazione
+      document.getElementById('preset-code').value = '';
+      document.getElementById('preset-code').disabled = false;
+      // Imposta i valori di default per la creazione
+      modeSelect.value = 'max';
+      document.getElementById('preset-target').value = 10;
+      document.getElementById('preset-category').value = 'altri';
+      // Nascondi rounds fields inizialmente
+      roundsFields.style.display = 'none';
+      targetLabel.textContent = 'Punteggio Obiettivo / Punteggio Round';
+    }
+
+    // Aggiorna la UI in base alla modalità selezionata
+    handleModeChange(modeSelect.value);
+
+    modal.classList.add('is-active');
+    setTimeout(() => {
+        modal.querySelector('.modal-content-wrapper').classList.add('is-open');
+        // Focus sul primo campo
+        document.getElementById('preset-name').focus();
+    }, 10);
+  };
+
+  const hideModal = () => {
+    modal.querySelector('.modal-content-wrapper').classList.remove('is-open');
+    setTimeout(() => {
+      modal.classList.remove('is-active');
+      currentEditingKey = null;
+    }, 300); // 300ms per l'animazione
+  };
+  
+  const handleModeChange = (mode) => {
+    if (mode === 'rounds') {
+      roundsFields.style.display = 'block';
+      targetLabel.textContent = 'Punteggio Obiettivo Round';
+      // Inizializza i valori di rounds se sono vuoti
+      if (!document.getElementById('rounds-target').value || document.getElementById('rounds-target').value == 0) {
+        document.getElementById('rounds-target').value = 3; 
+      }
+      if (!document.getElementById('preset-target').value || document.getElementById('preset-target').value == 0) {
+        document.getElementById('preset-target').value = 10;
+      }
+    } else if (mode === 'darts') {
+      // ✅ FIX UI: Nascondi campi Rounds
+      roundsFields.style.display = 'none';
+      targetLabel.textContent = 'Punteggio di Partenza (es. 501, 301)';
+      // Valore di default per darts
+      if (!currentEditingKey || document.getElementById('preset-target').value == 0) {
+        document.getElementById('preset-target').value = 501;
       }
     } else {
-      btn.innerHTML = '➕ Nuovo Preset';
-      btn.style.opacity = '1';
-      btn.title = 'Crea un nuovo preset personalizzato';
+      roundsFields.style.display = 'none';
+      targetLabel.textContent = 'Punteggio Obiettivo';
+      // Valore di default per max/min
+      if (!currentEditingKey || document.getElementById('preset-target').value == 0) {
+        document.getElementById('preset-target').value = 10;
+      }
     }
+  };
+
+  const renderPresetCard = (key, preset) => {
+    const isCustom = !preset.isDefault;
+    const categoryIcon = PresetManagerModule.CATEGORY_ICONS[preset.category] || PresetManagerModule.CATEGORY_ICONS['altri'];
+    
+    // 🆕 Visualizzazione corretta per rounds e darts
+    let modeDisplay = '';
+    if (preset.mode === 'rounds') {
+      const modeText = preset.roundMode === 'max' ? 'Max' : 'Min';
+      modeDisplay = `ROUND: ${modeText} a ${preset.target} (Migliore di ${preset.roundsTarget})`;
+    } else if (preset.mode === 'darts') {
+      modeDisplay = `DARTS: Start da ${preset.startingScore} (Target 0)`;
+    } else {
+      modeDisplay = `MODALITÀ: ${preset.mode === 'max' ? 'Vince chi fa più punti' : 'Vince chi fa meno punti'} (Target ${preset.target})`;
+    }
+
+    return `
+      <div class="preset-card animate__animated animate__fadeInUp" data-key="${key}" data-category="${preset.category}">
+        <div class="preset-header">
+          <span class="preset-category-icon">${categoryIcon}</span>
+          <h3 class="preset-title">${preset.name}</h3>
+        </div>
+        <p class="preset-description">${preset.description}</p>
+        <div class="preset-details">
+          <span class="preset-mode"><strong>${preset.mode.toUpperCase()}</strong></span>
+          <span class="preset-target">${modeDisplay}</span>
+        </div>
+        <div class="preset-actions">
+          <button class="btn btn-apply" data-key="${key}">Applica</button>
+          ${isCustom ? `
+            <button class="btn btn-edit" data-key="${key}" aria-label="Modifica ${preset.name}"><span aria-hidden="true">✏️</span></button>
+            <button class="btn btn-delete" data-key="${key}" aria-label="Elimina ${preset.name}"><span aria-hidden="true">🗑️</span></button>
+          ` : ''}
+        </div>
+      </div>
+    `;
   };
 
   const renderPresetList = () => {
-    const container = document.getElementById('preset-list-container');
-    if (!container) {
-      Logger.warn('[PresetUI] Container non trovato');
-      return;
-    }
+    if (!presetListContainer) return;
+    
+    presetListContainer.innerHTML = '';
+    const categories = PresetManagerModule.getPresetsByCategory();
 
-    try {
-      container.innerHTML = '';
-
-      const categorized = PresetManagerModule.getPresetsByCategory();
-      
-      CATEGORY_ORDER.forEach(categoryKey => {
-        const presets = categorized[categoryKey];
-        if (!presets || presets.length === 0) return;
-
-        const categorySection = document.createElement('div');
-        categorySection.className = 'preset-category';
-
-        const categoryHeader = document.createElement('h2');
-        categoryHeader.className = 'preset-category-header';
-        categoryHeader.textContent = CATEGORY_NAMES[categoryKey] || categoryKey;
-
-        const presetGrid = document.createElement('div');
-        presetGrid.className = 'preset-grid';
-
-        const sortedPresets = presets.sort((a, b) => a.name.localeCompare(b.name));
-
-        sortedPresets.forEach(preset => {
-          const card = createPresetCard(preset);
-          presetGrid.appendChild(card);
-        });
-
-        categorySection.appendChild(categoryHeader);
-        categorySection.appendChild(presetGrid);
-        container.appendChild(categorySection);
+    Object.entries(categories).forEach(([category, presets]) => {
+      // Ordina i preset: prima i default, poi i custom per data di modifica
+      presets.sort((a, b) => {
+        if (a.isDefault && !b.isDefault) return -1;
+        if (!a.isDefault && b.isDefault) return 1;
+        if (a.isDefault && b.isDefault) return 0;
+        return (b.modifiedAt || b.createdAt) - (a.modifiedAt || a.createdAt); // Custom: più recenti prima
       });
+      
+      const categoryTitle = category === 'custom' ? '⭐ I tuoi Preset' : category.charAt(0).toUpperCase() + category.slice(1);
+      
+      const categorySection = document.createElement('section');
+      categorySection.className = 'preset-category-section';
+      categorySection.innerHTML = `<h2>${categoryTitle}</h2>`;
+      
+      const listDiv = document.createElement('div');
+      listDiv.className = 'preset-cards-grid';
 
-      if (container.children.length === 0) {
-        const emptyMessage = document.createElement('p');
-        emptyMessage.textContent = 'Nessun preset disponibile.';
-        emptyMessage.style.textAlign = 'center';
-        emptyMessage.style.color = '#999';
-        emptyMessage.style.padding = '40px 20px';
-        container.appendChild(emptyMessage);
-      }
+      presets.forEach(preset => {
+        listDiv.innerHTML += renderPresetCard(preset.key, preset);
+      });
       
-      // ✅ FIX #7: Aggiorna stato pulsante create
-      updateCreateButtonState();
-      
-    } catch (error) {
-      Logger.error('[PresetUI] Errore render preset list:', error);
-      
-      // Mostra messaggio errore all'utente
-      container.innerHTML = `
-        <div style="text-align: center; padding: 40px 20px; color: #ff6b6b;">
-          <h3>⚠️ Errore Caricamento Preset</h3>
-          <p>Si è verificato un errore durante il caricamento dei preset.</p>
-          <p style="font-size: 0.9em; opacity: 0.8;">${error.message}</p>
-          <button onclick="location.reload()" style="margin-top: 20px; padding: 10px 20px; background: #4A148C; color: white; border: none; border-radius: 8px; cursor: pointer;">
-            🔄 Ricarica Pagina
-          </button>
-        </div>
-      `;
-    }
+      categorySection.appendChild(listDiv);
+      presetListContainer.appendChild(categorySection);
+    });
+
+    // Aggiorna lo stato del pulsante "Crea Nuovo"
+    updateCreateButtonState();
   };
-
-  const createPresetCard = (preset) => {
-    const card = document.createElement('div');
-    card.className = 'preset-card';
+  
+  const updateCreateButtonState = () => {
+    if (!btnCreatePreset) return;
     
-    if (preset.isDefault) {
-      card.classList.add('preset-default');
-    } else {
-      card.classList.add('preset-custom');
-    }
-
-    // Header
-    const header = document.createElement('div');
-    header.className = 'preset-card-header';
-
-    const icon = document.createElement('div');
-    icon.className = 'preset-icon';
-    icon.textContent = CATEGORY_ICONS[preset.category] || '⭐';
-
-    const title = document.createElement('h3');
-    title.className = 'preset-title';
-    title.textContent = preset.name;
-
-    header.appendChild(icon);
-    header.appendChild(title);
-
-    // Body
-    const body = document.createElement('div');
-    body.className = 'preset-card-body';
-
-    // 🆕 Visualizzazione migliorata per modalità rounds
-    if (preset.mode === 'rounds') {
-      const roundModeText = preset.roundMode === 'max' ? 'più punti' : 'meno punti';
-      
-      const roundInfo = document.createElement('p');
-      roundInfo.className = 'preset-mode';
-      roundInfo.innerHTML = `<strong>🏆 Modalità:</strong> Rounds (vince chi vince ${preset.roundsTarget || 3} round)`;
-      
-      const roundEndInfo = document.createElement('p');
-      roundEndInfo.className = 'preset-target';
-      roundEndInfo.innerHTML = `<strong>📊 Fine Round:</strong> ${preset.target} punti (vince chi fa ${roundModeText})`;
-      
-      body.appendChild(roundInfo);
-      body.appendChild(roundEndInfo);
-    } else {
-      const modeP = document.createElement('p');
-      modeP.className = 'preset-mode';
-      const modeText = preset.mode === 'max' ? 'Vince chi fa PIÙ punti' : 'Vince chi fa MENO punti';
-      modeP.innerHTML = `<strong>🎯 Modalità:</strong> ${modeText}`;
-
-      const targetP = document.createElement('p');
-      targetP.className = 'preset-target';
-      targetP.innerHTML = `<strong>🎯 Obiettivo:</strong> ${preset.target} punti`;
-
-      body.appendChild(modeP);
-      body.appendChild(targetP);
-    }
-
-    if (preset.description) {
-      const descP = document.createElement('p');
-      descP.className = 'preset-description';
-      descP.textContent = preset.description;
-      body.appendChild(descP);
-    }
-
-    // Actions
-    const actions = document.createElement('div');
-    actions.className = 'preset-card-actions';
-
-    const btnDuplicate = document.createElement('button');
-    btnDuplicate.className = 'btn-secondary btn-small';
-    btnDuplicate.innerHTML = '📋 Duplica';
-    btnDuplicate.addEventListener('click', () => showDuplicateModal(preset.key));
-
-    actions.appendChild(btnDuplicate);
-
-    if (!preset.isDefault) {
-      const btnEdit = document.createElement('button');
-      btnEdit.className = 'btn-primary btn-small';
-      btnEdit.innerHTML = '✏️ Modifica';
-      btnEdit.addEventListener('click', () => showEditModal(preset.key));
-
-      const btnDelete = document.createElement('button');
-      btnDelete.className = 'btn-rimuovi btn-small';
-      btnDelete.innerHTML = '🗑️ Elimina';
-      btnDelete.addEventListener('click', () => deletePreset(preset.key));
-
-      actions.appendChild(btnEdit);
-      actions.appendChild(btnDelete);
-    } else {
-      const defaultBadge = document.createElement('span');
-      defaultBadge.className = 'preset-badge-default';
-      defaultBadge.textContent = '🔒 Predefinito';
-      actions.appendChild(defaultBadge);
-    }
-
-    card.appendChild(header);
-    card.appendChild(body);
-    card.appendChild(actions);
-
-    return card;
-  };
-
-  const showCreateModal = () => {
-    // 🆕 CHECK: Verifica limite free
-    const canCreate = PresetManagerModule.canCreatePreset();
-    
-    if (!canCreate.allowed) {
-      if (window.PremiumUIModule) {
-        window.PremiumUIModule.showFeatureLockedModal(
-          'Preset Personalizzati Illimitati',
-          canCreate.message
-        );
+    if (!PresetManagerModule.canCreateNewPreset()) {
+      btnCreatePreset.disabled = true;
+      btnCreatePreset.textContent = '❌ Limite Preset Raggiunto';
+      if (typeof window !== 'undefined' && window.BillingModule && !window.BillingModule.isPremium()) {
+         btnCreatePreset.title = 'Sblocca preset illimitati con Premium!';
       } else {
-        alert(canCreate.message);
+         btnCreatePreset.title = 'Limite massimo di preset raggiunto.';
       }
-      return;
-    }
-    
-    currentEditingKey = null;
-    const modal = document.getElementById('preset-edit-modal');
-    const form = document.getElementById('preset-form');
-    
-    if (!modal || !form) return;
-
-    document.getElementById('preset-modal-title').textContent = '➕ Nuovo Preset';
-    form.reset();
-    
-    const keyInput = document.getElementById('preset-key');
-    const keyFormGroup = keyInput?.closest('.form-group');
-    
-    if (keyInput) {
-      keyInput.value = '';
-      keyInput.disabled = false;
-    }
-    
-    // ✅ NUOVO v1.3.3: Nascondi campo codice per creazione (auto-generato)
-    if (keyFormGroup) {
-      keyFormGroup.style.display = 'none';
-    }
-    
-    toggleRoundsFields('max'); // Default
-    
-    modal.style.display = 'flex';
-  };
-
-  // 🆕 RINOMINATO: toggleRoundsFields per gestire entrambi i campi
-  const toggleRoundsFields = (mode) => {
-    const roundsField = document.getElementById('preset-rounds-field');
-    const roundModeField = document.getElementById('preset-round-mode-field');
-    
-    if (roundsField) {
-      roundsField.style.display = mode === 'rounds' ? 'block' : 'none';
-    }
-    
-    if (roundModeField) {
-      roundModeField.style.display = mode === 'rounds' ? 'block' : 'none';
-    }
-  };
-
-  const showEditModal = (key) => {
-    const allPresets = PresetManagerModule.getAllPresets();
-    const preset = allPresets[key];
-    
-    if (!preset) return;
-
-    currentEditingKey = key;
-    const modal = document.getElementById('preset-edit-modal');
-    const form = document.getElementById('preset-form');
-    
-    if (!modal || !form) return;
-
-    document.getElementById('preset-modal-title').textContent = '✏️ Modifica Preset';
-    
-    const keyInput = document.getElementById('preset-key');
-    const keyFormGroup = keyInput?.closest('.form-group');
-    
-    if (keyInput) {
-      keyInput.value = key;
-      keyInput.disabled = true;
-    }
-    
-    // ✅ NUOVO v1.3.3: Mostra campo codice in modifica (read-only)
-    if (keyFormGroup) {
-      keyFormGroup.style.display = 'block';
-    }
-    
-    const nameInput = document.getElementById('preset-name');
-    if (nameInput) nameInput.value = preset.name;
-    
-    const modeSelect = document.getElementById('preset-mode');
-    if (modeSelect) modeSelect.value = preset.mode;
-    
-    const targetInput = document.getElementById('preset-target');
-    if (targetInput) targetInput.value = preset.target;
-    
-    const descInput = document.getElementById('preset-description');
-    if (descInput) descInput.value = preset.description || '';
-    
-    const categorySelect = document.getElementById('preset-category');
-    if (categorySelect) categorySelect.value = preset.category || 'custom';
-    
-    // 🆕 Popola anche roundMode
-    if (preset.mode === 'rounds') {
-      const roundModeSelect = document.getElementById('preset-round-mode');
-      if (roundModeSelect) roundModeSelect.value = preset.roundMode || 'max';
       
-      const roundsInput = document.getElementById('preset-rounds-target');
-      if (roundsInput) roundsInput.value = preset.roundsTarget || 3;
+    } else {
+      btnCreatePreset.disabled = false;
+      btnCreatePreset.textContent = '➕ Crea Nuovo Preset';
+      btnCreatePreset.title = 'Crea un nuovo preset personalizzato';
     }
-    
-    toggleRoundsFields(preset.mode);
-    
-    modal.style.display = 'flex';
   };
 
-  const showDuplicateModal = (sourceKey) => {
-    // 🆕 CHECK: Verifica limite free prima di duplicare
-    const canCreate = PresetManagerModule.canCreatePreset();
+  // ------------------------------------------------------------------
+  // 💾 HANDLERS
+  // ------------------------------------------------------------------
+  
+  const handleBtnSavePresetClick = (e) => {
+    e.preventDefault();
+    const formData = new FormData(modalForm);
+    const presetData = Object.fromEntries(formData.entries());
 
-    if (!canCreate.allowed) {
-      if (window.PremiumUIModule) {
-        window.PremiumUIModule.showFeatureLockedModal(
-          'Preset Personalizzati Illimitati',
-          canCreate.message
-        );
-      } else {
-        alert(canCreate.message);
-      }
-      return;
-    }
-
-    // ✅ FIX: Richiedi solo il nome, il codice sarà auto-generato dal nome
-    const newName = prompt('Inserisci il nome per il nuovo preset:');
-    if (!newName || newName.trim() === '') return;
+    // Seleziona correttamente roundMode
+    presetData.roundMode = modalForm.querySelector('input[name="roundMode"]:checked')?.value;
+    
+    const isUpdate = !!currentEditingKey;
+    const key = document.getElementById('preset-code').value.trim();
 
     try {
-      // ✅ FIX: Passa null come newKey - il codice verrà auto-generato dal nome in createPreset
-      const duplicatedPreset = PresetManagerModule.duplicatePreset(sourceKey, null, newName);
-      alert(`✅ Preset "${duplicatedPreset.name}" duplicato con successo!\nCodice: ${duplicatedPreset.key}`);
-      renderPresetList();
-    } catch (error) {
-      alert('❌ Errore: ' + error.message);
-    }
-  };
-
-  const closeModal = () => {
-    const modal = document.getElementById('preset-edit-modal');
-    if (modal) modal.style.display = 'none';
-    currentEditingKey = null;
-  };
-
-  const savePreset = () => {
-    const keyInput = document.getElementById('preset-key');
-    const nameInput = document.getElementById('preset-name');
-    const modeSelect = document.getElementById('preset-mode');
-    const targetInput = document.getElementById('preset-target');
-    const descInput = document.getElementById('preset-description');
-    const categorySelect = document.getElementById('preset-category');
-    
-    if (!nameInput || !modeSelect || !targetInput) return;
-    
-    // ✅ NUOVO v1.3.3: Per creazione passa null (sarà auto-generata da nome)
-    const key = currentEditingKey ? currentEditingKey : null;
-    const name = nameInput.value.trim();
-    const mode = modeSelect.value;
-    const target = targetInput.value;
-    const description = descInput ? descInput.value.trim() : '';
-    const category = categorySelect ? categorySelect.value : 'custom';
-
-    const presetData = { name, mode, target, description, category };
-
-    // 🆕 Includi roundMode per modalità rounds
-    if (mode === 'rounds') {
-      const roundModeSelect = document.getElementById('preset-round-mode');
-      const roundsInput = document.getElementById('preset-rounds-target');
-      
-      if (roundModeSelect) {
-        presetData.roundMode = roundModeSelect.value;
-      }
-      
-      if (roundsInput) {
-        presetData.roundsTarget = roundsInput.value;
-      }
-    }
-
-    try {
-      if (currentEditingKey) {
+      if (isUpdate) {
         PresetManagerModule.updatePreset(currentEditingKey, presetData);
-        alert('✅ Preset modificato con successo!');
+        Toast.show('Preset aggiornato con successo!', 'success');
       } else {
         PresetManagerModule.createPreset(key, presetData);
-        alert('✅ Preset creato con successo!');
+        Toast.show('Preset creato con successo!', 'success');
       }
-      closeModal();
+      
       renderPresetList();
+      hideModal();
+
     } catch (error) {
-      alert('❌ Errore: ' + error.message);
+      Logger.error('Errore durante il salvataggio del preset:', error);
+      Toast.show(error.message, 'error');
     }
   };
 
-  const deletePreset = (key) => {
-    if (!confirm('Sei sicuro di voler eliminare questo preset? Questa azione non può essere annullata.')) {
-      return;
-    }
+  const handleApplyPreset = async (e) => {
+    const key = e.target.dataset.key;
+    if (!key) return;
 
     try {
-      PresetManagerModule.deletePreset(key);
-      alert('✅ Preset eliminato');
-      renderPresetList();
+      const preset = PresetManagerModule.getPreset(key);
+      
+      // Salva il preset selezionato per l'app principale
+      StorageHelper.setItem('selected_preset_key', key);
+
+      Toast.show(`Preset "${preset.name}" applicato!`, 'info');
+      
+      // ✅ FIX #21: Reindirizza alla pagina principale dopo un breve timeout per mostrare il toast
+      await new Promise(resolve => setTimeout(resolve, 500)); 
+      window.location.href = 'index.html';
+
     } catch (error) {
-      alert('❌ Errore: ' + error.message);
+      Logger.error('Errore nell\'applicazione del preset:', error);
+      Toast.show(error.message, 'error');
     }
   };
 
-  const exportPresets = () => {
+  const handleDeletePreset = (e) => {
+    const key = e.target.dataset.key;
+    if (!key) return;
+
+    ConfirmModal.show({
+      title: 'Conferma Eliminazione',
+      message: `Sei sicuro di voler eliminare il preset "${PresetManagerModule.getPreset(key).name}"? Questa azione è irreversibile.`,
+      confirmText: 'Sì, Elimina',
+      onConfirm: () => {
+        try {
+          PresetManagerModule.deletePreset(key);
+          renderPresetList();
+          Toast.show('Preset eliminato con successo.', 'success');
+        } catch (error) {
+          Logger.error('Errore durante l\'eliminazione:', error);
+          Toast.show(error.message, 'error');
+        }
+      }
+    });
+  };
+
+  const handleEditPreset = (e) => {
+    const key = e.target.dataset.key;
+    if (!key) return;
+
     try {
-      PresetManagerModule.exportPresets();
-      alert('✅ Preset esportati con successo!');
+      const preset = PresetManagerModule.getPreset(key);
+      showModal('Modifica Preset', key, preset);
     } catch (error) {
-      alert('❌ Errore nell\'export: ' + error.message);
+      Toast.show(error.message, 'error');
     }
   };
-
-  const importPresets = () => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.json';
+  
+  const handleBtnExportClick = () => {
+    try {
+      const json = PresetManagerModule.exportPresets();
+      if (!json) {
+        Toast.show('Non ci sono preset personalizzati da esportare.', 'warning');
+        return;
+      }
+      
+      // Crea un blob e un link per il download
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `segnapunti_presets_${Date.now()}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      Toast.show('Preset esportati con successo!', 'success');
+    } catch (error) {
+      Toast.show(error.message, 'error');
+    }
+  };
+  
+  const handleBtnImportClick = () => {
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'application/json';
     
-    input.onchange = (e) => {
+    fileInput.onchange = (e) => {
       const file = e.target.files[0];
       if (!file) return;
 
       const reader = new FileReader();
-
-      // ✅ FIX BUG #33: Aggiungi error handler per FileReader
-      reader.onerror = () => {
-        alert('❌ Errore lettura file. Il file potrebbe essere corrotto o non leggibile.');
-      };
-
-      // ✅ FIX BUG #33: Aggiungi timeout per file grandi
-      const timeout = setTimeout(() => {
-        reader.abort();
-        alert('⏱️ Timeout: File troppo grande o lettura bloccata.');
-      }, 10000); // 10s timeout
-
       reader.onload = (event) => {
-        clearTimeout(timeout); // ✅ FIX BUG #33: Cancella timeout su successo
         try {
-          const result = PresetManagerModule.importPresets(event.target.result);
-          alert(`✅ Import completato!\nImportati: ${result.imported}\nIgnorati: ${result.skipped}`);
+          const jsonString = event.target.result;
+          const result = PresetManagerModule.importPresets(jsonString);
+          
+          let message = `Import completato: ${result.imported} importati, ${result.skipped} saltati, ${result.failed} falliti.`;
+          Toast.show(message, 'success');
           renderPresetList();
+          
         } catch (error) {
-          alert('❌ ' + error.message);
+          Toast.show(error.message, 'error');
         }
       };
-
-      // ✅ FIX BUG #33: Cleanup su fine lettura (successo o errore)
-      reader.onloadend = () => {
-        clearTimeout(timeout);
+      reader.onerror = () => {
+        Toast.show('Errore nella lettura del file.', 'error');
       };
-
+      
       reader.readAsText(file);
     };
     
-    input.click();
+    fileInput.click();
+  };
+  
+  const handleBtnRestoreClick = () => {
+    ConfirmModal.show({
+      title: 'Ripristina Preset',
+      message: 'Sei sicuro di voler ripristinare i preset predefiniti? Tutti i tuoi preset personalizzati verranno eliminati.',
+      confirmText: 'Sì, Ripristina',
+      onConfirm: () => {
+        try {
+          // Basta eliminare la chiave custom_presets dal localStorage
+          StorageHelper.removeItem(PresetManagerModule.PRESET_STORAGE_KEY);
+          renderPresetList();
+          Toast.show('Preset ripristinati. I preset personalizzati sono stati eliminati.', 'success');
+        } catch (error) {
+          Logger.error('Errore nel ripristino dei preset:', error);
+          Toast.show('Errore nel ripristino dei preset.', 'error');
+        }
+      }
+    });
   };
 
-  const restoreDefaults = () => {
-    if (PresetManagerModule.restoreDefaults()) {
-      alert('✅ Preset personalizzati eliminati. Solo i preset predefiniti sono disponibili.');
-      renderPresetList();
-    }
-  };
 
   const setupEventListeners = () => {
-    // ✅ FIX BUG #38: Cleanup esistenti prima di aggiungere nuovi
-    cleanup();
-
-    const btnCreate = document.getElementById('btn-create-preset');
-    if (btnCreate) {
-      eventHandlers.btnCreateClick = () => {
-        // ✅ FIX #4: Usa PresetManagerModule.getAllPresets() invece di getAllPresets()
-        const canCreate = PresetManagerModule.canCreatePreset();
-
-        if (!canCreate.allowed) {
-          if (window.PremiumUIModule) {
-            window.PremiumUIModule.showFeatureLockedModal(
-              'Preset Personalizzati Illimitati',
-              canCreate.message
-            );
-          } else {
-            alert(canCreate.message);
-          }
-          return;
-        }
-
-        showCreateModal();
-      };
-      btnCreate.addEventListener('click', eventHandlers.btnCreateClick);
+    // 1. Modale
+    const modalCloseButton = document.getElementById('modal-close-btn');
+    if (modalCloseButton) {
+      modalCloseButton.addEventListener('click', hideModal);
+      eventHandlers.modalCloseButton = hideModal;
     }
-
-    const btnCloseModal = document.getElementById('btn-close-preset-modal');
-    if (btnCloseModal) {
-      eventHandlers.btnCloseModalClick = closeModal;
-      btnCloseModal.addEventListener('click', eventHandlers.btnCloseModalClick);
+    
+    // 2. Pulsante Crea Nuovo Preset
+    if (btnCreatePreset) {
+      const handler = () => showModal('Crea Nuovo Preset');
+      btnCreatePreset.addEventListener('click', handler);
+      eventHandlers.btnCreatePresetClick = handler;
     }
-
-    const btnSavePreset = document.getElementById('btn-save-preset');
+    
+    // 3. Pulsante Salva Preset nel modale
     if (btnSavePreset) {
-      eventHandlers.btnSavePresetClick = savePreset;
-      btnSavePreset.addEventListener('click', eventHandlers.btnSavePresetClick);
+      btnSavePreset.addEventListener('click', handleBtnSavePresetClick);
+      eventHandlers.btnSavePresetClick = handleBtnSavePresetClick;
     }
 
-    const modeSelect = document.getElementById('preset-mode');
+    // 4. Cambiamento modalità nel modale
     if (modeSelect) {
-      eventHandlers.modeSelectChange = (e) => {
-        toggleRoundsFields(e.target.value);
-      };
-      modeSelect.addEventListener('change', eventHandlers.modeSelectChange);
+      const handler = (e) => handleModeChange(e.target.value);
+      modeSelect.addEventListener('change', handler);
+      eventHandlers.modeSelectChange = handler;
     }
 
+    // 5. Azioni sulle card (Applica, Modifica, Elimina)
+    if (presetListContainer) {
+      const handler = (e) => {
+        if (e.target.classList.contains('btn-apply')) {
+          handleApplyPreset(e);
+        } else if (e.target.classList.contains('btn-delete') || e.target.closest('.btn-delete')) {
+          handleDeletePreset(e);
+        } else if (e.target.classList.contains('btn-edit') || e.target.closest('.btn-edit')) {
+          handleEditPreset(e);
+        }
+      };
+      presetListContainer.addEventListener('click', handler);
+      eventHandlers.presetCardActions = handler;
+    }
+    
+    // 6. Pulsanti Export/Import/Restore
     const btnExport = document.getElementById('btn-export-presets');
     if (btnExport) {
-      eventHandlers.btnExportClick = exportPresets;
-      btnExport.addEventListener('click', eventHandlers.btnExportClick);
+      btnExport.addEventListener('click', handleBtnExportClick);
+      eventHandlers.btnExportClick = handleBtnExportClick;
     }
-
+    
     const btnImport = document.getElementById('btn-import-presets');
     if (btnImport) {
-      eventHandlers.btnImportClick = importPresets;
-      btnImport.addEventListener('click', eventHandlers.btnImportClick);
+      btnImport.addEventListener('click', handleBtnImportClick);
+      eventHandlers.btnImportClick = handleBtnImportClick;
     }
-
+    
     const btnRestore = document.getElementById('btn-restore-defaults');
     if (btnRestore) {
-      eventHandlers.btnRestoreClick = restoreDefaults;
-      btnRestore.addEventListener('click', eventHandlers.btnRestoreClick);
+      btnRestore.addEventListener('click', handleBtnRestoreClick);
+      eventHandlers.btnRestoreClick = handleBtnRestoreClick;
     }
+    
+    // 7. Chiudi modale cliccando fuori
+    if (modal) {
+        const handler = (e) => {
+            // Se cliccato sull'overlay ma non sul contenuto
+            if (e.target === modal) {
+                hideModal();
+            }
+        };
+        modal.addEventListener('click', handler);
+        eventHandlers.modalOverlayClick = handler;
+    }
+
+
+    Logger.log('✅ PresetUIModule event listeners configurati');
   };
-
-  // ✅ FIX BUG #38: Cleanup method per rimuovere event listeners
+  
+  // ✅ FIX BUG #38: Metodo di cleanup per prevenire memory leak in SPAs
   const cleanup = () => {
-    if (eventHandlers.btnCreateClick) {
-      const btnCreate = document.getElementById('btn-create-preset');
-      if (btnCreate) {
-        btnCreate.removeEventListener('click', eventHandlers.btnCreateClick);
-      }
-      eventHandlers.btnCreateClick = null;
+    // Rimuovi listener sulla lista
+    if (presetListContainer && eventHandlers.presetCardActions) {
+      presetListContainer.removeEventListener('click', eventHandlers.presetCardActions);
+      eventHandlers.presetCardActions = null;
+    }
+    
+    // Rimuovi listener sul modale
+    const modalCloseButton = document.getElementById('modal-close-btn');
+    if (modalCloseButton && eventHandlers.modalCloseButton) {
+      modalCloseButton.removeEventListener('click', eventHandlers.modalCloseButton);
+      eventHandlers.modalCloseButton = null;
+    }
+    if (modal && eventHandlers.modalOverlayClick) {
+        modal.removeEventListener('click', eventHandlers.modalOverlayClick);
+        eventHandlers.modalOverlayClick = null;
     }
 
-    if (eventHandlers.btnCloseModalClick) {
-      const btnCloseModal = document.getElementById('btn-close-preset-modal');
-      if (btnCloseModal) {
-        btnCloseModal.removeEventListener('click', eventHandlers.btnCloseModalClick);
-      }
-      eventHandlers.btnCloseModalClick = null;
+    // Rimuovi listener sul pulsante Crea
+    if (btnCreatePreset && eventHandlers.btnCreatePresetClick) {
+      btnCreatePreset.removeEventListener('click', eventHandlers.btnCreatePresetClick);
+      eventHandlers.btnCreatePresetClick = null;
     }
-
-    if (eventHandlers.btnSavePresetClick) {
-      const btnSavePreset = document.getElementById('btn-save-preset');
-      if (btnSavePreset) {
-        btnSavePreset.removeEventListener('click', eventHandlers.btnSavePresetClick);
-      }
+    
+    // Rimuovi listener sul pulsante Salva
+    if (btnSavePreset && eventHandlers.btnSavePresetClick) {
+      btnSavePreset.removeEventListener('click', eventHandlers.btnSavePresetClick);
       eventHandlers.btnSavePresetClick = null;
     }
 
@@ -1243,5 +1078,8 @@ const PresetUIModule = (() => {
   };
 })();
 
-window.PresetManager = PresetManagerModule;
-window.PresetUI = PresetUIModule;
+// Export globale
+if (typeof window !== 'undefined') {
+  window.PresetManager = PresetManagerModule;
+  window.PresetUI = PresetUIModule;
+}
