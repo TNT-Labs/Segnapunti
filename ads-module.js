@@ -5,8 +5,8 @@
 const AdsModule = (() => {
   // IDs da configurare in AdMob Console
   const AD_UNITS = {
-    banner: 'ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX', // Banner bottom
-    interstitial: 'ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX' // Fullscreen
+    banner: 'ca-app-pub-3940256099942544/6300978111', // Banner bottom
+    interstitial: 'ca-app-pub-3940256099942544/1033173712' // Fullscreen
   };
 
   let adsEnabled = true;
@@ -90,7 +90,7 @@ const AdsModule = (() => {
     const script = document.createElement('script');
     script.async = true;
     script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js';
-    script.setAttribute('data-ad-client', 'ca-pub-XXXXXXXXXXXXXXXX');
+    script.setAttribute('data-ad-client', 'ca-pub-4302173868436591');
     document.head.appendChild(script);
   };
 
@@ -162,8 +162,8 @@ const AdsModule = (() => {
     container.innerHTML = `
       <ins class="adsbygoogle"
            style="display:inline-block;width:320px;height:50px"
-           data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
-           data-ad-slot="XXXXXXXXXX"></ins>
+           data-ad-client="ca-pub-4302173868436591"
+           data-ad-slot="6300978111"></ins>
     `;
     
     try {
