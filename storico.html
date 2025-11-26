@@ -8,7 +8,8 @@
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#4A148C">
   <!-- ✅ FIX BUG #44: Content Security Policy -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self';">
+  <!-- ✨ CDN per jsPDF (export PDF premium) -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self';">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"> 
@@ -61,6 +62,43 @@
       font-size: 1.1em;
       font-weight: 600;
     }
+    .export-buttons {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .btn-export {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.95em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .btn-export-pdf {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+    .btn-export-pdf:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(102, 126, 234, 0.4);
+    }
+    .btn-export-csv {
+      background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+      color: white;
+    }
+    .btn-export-csv:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(17, 153, 142, 0.4);
+    }
+    .btn-export:active {
+      transform: translateY(0);
+    }
   </style>
   <link rel="stylesheet" href="segnapunti.css">
   <link rel="stylesheet" href="segnapunti-mobile.css">
@@ -81,9 +119,17 @@
       <div class="storico-stats" id="storico-stats">
         <span><strong>0</strong> partite giocate</span>
       </div>
-      <button id="btn-clear-history" class="btn-reset" title="Elimina tutte le partite dallo storico">
-        🗑️ Azzera Storico
-      </button>
+      <div class="export-buttons">
+        <button id="btn-export-pdf" class="btn-export btn-export-pdf" title="Esporta storico in formato PDF (Premium)">
+          📄 Export PDF
+        </button>
+        <button id="btn-export-csv" class="btn-export btn-export-csv" title="Esporta storico in formato CSV (Premium)">
+          📊 Export CSV
+        </button>
+        <button id="btn-clear-history" class="btn-reset" title="Elimina tutte le partite dallo storico">
+          🗑️ Azzera
+        </button>
+      </div>
     </div>
 
     <ul class="storico-lista" id="storico-lista">
@@ -135,6 +181,10 @@
 
   <script src="storage-helper.js"></script>
   <script src="segnapunti.js"></script>
+
+  <!-- ✨ Export Module (Premium Feature) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="export-module.js"></script>
   
   <!-- ✅ MONETIZATION SYSTEM -->
   <script src="billing-module.js"></script>
@@ -159,16 +209,51 @@
     document.addEventListener('DOMContentLoaded', async () => {
       try {
         await BillingModule.init();
-        
+
         if (!BillingModule.isPremium()) {
           await AdsModule.init();
         }
-        
+
         await PremiumUIModule.init();
+
+        // ✨ Setup Export Buttons
+        setupExportButtons();
       } catch (error) {
         Logger.error('Monetization init error:', error);
       }
     });
+
+    // ✨ Setup Export Buttons (Premium Feature)
+    function setupExportButtons() {
+      const btnExportPDF = document.getElementById('btn-export-pdf');
+      const btnExportCSV = document.getElementById('btn-export-csv');
+
+      if (btnExportPDF) {
+        btnExportPDF.addEventListener('click', async () => {
+          try {
+            Logger.log('[Export] Richiesta export PDF');
+            const partite = await DatabaseModule.loadHistory();
+            await ExportModule.exportToPDF(partite);
+          } catch (error) {
+            Logger.error('[Export] Errore export PDF:', error);
+            alert('❌ Errore durante l\'esportazione PDF.');
+          }
+        });
+      }
+
+      if (btnExportCSV) {
+        btnExportCSV.addEventListener('click', async () => {
+          try {
+            Logger.log('[Export] Richiesta export CSV');
+            const partite = await DatabaseModule.loadHistory();
+            ExportModule.exportToCSV(partite);
+          } catch (error) {
+            Logger.error('[Export] Errore export CSV:', error);
+            alert('❌ Errore durante l\'esportazione CSV.');
+          }
+        });
+      }
+    }
   </script>
 </body>
 </html>

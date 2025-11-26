@@ -42,6 +42,7 @@ const ASSETS_TO_CACHE = [
   'billing-module.js', // ✅ NUOVO
   'ads-module.js', // ✅ NUOVO
   'premium-ui.js', // ✅ NUOVO
+  'export-module.js', // ✨ PREMIUM EXPORT FEATURE
   'manifest.json',
   'icon-192.png',
   'icon-512.png',
