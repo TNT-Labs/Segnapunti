@@ -639,11 +639,10 @@ const GameStateModule = (() => {
       roundMode = preset.roundMode || 'max'; // Default 'max' se non specificato
       roundsObiettivo = preset.roundsTarget || 3;
     } else {
-      // Per mode='max' o 'min', roundMode non serve ma impostiamo comunque
-      roundMode = preset.mode;
-      if (preset.roundsTarget) {
-        roundsObiettivo = preset.roundsTarget;
-      }
+      // Per giochi senza round (mode='max', 'min', 'darts'), roundMode non viene usato
+      // Manteniamo il valore precedente per compatibilità con salvataggio stato
+      roundMode = 'max'; // Default neutro
+      roundsObiettivo = 0; // Nessun round da vincere
     }
     
     // ✅ NUOVO: Salva il nome del gioco e la key del preset
@@ -1059,10 +1058,12 @@ const UIModule = (() => {
         if (result) {
           animatePunteggio(giocatore.id, btn.value);
 
-          // ✅ FIX #11: Controlla se round vinto e mostra notifica
-          const roundWon = GameStateModule.checkAndAssignRoundWinner();
-          if (roundWon) {
-            showRoundWonNotification(roundWon);
+          // ✅ FIX #11: Controlla se round vinto SOLO per giochi a round
+          if (GameStateModule.getModalitaVittoria() === 'rounds') {
+            const roundWon = GameStateModule.checkAndAssignRoundWinner();
+            if (roundWon) {
+              showRoundWonNotification(roundWon);
+            }
           }
 
           renderGiocatoriPartita();
@@ -1476,10 +1477,12 @@ const UIModule = (() => {
     if (result) {
       animatePunteggio(globalPlayerIdToUpdate, deltaPunti);
 
-      // ✅ FIX #11: Controlla se round vinto e mostra notifica
-      const roundWon = GameStateModule.checkAndAssignRoundWinner();
-      if (roundWon) {
-        showRoundWonNotification(roundWon);
+      // ✅ FIX #11: Controlla se round vinto SOLO per giochi a round
+      if (GameStateModule.getModalitaVittoria() === 'rounds') {
+        const roundWon = GameStateModule.checkAndAssignRoundWinner();
+        if (roundWon) {
+          showRoundWonNotification(roundWon);
+        }
       }
 
       renderGiocatoriPartita();
