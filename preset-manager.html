@@ -89,7 +89,7 @@
       <p><strong>💡 Come funziona:</strong></p>
       <ul>
         <li>✅ <strong>17 preset predefiniti</strong> pronti all'uso (Scala 40, Briscola, Tennis, ecc.)</li>
-        <li id="free-limit-info" style="display:none;">🎁 <strong>1 preset personalizzato gratis</strong> - Sblocca illimitati con Premium!</li>
+        <li>➕ <strong>Preset personalizzati illimitati</strong> per tutti gli utenti!</li>
         <li>✏️ <strong>Modifica</strong> i tuoi preset personalizzati</li>
         <li>📋 <strong>Duplica</strong> qualsiasi preset per usarlo come base</li>
         <li>🏆 <strong>Modalità Rounds</strong>: Imposta punteggio limite + chi vince (max/min) per determinare la fine di ogni round, poi scegli quanti round servono per vincere la partita</li>
@@ -242,10 +242,6 @@
       <span class="nav-icon" aria-hidden="true">🎮</span>
       <span class="nav-label">Preset</span>
     </a>
-    <a href="premium.html" class="nav-item" aria-label="Premium">
-      <span class="nav-icon" aria-hidden="true">✨</span>
-      <span class="nav-label">Premium</span>
-    </a>
   </nav>
 
   <!-- Scripts -->
@@ -260,10 +256,8 @@
   <script src="storage-helper.js"></script>
   <script src="preset-manager.js"></script>
   
-  <!-- ✅ MONETIZATION SYSTEM -->
-  <script src="billing-module.js"></script>
+  <!-- ✅ ADS SYSTEM -->
   <script src="ads-module.js"></script>
-  <script src="premium-ui.js"></script>
   
   <script>
     // ✅ FIX #3 & #8: Inizializzazione with improved error handling
@@ -283,33 +277,12 @@
         iconBtn.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
       }
 
-      // ✅ FIX #3 & #8: Initialize Monetization with proper error handling
+      // ✅ Initialize Ads
       try {
-        // 1. Init billing PRIMA
-        await BillingModule.init();
-        
-        // ✅ CHECK: Mostra info limite free
-        if (!BillingModule.isPremium()) {
-          const freeLimitInfo = document.getElementById('free-limit-info');
-          if (freeLimitInfo) {
-            freeLimitInfo.style.display = 'list-item';
-            freeLimitInfo.style.background = 'rgba(255, 215, 0, 0.1)';
-            freeLimitInfo.style.padding = '5px 10px';
-            freeLimitInfo.style.borderRadius = '4px';
-            freeLimitInfo.style.marginTop = '5px';
-          }
-        }
-        
-        // 2. Init ads solo se non premium
-        if (!BillingModule.isPremium()) {
-          await AdsModule.init();
-        }
-        
-        // 3. Init Premium UI
-        await PremiumUIModule.init();
+        await AdsModule.init();
         
       } catch (error) {
-        Logger.error('Monetization init error:', error);
+        Logger.error('Ads init error:', error);
         hasError = true;
         
         // ✅ FIX #8: Mostra messaggio errore user-friendly
