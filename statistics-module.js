@@ -15,6 +15,14 @@ const StatisticsModule = (() => {
     Logger.log('[Statistics] Inizializzazione modulo statistiche...');
 
     try {
+      // ✅ FIX BUG #48: Verifica disponibilità DatabaseModule
+      if (!window.DatabaseModule || typeof window.DatabaseModule.loadHistory !== 'function') {
+        Logger.error('[Statistics] DatabaseModule non disponibile');
+        showNoDataMessage();
+        hideLoader();
+        return;
+      }
+
       // Load match history
       matchHistory = await DatabaseModule.loadHistory();
       Logger.log('[Statistics] Caricati', matchHistory.length, 'match');
@@ -194,6 +202,12 @@ const StatisticsModule = (() => {
   // ===================================================================
 
   const initCharts = () => {
+    // ✅ FIX BUG #49: Verifica disponibilità Chart.js
+    if (typeof Chart === 'undefined') {
+      Logger.error('[Statistics] Chart.js non caricato - impossibile creare grafici');
+      return;
+    }
+
     createScoreEvolutionChart();
     createWinRateChart();
     createAverageScoreChart();

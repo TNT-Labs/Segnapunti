@@ -184,4 +184,9 @@ if (window.NodeList && !NodeList.prototype.forEach) {
 // (Note: vero optional chaining richiede transpilation con Babel)
 // Gli sviluppatori dovrebbero usare feature detection: if (obj && obj.prop)
 
-Logger.log('✅ Polyfills caricati');
+// ✅ FIX BUG #51: Verifica disponibilità Logger
+if (typeof Logger !== 'undefined' && Logger.log) {
+  Logger.log('✅ Polyfills caricati');
+} else {
+  console.log('✅ Polyfills caricati');
+}

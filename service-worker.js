@@ -13,7 +13,8 @@ importScripts('version.js');
 // ✅ FIX BUG #41: Import logger per production-safe logging
 importScripts('logger.js');
 
-const CACHE_VERSION = typeof APP_VERSION !== 'undefined' ? APP_VERSION : '1.3.2';
+// ✅ FIX BUG #50: Allineato fallback versione con version.js
+const CACHE_VERSION = typeof APP_VERSION !== 'undefined' ? APP_VERSION : '1.3.5';
 const CACHE_NAME = `segnapunti-cache-v${CACHE_VERSION}`;
 const MAX_CACHE_AGE_DAYS = 30; // Expiration cache immagini
 

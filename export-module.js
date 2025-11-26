@@ -374,8 +374,11 @@ const ExportModule = (() => {
    * Mostra modal premium se feature non disponibile
    */
   const showPremiumModal = () => {
-    if (typeof PremiumUIModule !== 'undefined' && PremiumUIModule.showFeatureLocked) {
-      PremiumUIModule.showFeatureLocked('exportPDF');
+    if (typeof PremiumUIModule !== 'undefined' && PremiumUIModule.showFeatureLockedModal) {
+      PremiumUIModule.showFeatureLockedModal(
+        'Export PDF/CSV Premium',
+        'L\'export PDF/CSV è disponibile solo per utenti Premium. Acquista Premium per sbloccare questa e altre funzionalità!'
+      );
     } else {
       alert('✨ Funzionalità Premium\n\nL\'export PDF/CSV è disponibile solo per utenti Premium.\n\nAcquista Premium per sbloccare questa e altre funzionalità!');
     }

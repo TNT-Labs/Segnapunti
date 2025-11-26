@@ -356,23 +356,23 @@ const BillingModule = (() => {
 
   const revokePremium = () => {
     isPremiumUser = false;
-    
+
     // Rimuovi da entrambi storage e memoria
     try {
-      if (isStorageAvailable()) {
+      if (isStorageAvailable('local')) {
         localStorage.removeItem(BILLING_STORAGE_KEY);
       }
     } catch (error) {
       Logger.warn('[Billing] Impossibile rimuovere da localStorage:', error);
     }
-    
+
     memoryStorage[BILLING_STORAGE_KEY] = null;
-    
+
     Logger.log('[Billing] Premium revocato (solo per test)');
-    
+
     try {
-      document.dispatchEvent(new CustomEvent('premiumStatusChanged', { 
-        detail: { isPremium: false } 
+      document.dispatchEvent(new CustomEvent('premiumStatusChanged', {
+        detail: { isPremium: false }
       }));
     } catch (error) {
       Logger.error('[Billing] Errore dispatch evento:', error);
