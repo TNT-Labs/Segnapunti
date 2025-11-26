@@ -1,5 +1,5 @@
 // ===================================================================
-// 🎮 PRESET MANAGER MODULE v1.2.0 - ROUNDS LOGIC MIGLIORATA
+// 🎮 PRESET MANAGER MODULE v1.2.1 - BUG FIXES
 // ===================================================================
 
 const PresetManagerModule = (() => {
@@ -32,9 +32,9 @@ const PresetManagerModule = (() => {
     scopa: { 
       name: 'Scopa', 
       mode: 'rounds',
-      roundMode: 'max', // 🆕 Chi fa PIÙ punti vince il round
-      target: 21, // 🆕 Round finisce a 21 punti
-      roundsTarget: 2, // 🆕 Vince chi vince 2 round su 3
+      roundMode: 'max',
+      target: 21,
+      roundsTarget: 2,
       description: '🃏 Scopa: Ogni round finisce a 21 punti. Vince chi vince 2 round.',
       isDefault: true,
       category: 'carte'
@@ -51,8 +51,8 @@ const PresetManagerModule = (() => {
       name: 'Tennis (Set)',
       mode: 'rounds',
       roundMode: 'max',
-      target: 6, // Set finisce a 6 game
-      roundsTarget: 2, // Best-of-3 set
+      target: 6,
+      roundsTarget: 2,
       description: '🎾 Tennis: Ogni set finisce a 6 game. Vince chi vince 2 set.',
       isDefault: true,
       category: 'sport'
@@ -61,8 +61,8 @@ const PresetManagerModule = (() => {
       name: 'Pallavolo (Set)',
       mode: 'rounds',
       roundMode: 'max',
-      target: 25, // Set finisce a 25 punti
-      roundsTarget: 3, // Best-of-5 set
+      target: 25,
+      roundsTarget: 3,
       description: '🏐 Pallavolo: Ogni set finisce a 25 punti. Vince chi vince 3 set.',
       isDefault: true,
       category: 'sport'
@@ -71,8 +71,8 @@ const PresetManagerModule = (() => {
       name: 'Poker (Mani)',
       mode: 'rounds',
       roundMode: 'max',
-      target: 10000, // Mano finisce a 10k chips
-      roundsTarget: 5, // Vince chi vince 5 mani
+      target: 10000,
+      roundsTarget: 5,
       description: '🃏 Poker: Ogni mano finisce a 10k chips. Vince chi vince 5 mani.',
       isDefault: true,
       category: 'carte'
@@ -98,7 +98,7 @@ const PresetManagerModule = (() => {
   };
 
   const PRESET_STORAGE_KEY = 'custom_presets';
-  const FREE_CUSTOM_LIMIT = 1; // ✅ Free users possono creare 1 solo preset custom
+  const FREE_CUSTOM_LIMIT = 1;
   
   const CATEGORY_ICONS = {
     carte: '🃏',
@@ -108,41 +108,47 @@ const PresetManagerModule = (() => {
     custom: '⭐'
   };
 
-  // ✅ NUOVO v1.3.3: Funzione per generare codice preset automatico da nome
+  // ✅ FIX: Lista modalità valide (incluso darts)
+  const VALID_MODES = ['max', 'min', 'rounds', 'darts'];
+
+  // ✅ FIX: Funzione per generare codice preset automatico da nome
   const generatePresetKey = (name) => {
     if (!name || typeof name !== 'string') {
       return `custom_${Date.now()}`;
     }
     
-    // Converti in slug: rimuovi caratteri speciali, lowercase, sostituisci spazi con _
     let slug = name
       .toLowerCase()
       .trim()
-      // Normalizza caratteri accentati
       .replace(/[àáâãäå]/g, 'a')
       .replace(/[èéêë]/g, 'e')
       .replace(/[ìíîï]/g, 'i')
       .replace(/[òóôõö]/g, 'o')
       .replace(/[ùúûü]/g, 'u')
-      .replace(/[^a-z0-9\s]/g, '') // Rimuovi caratteri speciali
-      .replace(/\s+/g, '_'); // Sostituisci spazi con underscore
+      .replace(/[^a-z0-9\s]/g, '')
+      .replace(/\s+/g, '_');
     
-    // Se troppo lungo, tronca
     if (slug.length > 30) {
       slug = slug.substring(0, 30);
     }
     
-    // Se vuoto dopo cleaning, usa timestamp
-    if (!slug || slug === '') {
+    // ✅ FIX: Assicura che inizi con lettera (non numero/underscore)
+    if (!slug || slug === '' || !/^[a-z]/.test(slug)) {
+      slug = `preset_${slug || Date.now()}`;
+    }
+    
+    // Rimuovi underscore iniziali/finali multipli
+    slug = slug.replace(/^_+|_+$/g, '').replace(/_+/g, '_');
+    
+    // Se ancora invalido, usa fallback
+    if (!slug || !/^[a-z][a-z0-9_]*$/.test(slug)) {
       slug = `custom_${Date.now()}`;
     }
     
-    // Assicurati che sia unico
     const allPresets = getAllPresets();
     let finalKey = slug;
     let counter = 1;
 
-    // ✅ FIX BUG #30: Limite massimo iterazioni per prevenire infinite loop
     const MAX_ITERATIONS = 1000;
     let iterations = 0;
 
@@ -152,7 +158,6 @@ const PresetManagerModule = (() => {
       iterations++;
     }
 
-    // ✅ FIX BUG #30: Fallback con timestamp se raggiunto limite
     if (iterations >= MAX_ITERATIONS) {
       Logger.warn('generatePresetKey: Raggiunto limite iterazioni, uso timestamp');
       finalKey = `${slug}_${Date.now()}`;
@@ -204,17 +209,10 @@ const PresetManagerModule = (() => {
   };
 
   const createPreset = (keyOrNull, presetData) => {
-    // ✅ NUOVO v1.3.3: Auto-genera key se non fornita o vuota
     const key = (keyOrNull && keyOrNull.trim() !== '') ? keyOrNull : generatePresetKey(presetData.name);
 
-    // ✅ FIX #22: Lista chiavi riservate JavaScript
     const RESERVED_KEYS = ['__proto__', 'constructor', 'prototype', 'default', 'toString', 'valueOf', 'hasOwnProperty'];
 
-    // ✅ FIX #22 + BUG #39: Validazione formato key rafforzata
-    // - Deve iniziare con lettera (non numero/underscore)
-    // - Solo lettere minuscole, numeri, underscore
-    // - Non può essere una chiave riservata
-    // - Lunghezza massima 50 caratteri
     const MAX_KEY_LENGTH = 50;
 
     if (key.length > MAX_KEY_LENGTH) {
@@ -233,19 +231,18 @@ const PresetManagerModule = (() => {
       throw new Error('Il nome del gioco non può essere vuoto');
     }
 
-    // ✅ FIX BUG #37: Validazione name più rigorosa
     const safeName = presetData.name.trim().slice(0, 50);
     if (!/^[\p{L}\p{N}\s'\-]+$/u.test(safeName)) {
       throw new Error('Il nome può contenere solo lettere, numeri, spazi, apostrofi e trattini');
     }
 
-    // ✅ FIX BUG #37: Rimuovi HTML tags per sicurezza
     if (/<[^>]*>/g.test(safeName)) {
       throw new Error('Il nome non può contenere tag HTML');
     }
 
-    if (!['max', 'min', 'rounds'].includes(presetData.mode)) {
-      throw new Error('La modalità deve essere "max", "min" o "rounds"');
+    // ✅ FIX: Validazione mode include 'darts'
+    if (!VALID_MODES.includes(presetData.mode)) {
+      throw new Error('La modalità deve essere "max", "min", "rounds" o "darts"');
     }
 
     const target = parseInt(presetData.target, 10);
@@ -253,14 +250,13 @@ const PresetManagerModule = (() => {
       throw new Error('Il punteggio obiettivo deve essere un numero maggiore o uguale a 0');
     }
 
-    // 🆕 Validazione rounds migliorata
+    // Validazione rounds
     if (presetData.mode === 'rounds') {
       const roundsTarget = parseInt(presetData.roundsTarget, 10);
       if (isNaN(roundsTarget) || roundsTarget <= 0) {
         throw new Error('Il numero di rounds deve essere un numero positivo');
       }
       
-      // 🆕 Validazione roundMode
       if (!presetData.roundMode || !['max', 'min'].includes(presetData.roundMode)) {
         throw new Error('Per modalità rounds devi specificare come si vince il round: "max" (più punti) o "min" (meno punti)');
       }
@@ -272,18 +268,20 @@ const PresetManagerModule = (() => {
 
     const customPresets = loadCustomPresets();
     
-    // 🆕 Genera descrizione più dettagliata per rounds
+    // Genera descrizione
     let autoDescription = '';
     if (presetData.mode === 'rounds') {
       const roundModeText = presetData.roundMode === 'max' ? 'più punti' : 'meno punti';
       autoDescription = `${safeName} - Ogni round finisce a ${target} punti (vince chi fa ${roundModeText}). Vince chi vince ${presetData.roundsTarget} round.`;
+    } else if (presetData.mode === 'darts') {
+      autoDescription = `${safeName} - Si parte da ${target}, vince chi arriva a 0.`;
     } else {
       const modeText = presetData.mode === 'max' ? 'Più punti' : 'Meno punti';
       autoDescription = `${safeName} - Modalità ${modeText}, Obiettivo: ${target}`;
     }
     
     const newPreset = {
-      name: safeName, // ✅ FIX BUG #37: Usa safeName validato
+      name: safeName,
       mode: presetData.mode,
       target: target,
       description: presetData.description?.trim() || autoDescription,
@@ -293,10 +291,15 @@ const PresetManagerModule = (() => {
       modifiedAt: Date.now()
     };
 
-    // 🆕 Salva roundMode e roundsTarget per modalità rounds
+    // Campi specifici per rounds
     if (presetData.mode === 'rounds') {
       newPreset.roundMode = presetData.roundMode;
       newPreset.roundsTarget = parseInt(presetData.roundsTarget, 10);
+    }
+
+    // ✅ FIX: Campi specifici per darts
+    if (presetData.mode === 'darts') {
+      newPreset.startingScore = target;
     }
 
     customPresets[key] = newPreset;
@@ -323,8 +326,9 @@ const PresetManagerModule = (() => {
       throw new Error('Il nome del gioco non può essere vuoto');
     }
 
-    if (!['max', 'min', 'rounds'].includes(presetData.mode)) {
-      throw new Error('La modalità deve essere "max", "min" o "rounds"');
+    // ✅ FIX: Validazione mode include 'darts'
+    if (!VALID_MODES.includes(presetData.mode)) {
+      throw new Error('La modalità deve essere "max", "min", "rounds" o "darts"');
     }
 
     const target = parseInt(presetData.target, 10);
@@ -332,7 +336,7 @@ const PresetManagerModule = (() => {
       throw new Error('Il punteggio obiettivo deve essere un numero maggiore o uguale a 0');
     }
 
-    // 🆕 Validazione rounds migliorata
+    // Validazione rounds
     if (presetData.mode === 'rounds') {
       const roundsTarget = parseInt(presetData.roundsTarget, 10);
       if (isNaN(roundsTarget) || roundsTarget <= 0) {
@@ -354,13 +358,19 @@ const PresetManagerModule = (() => {
       modifiedAt: Date.now()
     };
 
-    // 🆕 Gestisci roundMode e roundsTarget
+    // Gestisci roundMode e roundsTarget
     if (presetData.mode === 'rounds') {
       customPresets[key].roundMode = presetData.roundMode;
       customPresets[key].roundsTarget = parseInt(presetData.roundsTarget, 10);
+      delete customPresets[key].startingScore;
+    } else if (presetData.mode === 'darts') {
+      customPresets[key].startingScore = target;
+      delete customPresets[key].roundMode;
+      delete customPresets[key].roundsTarget;
     } else {
       delete customPresets[key].roundMode;
       delete customPresets[key].roundsTarget;
+      delete customPresets[key].startingScore;
     }
 
     if (saveCustomPresets(customPresets)) {
@@ -384,7 +394,6 @@ const PresetManagerModule = (() => {
     delete customPresets[key];
     
     if (saveCustomPresets(customPresets)) {
-      // ✅ NUOVO v1.3.3: Aggiorna contatore dopo delete
       if (typeof window !== 'undefined' && window.PresetUI && typeof window.PresetUI.updateCreateButtonState === 'function') {
         setTimeout(() => {
           window.PresetUI.updateCreateButtonState();
@@ -407,7 +416,7 @@ const PresetManagerModule = (() => {
   const exportPresets = () => {
     const customPresets = loadCustomPresets();
     const exportData = {
-      version: '1.2.0',
+      version: '1.2.1',
       exportDate: new Date().toISOString(),
       presets: customPresets
     };
@@ -442,68 +451,56 @@ const PresetManagerModule = (() => {
         } else if (customPresets[key]) {
           skipped++;
         } else {
-          // ✅ FIX #11: Validazione completa del preset
           try {
-            // Valida key
             if (!key || typeof key !== 'string' || key.trim() === '') {
               throw new Error('Invalid key');
             }
 
-            // Valida name (no HTML/script tags, max length)
             if (!preset.name || typeof preset.name !== 'string') {
               throw new Error('Invalid name');
             }
             const safeName = preset.name.trim().slice(0, 50);
-            // ✅ FIX BUG #31: Pattern più restrittivo (rimossi :,.:!)
             if (!/^[\p{L}\p{N}\s'\-]+$/u.test(safeName)) {
               throw new Error('Invalid characters in name');
             }
 
-            // Valida mode
-            if (!['max', 'min', 'rounds', 'darts'].includes(preset.mode)) {
+            // ✅ FIX: Validazione mode include 'darts'
+            if (!VALID_MODES.includes(preset.mode)) {
               throw new Error('Invalid mode');
             }
 
-            // Valida e converti target a numero
-            // ✅ FIX BUG #31: Limite più sicuro per prevenire overflow
             const MAX_SAFE_TARGET = 999999;
             const target = parseInt(preset.target, 10);
             if (isNaN(target) || target <= 0 || target > MAX_SAFE_TARGET) {
               throw new Error(`Invalid target (must be 1-${MAX_SAFE_TARGET})`);
             }
 
-            // Valida roundMode e roundsTarget se mode='rounds'
             let roundMode = preset.roundMode || 'max';
             let roundsTarget = preset.roundsTarget ? parseInt(preset.roundsTarget, 10) : 3;
 
             if (preset.mode === 'rounds') {
               if (!['max', 'min'].includes(roundMode)) {
-                roundMode = 'max'; // Fallback sicuro
+                roundMode = 'max';
               }
               if (isNaN(roundsTarget) || roundsTarget <= 0) {
-                roundsTarget = 3; // Fallback sicuro
+                roundsTarget = 3;
               }
             }
 
-            // Sanifica description
-            // ✅ FIX BUG #31: Rimuovi HTML tags per prevenire XSS
             let description = '';
             if (preset.description && typeof preset.description === 'string') {
               description = preset.description
-                .replace(/<[^>]*>/g, '') // Rimuovi tutti i tag HTML
+                .replace(/<[^>]*>/g, '')
                 .trim()
                 .slice(0, 200);
             }
 
-            // Category
-            // ✅ FIX BUG #31: Whitelist per category
             const ALLOWED_CATEGORIES = ['carte', 'tavolo', 'sport', 'altri', 'custom'];
             let category = preset.category || 'custom';
             if (!ALLOWED_CATEGORIES.includes(category)) {
-              category = 'custom'; // Fallback sicuro
+              category = 'custom';
             }
 
-            // Crea preset validato
             const validatedPreset = {
               name: safeName,
               mode: preset.mode,
@@ -512,10 +509,14 @@ const PresetManagerModule = (() => {
               category: category
             };
 
-            // Aggiungi campi rounds solo se necessario
             if (preset.mode === 'rounds') {
               validatedPreset.roundMode = roundMode;
               validatedPreset.roundsTarget = roundsTarget;
+            }
+
+            // ✅ FIX: Gestisci darts nell'import
+            if (preset.mode === 'darts') {
+              validatedPreset.startingScore = target;
             }
 
             customPresets[key.trim()] = validatedPreset;
@@ -555,19 +556,21 @@ const PresetManagerModule = (() => {
       category: sourcePreset.category || 'custom'
     };
 
-    // 🆕 Copia anche roundMode e roundsTarget se presenti
+    // Copia roundMode e roundsTarget se presenti
     if (sourcePreset.mode === 'rounds') {
       presetData.roundMode = sourcePreset.roundMode;
       presetData.roundsTarget = sourcePreset.roundsTarget;
     }
 
-    // ✅ NUOVO: Auto-genera key da nome se non fornita (passa null a createPreset)
-    // createPreset gestirà l'auto-generazione e la validazione di unicità
+    // ✅ FIX: Copia startingScore per darts
+    if (sourcePreset.mode === 'darts') {
+      presetData.startingScore = sourcePreset.startingScore || sourcePreset.target;
+    }
+
     const keyToUse = (newKey && newKey.trim() !== '') ? newKey : null;
     return createPreset(keyToUse, presetData);
   };
 
-  // 🆕 NUOVO: Check limite free
   const canCreatePreset = () => {
     const isPremium = window.BillingModule?.isPremium() || false;
     
@@ -599,9 +602,10 @@ const PresetManagerModule = (() => {
     exportPresets,
     importPresets,
     duplicatePreset,
-    canCreatePreset, // 🆕
-    loadCustomPresets, // ✅ NUOVO v1.3.3: Esponi per conteggio
-    FREE_CUSTOM_LIMIT
+    canCreatePreset,
+    loadCustomPresets,
+    FREE_CUSTOM_LIMIT,
+    VALID_MODES // ✅ Esponi per uso nella UI
   };
 })();
 
@@ -612,7 +616,6 @@ const PresetManagerModule = (() => {
 const PresetUIModule = (() => {
   let currentEditingKey = null;
 
-  // ✅ FIX BUG #38: Traccia handler per cleanup
   const eventHandlers = {
     btnCreateClick: null,
     btnCloseModalClick: null,
@@ -639,7 +642,6 @@ const PresetUIModule = (() => {
     custom: '⭐'
   };
 
-  // ✅ FIX #7: Aggiorna stato pulsante create in base a limite free
   const updateCreateButtonState = () => {
     const btn = document.getElementById('btn-create-preset');
     if (!btn) return;
@@ -647,7 +649,6 @@ const PresetUIModule = (() => {
     const isPremium = window.BillingModule?.isPremium() || false;
     
     if (!isPremium) {
-      // ✅ FIX v1.3.3: Usa loadCustomPresets() per contare SOLO custom (non default)
       const customPresets = PresetManagerModule.loadCustomPresets();
       const customCount = Object.keys(customPresets).length;
       
@@ -714,13 +715,11 @@ const PresetUIModule = (() => {
         container.appendChild(emptyMessage);
       }
       
-      // ✅ FIX #7: Aggiorna stato pulsante create
       updateCreateButtonState();
       
     } catch (error) {
       Logger.error('[PresetUI] Errore render preset list:', error);
       
-      // Mostra messaggio errore all'utente
       container.innerHTML = `
         <div style="text-align: center; padding: 40px 20px; color: #ff6b6b;">
           <h3>⚠️ Errore Caricamento Preset</h3>
@@ -763,7 +762,7 @@ const PresetUIModule = (() => {
     const body = document.createElement('div');
     body.className = 'preset-card-body';
 
-    // 🆕 Visualizzazione migliorata per modalità rounds
+    // ✅ FIX: Visualizzazione migliorata per tutte le modalità incluso darts
     if (preset.mode === 'rounds') {
       const roundModeText = preset.roundMode === 'max' ? 'più punti' : 'meno punti';
       
@@ -777,6 +776,18 @@ const PresetUIModule = (() => {
       
       body.appendChild(roundInfo);
       body.appendChild(roundEndInfo);
+    } else if (preset.mode === 'darts') {
+      // ✅ FIX: Gestione corretta modalità darts
+      const modeP = document.createElement('p');
+      modeP.className = 'preset-mode';
+      modeP.innerHTML = `<strong>🎯 Modalità:</strong> Freccette (da ${preset.target} a 0)`;
+
+      const targetP = document.createElement('p');
+      targetP.className = 'preset-target';
+      targetP.innerHTML = `<strong>🎯 Partenza:</strong> ${preset.startingScore || preset.target} punti`;
+
+      body.appendChild(modeP);
+      body.appendChild(targetP);
     } else {
       const modeP = document.createElement('p');
       modeP.className = 'preset-mode';
@@ -837,7 +848,6 @@ const PresetUIModule = (() => {
   };
 
   const showCreateModal = () => {
-    // 🆕 CHECK: Verifica limite free
     const canCreate = PresetManagerModule.canCreatePreset();
     
     if (!canCreate.allowed) {
@@ -869,27 +879,40 @@ const PresetUIModule = (() => {
       keyInput.disabled = false;
     }
     
-    // ✅ NUOVO v1.3.3: Nascondi campo codice per creazione (auto-generato)
     if (keyFormGroup) {
       keyFormGroup.style.display = 'none';
     }
     
-    toggleRoundsFields('max'); // Default
+    toggleRoundsFields('max');
     
     modal.style.display = 'flex';
   };
 
-  // 🆕 RINOMINATO: toggleRoundsFields per gestire entrambi i campi
+  // ✅ FIX: toggleRoundsFields gestisce tutti i modi
   const toggleRoundsFields = (mode) => {
     const roundsField = document.getElementById('preset-rounds-field');
     const roundModeField = document.getElementById('preset-round-mode-field');
     
+    const isRounds = mode === 'rounds';
+    
     if (roundsField) {
-      roundsField.style.display = mode === 'rounds' ? 'block' : 'none';
+      roundsField.style.display = isRounds ? 'block' : 'none';
     }
     
     if (roundModeField) {
-      roundModeField.style.display = mode === 'rounds' ? 'block' : 'none';
+      roundModeField.style.display = isRounds ? 'block' : 'none';
+    }
+
+    // ✅ FIX: Aggiorna label obiettivo in base alla modalità
+    const targetLabel = document.querySelector('label[for="preset-target"]');
+    if (targetLabel) {
+      if (mode === 'darts') {
+        targetLabel.textContent = 'Punteggio di Partenza *';
+      } else if (mode === 'rounds') {
+        targetLabel.textContent = 'Punti per Fine Round *';
+      } else {
+        targetLabel.textContent = 'Punteggio Obiettivo *';
+      }
     }
   };
 
@@ -915,7 +938,6 @@ const PresetUIModule = (() => {
       keyInput.disabled = true;
     }
     
-    // ✅ NUOVO v1.3.3: Mostra campo codice in modifica (read-only)
     if (keyFormGroup) {
       keyFormGroup.style.display = 'block';
     }
@@ -927,7 +949,10 @@ const PresetUIModule = (() => {
     if (modeSelect) modeSelect.value = preset.mode;
     
     const targetInput = document.getElementById('preset-target');
-    if (targetInput) targetInput.value = preset.target;
+    if (targetInput) {
+      // ✅ FIX: Per darts usa startingScore se disponibile
+      targetInput.value = preset.mode === 'darts' ? (preset.startingScore || preset.target) : preset.target;
+    }
     
     const descInput = document.getElementById('preset-description');
     if (descInput) descInput.value = preset.description || '';
@@ -935,7 +960,6 @@ const PresetUIModule = (() => {
     const categorySelect = document.getElementById('preset-category');
     if (categorySelect) categorySelect.value = preset.category || 'custom';
     
-    // 🆕 Popola anche roundMode
     if (preset.mode === 'rounds') {
       const roundModeSelect = document.getElementById('preset-round-mode');
       if (roundModeSelect) roundModeSelect.value = preset.roundMode || 'max';
@@ -950,7 +974,6 @@ const PresetUIModule = (() => {
   };
 
   const showDuplicateModal = (sourceKey) => {
-    // 🆕 CHECK: Verifica limite free prima di duplicare
     const canCreate = PresetManagerModule.canCreatePreset();
 
     if (!canCreate.allowed) {
@@ -965,12 +988,10 @@ const PresetUIModule = (() => {
       return;
     }
 
-    // ✅ FIX: Richiedi solo il nome, il codice sarà auto-generato dal nome
     const newName = prompt('Inserisci il nome per il nuovo preset:');
     if (!newName || newName.trim() === '') return;
 
     try {
-      // ✅ FIX: Passa null come newKey - il codice verrà auto-generato dal nome in createPreset
       const duplicatedPreset = PresetManagerModule.duplicatePreset(sourceKey, null, newName);
       alert(`✅ Preset "${duplicatedPreset.name}" duplicato con successo!\nCodice: ${duplicatedPreset.key}`);
       renderPresetList();
@@ -995,7 +1016,6 @@ const PresetUIModule = (() => {
     
     if (!nameInput || !modeSelect || !targetInput) return;
     
-    // ✅ NUOVO v1.3.3: Per creazione passa null (sarà auto-generata da nome)
     const key = currentEditingKey ? currentEditingKey : null;
     const name = nameInput.value.trim();
     const mode = modeSelect.value;
@@ -1005,7 +1025,7 @@ const PresetUIModule = (() => {
 
     const presetData = { name, mode, target, description, category };
 
-    // 🆕 Includi roundMode per modalità rounds
+    // Includi roundMode per modalità rounds
     if (mode === 'rounds') {
       const roundModeSelect = document.getElementById('preset-round-mode');
       const roundsInput = document.getElementById('preset-rounds-target');
@@ -1017,6 +1037,11 @@ const PresetUIModule = (() => {
       if (roundsInput) {
         presetData.roundsTarget = roundsInput.value;
       }
+    }
+
+    // ✅ FIX: Per darts il target è anche startingScore
+    if (mode === 'darts') {
+      presetData.startingScore = target;
     }
 
     try {
@@ -1068,19 +1093,17 @@ const PresetUIModule = (() => {
 
       const reader = new FileReader();
 
-      // ✅ FIX BUG #33: Aggiungi error handler per FileReader
       reader.onerror = () => {
         alert('❌ Errore lettura file. Il file potrebbe essere corrotto o non leggibile.');
       };
 
-      // ✅ FIX BUG #33: Aggiungi timeout per file grandi
       const timeout = setTimeout(() => {
         reader.abort();
         alert('⏱️ Timeout: File troppo grande o lettura bloccata.');
-      }, 10000); // 10s timeout
+      }, 10000);
 
       reader.onload = (event) => {
-        clearTimeout(timeout); // ✅ FIX BUG #33: Cancella timeout su successo
+        clearTimeout(timeout);
         try {
           const result = PresetManagerModule.importPresets(event.target.result);
           alert(`✅ Import completato!\nImportati: ${result.imported}\nIgnorati: ${result.skipped}`);
@@ -1090,7 +1113,6 @@ const PresetUIModule = (() => {
         }
       };
 
-      // ✅ FIX BUG #33: Cleanup su fine lettura (successo o errore)
       reader.onloadend = () => {
         clearTimeout(timeout);
       };
@@ -1109,13 +1131,11 @@ const PresetUIModule = (() => {
   };
 
   const setupEventListeners = () => {
-    // ✅ FIX BUG #38: Cleanup esistenti prima di aggiungere nuovi
     cleanup();
 
     const btnCreate = document.getElementById('btn-create-preset');
     if (btnCreate) {
       eventHandlers.btnCreateClick = () => {
-        // ✅ FIX #4: Usa PresetManagerModule.getAllPresets() invece di getAllPresets()
         const canCreate = PresetManagerModule.canCreatePreset();
 
         if (!canCreate.allowed) {
@@ -1174,7 +1194,6 @@ const PresetUIModule = (() => {
     }
   };
 
-  // ✅ FIX BUG #38: Cleanup method per rimuovere event listeners
   const cleanup = () => {
     if (eventHandlers.btnCreateClick) {
       const btnCreate = document.getElementById('btn-create-preset');
@@ -1238,7 +1257,7 @@ const PresetUIModule = (() => {
   return {
     renderPresetList,
     setupEventListeners,
-    cleanup, // ✅ FIX BUG #38: Esponi cleanup method
+    cleanup,
     updateCreateButtonState
   };
 })();

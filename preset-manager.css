@@ -1,5 +1,6 @@
 /* ===================================================================
    PRESET MANAGER STYLES - Ottimizzato per tutti i dispositivi
+   v1.2.1 - FIX: btn-secondary visibility in light mode
    =================================================================== */
 
 /* ========================================
@@ -82,7 +83,7 @@ body.dark-mode .info-box {
 }
 
 .info-box li::before {
-  content: '✓';
+  content: '✔';
   position: absolute;
   left: 0;
   color: var(--colore-primario);
@@ -323,13 +324,29 @@ body.dark-mode .preset-card-actions {
   white-space: nowrap;
 }
 
+/* ✅ FIX v1.2.1: btn-secondary visibile in light mode
+   Il problema era che utility-classes.css definiva:
+   background: rgba(255, 255, 255, 0.15) con color: white
+   Questo rendeva il testo bianco su sfondo quasi trasparente = invisibile
+*/
 .btn-secondary {
-  background: var(--colore-secondario);
-  color: white;
+  background: var(--colore-secondario) !important;
+  color: white !important;
+  border: none;
 }
 
 .btn-secondary:hover {
-  background: var(--colore-primario);
+  background: var(--colore-primario) !important;
+}
+
+/* ✅ Dark mode: usa colori più chiari per contrasto */
+body.dark-mode .btn-secondary {
+  background: var(--colore-secondario) !important;
+  color: white !important;
+}
+
+body.dark-mode .btn-secondary:hover {
+  background: var(--colore-primario) !important;
 }
 
 .preset-badge-default {
