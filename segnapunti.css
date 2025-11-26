@@ -309,6 +309,9 @@ button:disabled {
   text-align: center;
   box-shadow: 0 4px 12px rgba(21, 87, 36, 0.2);
   animation: slideIn 0.4s ease-out;
+  /* ✅ FIX: z-index basso per non coprire il trofeo del primo giocatore */
+  position: relative;
+  z-index: 1;
 }
 
 body.dark-mode .winner-message {
@@ -512,8 +515,8 @@ body.dark-mode .giocatore-item:hover {
   right: -10px;
   font-size: 2em;
   animation: trophyFloat 3s ease-in-out infinite;
-  /* ✅ FIX #14: z-index molto alto per non sparire mai sotto altri elementi */
-  z-index: 100;
+  /* ✅ FIX #14: z-index molto alto per non sparire mai sotto altri elementi, incluso header fisso */
+  z-index: 101;
   pointer-events: none;
 }
 
