@@ -593,11 +593,46 @@ const StatisticsModule = (() => {
   };
 
   // ===================================================================
+  // 🧹 CLEANUP
+  // ===================================================================
+
+  /**
+   * ✅ FIX BUG AUDIT #2: Cleanup method per distruggere chart e liberare memoria
+   * Chiamare quando si lascia la pagina statistiche per prevenire memory leaks
+   */
+  const cleanup = () => {
+    Logger.log('[Statistics] Cleanup in corso...');
+
+    // Destroy all charts
+    Object.values(charts).forEach(chart => {
+      try {
+        if (chart && typeof chart.destroy === 'function') {
+          chart.destroy();
+        }
+      } catch (error) {
+        Logger.warn('[Statistics] Errore distruzione chart:', error);
+      }
+    });
+
+    // Clear charts reference
+    charts = {};
+
+    // Clear match history
+    matchHistory = [];
+
+    // Clear selected player
+    selectedPlayer = null;
+
+    Logger.log('[Statistics] ✅ Cleanup completato');
+  };
+
+  // ===================================================================
   // 📊 PUBLIC API
   // ===================================================================
 
   return {
-    init
+    init,
+    cleanup // ✅ FIX BUG AUDIT #2: Esposto cleanup method
   };
 })();
 
