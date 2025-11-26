@@ -333,15 +333,21 @@ const AdsModule = (() => {
 
   const onHistoryView = () => {
     if (!adsEnabled) return;
-    
-    // Interstitial ogni 2 accessi allo storico
-    const historyViews = parseInt(sessionStorage.getItem('history_views') || '0');
-    
-    if (historyViews > 0 && historyViews % 2 === 0) {
-      showInterstitial('history_view');
+
+    // ✅ FIX BUG #47: Protezione Safari private mode per sessionStorage
+    try {
+      // Interstitial ogni 2 accessi allo storico
+      const historyViews = parseInt(sessionStorage.getItem('history_views') || '0');
+
+      if (historyViews > 0 && historyViews % 2 === 0) {
+        showInterstitial('history_view');
+      }
+
+      sessionStorage.setItem('history_views', (historyViews + 1).toString());
+    } catch (e) {
+      Logger.warn('[Ads] sessionStorage non disponibile (Safari private mode?):', e);
+      // Continua senza tracciare views - non critico per l'app
     }
-    
-    sessionStorage.setItem('history_views', (historyViews + 1).toString());
   };
 
   // ===================================================================
