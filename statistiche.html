@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Segnapunti - Statistiche Avanzate</title>
+
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#4A148C">
+  <!-- ✅ Content Security Policy con Chart.js CDN -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self';">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background: var(--card-bg, #fff);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      text-align: center;
+      transition: transform 0.3s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .stat-label {
+      font-size: 0.9em;
+      color: var(--text-muted, #666);
+      margin-bottom: 8px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .stat-value {
+      font-size: 2.5em;
+      font-weight: 800;
+      color: var(--primary-color, #4A148C);
+      line-height: 1;
+    }
+
+    .stat-subtitle {
+      font-size: 0.85em;
+      color: var(--text-muted, #666);
+      margin-top: 8px;
+    }
+
+    .chart-container {
+      background: var(--card-bg, #fff);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .chart-title {
+      font-size: 1.3em;
+      font-weight: 700;
+      margin-bottom: 20px;
+      color: var(--text-color, #333);
+    }
+
+    .chart-wrapper {
+      position: relative;
+      height: 300px;
+    }
+
+    .chart-wrapper.large {
+      height: 400px;
+    }
+
+    .no-data-message {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-muted, #666);
+    }
+
+    .no-data-message h2 {
+      font-size: 1.5em;
+      margin-bottom: 10px;
+    }
+
+    .no-data-message p {
+      font-size: 1em;
+      opacity: 0.8;
+    }
+
+    .premium-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.85em;
+      font-weight: 600;
+      margin-left: 10px;
+    }
+
+    .player-select {
+      margin-bottom: 20px;
+    }
+
+    .player-select label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--text-color, #333);
+    }
+
+    .player-select select {
+      width: 100%;
+      max-width: 300px;
+      padding: 10px;
+      border: 2px solid var(--border-color, #ddd);
+      border-radius: 8px;
+      font-size: 1em;
+      font-family: 'Inter', sans-serif;
+      background: var(--input-bg, #fff);
+      color: var(--text-color, #333);
+      cursor: pointer;
+    }
+
+    .loader-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.8);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+
+    .loader-spinner {
+      border: 4px solid rgba(255,255,255,0.3);
+      border-top: 4px solid #4b86b4;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .loader-overlay p {
+      color: white;
+      margin-top: 20px;
+    }
+
+    /* Dark mode adjustments */
+    body.dark-mode .stat-card,
+    body.dark-mode .chart-container {
+      background: var(--card-bg, #2a2a2a);
+    }
+
+    body.dark-mode .stat-label,
+    body.dark-mode .stat-subtitle,
+    body.dark-mode .no-data-message {
+      color: var(--text-muted, #aaa);
+    }
+
+    /* Mobile optimizations */
+    @media (max-width: 768px) {
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .stat-value {
+        font-size: 2em;
+      }
+
+      .chart-wrapper {
+        height: 250px;
+      }
+
+      .chart-wrapper.large {
+        height: 300px;
+      }
+    }
+  </style>
+  <link rel="stylesheet" href="segnapunti.css">
+  <link rel="stylesheet" href="segnapunti-mobile.css">
+  <link rel="stylesheet" href="utility-classes.css">
+</head>
+<body>
+  <div class="container">
+    <div class="header-controls fixed-header">
+      <h1>📊 Statistiche <span class="premium-badge">✨ Premium</span></h1>
+      <div class="top-buttons">
+        <button id="toggle-dark-mode" title="Attiva/Disattiva Modalità Scura" aria-label="Attiva o disattiva modalità scura" onclick="toggleDarkMode()">🌙</button>
+      </div>
+    </div>
+
+    <!-- Summary Statistics -->
+    <div class="stats-grid" id="summary-stats">
+      <div class="stat-card">
+        <div class="stat-label">Partite Totali</div>
+        <div class="stat-value" id="total-matches">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Tempo Giocato</div>
+        <div class="stat-value" id="total-time">0h</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Win Rate</div>
+        <div class="stat-value" id="win-rate">0%</div>
+        <div class="stat-subtitle" id="win-rate-subtitle">Seleziona un giocatore</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Media Punti</div>
+        <div class="stat-value" id="avg-score">0</div>
+        <div class="stat-subtitle" id="avg-score-subtitle">Per partita</div>
+      </div>
+    </div>
+
+    <!-- Player Selection -->
+    <div class="player-select">
+      <label for="player-filter">Analizza Giocatore:</label>
+      <select id="player-filter">
+        <option value="">Tutti i giocatori</option>
+      </select>
+    </div>
+
+    <!-- Charts -->
+    <div class="chart-container">
+      <div class="chart-title">📈 Evoluzione Punti nel Tempo</div>
+      <div class="chart-wrapper large">
+        <canvas id="score-evolution-chart"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-container">
+      <div class="chart-title">🏆 Win Rate per Giocatore</div>
+      <div class="chart-wrapper">
+        <canvas id="win-rate-chart"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-container">
+      <div class="chart-title">📊 Media Punti per Giocatore</div>
+      <div class="chart-wrapper">
+        <canvas id="avg-score-chart"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-container">
+      <div class="chart-title">🎯 Distribuzione Modalità di Gioco</div>
+      <div class="chart-wrapper">
+        <canvas id="game-mode-chart"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-container">
+      <div class="chart-title">📅 Partite per Periodo</div>
+      <div class="chart-wrapper">
+        <canvas id="matches-timeline-chart"></canvas>
+      </div>
+    </div>
+
+    <!-- No Data Message (hidden by default) -->
+    <div class="no-data-message" id="no-data-message" style="display: none;">
+      <h2>📊 Nessun Dato Disponibile</h2>
+      <p>Gioca alcune partite per visualizzare le tue statistiche avanzate!</p>
+    </div>
+  </div>
+
+  <div id="loader-overlay" class="loader-overlay" style="display: flex;">
+    <div class="loader-spinner"></div>
+    <p>Caricamento statistiche...</p>
+  </div>
+
+  <!-- Bottom Navigation Bar -->
+  <nav class="bottom-nav" role="navigation" aria-label="Navigazione principale">
+    <a href="index.html" class="nav-item" aria-label="Partita">
+      <span class="nav-icon" aria-hidden="true">🃏</span>
+      <span class="nav-label">Partita</span>
+    </a>
+    <a href="storico.html" class="nav-item" aria-label="Storico partite">
+      <span class="nav-icon" aria-hidden="true">📜</span>
+      <span class="nav-label">Storico</span>
+    </a>
+    <a href="settings.html" class="nav-item" aria-label="Impostazioni">
+      <span class="nav-icon" aria-hidden="true">⚙️</span>
+      <span class="nav-label">Settings</span>
+    </a>
+    <a href="preset-manager.html" class="nav-item" aria-label="Gestione preset">
+      <span class="nav-icon" aria-hidden="true">🎮</span>
+      <span class="nav-label">Preset</span>
+    </a>
+    <a href="premium.html" class="nav-item" aria-label="Premium">
+      <span class="nav-icon" aria-hidden="true">✨</span>
+      <span class="nav-label">Premium</span>
+    </a>
+  </nav>
+
+  <!-- Scripts -->
+  <script>
+    window.PresetManager = window.PresetManager || {
+      getAllPresets: () => ({})
+    };
+  </script>
+
+  <script src="polyfills.js"></script>
+  <script src="logger.js"></script>
+  <script src="error-handler.js"></script>
+  <script src="storage-helper.js"></script>
+  <script src="segnapunti.js"></script>
+
+  <!-- Chart.js Library -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <!-- Statistics Module -->
+  <script src="statistics-module.js"></script>
+
+  <!-- Billing & Premium -->
+  <script src="billing-module.js"></script>
+  <script src="ads-module.js"></script>
+  <script src="premium-ui.js"></script>
+
+  <script>
+    // Service Worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('service-worker.js')
+          .then(registration => {
+            Logger.log('Service Worker registrato con successo:', registration.scope);
+          })
+          .catch(error => {
+            Logger.error('Registrazione Service Worker fallita:', error);
+          });
+      });
+    }
+
+    // Initialize Application
+    document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        // Initialize Billing Module
+        await BillingModule.init();
+
+        // ✅ PREMIUM GATE: Check if user is Premium
+        if (!BillingModule.isPremium()) {
+          Logger.log('[Statistics] Accesso negato: utente non Premium');
+
+          // Hide loader
+          const loader = document.getElementById('loader-overlay');
+          if (loader) loader.style.display = 'none';
+
+          // Show Premium upgrade modal
+          showPremiumUpgradeModal();
+          return;
+        }
+
+        // Initialize Ads Module (if not Premium)
+        if (!BillingModule.isPremium()) {
+          await AdsModule.init();
+        }
+
+        // Initialize Premium UI
+        await PremiumUIModule.init();
+
+        // ✅ PREMIUM USER: Initialize Statistics
+        Logger.log('[Statistics] Utente Premium verificato, caricamento statistiche...');
+        await StatisticsModule.init();
+
+      } catch (error) {
+        Logger.error('Errore inizializzazione:', error);
+
+        // Hide loader and show error
+        const loader = document.getElementById('loader-overlay');
+        if (loader) loader.style.display = 'none';
+
+        alert('❌ Errore durante il caricamento delle statistiche. Riprova più tardi.');
+      }
+    });
+
+    // Show Premium Upgrade Modal
+    function showPremiumUpgradeModal() {
+      const overlay = document.createElement('div');
+      overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.8);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10000;
+        padding: 20px;
+      `;
+
+      const modal = document.createElement('div');
+      modal.style.cssText = `
+        background: white;
+        border-radius: 16px;
+        padding: 40px;
+        max-width: 500px;
+        text-align: center;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      `;
+
+      modal.innerHTML = `
+        <div style="font-size: 4em; margin-bottom: 20px;">📊✨</div>
+        <h2 style="font-size: 1.8em; margin-bottom: 16px; color: #333;">Statistiche Avanzate</h2>
+        <p style="font-size: 1.1em; color: #666; margin-bottom: 30px; line-height: 1.6;">
+          Le statistiche avanzate sono una funzionalità <strong>Premium</strong>.<br>
+          Ottieni accesso a grafici evoluti, analisi delle performance e molto altro!
+        </p>
+        <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+          <button id="btn-upgrade-premium" style="
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+          ">
+            ✨ Passa a Premium
+          </button>
+          <button id="btn-close-modal" style="
+            background: #f0f0f0;
+            color: #333;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+          ">
+            Torna Indietro
+          </button>
+        </div>
+      `;
+
+      overlay.appendChild(modal);
+      document.body.appendChild(overlay);
+
+      // Event listeners
+      document.getElementById('btn-upgrade-premium').addEventListener('click', () => {
+        window.location.href = 'premium.html';
+      });
+
+      document.getElementById('btn-close-modal').addEventListener('click', () => {
+        window.location.href = 'index.html';
+      });
+    }
+  </script>
+</body>
+</html>
