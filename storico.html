@@ -99,6 +99,14 @@
     .btn-export:active {
       transform: translateY(0);
     }
+    .btn-stats {
+      background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+      color: white;
+    }
+    .btn-stats:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(250, 112, 154, 0.4);
+    }
   </style>
   <link rel="stylesheet" href="segnapunti.css">
   <link rel="stylesheet" href="segnapunti-mobile.css">
@@ -120,6 +128,9 @@
         <span><strong>0</strong> partite giocate</span>
       </div>
       <div class="export-buttons">
+        <button id="btn-advanced-stats" class="btn-export btn-stats" title="Visualizza Statistiche Avanzate (Premium)" style="display: none;">
+          📊 Statistiche
+        </button>
         <button id="btn-export-pdf" class="btn-export btn-export-pdf" title="Esporta storico in formato PDF (Premium)">
           📄 Export PDF
         </button>
@@ -225,8 +236,18 @@
 
     // ✨ Setup Export Buttons (Premium Feature)
     function setupExportButtons() {
+      const btnAdvancedStats = document.getElementById('btn-advanced-stats');
       const btnExportPDF = document.getElementById('btn-export-pdf');
       const btnExportCSV = document.getElementById('btn-export-csv');
+
+      // ✨ Show Advanced Statistics button only for Premium users
+      if (btnAdvancedStats && BillingModule.isPremium()) {
+        btnAdvancedStats.style.display = 'inline-flex';
+        btnAdvancedStats.addEventListener('click', () => {
+          Logger.log('[Statistics] Navigazione a statistiche avanzate');
+          window.location.href = 'statistiche.html';
+        });
+      }
 
       if (btnExportPDF) {
         btnExportPDF.addEventListener('click', async () => {
