@@ -1540,6 +1540,34 @@ const UIModule = (() => {
     });
   };
 
+  // ✅ NUOVO: Funzione per duplicare un gioco dallo storico
+  const duplicateGame = (partita) => {
+    try {
+      // Prepara i dati per la duplicazione
+      const gameToDuplicate = {
+        nomeGioco: partita.nomeGioco || '',
+        modalita: partita.modalita || 'max',
+        punteggioObiettivo: partita.punteggioObiettivo || 0,
+        roundsObiettivo: partita.roundsObiettivo || null,
+        roundMode: partita.roundMode || null,
+        giocatori: partita.giocatori.map(g => ({
+          nome: g.nome,
+          punti: 0,  // Azzera punteggi per nuovo gioco
+          rounds: 0  // Azzera rounds per nuovo gioco
+        }))
+      };
+
+      // Salva in localStorage per passare alla pagina settings
+      StorageHelper.setItem('partita_da_duplicare', JSON.stringify(gameToDuplicate));
+
+      // Reindirizza alla pagina settings per modificare il gioco
+      window.location.href = 'settings.html';
+    } catch (error) {
+      Logger.error('Errore duplicazione gioco:', error);
+      alert('❌ Errore durante la duplicazione del gioco. Riprova.');
+    }
+  };
+
   const renderStorico = async () => {
     if (!elements.storicoLista) return;
 
@@ -1650,10 +1678,24 @@ const UIModule = (() => {
       }
       details.appendChild(partecipantiP);
       details.appendChild(giocatoriUl);
-      
+
+      // ✅ NUOVO: Aggiungi pulsante duplica
+      const actionsDiv = document.createElement('div');
+      actionsDiv.className = 'storico-actions';
+      actionsDiv.style.cssText = 'margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(0,0,0,0.1); display: flex; gap: 8px;';
+
+      const btnDuplicate = document.createElement('button');
+      btnDuplicate.className = 'btn-primary btn-small';
+      btnDuplicate.innerHTML = '📋 Duplica Gioco';
+      btnDuplicate.style.cssText = 'flex: 1; padding: 8px 12px; font-size: 0.9em; min-height: 38px;';
+      btnDuplicate.addEventListener('click', () => duplicateGame(partita));
+
+      actionsDiv.appendChild(btnDuplicate);
+      details.appendChild(actionsDiv);
+
       li.appendChild(header);
       li.appendChild(details);
-      
+
       elements.storicoLista.appendChild(li);
     });
   };
@@ -2339,6 +2381,60 @@ const AppController = (() => {
     SettingsModule.initializeFromState();
     SettingsModule.setupEventListeners();
     UIModule.renderGiocatoriSettings();
+
+    // ✅ NUOVO: Controlla se c'è un gioco da duplicare
+    try {
+      const duplicatedGameData = StorageHelper.getItem('partita_da_duplicare');
+      if (duplicatedGameData) {
+        const gameData = JSON.parse(duplicatedGameData);
+
+        // Carica i dati nel GameStateModule
+        if (gameData.nomeGioco) {
+          GameStateModule.setNomeGioco(gameData.nomeGioco);
+        }
+        if (gameData.modalita) {
+          GameStateModule.setModalitaVittoria(gameData.modalita);
+        }
+        if (gameData.punteggioObiettivo) {
+          GameStateModule.setPunteggioObiettivo(gameData.punteggioObiettivo);
+        }
+        if (gameData.roundsObiettivo) {
+          GameStateModule.setRoundsObiettivo(gameData.roundsObiettivo);
+        }
+        if (gameData.roundMode) {
+          GameStateModule.setRoundMode(gameData.roundMode);
+        }
+
+        // Carica i giocatori
+        if (gameData.giocatori && gameData.giocatori.length > 0) {
+          // Resetta giocatori esistenti
+          GameStateModule.setGiocatori([]);
+
+          // Aggiungi i giocatori duplicati
+          gameData.giocatori.forEach(g => {
+            GameStateModule.addGiocatore(g.nome);
+          });
+        }
+
+        // Salva lo stato aggiornato
+        GameStateModule.saveCurrentState();
+
+        // Aggiorna UI
+        SettingsModule.initializeFromState();
+        UIModule.renderGiocatoriSettings();
+
+        // Rimuovi la chiave dal localStorage
+        StorageHelper.removeItem('partita_da_duplicare');
+
+        // Mostra messaggio di conferma
+        setTimeout(() => {
+          alert('✅ Gioco duplicato con successo!\n\nPuoi ora modificare le impostazioni e i giocatori prima di iniziare la partita.');
+        }, 300);
+      }
+    } catch (error) {
+      Logger.error('Errore caricamento gioco duplicato:', error);
+      StorageHelper.removeItem('partita_da_duplicare');
+    }
   };
 
   const initStoricoPage = async () => {
