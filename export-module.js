@@ -241,13 +241,14 @@ const ExportModule = (() => {
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(0);
         const nomeGioco = partita.nomeGioco || 'Personalizzato';
+        const nomeGiocoWidth = doc.getTextWidth(nomeGioco);
         doc.text(nomeGioco, contentX, contentY);
 
         doc.setFontSize(9);
         doc.setFont('helvetica', 'normal');
         doc.setTextColor(100);
         const modalita = formatModalita(partita.modalita, partita.roundMode);
-        doc.text(`(${modalita})`, contentX + doc.getTextWidth(nomeGioco) + 2, contentY);
+        doc.text(`(${modalita})`, contentX + nomeGiocoWidth + 3, contentY);
 
         contentY += 6;
 
@@ -256,7 +257,7 @@ const ExportModule = (() => {
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(34, 139, 34); // Verde
         const vincitori = partita.vincitori ? partita.vincitori.join(', ') : 'N/A';
-        doc.text(`🏆 Vincitori: ${vincitori}`, contentX, contentY);
+        doc.text(`Vincitori: ${vincitori}`, contentX, contentY);
 
         contentY += 5;
 
