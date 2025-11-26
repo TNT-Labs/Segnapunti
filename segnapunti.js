@@ -2410,12 +2410,19 @@ const AppController = (() => {
 
         // Carica i giocatori
         if (gameData.giocatori && gameData.giocatori.length > 0) {
-          // Resetta giocatori esistenti
-          GameStateModule.setGiocatori([]);
+          // ✅ FIX: Rimuovi tutti i giocatori esistenti prima di duplicare
+          const currentPlayers = GameStateModule.getGiocatori();
+          currentPlayers.forEach(player => {
+            GameStateModule.removeGiocatore(player.id);
+          });
 
           // Aggiungi i giocatori duplicati
           gameData.giocatori.forEach(g => {
-            GameStateModule.addGiocatore(g.nome);
+            try {
+              GameStateModule.addGiocatore(g.nome);
+            } catch (error) {
+              Logger.error('Errore aggiunta giocatore duplicato:', error);
+            }
           });
         }
 
