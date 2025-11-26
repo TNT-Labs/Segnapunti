@@ -596,10 +596,13 @@ const GameStateModule = (() => {
   };
 
   const resetPunteggi = () => {
+    const now = Date.now();
     giocatori.forEach(g => {
       // ✅ DARTS FIX: Se modalità darts, resetta al punteggio iniziale
       g.punti = modalitaVittoria === 'darts' ? punteggioObiettivo : 0;
       g.rounds = 0;
+      // ✅ FIX: Aggiorna createdAt per calcolare correttamente la durata della nuova partita
+      g.createdAt = now;
     });
     partitaTerminata = false;
     saveCurrentState();
