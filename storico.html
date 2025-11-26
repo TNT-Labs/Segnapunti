@@ -128,13 +128,13 @@
         <span><strong>0</strong> partite giocate</span>
       </div>
       <div class="export-buttons">
-        <button id="btn-advanced-stats" class="btn-export btn-stats" title="Visualizza Statistiche Avanzate (Premium)" style="display: none;">
+        <button id="btn-advanced-stats" class="btn-export btn-stats" title="Visualizza Statistiche Avanzate">
           📊 Statistiche
         </button>
-        <button id="btn-export-pdf" class="btn-export btn-export-pdf" title="Esporta storico in formato PDF (Premium)">
+        <button id="btn-export-pdf" class="btn-export btn-export-pdf" title="Esporta storico in formato PDF">
           📄 Export PDF
         </button>
-        <button id="btn-export-csv" class="btn-export btn-export-csv" title="Esporta storico in formato CSV (Premium)">
+        <button id="btn-export-csv" class="btn-export btn-export-csv" title="Esporta storico in formato CSV">
           📊 Export CSV
         </button>
         <button id="btn-clear-history" class="btn-reset" title="Elimina tutte le partite dallo storico">
@@ -171,10 +171,6 @@
       <span class="nav-icon" aria-hidden="true">🎮</span>
       <span class="nav-label">Preset</span>
     </a>
-    <a href="premium.html" class="nav-item" aria-label="Premium">
-      <span class="nav-icon" aria-hidden="true">✨</span>
-      <span class="nav-label">Premium</span>
-    </a>
   </nav>
   
   <!-- Storage Helper (Safari private mode support) -->
@@ -193,14 +189,12 @@
   <script src="storage-helper.js"></script>
   <script src="segnapunti.js"></script>
 
-  <!-- ✨ Export Module (Premium Feature) -->
+  <!-- ✨ Export Module -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="export-module.js"></script>
-  
-  <!-- ✅ MONETIZATION SYSTEM -->
-  <script src="billing-module.js"></script>
+
+  <!-- ✅ ADS SYSTEM -->
   <script src="ads-module.js"></script>
-  <script src="premium-ui.js"></script>
   
   <script>
     // Service Worker
@@ -216,33 +210,27 @@
         });
     }
     
-    // ✅ Initialize Monetization (ORDINE CORRETTO)
+    // ✅ Initialize App
     document.addEventListener('DOMContentLoaded', async () => {
       try {
-        await BillingModule.init();
+        // Initialize Ads Module
+        await AdsModule.init();
 
-        if (!BillingModule.isPremium()) {
-          await AdsModule.init();
-        }
-
-        await PremiumUIModule.init();
-
-        // ✨ Setup Export Buttons
+        // Setup Export Buttons
         setupExportButtons();
       } catch (error) {
-        Logger.error('Monetization init error:', error);
+        Logger.error('App init error:', error);
       }
     });
 
-    // ✨ Setup Export Buttons (Premium Feature)
+    // Setup Export Buttons
     function setupExportButtons() {
       const btnAdvancedStats = document.getElementById('btn-advanced-stats');
       const btnExportPDF = document.getElementById('btn-export-pdf');
       const btnExportCSV = document.getElementById('btn-export-csv');
 
-      // ✨ Show Advanced Statistics button only for Premium users
-      if (btnAdvancedStats && BillingModule.isPremium()) {
-        btnAdvancedStats.style.display = 'inline-flex';
+      // Advanced Statistics button
+      if (btnAdvancedStats) {
         btnAdvancedStats.addEventListener('click', () => {
           Logger.log('[Statistics] Navigazione a statistiche avanzate');
           window.location.href = 'statistiche.html';

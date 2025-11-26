@@ -28,7 +28,6 @@ const ASSETS_TO_CACHE = [
   'settings.html',
   'storico.html',
   'preset-manager.html',
-  'premium.html', // ✅ NUOVO
   'storage-helper.js', // ✅ FIX #2: Safari storage helper
   'version.js', // ✅ FIX BUG #34: Versione centralizzata
   'logger.js', // ✅ FIX BUG #41: Production-safe logging
@@ -40,10 +39,8 @@ const ASSETS_TO_CACHE = [
   'utility-classes.css', // ✅ FIX BUG #45: Reusable CSS classes
   'preset-manager.js',
   'preset-manager.css',
-  'billing-module.js', // ✅ NUOVO
-  'ads-module.js', // ✅ NUOVO
-  'premium-ui.js', // ✅ NUOVO
-  'export-module.js', // ✨ PREMIUM EXPORT FEATURE
+  'ads-module.js', // ✅ MONETIZATION: Banner & Interstitial ads
+  'export-module.js', // ✅ EXPORT FEATURE: PDF & CSV export
   'manifest.json',
   'icon-192.png',
   'icon-512.png',

@@ -212,7 +212,7 @@
 <body>
   <div class="container">
     <div class="header-controls fixed-header">
-      <h1>📊 Statistiche <span class="premium-badge">✨ Premium</span></h1>
+      <h1>📊 Statistiche</h1>
       <div class="top-buttons">
         <button id="toggle-dark-mode" title="Attiva/Disattiva Modalità Scura" aria-label="Attiva o disattiva modalità scura" onclick="toggleDarkMode()">🌙</button>
       </div>
@@ -314,10 +314,6 @@
       <span class="nav-icon" aria-hidden="true">🎮</span>
       <span class="nav-label">Preset</span>
     </a>
-    <a href="premium.html" class="nav-item" aria-label="Premium">
-      <span class="nav-icon" aria-hidden="true">✨</span>
-      <span class="nav-label">Premium</span>
-    </a>
   </nav>
 
   <!-- Scripts -->
@@ -339,10 +335,8 @@
   <!-- Statistics Module -->
   <script src="statistics-module.js"></script>
 
-  <!-- Billing & Premium -->
-  <script src="billing-module.js"></script>
+  <!-- Ads Module -->
   <script src="ads-module.js"></script>
-  <script src="premium-ui.js"></script>
 
   <script>
     // Service Worker
@@ -361,32 +355,11 @@
     // Initialize Application
     document.addEventListener('DOMContentLoaded', async () => {
       try {
-        // Initialize Billing Module
-        await BillingModule.init();
+        // Initialize Ads Module
+        await AdsModule.init();
 
-        // ✅ PREMIUM GATE: Check if user is Premium
-        if (!BillingModule.isPremium()) {
-          Logger.log('[Statistics] Accesso negato: utente non Premium');
-
-          // Hide loader
-          const loader = document.getElementById('loader-overlay');
-          if (loader) loader.style.display = 'none';
-
-          // Show Premium upgrade modal
-          showPremiumUpgradeModal();
-          return;
-        }
-
-        // Initialize Ads Module (if not Premium)
-        if (!BillingModule.isPremium()) {
-          await AdsModule.init();
-        }
-
-        // Initialize Premium UI
-        await PremiumUIModule.init();
-
-        // ✅ PREMIUM USER: Initialize Statistics
-        Logger.log('[Statistics] Utente Premium verificato, caricamento statistiche...');
+        // Initialize Statistics
+        Logger.log('[Statistics] Caricamento statistiche...');
         await StatisticsModule.init();
 
       } catch (error) {
@@ -399,82 +372,6 @@
         alert('❌ Errore durante il caricamento delle statistiche. Riprova più tardi.');
       }
     });
-
-    // Show Premium Upgrade Modal
-    function showPremiumUpgradeModal() {
-      const overlay = document.createElement('div');
-      overlay.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0,0,0,0.8);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 10000;
-        padding: 20px;
-      `;
-
-      const modal = document.createElement('div');
-      modal.style.cssText = `
-        background: white;
-        border-radius: 16px;
-        padding: 40px;
-        max-width: 500px;
-        text-align: center;
-        box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-      `;
-
-      modal.innerHTML = `
-        <div style="font-size: 4em; margin-bottom: 20px;">📊✨</div>
-        <h2 style="font-size: 1.8em; margin-bottom: 16px; color: #333;">Statistiche Avanzate</h2>
-        <p style="font-size: 1.1em; color: #666; margin-bottom: 30px; line-height: 1.6;">
-          Le statistiche avanzate sono una funzionalità <strong>Premium</strong>.<br>
-          Ottieni accesso a grafici evoluti, analisi delle performance e molto altro!
-        </p>
-        <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
-          <button id="btn-upgrade-premium" style="
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 14px 28px;
-            border-radius: 8px;
-            font-size: 1.1em;
-            font-weight: 700;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-          ">
-            ✨ Passa a Premium
-          </button>
-          <button id="btn-close-modal" style="
-            background: #f0f0f0;
-            color: #333;
-            border: none;
-            padding: 14px 28px;
-            border-radius: 8px;
-            font-size: 1.1em;
-            font-weight: 600;
-            cursor: pointer;
-          ">
-            Torna Indietro
-          </button>
-        </div>
-      `;
-
-      overlay.appendChild(modal);
-      document.body.appendChild(overlay);
-
-      // Event listeners
-      document.getElementById('btn-upgrade-premium').addEventListener('click', () => {
-        window.location.href = 'premium.html';
-      });
-
-      document.getElementById('btn-close-modal').addEventListener('click', () => {
-        window.location.href = 'index.html';
-      });
-    }
   </script>
 </body>
 </html>

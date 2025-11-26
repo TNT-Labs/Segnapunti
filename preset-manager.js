@@ -572,24 +572,8 @@ const PresetManagerModule = (() => {
   };
 
   const canCreatePreset = () => {
-    const isPremium = window.BillingModule?.isPremium() || false;
-    
-    if (isPremium) {
-      return { allowed: true, reason: 'premium' };
-    }
-    
-    const customPresets = loadCustomPresets();
-    const customCount = Object.keys(customPresets).length;
-    
-    if (customCount < FREE_CUSTOM_LIMIT) {
-      return { allowed: true, reason: 'free_limit_ok' };
-    }
-    
-    return { 
-      allowed: false, 
-      reason: 'free_limit_reached',
-      message: `Hai raggiunto il limite di ${FREE_CUSTOM_LIMIT} preset personalizzato.\n\nPassa a Premium per creare preset illimitati!`
-    };
+    // Tutti gli utenti possono creare preset illimitati
+    return { allowed: true, reason: 'unlimited' };
   };
 
   return {
@@ -645,27 +629,11 @@ const PresetUIModule = (() => {
   const updateCreateButtonState = () => {
     const btn = document.getElementById('btn-create-preset');
     if (!btn) return;
-    
-    const isPremium = window.BillingModule?.isPremium() || false;
-    
-    if (!isPremium) {
-      const customPresets = PresetManagerModule.loadCustomPresets();
-      const customCount = Object.keys(customPresets).length;
-      
-      btn.innerHTML = `➕ Nuovo Preset <small style="font-size:0.7em;opacity:0.8;margin-left:6px;">(${customCount}/1)</small>`;
-      
-      if (customCount >= 1) {
-        btn.style.opacity = '0.6';
-        btn.title = 'Limite free raggiunto. Passa a Premium per preset illimitati!';
-      } else {
-        btn.style.opacity = '1';
-        btn.title = 'Crea un nuovo preset personalizzato';
-      }
-    } else {
-      btn.innerHTML = '➕ Nuovo Preset';
-      btn.style.opacity = '1';
-      btn.title = 'Crea un nuovo preset personalizzato';
-    }
+
+    // Tutti possono creare preset illimitati
+    btn.innerHTML = '➕ Nuovo Preset';
+    btn.style.opacity = '1';
+    btn.title = 'Crea un nuovo preset personalizzato';
   };
 
   const renderPresetList = () => {
@@ -848,20 +816,6 @@ const PresetUIModule = (() => {
   };
 
   const showCreateModal = () => {
-    const canCreate = PresetManagerModule.canCreatePreset();
-    
-    if (!canCreate.allowed) {
-      if (window.PremiumUIModule) {
-        window.PremiumUIModule.showFeatureLockedModal(
-          'Preset Personalizzati Illimitati',
-          canCreate.message
-        );
-      } else {
-        alert(canCreate.message);
-      }
-      return;
-    }
-    
     currentEditingKey = null;
     const modal = document.getElementById('preset-edit-modal');
     const form = document.getElementById('preset-form');
@@ -974,20 +928,6 @@ const PresetUIModule = (() => {
   };
 
   const showDuplicateModal = (sourceKey) => {
-    const canCreate = PresetManagerModule.canCreatePreset();
-
-    if (!canCreate.allowed) {
-      if (window.PremiumUIModule) {
-        window.PremiumUIModule.showFeatureLockedModal(
-          'Preset Personalizzati Illimitati',
-          canCreate.message
-        );
-      } else {
-        alert(canCreate.message);
-      }
-      return;
-    }
-
     const newName = prompt('Inserisci il nome per il nuovo preset:');
     if (!newName || newName.trim() === '') return;
 
@@ -1136,20 +1076,6 @@ const PresetUIModule = (() => {
     const btnCreate = document.getElementById('btn-create-preset');
     if (btnCreate) {
       eventHandlers.btnCreateClick = () => {
-        const canCreate = PresetManagerModule.canCreatePreset();
-
-        if (!canCreate.allowed) {
-          if (window.PremiumUIModule) {
-            window.PremiumUIModule.showFeatureLockedModal(
-              'Preset Personalizzati Illimitati',
-              canCreate.message
-            );
-          } else {
-            alert(canCreate.message);
-          }
-          return;
-        }
-
         showCreateModal();
       };
       btnCreate.addEventListener('click', eventHandlers.btnCreateClick);

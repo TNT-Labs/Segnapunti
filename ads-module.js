@@ -30,16 +30,7 @@ const AdsModule = (() => {
   
   const init = async () => {
     Logger.log('[Ads] Inizializzazione...');
-    
-    // Verifica stato premium
-    const isPremium = window.BillingModule?.isPremium() || false;
-    
-    if (isPremium) {
-      Logger.log('[Ads] Utente premium, ads disabilitati');
-      adsEnabled = false;
-      return;
-    }
-    
+
     // Inizializza AdMob
     await initAdMob();
     
@@ -356,7 +347,6 @@ const AdsModule = (() => {
   
   // ✅ FIX #5: Salva riferimenti ai listener per poterli rimuovere
   let navigationHandler = null;
-  let premiumChangeHandler = null;
   let gameCompletedHandler = null;
   
   const setupEventListeners = () => {
@@ -371,15 +361,11 @@ const AdsModule = (() => {
       document.removeEventListener('click', navigationHandler, { capture: true });
       navigationHandler = null;
     }
-    if (premiumChangeHandler) {
-      document.removeEventListener('premiumStatusChanged', premiumChangeHandler);
-      premiumChangeHandler = null;
-    }
     if (gameCompletedHandler) {
       document.removeEventListener('gameCompleted', gameCompletedHandler);
       gameCompletedHandler = null;
     }
-    
+
     // Use event delegation for navigation
     navigationHandler = (e) => {
       const navItem = e.target.closest('.nav-item');
@@ -388,13 +374,10 @@ const AdsModule = (() => {
       }
     };
     document.addEventListener('click', navigationHandler, { capture: true });
-    
+
     // Custom events with named handlers
     gameCompletedHandler = onGameSaved;
     document.addEventListener('gameCompleted', gameCompletedHandler);
-    
-    premiumChangeHandler = handlePremiumChange;
-    document.addEventListener('premiumStatusChanged', premiumChangeHandler);
     
     // Track history page
     if (window.location.pathname.includes('storico.html')) {
@@ -403,13 +386,6 @@ const AdsModule = (() => {
     
     isInitialized = true;
     Logger.log('[Ads] Event listeners configured');
-  };
-  
-  // ✅ Handler separato per evitare closure problems
-  const handlePremiumChange = (e) => {
-    if (e.detail.isPremium) {
-      hideAllAds();
-    }
   };
 
   // ✅ FIX #5: Aggiungi metodo reset per test
@@ -424,15 +400,11 @@ const AdsModule = (() => {
       document.removeEventListener('click', navigationHandler, { capture: true });
       navigationHandler = null;
     }
-    if (premiumChangeHandler) {
-      document.removeEventListener('premiumStatusChanged', premiumChangeHandler);
-      premiumChangeHandler = null;
-    }
     if (gameCompletedHandler) {
       document.removeEventListener('gameCompleted', gameCompletedHandler);
       gameCompletedHandler = null;
     }
-    
+
     hideAllAds();
     isInitialized = false;
     Logger.log('[Ads] Cleanup completed');
@@ -449,7 +421,7 @@ const AdsModule = (() => {
     // Assicura che la classe venga rimossa
     document.body.classList.remove('has-ad-banner');
     
-    Logger.log('[Ads] Tutti gli ads nascosti (Premium attivo)');
+    Logger.log('[Ads] Tutti gli ads nascosti');
   };
 
   const enableAds = () => {

@@ -4,7 +4,7 @@
 ![PWA](https://img.shields.io/badge/PWA-Ready-green.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 
-**Segnapunti** è un'applicazione web progressiva (PWA) completa per gestire i punteggi di partite a carte, giochi da tavolo, sport e molto altro. Supporta modalità di gioco multiple, preset personalizzabili, statistiche avanzate e funzionalità premium.
+**Segnapunti** è un'applicazione web progressiva (PWA) completa per gestire i punteggi di partite a carte, giochi da tavolo, sport e molto altro. Supporta modalità di gioco multiple, preset personalizzabili illimitati, statistiche avanzate, export PDF/CSV e temi personalizzati.
 
 ---
 
@@ -42,7 +42,7 @@
 
 - **Preset di Gioco**
   - 9+ preset predefiniti (Scala 40, Burraco, Scopa, Tennis, ecc.)
-  - Creazione preset personalizzati illimitati (Premium)
+  - Creazione preset personalizzati illimitati
   - Import/Export preset in JSON
   - Categorizzazione: Carte 🃏, Tavolo 🎲, Sport ⚽, Altri 🎯
 
@@ -51,9 +51,9 @@
   - Visualizzazione cronologica con dettagli completi
   - Ricerca e filtri per gioco/giocatore
   - Cancellazione singola o totale
-  - Export PDF/CSV (Premium)
+  - Export PDF/CSV
 
-- **Statistiche Avanzate** (Premium)
+- **Statistiche Avanzate**
   - 📊 Grafici interattivi (Chart.js)
   - 🏆 Win rate per giocatore
   - 📈 Evoluzione punteggi nel tempo
@@ -71,22 +71,15 @@
   - Icone ottimizzate per home screen
   - Notifiche push (futuro)
 
-### ✨ Premium Features
+- **Temi Personalizzati** 🎨
+  - Tema Default
+  - Tema Ocean
+  - Tema Sunset
+  - Tema Forest
 
-| Funzionalità | Free | Premium |
-|--------------|------|---------|
-| Partite Illimitate | ✅ | ✅ |
-| Preset Predefiniti | ✅ | ✅ |
-| Storico Partite | ✅ | ✅ |
-| Dark Mode | ✅ | ✅ |
-| Preset Personalizzati | 1 | Illimitati |
-| Export PDF/CSV | ❌ | ✅ |
-| Statistiche Avanzate | ❌ | ✅ |
-| Nessuna Pubblicità | ❌ | ✅ |
-| Temi Premium | ❌ | ✅ |
-| Cloud Backup | ❌ | 🚧 Prossimamente |
-
-**Prezzo Premium**: €2.99 (acquisto una tantum)
+- **Monetizzazione**
+  - Banner pubblicitari
+  - Interstitial ads
 
 ---
 
@@ -225,8 +218,7 @@ Segnapunti/
 ├── settings.html               # Impostazioni
 ├── storico.html                # Storico partite
 ├── preset-manager.html         # Gestione preset
-├── premium.html                # Pagina upgrade Premium
-├── statistiche.html            # Statistiche avanzate (Premium)
+├── statistiche.html            # Statistiche avanzate
 ├── manifest.json               # PWA manifest
 ├── service-worker.js           # Service Worker per offline
 │
@@ -244,9 +236,7 @@ Segnapunti/
 │   ├── polyfills.js            # Browser compatibility
 │   ├── dark-mode-toggle.js     # Dark mode standalone
 │   ├── preset-manager.js       # Preset CRUD operations
-│   ├── billing-module.js       # Google Play billing
 │   ├── ads-module.js           # AdMob ads management
-│   ├── premium-ui.js           # Premium paywall UI
 │   ├── export-module.js        # PDF/CSV export
 │   └── statistics-module.js    # Statistics charts
 │
@@ -401,10 +391,7 @@ Su Safari iOS: Apri Safari → Menu condividi → "Aggiungi a Home".
 Sì! Grazie al Service Worker, l'app funziona completamente offline dopo la prima visita.
 
 ### Come posso esportare i miei dati?
-Vai a "Storico" → "Esporta Dati" → Scegli PDF o CSV (richiede Premium).
-
-### Quanto costa Premium?
-€2.99 una tantum. Nessun abbonamento, pagamento unico.
+Vai a "Storico" → "Esporta Dati" → Scegli PDF o CSV.
 
 ### I miei dati sono al sicuro?
 Sì, tutti i dati sono salvati localmente sul tuo device. Massima privacy.

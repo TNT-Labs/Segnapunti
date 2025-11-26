@@ -63,19 +63,15 @@
 
       <hr class="separator">
 
-      <!-- 🎨 TEMI PREMIUM -->
+      <!-- 🎨 TEMI -->
       <h3>🎨 Temi</h3>
       <label for="theme-selector">Seleziona Tema:</label>
       <select id="theme-selector">
-        <option value="default">Default (Gratuito)</option>
-        <option value="theme-ocean" data-premium="true">✨ Ocean (Premium)</option>
-        <option value="theme-sunset" data-premium="true">✨ Sunset (Premium)</option>
-        <option value="theme-forest" data-premium="true">✨ Forest (Premium)</option>
+        <option value="default">Default</option>
+        <option value="theme-ocean">Ocean</option>
+        <option value="theme-sunset">Sunset</option>
+        <option value="theme-forest">Forest</option>
       </select>
-
-      <p style="font-size: 0.85em; color: var(--colore-testo); opacity: 0.7; margin-top: 8px;">
-        I temi premium sono disponibili solo con abbonamento Premium.
-      </p>
 
       <hr class="separator">
 
@@ -110,10 +106,6 @@
       <span class="nav-icon" aria-hidden="true">🎮</span>
       <span class="nav-label">Preset</span>
     </a>
-    <a href="premium.html" class="nav-item" aria-label="Premium">
-      <span class="nav-icon" aria-hidden="true">✨</span>
-      <span class="nav-label">Premium</span>
-    </a>
   </nav>
 
   <!-- ✅ FIX BUG #41: Production-safe logging -->
@@ -128,10 +120,8 @@
   <script src="segnapunti.js"></script>
   <script src="preset-manager.js"></script>  
   
-  <!-- ✅ MONETIZATION SYSTEM -->
-  <script src="billing-module.js"></script>
+  <!-- ✅ ADS SYSTEM -->
   <script src="ads-module.js"></script>
-  <script src="premium-ui.js"></script>
   
   <script>
     // Service Worker
@@ -147,25 +137,20 @@
         });
     }
 
-    // ✅ Initialize Monetization (ORDINE CORRETTO)
+    // ✅ Initialize App
     document.addEventListener('DOMContentLoaded', async () => {
       try {
-        await BillingModule.init();
+        // Initialize Ads Module
+        await AdsModule.init();
 
-        if (!BillingModule.isPremium()) {
-          await AdsModule.init();
-        }
-
-        await PremiumUIModule.init();
-
-        // 🎨 TEMI PREMIUM: Inizializza selettore temi
+        // 🎨 TEMI: Inizializza selettore temi
         initThemeSelector();
       } catch (error) {
-        Logger.error('Monetization init error:', error);
+        Logger.error('App init error:', error);
       }
     });
 
-    // 🎨 TEMI PREMIUM: Gestione selettore temi
+    // 🎨 TEMI: Gestione selettore temi
     function initThemeSelector() {
       const themeSelector = document.getElementById('theme-selector');
       if (!themeSelector) return;
@@ -177,18 +162,6 @@
       // Listener per cambio tema
       themeSelector.addEventListener('change', function(e) {
         const selectedTheme = e.target.value;
-        const isPremiumTheme = e.target.selectedOptions[0].hasAttribute('data-premium');
-
-        // Se è un tema premium e l'utente non è premium
-        if (isPremiumTheme && !BillingModule.isPremium()) {
-          // Mostra modal premium
-          if (typeof PremiumUIModule !== 'undefined' && PremiumUIModule.showFeatureLockedModal) {
-            PremiumUIModule.showFeatureLockedModal('Temi Premium', 'Sblocca temi esclusivi con Premium!');
-          }
-          // Ripristina il tema precedente
-          themeSelector.value = currentTheme;
-          return;
-        }
 
         // Cambia il tema
         const success = changeTheme(selectedTheme);

@@ -1,8 +1,7 @@
 // ===================================================================
-// 📤 EXPORT MODULE - PDF & CSV Export (Premium Feature)
+// 📤 EXPORT MODULE - PDF & CSV Export
 // ===================================================================
 // Gestisce l'export dello storico partite in formato PDF e CSV
-// Disponibile solo per utenti Premium
 // ===================================================================
 
 const ExportModule = (() => {
@@ -19,13 +18,6 @@ const ExportModule = (() => {
   const exportToCSV = (partite) => {
     try {
       Logger.log('[Export] Inizio export CSV...');
-
-      // Verifica stato premium
-      if (!BillingModule.isPremium()) {
-        Logger.warn('[Export] Funzionalità riservata agli utenti Premium');
-        showPremiumModal();
-        return false;
-      }
 
       if (!partite || partite.length === 0) {
         alert('⚠️ Nessuna partita da esportare!');
@@ -130,13 +122,6 @@ const ExportModule = (() => {
   const exportToPDF = async (partite) => {
     try {
       Logger.log('[Export] Inizio export PDF...');
-
-      // Verifica stato premium
-      if (!BillingModule.isPremium()) {
-        Logger.warn('[Export] Funzionalità riservata agli utenti Premium');
-        showPremiumModal();
-        return false;
-      }
 
       if (!partite || partite.length === 0) {
         alert('⚠️ Nessuna partita da esportare!');
@@ -312,7 +297,7 @@ const ExportModule = (() => {
           { align: 'center' }
         );
         doc.text(
-          'Generato da Segnapunti Premium',
+          'Generato da Segnapunti',
           pageWidth - margin,
           pageHeight - 10,
           { align: 'right' }
@@ -369,20 +354,6 @@ const ExportModule = (() => {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-  };
-
-  /**
-   * Mostra modal premium se feature non disponibile
-   */
-  const showPremiumModal = () => {
-    if (typeof PremiumUIModule !== 'undefined' && PremiumUIModule.showFeatureLockedModal) {
-      PremiumUIModule.showFeatureLockedModal(
-        'Export PDF/CSV Premium',
-        'L\'export PDF/CSV è disponibile solo per utenti Premium. Acquista Premium per sbloccare questa e altre funzionalità!'
-      );
-    } else {
-      alert('✨ Funzionalità Premium\n\nL\'export PDF/CSV è disponibile solo per utenti Premium.\n\nAcquista Premium per sbloccare questa e altre funzionalità!');
-    }
   };
 
   // ===================================================================
