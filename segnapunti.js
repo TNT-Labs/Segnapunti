@@ -1617,10 +1617,9 @@ const UIModule = (() => {
       }
 
       if (partita.duration) {
-        const minutes = Math.floor(partita.duration / 60000);
-        const seconds = Math.floor((partita.duration % 60000) / 1000);
+        const minutes = Math.round(partita.duration / 60000);
         if (detailsText) detailsText += ' • ';
-        detailsText += `Durata: <strong>${minutes}m ${seconds}s</strong>`;
+        detailsText += `Durata: <strong>${minutes} min</strong>`;
       }
 
       if (detailsText) {
