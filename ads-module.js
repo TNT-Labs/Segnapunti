@@ -5,8 +5,8 @@
 const AdsModule = (() => {
   // IDs da configurare in AdMob Console
   const AD_UNITS = {
-    banner: 'ca-app-pub-3940256099942544/6300978111', // Banner bottom
-    interstitial: 'ca-app-pub-3940256099942544/1033173712' // Fullscreen
+    banner: 'ca-app-pub-4302173868436591/6124127045', // Banner bottom
+    interstitial: 'ca-app-pub-4302173868436591/5621671964' // Fullscreen
   };
 
   let adsEnabled = true;
