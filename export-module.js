@@ -147,7 +147,7 @@ const ExportModule = (() => {
       // ===== HEADER =====
       doc.setFontSize(24);
       doc.setFont('helvetica', 'bold');
-      doc.text('🃏 Segnapunti', margin, yPosition);
+      doc.text('Segnapunti', margin, yPosition);
 
       yPosition += 8;
       doc.setFontSize(14);

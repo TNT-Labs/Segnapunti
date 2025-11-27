@@ -357,14 +357,14 @@ body.dark-mode h3 {
 /* Form Aggiungi Giocatore */
 .aggiungi-giocatore-form {
     display: flex;
+    flex-direction: column;
     gap: 10px;
     margin-bottom: 20px;
-    flex-wrap: wrap;
 }
-.aggiungi-giocatore-form input {
-    flex-grow: 1;
+.aggiungi-giocatore-form input,
+.aggiungi-giocatore-form button {
+    width: 100%;
     margin-bottom: 0;
-    min-width: 200px;
 }
 
 label {
