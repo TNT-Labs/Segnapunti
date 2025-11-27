@@ -20,9 +20,8 @@ Questa guida ti accompagna passo-passo nella pubblicazione di **Segnapunti** su 
 - [x] ✅ Template assetlinks.json creato (`.well-known/assetlinks.json`)
 
 ### 🔄 Da Completare
-- [ ] ⏳ HTTPS configurato (vedi `HTTPS_SETUP_GUIDE.md`)
-- [ ] ⏳ Dominio registrato e configurato
-- [ ] ⏳ Privacy Policy pubblicata online
+- [x] ✅ **HTTPS configurato** → `https://tnt-labs.github.io/Segnapunti/`
+- [x] ✅ **Privacy Policy pubblicata online** → `https://tnt-labs.github.io/Segnapunti/privacy-policy.html`
 - [ ] ⏳ SHA-256 fingerprint ottenuto
 - [ ] ⏳ assetlinks.json completato e deployato
 - [ ] ⏳ App Android TWA generata
@@ -31,64 +30,87 @@ Questa guida ti accompagna passo-passo nella pubblicazione di **Segnapunti** su 
 
 ---
 
-## 🎯 Step 1: Registra Dominio e Attiva HTTPS
+## ✅ Step 1: HTTPS Configurato (GitHub Pages)
 
-### Opzione Consigliata: Netlify (5 minuti)
+### 🎉 Già Attivo!
 
-1. **Deploy su Netlify:**
-   ```bash
-   1. Vai su https://netlify.com
-   2. Sign up con GitHub
-   3. New site from Git
-   4. Seleziona repo: TNT-Labs/Segnapunti
-   5. Branch: main
-   6. Build: (lascia vuoto)
-   7. Publish directory: .
-   8. Deploy!
-   ```
+La tua app è già online con HTTPS valido tramite **GitHub Pages**:
 
-2. **Ottieni URL HTTPS:**
-   ```
-   URL automatico: https://segnapunti-app.netlify.app
-   ✅ HTTPS già attivo!
-   ```
+```
+🌐 URL Produzione: https://tnt-labs.github.io/Segnapunti/
+🔒 Certificato SSL: ✅ Valido (GitHub Pages SSL)
+📱 PWA Installabile: ✅ Funzionante
+🔐 Service Worker: ✅ Attivo (richiede HTTPS)
+```
 
-3. **Custom Domain (Opzionale):**
-   ```
-   Site settings → Domain management
-   → Add custom domain
-   → segnapunti.com
-   → Verify & Configure DNS
-   → HTTPS automatico in 1 minuto
-   ```
+### Verifica Deployment
 
-**📝 Annota il tuo URL finale:** `_____________________________`
+```bash
+# Test HTTPS
+curl -I https://tnt-labs.github.io/Segnapunti/
+
+# Test manifest.json
+curl https://tnt-labs.github.io/Segnapunti/manifest.json
+
+# Test Privacy Policy
+curl https://tnt-labs.github.io/Segnapunti/privacy-policy.html
+
+# Test assetlinks.json (dopo deploy)
+curl https://tnt-labs.github.io/Segnapunti/.well-known/assetlinks.json
+```
+
+### Configurazione Verificata ✅
+
+**manifest.json:**
+```json
+{
+  "start_url": "index.html",
+  "scope": "/Segnapunti/",
+  "id": "/Segnapunti/"
+}
+```
+✅ Configurazione corretta per GitHub Pages subdirectory
+
+**📝 URL Produzione Finale:** `https://tnt-labs.github.io/Segnapunti/`
 
 ---
 
-## 🎯 Step 2: Pubblica Privacy Policy
+## ✅ Step 2: Privacy Policy Pubblicata
 
-### Upload su Netlify
+### 🎉 Già Online!
 
-```bash
-# La privacy policy è già nel repo: privacy-policy.html
-# Netlify la servirà automaticamente a:
-https://TUO-DOMINIO.com/privacy-policy.html
+La Privacy Policy è già deployata su GitHub Pages:
 
-# Oppure su path dedicato:
-https://TUO-DOMINIO.com/privacy
 ```
+📄 URL Privacy Policy: https://tnt-labs.github.io/Segnapunti/privacy-policy.html
+✅ GDPR Compliant
+✅ Google Play Ready
+✅ Completamente stilizzata e responsive
+```
+
+### Contenuto Privacy Policy
+
+La privacy policy include tutte le sezioni richieste da Google Play:
+
+- ✅ Raccolta dati (LocalStorage, nessun dato personale inviato a server)
+- ✅ Utilizzo dati (solo locale sul dispositivo)
+- ✅ Google AdSense policy disclosure
+- ✅ Diritti GDPR (accesso, cancellazione, portabilità)
+- ✅ Contatti sviluppatore
+- ✅ Sezione FAQ
 
 ### Verifica Accessibilità
 
 ```bash
-# Test da browser:
-curl https://segnapunti.tuodominio.com/privacy-policy.html
+# Test Privacy Policy
+curl -I https://tnt-labs.github.io/Segnapunti/privacy-policy.html
 
-# Deve ritornare: HTTP 200 OK
+# Output atteso:
+# HTTP/2 200
+# content-type: text/html
 ```
 
-**✅ URL Privacy Policy:** `_____________________________`
+**✅ URL Privacy Policy Finale:** `https://tnt-labs.github.io/Segnapunti/privacy-policy.html`
 
 ---
 
@@ -130,7 +152,7 @@ curl https://segnapunti.tuodominio.com/privacy-policy.html
 
 2. **Inserisci URL:**
    ```
-   Enter your site's URL: https://segnapunti.tuodominio.com
+   Enter your site's URL: https://tnt-labs.github.io/Segnapunti/
    → Start
    ```
 
@@ -152,12 +174,12 @@ curl https://segnapunti.tuodominio.com/privacy-policy.html
    → Options:
      - Name: Segnapunti
      - Package ID: com.tntlabs.segnapunti
-     - Version: 1
-     - Version code: 1
-     - Host: segnapunti.tuodominio.com
-     - Start URL: /
-     - Theme color: #2a4d69
-     - Background color: #f4f6fb
+     - App Version: 1.0.0
+     - App Version code: 1
+     - Host: tnt-labs.github.io
+     - Start URL: /Segnapunti/
+     - Theme color: #4A148C
+     - Background color: #212121
      - Icon: (auto-detect from manifest)
      - Splash screen: Enabled
      - Fallback strategy: Custom tabs
@@ -223,12 +245,12 @@ keytool -genkey -v \
 npm install -g @bubblewrap/cli
 
 # Inizializza progetto TWA
-bubblewrap init --manifest https://segnapunti.tuodominio.com/manifest.json
+bubblewrap init --manifest https://tnt-labs.github.io/Segnapunti/manifest.json
 
 # Rispondi alle domande:
 # App name: Segnapunti
 # Package name: com.tntlabs.segnapunti
-# Host: segnapunti.tuodominio.com
+# Host: tnt-labs.github.io/Segnapunti
 # Start URL: /
 # Icon: (auto da manifest)
 
@@ -312,10 +334,10 @@ git push origin main
 
 ```bash
 # Deve essere accessibile via HTTPS a:
-https://segnapunti.tuodominio.com/.well-known/assetlinks.json
+https://tnt-labs.github.io/Segnapunti/.well-known/assetlinks.json
 
 # Test:
-curl https://segnapunti.tuodominio.com/.well-known/assetlinks.json
+curl https://tnt-labs.github.io/Segnapunti/.well-known/assetlinks.json
 
 # Deve ritornare il JSON senza errori
 ```
@@ -326,7 +348,7 @@ curl https://segnapunti.tuodominio.com/.well-known/assetlinks.json
 https://developers.google.com/digital-asset-links/tools/generator
 
 Statement List Generator and Tester:
-→ Site domain: segnapunti.tuodominio.com
+→ Site domain: tnt-labs.github.io/Segnapunti
 → App package name: com.tntlabs.segnapunti
 → Test Statement
 
@@ -430,11 +452,11 @@ Menu: Grow → Store presence → Main store listing
 
 📧 Contact details:
 - Email: privacy@tntlabs.it
-- Website: https://segnapunti.tuodominio.com
+- Website: https://tnt-labs.github.io/Segnapunti
 - Phone: (opzionale)
 
 🔒 Privacy policy:
-- URL: https://segnapunti.tuodominio.com/privacy-policy.html
+- URL: https://tnt-labs.github.io/Segnapunti/privacy-policy.html
 ```
 
 ### 3. Content Rating
@@ -657,7 +679,7 @@ https://developers.google.com/digital-asset-links/tools/generator
 
 ```bash
 # Verifica che service-worker.js sia accessibile:
-https://segnapunti.tuodominio.com/service-worker.js
+https://tnt-labs.github.io/Segnapunti/service-worker.js
 
 # Header corretti:
 Content-Type: application/javascript
@@ -668,7 +690,7 @@ Cache-Control: no-cache
 
 ```bash
 # Verifica manifest.json:
-https://segnapunti.tuodominio.com/manifest.json
+https://tnt-labs.github.io/Segnapunti/manifest.json
 
 # Valida con:
 https://manifest-validator.appspot.com/
