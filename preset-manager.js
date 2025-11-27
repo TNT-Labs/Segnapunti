@@ -1026,10 +1026,18 @@ const PresetUIModule = (() => {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = '.json';
-    
+
     input.onchange = (e) => {
       const file = e.target.files[0];
       if (!file) return;
+
+      // ✅ MIGLIORAMENTO AUDIT #1: Validazione dimensione file (max 5MB)
+      const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+      if (file.size > MAX_FILE_SIZE) {
+        const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+        alert(`❌ File troppo grande!\n\nDimensione: ${sizeMB} MB\nMassimo consentito: 5 MB\n\nSi prega di ridurre il numero di preset nel file.`);
+        return;
+      }
 
       const reader = new FileReader();
 

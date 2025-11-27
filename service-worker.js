@@ -104,14 +104,27 @@ self.addEventListener('activate', event => {
   );
 });
 
-// ✅ FIX #25: Helper per verificare età cache
+// ✅ FIX #25 + AUDIT #7: Helper per verificare età cache con timestamp custom
+const CACHE_TIMESTAMP_HEADER = 'x-sw-cache-time';
+
 const isCacheExpired = (cachedResponse) => {
   if (!cachedResponse || !cachedResponse.headers) return true;
 
-  const dateHeader = cachedResponse.headers.get('date');
-  if (!dateHeader) return true; // Nessuna data, considera expired
+  // ✅ FIX AUDIT #7: Prima controlla timestamp custom, poi fallback su header date
+  let cachedTime;
+  const customTimestamp = cachedResponse.headers.get(CACHE_TIMESTAMP_HEADER);
 
-  const cachedTime = new Date(dateHeader).getTime();
+  if (customTimestamp) {
+    cachedTime = parseInt(customTimestamp, 10);
+  } else {
+    const dateHeader = cachedResponse.headers.get('date');
+    if (!dateHeader) {
+      // Nessuna data disponibile - NON considera expired per file locali
+      return false;
+    }
+    cachedTime = new Date(dateHeader).getTime();
+  }
+
   const now = Date.now();
   const ageInDays = (now - cachedTime) / (1000 * 60 * 60 * 24);
 
@@ -121,6 +134,24 @@ const isCacheExpired = (cachedResponse) => {
 // ✅ FIX #25: Determina se richiesta è per immagine
 const isImageRequest = (request) => {
   return request.url.match(/\.(png|jpg|jpeg|svg|gif|webp|ico)$/i);
+};
+
+// ✅ FIX AUDIT #7: Aggiungi timestamp custom alla risposta prima di cachare
+const addCacheTimestamp = async (response) => {
+  try {
+    const blob = await response.clone().blob();
+    const headers = new Headers(response.headers);
+    headers.set(CACHE_TIMESTAMP_HEADER, Date.now().toString());
+
+    return new Response(blob, {
+      status: response.status,
+      statusText: response.statusText,
+      headers: headers
+    });
+  } catch (error) {
+    Logger.warn('[SW] Errore aggiunta timestamp, uso risposta originale:', error);
+    return response;
+  }
 };
 
 // 3. Gestione delle Richieste (Caching)
@@ -149,11 +180,13 @@ self.addEventListener('fetch', event => {
           // ✅ Aggiorna la cache in background (Stale-While-Revalidate) solo per HTML/CSS/JS
           if (!isImageRequest(event.request)) {
             fetch(event.request).then(
-            networkResponse => {
+            async networkResponse => {
               // Solo se la risposta è OK
               if (networkResponse && networkResponse.status === 200) {
+                // ✅ FIX AUDIT #7: Aggiungi timestamp prima di cachare
+                const timestampedResponse = await addCacheTimestamp(networkResponse);
                 caches.open(CACHE_NAME).then(cache => {
-                  cache.put(event.request, networkResponse.clone());
+                  cache.put(event.request, timestampedResponse);
                 });
               }
             }
@@ -167,12 +200,13 @@ self.addEventListener('fetch', event => {
 
         // ✅ Non in cache, prova il network
         return fetch(event.request)
-          .then(networkResponse => {
+          .then(async networkResponse => {
             // Se la risposta è valida, cachala
             if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
-              const responseToCache = networkResponse.clone();
+              // ✅ FIX AUDIT #7: Aggiungi timestamp prima di cachare
+              const timestampedResponse = await addCacheTimestamp(networkResponse.clone());
               caches.open(CACHE_NAME).then(cache => {
-                cache.put(event.request, responseToCache);
+                cache.put(event.request, timestampedResponse);
               });
             }
             return networkResponse;

@@ -29,19 +29,28 @@ const AdsModule = (() => {
   // ===================================================================
   
   const init = async () => {
-    Logger.log('[Ads] Inizializzazione...');
+    try {
+      Logger.log('[Ads] Inizializzazione...');
 
-    // Inizializza AdMob
-    await initAdMob();
-    
-    // Setup listeners
-    setupEventListeners();
-    
-    // Mostra banner iniziale
-    showBanner();
-    
-    // Preload interstitial
-    loadInterstitial();
+      // Inizializza AdMob
+      await initAdMob();
+
+      // Setup listeners
+      setupEventListeners();
+
+      // Mostra banner iniziale
+      showBanner();
+
+      // Preload interstitial
+      loadInterstitial();
+
+      Logger.log('[Ads] ✅ Inizializzazione completata');
+    } catch (error) {
+      // ✅ MIGLIORAMENTO AUDIT #2: Gestione errori completa con recovery graceful
+      Logger.error('[Ads] ❌ Errore inizializzazione ads:', error);
+      // Non bloccare l'app - gli ads sono funzionalità non critica
+      // L'app continua a funzionare senza ads
+    }
   };
 
   // ===================================================================

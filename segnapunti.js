@@ -699,19 +699,45 @@ const GameStateModule = (() => {
     return { hasWinner, vincitori, puntiVincitore, roundsVincitore, maxPunti, minPunti, maxRounds };
   };
 
-  const saveCurrentState = () => {
-    const darkMode = document.body.classList.contains('dark-mode');
-    DatabaseModule.saveState({
-      modalitaVittoria,
-      punteggioObiettivo,
-      roundsObiettivo,
-      roundMode, // ✅ FIX #11: Salva roundMode
-      giocatori,
-      partitaTerminata,
-      darkMode,
-      nomeGiocoCorrente, // ✅ NUOVO: Salva nome gioco
-      presetKeySelezionato // ✅ NUOVO v1.3.3: Salva preset key selezionato
-    });
+  // ✅ MIGLIORAMENTO AUDIT #4: Debouncing per ridurre chiamate saveState
+  let saveStateTimeout = null;
+  const SAVE_STATE_DEBOUNCE_MS = 500; // 500ms delay
+
+  const saveCurrentState = (immediate = false) => {
+    const performSave = () => {
+      const darkMode = document.body.classList.contains('dark-mode');
+      DatabaseModule.saveState({
+        modalitaVittoria,
+        punteggioObiettivo,
+        roundsObiettivo,
+        roundMode, // ✅ FIX #11: Salva roundMode
+        giocatori,
+        partitaTerminata,
+        darkMode,
+        nomeGiocoCorrente, // ✅ NUOVO: Salva nome gioco
+        presetKeySelezionato // ✅ NUOVO v1.3.3: Salva preset key selezionato
+      });
+    };
+
+    // ✅ MIGLIORAMENTO AUDIT #4: Se immediate=true, salva subito (es. chiusura pagina)
+    if (immediate) {
+      if (saveStateTimeout) {
+        clearTimeout(saveStateTimeout);
+        saveStateTimeout = null;
+      }
+      performSave();
+      return;
+    }
+
+    // ✅ MIGLIORAMENTO AUDIT #4: Altrimenti usa debouncing
+    if (saveStateTimeout) {
+      clearTimeout(saveStateTimeout);
+    }
+
+    saveStateTimeout = setTimeout(() => {
+      performSave();
+      saveStateTimeout = null;
+    }, SAVE_STATE_DEBOUNCE_MS);
   };
 
   const loadFromState = (state) => {
@@ -1966,6 +1992,11 @@ const UIModule = (() => {
 
 // ✅ FIX CRITICO #2: Cleanup globale al beforeunload
 window.addEventListener('beforeunload', () => {
+  // ✅ MIGLIORAMENTO AUDIT #4: Salva stato immediatamente prima di chiudere
+  if (GameStateModule && GameStateModule.saveCurrentState) {
+    GameStateModule.saveCurrentState(true); // immediate save
+  }
+
   if (UIModule && UIModule.cleanupAll) {
     UIModule.cleanupAll();
   }

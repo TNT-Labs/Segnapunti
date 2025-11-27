@@ -15,10 +15,14 @@ const StatisticsModule = (() => {
     Logger.log('[Statistics] Inizializzazione modulo statistiche...');
 
     try {
-      // ✅ FIX BUG #48: Verifica disponibilità DatabaseModule
+      // ✅ FIX BUG #48 + AUDIT #1: Verifica disponibilità DatabaseModule con recovery
       if (!window.DatabaseModule || typeof window.DatabaseModule.loadHistory !== 'function') {
         Logger.error('[Statistics] DatabaseModule non disponibile');
-        showNoDataMessage();
+        showErrorMessage(
+          '⚠️ Modulo Database Non Disponibile',
+          'Impossibile caricare il modulo database. Questo potrebbe essere causato da un errore di caricamento della pagina.',
+          true // show reload button
+        );
         hideLoader();
         return;
       }
@@ -202,9 +206,45 @@ const StatisticsModule = (() => {
   // ===================================================================
 
   const initCharts = () => {
-    // ✅ FIX BUG #49: Verifica disponibilità Chart.js
+    // ✅ FIX BUG #49 + AUDIT #2: Verifica disponibilità Chart.js con messaggio user-friendly
     if (typeof Chart === 'undefined') {
       Logger.error('[Statistics] Chart.js non caricato - impossibile creare grafici');
+
+      // Mostra messaggio di errore nei container dei grafici
+      document.querySelectorAll('.chart-container').forEach(container => {
+        const wrapper = container.querySelector('.chart-wrapper');
+        if (wrapper) {
+          wrapper.innerHTML = `
+            <div style="
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              height: 100%;
+              padding: 40px;
+              text-align: center;
+              color: #ff6b6b;
+            ">
+              <div style="font-size: 3em; margin-bottom: 15px;">⚠️</div>
+              <h3 style="margin: 0 0 10px 0; color: #ff6b6b;">Libreria Grafici Non Disponibile</h3>
+              <p style="margin: 0 0 20px 0; color: #666;">
+                Impossibile caricare Chart.js. Controlla la connessione internet e ricarica la pagina.
+              </p>
+              <button onclick="location.reload()" style="
+                padding: 10px 20px;
+                background: #4A148C;
+                color: white;
+                border: none;
+                border-radius: 8px;
+                cursor: pointer;
+                font-weight: 600;
+              ">
+                🔄 Ricarica
+              </button>
+            </div>
+          `;
+        }
+      });
       return;
     }
 
@@ -576,13 +616,59 @@ const StatisticsModule = (() => {
   // 🔧 UTILITIES
   // ===================================================================
 
-  const showNoDataMessage = () => {
-    document.getElementById('no-data-message').style.display = 'block';
+  /**
+   * ✅ FIX AUDIT #1: Mostra messaggio errore con opzione di ricarica
+   */
+  const showErrorMessage = (title, message, showReloadButton = true) => {
+    const noDataDiv = document.getElementById('no-data-message');
+    if (!noDataDiv) return;
+
+    noDataDiv.innerHTML = `
+      <h2>${title}</h2>
+      <p>${message}</p>
+      ${showReloadButton ? `
+        <button onclick="location.reload()" style="
+          margin-top: 20px;
+          padding: 12px 24px;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white;
+          border: none;
+          border-radius: 8px;
+          font-size: 1em;
+          font-weight: 600;
+          cursor: pointer;
+          box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        ">
+          🔄 Ricarica Pagina
+        </button>
+      ` : ''}
+    `;
+    noDataDiv.style.display = 'block';
+
     document.getElementById('summary-stats').style.display = 'none';
     document.querySelectorAll('.chart-container').forEach(el => {
       el.style.display = 'none';
     });
-    document.querySelector('.player-select').style.display = 'none';
+    const playerSelect = document.querySelector('.player-select');
+    if (playerSelect) playerSelect.style.display = 'none';
+  };
+
+  const showNoDataMessage = () => {
+    const noDataDiv = document.getElementById('no-data-message');
+    if (!noDataDiv) return;
+
+    noDataDiv.innerHTML = `
+      <h2>📊 Nessun Dato Disponibile</h2>
+      <p>Gioca alcune partite per visualizzare le tue statistiche avanzate!</p>
+    `;
+    noDataDiv.style.display = 'block';
+
+    document.getElementById('summary-stats').style.display = 'none';
+    document.querySelectorAll('.chart-container').forEach(el => {
+      el.style.display = 'none';
+    });
+    const playerSelect = document.querySelector('.player-select');
+    if (playerSelect) playerSelect.style.display = 'none';
   };
 
   const hideLoader = () => {

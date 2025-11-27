@@ -176,5 +176,10 @@
     }
   }
 
-  console.log('✅ Dark Mode Toggle caricato');
+  // ✅ FIX AUDIT #6: Usa Logger invece di console.log per rispettare production mode
+  if (typeof Logger !== 'undefined' && Logger.log) {
+    Logger.log('✅ Dark Mode Toggle caricato');
+  } else {
+    console.log('✅ Dark Mode Toggle caricato');
+  }
 })();

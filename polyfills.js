@@ -2,6 +2,22 @@
 // 🔧 POLYFILLS - Browser Compatibility
 // ===================================================================
 // ✅ FIX BUG #43: Polyfill per browser meno recenti
+//
+// ⚠️ NOTA MANUTENZIONE (MIGLIORAMENTO AUDIT #3):
+// Questi polyfills sono per Internet Explorer 11 e browser molto vecchi.
+// IE11 non è più supportato da Microsoft dal 15 Giugno 2022.
+//
+// Se decidi di NON supportare più IE11 e browser antichi:
+// - Puoi rimuovere questo file completamente
+// - Rimuovi anche i riferimenti in index.html, settings.html, etc.
+// - Questo ridurrà la dimensione del bundle di ~5KB
+//
+// Browser supportati SENZA polyfills:
+// - Chrome 51+ (2016)
+// - Firefox 54+ (2017)
+// - Safari 10+ (2016)
+// - Edge 15+ (2017)
+// ===================================================================
 
 // Object.assign polyfill (IE 11)
 if (typeof Object.assign !== 'function') {
