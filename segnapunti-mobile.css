@@ -614,7 +614,6 @@ a {
    ======================================== */
 
 /* ✅ Smooth scroll con momentum iOS */
-.giocatori-lista,
 .storico-lista,
 .preset-list-container,
 .modal-content {
@@ -622,14 +621,15 @@ a {
   overflow-y: auto;
 }
 
+/* ✅ FIX #25: Rimosso .giocatori-lista da overflow-y: auto
+   per evitare che la coppa animata del vincitore venga clippata quando scorre verso l'alto */
+
 /* Nascondi scrollbar ma mantieni funzionalità */
-.giocatori-lista::-webkit-scrollbar,
 .storico-lista::-webkit-scrollbar,
 .preset-list-container::-webkit-scrollbar {
   display: none;
 }
 
-.giocatori-lista,
 .storico-lista,
 .preset-list-container {
   -ms-overflow-style: none;
