@@ -42,8 +42,8 @@ const ASSETS_TO_CACHE = [
   'ads-module.js', // ✅ MONETIZATION: Banner & Interstitial ads
   'export-module.js', // ✅ EXPORT FEATURE: PDF & CSV export
   'manifest.json',
-  'icon-192.png',
-  'icon-512.png',
+  'Segnapunti192x192.png',
+  'Segnapunti512x512.png',
   // Icone complete
   'Segnapunti72x72.png',
   'Segnapunti96x96.png',
