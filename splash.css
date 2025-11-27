@@ -1,0 +1,212 @@
+/* ==========================================
+   SPLASHSCREEN ANIMATA - SEGNAPUNTI
+   ========================================== */
+
+.splash-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(135deg, #2a4d69 0%, #4a148c 50%, #6a1b9a 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  opacity: 1;
+  transition: opacity 0.5s ease-out;
+  overflow: hidden;
+}
+
+.splash-screen.fade-out {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Effetto di particelle animate sullo sfondo */
+.splash-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.splash-particle {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  animation: float 10s infinite ease-in-out;
+}
+
+.splash-particle:nth-child(1) {
+  width: 80px;
+  height: 80px;
+  left: 10%;
+  top: 20%;
+  animation-delay: 0s;
+  animation-duration: 8s;
+}
+
+.splash-particle:nth-child(2) {
+  width: 60px;
+  height: 60px;
+  right: 15%;
+  top: 40%;
+  animation-delay: 2s;
+  animation-duration: 10s;
+}
+
+.splash-particle:nth-child(3) {
+  width: 100px;
+  height: 100px;
+  left: 20%;
+  bottom: 30%;
+  animation-delay: 1s;
+  animation-duration: 12s;
+}
+
+.splash-particle:nth-child(4) {
+  width: 50px;
+  height: 50px;
+  right: 25%;
+  bottom: 20%;
+  animation-delay: 3s;
+  animation-duration: 9s;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) translateX(0) scale(1);
+    opacity: 0.3;
+  }
+  50% {
+    transform: translateY(-30px) translateX(20px) scale(1.1);
+    opacity: 0.6;
+  }
+}
+
+/* Contenuto centrale della splash */
+.splash-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  animation: fadeInScale 1s ease-out;
+}
+
+@keyframes fadeInScale {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Logo/Icona animata */
+.splash-logo {
+  font-size: 120px;
+  margin-bottom: 20px;
+  animation: pulse 2s infinite ease-in-out;
+  filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.3));
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+/* Titolo dell'app */
+.splash-title {
+  font-size: 48px;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0 0 10px 0;
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  letter-spacing: 2px;
+  animation: slideInFromBottom 0.8s ease-out 0.3s both;
+}
+
+@keyframes slideInFromBottom {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Sottotitolo */
+.splash-subtitle {
+  font-size: 18px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  animation: slideInFromBottom 0.8s ease-out 0.5s both;
+}
+
+/* Spinner di caricamento */
+.splash-loader {
+  margin-top: 40px;
+  animation: slideInFromBottom 0.8s ease-out 0.7s both;
+}
+
+.splash-spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid rgba(255, 255, 255, 0.2);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Testo di caricamento */
+.splash-loading-text {
+  margin-top: 15px;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 500;
+  letter-spacing: 1px;
+}
+
+/* Responsive per schermi piccoli */
+@media (max-width: 480px) {
+  .splash-logo {
+    font-size: 80px;
+  }
+
+  .splash-title {
+    font-size: 36px;
+  }
+
+  .splash-subtitle {
+    font-size: 16px;
+  }
+
+  .splash-particle {
+    display: none; /* Rimuovi particelle su mobile per performance */
+  }
+}
+
+/* Ottimizzazione per performance */
+.splash-screen * {
+  will-change: transform, opacity;
+}

@@ -27,7 +27,9 @@ const ASSETS_TO_CACHE = [
   'index.html',
   'settings.html',
   'storico.html',
+  'statistiche.html',
   'preset-manager.html',
+  'about.html',
   'storage-helper.js', // ✅ FIX #2: Safari storage helper
   'version.js', // ✅ FIX BUG #34: Versione centralizzata
   'logger.js', // ✅ FIX BUG #41: Production-safe logging
@@ -37,6 +39,7 @@ const ASSETS_TO_CACHE = [
   'segnapunti.css',
   'segnapunti-mobile.css', // ✅ MOBILE OPTIMIZATION
   'utility-classes.css', // ✅ FIX BUG #45: Reusable CSS classes
+  'splash.css', // ✅ SPLASHSCREEN: Animated splash screen
   'preset-manager.js',
   'preset-manager.css',
   'ads-module.js', // ✅ MONETIZATION: Banner & Interstitial ads
