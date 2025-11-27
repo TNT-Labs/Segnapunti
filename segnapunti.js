@@ -2238,6 +2238,44 @@ const SettingsModule = (() => {
 })();
 
 // -------------------------------------------------------------------
+// 💰 BILLING & PREMIUM MODULES FALLBACK (✅ FIX #27)
+// -------------------------------------------------------------------
+// ✅ FIX #27: Fallback per BillingModule non implementato
+window.BillingModule = window.BillingModule || {
+  init: async () => {
+    Logger.log('[BillingModule] Fallback stub - billing non implementato');
+    return Promise.resolve();
+  },
+  isPremium: () => false,
+  checkPremiumStatus: () => false,
+  purchasePremium: () => {
+    Logger.warn('[BillingModule] Fallback stub - acquisto non disponibile');
+    return Promise.reject(new Error('Billing non implementato'));
+  },
+  restorePurchases: () => {
+    Logger.warn('[BillingModule] Fallback stub - ripristino non disponibile');
+    return Promise.reject(new Error('Billing non implementato'));
+  }
+};
+
+// ✅ FIX #27: Fallback per PremiumUIModule non implementato
+window.PremiumUIModule = window.PremiumUIModule || {
+  init: async () => {
+    Logger.log('[PremiumUIModule] Fallback stub - premium UI non implementata');
+    return Promise.resolve();
+  },
+  showFeatureLockedModal: (title, message) => {
+    Logger.warn('[PremiumUIModule] Fallback stub - feature locked:', title, message);
+  },
+  hidePremiumBadges: () => {
+    Logger.log('[PremiumUIModule] Fallback stub - hide badges');
+  },
+  showPremiumBadges: () => {
+    Logger.log('[PremiumUIModule] Fallback stub - show badges');
+  }
+};
+
+// -------------------------------------------------------------------
 // 🎮 APP CONTROLLER
 // -------------------------------------------------------------------
 const AppController = (() => {
