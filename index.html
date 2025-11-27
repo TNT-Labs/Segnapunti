@@ -22,8 +22,28 @@
   <link rel="stylesheet" href="segnapunti.css">
   <link rel="stylesheet" href="segnapunti-mobile.css">
   <link rel="stylesheet" href="utility-classes.css">
+  <link rel="stylesheet" href="splash.css">
 </head>
 <body>
+  <!-- Splashscreen Animata -->
+  <div class="splash-screen" id="splash-screen">
+    <div class="splash-background">
+      <div class="splash-particle"></div>
+      <div class="splash-particle"></div>
+      <div class="splash-particle"></div>
+      <div class="splash-particle"></div>
+    </div>
+    <div class="splash-content">
+      <div class="splash-logo">🃏</div>
+      <h1 class="splash-title">Segnapunti</h1>
+      <p class="splash-subtitle">L'app segnapunti definitiva</p>
+      <div class="splash-loader">
+        <div class="splash-spinner"></div>
+        <p class="splash-loading-text">Caricamento...</p>
+      </div>
+    </div>
+  </div>
+
   <div class="container">
     <div class="header-controls fixed-header"> 
       <h1>🃏 Punteggi Attuali</h1>
@@ -93,6 +113,10 @@
       <span class="nav-icon" aria-hidden="true">🎮</span>
       <span class="nav-label">Preset</span>
     </a>
+    <a href="about.html" class="nav-item" aria-label="Info">
+      <span class="nav-icon" aria-hidden="true">ℹ️</span>
+      <span class="nav-label">Info</span>
+    </a>
   </nav>
 
   <!-- ✅ FIX BUG #41: Production-safe logging -->
@@ -126,6 +150,21 @@
 
     // ✅ FIX CRITICO #1: Loader gestito completamente in AppController.init()
     // per evitare race condition con il caricamento dello stato del gioco
+
+    // ✅ SPLASHSCREEN: Gestione splashscreen animata
+    window.addEventListener('load', () => {
+      const splashScreen = document.getElementById('splash-screen');
+      if (splashScreen) {
+        // Mostra la splashscreen per almeno 2 secondi
+        setTimeout(() => {
+          splashScreen.classList.add('fade-out');
+          // Rimuovi completamente dal DOM dopo l'animazione
+          setTimeout(() => {
+            splashScreen.remove();
+          }, 500);
+        }, 2000);
+      }
+    });
   </script>
 </body>
 </html>

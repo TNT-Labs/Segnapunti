@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Segnapunti - Info</title>
+
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <meta name="theme-color" content="#4A148C">
+  <!-- ✅ FIX #27: Content Security Policy con Google AdSense -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://pagead2.googlesyndication.com https://adservice.google.com https://googleads.g.doubleclick.net https://tpc.googlesyndication.com https://ep2.adtrafficquality.google; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; frame-src 'self' https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://tpc.googlesyndication.com; connect-src 'self' https://pagead2.googlesyndication.com https://adservice.google.com https://googleads.g.doubleclick.net https://*.google.com https://*.google https://*.googlesyndication.com https://*.doubleclick.net;">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+  <link rel="apple-touch-icon" href="Segnapunti192x192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="segnapunti.css">
+  <link rel="stylesheet" href="segnapunti-mobile.css">
+  <link rel="stylesheet" href="utility-classes.css">
+
+  <style>
+    .about-container {
+      padding: 20px;
+      padding-bottom: calc(var(--nav-height) + 20px);
+    }
+
+    .about-hero {
+      text-align: center;
+      padding: 40px 20px;
+      background: linear-gradient(135deg, var(--colore-primario) 0%, var(--colore-secondario) 100%);
+      border-radius: var(--radius-xl);
+      margin-bottom: 30px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .about-logo {
+      font-size: 80px;
+      margin-bottom: 15px;
+      animation: pulse 2s infinite ease-in-out;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    .about-hero h1 {
+      color: #ffffff;
+      font-size: 36px;
+      margin: 0 0 10px 0;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .about-version {
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 16px;
+      font-weight: 500;
+    }
+
+    .about-section {
+      background: var(--colore-card);
+      border-radius: var(--radius-lg);
+      padding: 25px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    .about-section h2 {
+      color: var(--colore-primario);
+      font-size: 22px;
+      margin: 0 0 15px 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .about-section h2 .icon {
+      font-size: 28px;
+    }
+
+    .about-section p {
+      color: var(--colore-testo);
+      line-height: 1.6;
+      margin: 0 0 15px 0;
+    }
+
+    .about-section p:last-child {
+      margin-bottom: 0;
+    }
+
+    .about-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .about-list li {
+      padding: 12px 0;
+      border-bottom: 1px solid var(--colore-header-bordo);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .about-list li:last-child {
+      border-bottom: none;
+    }
+
+    .about-list li .emoji {
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+
+    .about-list li .text {
+      color: var(--colore-testo);
+      font-size: 15px;
+      line-height: 1.4;
+    }
+
+    .about-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 20px;
+      background: var(--colore-primario);
+      color: #ffffff;
+      text-decoration: none;
+      border-radius: var(--radius-md);
+      font-weight: 600;
+      transition: all 0.3s ease;
+      margin-top: 10px;
+    }
+
+    .about-link:hover {
+      background: var(--colore-secondario);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .about-link .icon {
+      font-size: 20px;
+    }
+
+    .contact-info {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .contact-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 15px;
+      background: var(--colore-sfondo);
+      border-radius: var(--radius-md);
+      text-decoration: none;
+      color: var(--colore-testo);
+      transition: all 0.3s ease;
+    }
+
+    .contact-link:hover {
+      background: var(--colore-primario);
+      color: #ffffff;
+      transform: translateX(5px);
+    }
+
+    .contact-link .emoji {
+      font-size: 24px;
+    }
+
+    .footer-text {
+      text-align: center;
+      padding: 30px 20px;
+      color: var(--colore-testo);
+      opacity: 0.7;
+      font-size: 14px;
+    }
+
+    /* Dark mode adjustments */
+    body.dark-mode .about-hero {
+      background: linear-gradient(135deg, #4a6c8e 0%, #6a1b9a 100%);
+    }
+
+    body.dark-mode .about-section {
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    body.dark-mode .contact-link {
+      background: #2a2a2a;
+    }
+
+    body.dark-mode .contact-link:hover {
+      background: var(--colore-primario);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header-controls fixed-header">
+      <h1>ℹ️ Info</h1>
+      <div class="top-buttons">
+        <button id="toggle-dark-mode" title="Attiva/Disattiva Modalità Scura" aria-label="Attiva o disattiva modalità scura" onclick="toggleDarkMode()">🌙</button>
+      </div>
+    </div>
+
+    <div class="about-container">
+      <!-- Hero Section -->
+      <div class="about-hero">
+        <div class="about-logo">🃏</div>
+        <h1>Segnapunti</h1>
+        <div class="about-version">Versione 1.0.0</div>
+      </div>
+
+      <!-- Descrizione -->
+      <div class="about-section">
+        <h2><span class="icon">📝</span> Descrizione</h2>
+        <p>L'app segnapunti mobile definitiva per ogni gioco. Traccia punti e rounds per Scala 40, Burraco, Scopa, Poker, giochi da tavolo e molto altro.</p>
+        <p>Supporta modalità offline, dark mode e preset personalizzabili per rendere il conteggio dei punti semplice e veloce.</p>
+      </div>
+
+      <!-- Funzionalità -->
+      <div class="about-section">
+        <h2><span class="icon">✨</span> Funzionalità</h2>
+        <ul class="about-list">
+          <li>
+            <span class="emoji">🎮</span>
+            <span class="text"><strong>Preset Personalizzabili:</strong> Crea e salva configurazioni per i tuoi giochi preferiti</span>
+          </li>
+          <li>
+            <span class="emoji">📊</span>
+            <span class="text"><strong>Statistiche:</strong> Visualizza statistiche dettagliate delle partite</span>
+          </li>
+          <li>
+            <span class="emoji">📜</span>
+            <span class="text"><strong>Storico Partite:</strong> Consulta e gestisci lo storico completo</span>
+          </li>
+          <li>
+            <span class="emoji">📤</span>
+            <span class="text"><strong>Esporta Dati:</strong> Esporta in formato CSV o PDF</span>
+          </li>
+          <li>
+            <span class="emoji">🌙</span>
+            <span class="text"><strong>Dark Mode:</strong> Modalità scura per proteggere gli occhi</span>
+          </li>
+          <li>
+            <span class="emoji">📱</span>
+            <span class="text"><strong>PWA:</strong> Installabile come app nativa sul dispositivo</span>
+          </li>
+          <li>
+            <span class="emoji">🔒</span>
+            <span class="text"><strong>Privacy First:</strong> Tutti i dati sono salvati localmente sul tuo dispositivo</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Sviluppatore -->
+      <div class="about-section">
+        <h2><span class="icon">👨‍💻</span> Sviluppatore</h2>
+        <p><strong>TNT Labs</strong></p>
+        <p>Sviluppiamo app web progressive moderne, veloci e user-friendly.</p>
+      </div>
+
+      <!-- Link Utili -->
+      <div class="about-section">
+        <h2><span class="icon">🔗</span> Link Utili</h2>
+        <a href="privacy-policy.html" class="about-link">
+          <span class="icon">🔒</span>
+          <span>Privacy Policy</span>
+        </a>
+        <a href="https://github.com/TNT-Labs/Segnapunti" target="_blank" rel="noopener noreferrer" class="about-link">
+          <span class="icon">💻</span>
+          <span>Codice Sorgente (GitHub)</span>
+        </a>
+      </div>
+
+      <!-- Contatti -->
+      <div class="about-section">
+        <h2><span class="icon">📧</span> Contatti</h2>
+        <div class="contact-info">
+          <a href="mailto:tntlabs.ita@gmail.com" class="contact-link">
+            <span class="emoji">✉️</span>
+            <span>tntlabs.ita@gmail.com</span>
+          </a>
+        </div>
+        <p style="margin-top: 15px; font-size: 14px; opacity: 0.8;">
+          Per domande, suggerimenti o richieste GDPR, non esitare a contattarci.
+        </p>
+      </div>
+
+      <!-- Footer -->
+      <div class="footer-text">
+        Made with ❤️ by TNT Labs<br>
+        © 2025 - Tutti i diritti riservati
+      </div>
+    </div>
+  </div>
+
+  <div id="loader-overlay" class="loader-overlay" style="display: none;">
+    <div class="loader-spinner"></div>
+    <p>Caricamento dati...</p>
+  </div>
+
+  <!-- Bottom Navigation Bar -->
+  <nav class="bottom-nav" role="navigation" aria-label="Navigazione principale">
+    <a href="index.html" class="nav-item" aria-label="Partita">
+      <span class="nav-icon" aria-hidden="true">🃏</span>
+      <span class="nav-label">Partita</span>
+    </a>
+    <a href="storico.html" class="nav-item" aria-label="Storico partite">
+      <span class="nav-icon" aria-hidden="true">📜</span>
+      <span class="nav-label">Storico</span>
+    </a>
+    <a href="settings.html" class="nav-item" aria-label="Impostazioni">
+      <span class="nav-icon" aria-hidden="true">⚙️</span>
+      <span class="nav-label">Settings</span>
+    </a>
+    <a href="preset-manager.html" class="nav-item" aria-label="Gestione preset">
+      <span class="nav-icon" aria-hidden="true">🎮</span>
+      <span class="nav-label">Preset</span>
+    </a>
+    <a href="about.html" class="nav-item active" aria-current="page" aria-label="Info (pagina corrente)">
+      <span class="nav-icon" aria-hidden="true">ℹ️</span>
+      <span class="nav-label">Info</span>
+    </a>
+  </nav>
+
+  <!-- ✅ FIX BUG #41: Production-safe logging -->
+  <!-- ✅ FIX BUG #43: Polyfills for older browsers -->
+  <script src="polyfills.js"></script>
+  <script src="logger.js"></script>
+  <script src="error-handler.js"></script>
+  <script src="storage-helper.js"></script>
+  <script src="segnapunti.js"></script>
+
+  <!-- ✅ ADS SYSTEM -->
+  <script src="ads-module.js"></script>
+
+  <script>
+    // Service Worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('service-worker.js')
+          .then(registration => {
+            Logger.log('Service Worker registrato con successo:', registration.scope);
+          })
+          .catch(error => {
+            Logger.error('Registrazione Service Worker fallita:', error);
+          });
+      });
+    }
+
+    // Initialize App
+    document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        // Initialize Ads Module
+        await AdsModule.init();
+      } catch (error) {
+        Logger.error('App init error:', error);
+      }
+    });
+  </script>
+</body>
+</html>
