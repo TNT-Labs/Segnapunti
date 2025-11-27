@@ -596,7 +596,7 @@ a {
     min-height: 44px;
     min-width: 44px;
   }
-  
+
   .btn-rimuovi {
     min-height: 40px;
     min-width: 40px;
@@ -606,6 +606,21 @@ a {
   select,
   textarea {
     min-height: 48px;
+  }
+
+  /* ✅ FIX: Stats e pulsante rimuovi sulla stessa riga anche su mobile */
+  .stats-controls-wrapper {
+    gap: 8px;
+  }
+
+  .stats-controls-wrapper .giocatore-punti {
+    font-size: 0.9em;
+  }
+
+  .stats-controls-wrapper .btn-rimuovi {
+    padding: 8px 10px;
+    font-size: 0.85em;
+    white-space: nowrap;
   }
 }
 

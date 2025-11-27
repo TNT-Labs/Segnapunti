@@ -1142,22 +1142,23 @@ const UIModule = (() => {
     const li = document.createElement('li');
     li.className = 'giocatore-item';
     li.id = `giocatore-${giocatore.id}`;
-    
+
     const nomeDiv = document.createElement('div');
     nomeDiv.className = 'giocatore-nome';
     nomeDiv.textContent = giocatore.nome;
-    
+
+    // ✅ FIX: Wrapper per mettere stats e pulsante rimuovi sulla stessa riga
+    const statsControlsWrapper = document.createElement('div');
+    statsControlsWrapper.className = 'stats-controls-wrapper';
+
     const statsDiv = document.createElement('div');
     statsDiv.className = 'giocatore-punti';
     statsDiv.innerHTML = `<strong>${giocatore.punti}</strong> punti | 🏆 <strong>${giocatore.rounds || 0}</strong> rounds`;
-    
-    const controlsDiv = document.createElement('div');
-    controlsDiv.className = 'punteggio-controls';
-    
+
     const btnRemove = document.createElement('button');
     btnRemove.textContent = '🗑️ Rimuovi';
     btnRemove.className = 'btn-rimuovi';
-    
+
     // ✅ FIX #2: Registra listener
     const removeHandler = () => {
       if (confirm(`Rimuovere ${giocatore.nome} dalla partita?`)) {
@@ -1166,13 +1167,13 @@ const UIModule = (() => {
       }
     };
     registerListener(btnRemove, 'click', removeHandler);
-    
-    controlsDiv.appendChild(btnRemove);
-    
+
+    statsControlsWrapper.appendChild(statsDiv);
+    statsControlsWrapper.appendChild(btnRemove);
+
     li.appendChild(nomeDiv);
-    li.appendChild(statsDiv);
-    li.appendChild(controlsDiv);
-    
+    li.appendChild(statsControlsWrapper);
+
     return li;
   };
 
