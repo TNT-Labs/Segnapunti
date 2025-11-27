@@ -83,10 +83,10 @@ body.dark-mode input, body.dark-mode select {
 body.dark-mode input:focus, body.dark-mode select:focus {
   box-shadow: 0 0 0 2px rgba(122, 174, 214, 0.4);
 }
-body.dark-mode button:not(.btn-rimuovi, .btn-custom-score, #toggle-dark-mode, .btn-reset, .btn-primary, .top-buttons button, .btn-round-plus, .btn-round-minus) {
+body.dark-mode button:not(.btn-rimuovi, .btn-custom-score, #toggle-dark-mode, .btn-reset, .btn-primary, .top-buttons button, .btn-round-plus, .btn-round-minus, .btn-export, .btn-export-pdf, .btn-export-csv, .btn-stats) {
   background: var(--colore-secondario);
 }
-body.dark-mode button:hover:not(.btn-rimuovi, .btn-custom-score, #toggle-dark-mode, .btn-reset, .btn-primary, .top-buttons button, .btn-round-plus, .btn-round-minus) {
+body.dark-mode button:hover:not(.btn-rimuovi, .btn-custom-score, #toggle-dark-mode, .btn-reset, .btn-primary, .top-buttons button, .btn-round-plus, .btn-round-minus, .btn-export, .btn-export-pdf, .btn-export-csv, .btn-stats) {
   background: var(--colore-primario);
 }
 body.dark-mode .winner {
