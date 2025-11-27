@@ -6,7 +6,15 @@ const StorageHelper = (() => {
   let memoryCache = {};
   let cacheKeys = []; // ✅ FIX BUG #40: LRU queue per memory cache
   const MAX_CACHE_ITEMS = 100; // ✅ FIX BUG #40: Limite per prevenire memory leak
+  const MAX_CACHE_SIZE_BYTES = 5 * 1024 * 1024; // ✅ FIX AUDIT #4: Limite 5MB totali
+  let currentCacheSize = 0; // ✅ FIX AUDIT #4: Traccia dimensione corrente
   let isAvailable = null;
+
+  // ✅ FIX AUDIT #4: Helper per calcolare dimensione stringa in bytes
+  const getByteSize = (str) => {
+    if (!str) return 0;
+    return new Blob([str]).size;
+  };
   
   // Test localStorage availability
   const checkAvailability = () => {
@@ -62,12 +70,34 @@ const StorageHelper = (() => {
       }
     }
 
-    // ✅ FIX BUG #40: LRU eviction quando cache piena
-    if (memoryCache[key] === undefined && cacheKeys.length >= MAX_CACHE_ITEMS) {
+    // ✅ FIX AUDIT #4: Calcola dimensione nuovo valore
+    const newValueSize = getByteSize(value);
+
+    // ✅ FIX AUDIT #4: Rimuovi vecchio valore dalla dimensione totale se esiste
+    if (memoryCache[key] !== undefined) {
+      const oldValueSize = getByteSize(memoryCache[key]);
+      currentCacheSize -= oldValueSize;
+    }
+
+    // ✅ FIX AUDIT #4: Evict elementi finché c'è spazio (per numero E dimensione)
+    while (
+      (memoryCache[key] === undefined && cacheKeys.length >= MAX_CACHE_ITEMS) ||
+      (currentCacheSize + newValueSize > MAX_CACHE_SIZE_BYTES && cacheKeys.length > 0)
+    ) {
       // Rimuovi il meno recentemente usato (primo elemento)
       const oldest = cacheKeys.shift();
-      delete memoryCache[oldest];
-      Logger.log(`[StorageHelper] LRU evicted: ${oldest}`);
+      if (oldest && memoryCache[oldest] !== undefined) {
+        const evictedSize = getByteSize(memoryCache[oldest]);
+        currentCacheSize -= evictedSize;
+        delete memoryCache[oldest];
+        Logger.log(`[StorageHelper] LRU evicted: ${oldest} (freed ${evictedSize} bytes, current: ${currentCacheSize})`);
+      }
+    }
+
+    // ✅ FIX AUDIT #4: Verifica che il nuovo valore non superi da solo il limite
+    if (newValueSize > MAX_CACHE_SIZE_BYTES) {
+      Logger.warn(`[StorageHelper] Valore troppo grande per cache (${newValueSize} bytes > ${MAX_CACHE_SIZE_BYTES} limit). Salvato solo in localStorage.`);
+      return; // Non aggiungere alla memory cache
     }
 
     // Aggiorna o aggiungi nuovo elemento
@@ -78,6 +108,7 @@ const StorageHelper = (() => {
     }
     cacheKeys.push(key);
     memoryCache[key] = value;
+    currentCacheSize += newValueSize;
   };
   
   const removeItem = (key) => {
@@ -89,14 +120,18 @@ const StorageHelper = (() => {
       }
     }
 
-    // ✅ FIX BUG #40: Rimuovi anche da LRU queue
+    // ✅ FIX BUG #40 + AUDIT #4: Rimuovi da LRU queue e aggiorna dimensione
     const index = cacheKeys.indexOf(key);
     if (index > -1) {
       cacheKeys.splice(index, 1);
     }
-    delete memoryCache[key];
+    if (memoryCache[key] !== undefined) {
+      const removedSize = getByteSize(memoryCache[key]);
+      currentCacheSize -= removedSize;
+      delete memoryCache[key];
+    }
   };
-  
+
   const clear = () => {
     if (checkAvailability()) {
       try {
@@ -107,6 +142,7 @@ const StorageHelper = (() => {
     }
     memoryCache = {};
     cacheKeys = []; // ✅ FIX BUG #40: Reset anche LRU queue
+    currentCacheSize = 0; // ✅ FIX AUDIT #4: Reset dimensione cache
   };
   
   return {

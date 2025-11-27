@@ -253,6 +253,9 @@
   <script src="logger.js"></script>
   <script src="error-handler.js"></script>
 
+  <!-- ✅ FIX AUDIT #3: Aggiunto dark-mode-toggle.js per funzione globale -->
+  <script src="dark-mode-toggle.js"></script>
+
   <script src="storage-helper.js"></script>
   <script src="preset-manager.js"></script>
   
@@ -335,17 +338,7 @@
         });
     }
 
-    // Dark mode toggle
-    function toggleDarkMode() {
-      document.body.classList.toggle('dark-mode');
-      const isDark = document.body.classList.contains('dark-mode');
-      localStorage.setItem('darkMode', isDark);
-      
-      const iconBtn = document.getElementById('toggle-dark-mode');
-      if (iconBtn) {
-        iconBtn.textContent = isDark ? '☀️' : '🌙';
-      }
-    }
+    // ✅ FIX AUDIT #3: Rimossa duplicazione toggleDarkMode - usa quella globale da dark-mode-toggle.js
   </script>
 </body>
 </html>

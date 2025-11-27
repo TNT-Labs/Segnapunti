@@ -175,8 +175,17 @@
   
   <!-- Storage Helper (Safari private mode support) -->
   <script>
+    // ✅ FIX AUDIT #5: Fallback completo per PresetManager
     window.PresetManager = window.PresetManager || {
-      getAllPresets: () => ({})
+      getAllPresets: () => ({}),
+      getPreset: (key) => null,
+      getPresetsByCategory: (category) => [],
+      createPreset: () => { Logger.warn('[PresetManager] Fallback stub - preset not created'); },
+      updatePreset: () => { Logger.warn('[PresetManager] Fallback stub - preset not updated'); },
+      deletePreset: () => { Logger.warn('[PresetManager] Fallback stub - preset not deleted'); },
+      duplicatePreset: () => { Logger.warn('[PresetManager] Fallback stub - preset not duplicated'); },
+      exportPresets: () => { Logger.warn('[PresetManager] Fallback stub - export not available'); },
+      importPresets: () => { Logger.warn('[PresetManager] Fallback stub - import not available'); }
     };
   </script>
   <!-- ✅ FIX BUG #41: Production-safe logging -->
