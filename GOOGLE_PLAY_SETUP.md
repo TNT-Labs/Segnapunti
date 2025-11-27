@@ -451,7 +451,7 @@ Menu: Grow → Store presence → Main store listing
 - Tags: giochi, punteggi, score, board games
 
 📧 Contact details:
-- Email: privacy@tntlabs.it
+- Email: tntlabs.ita@gmail.com
 - Website: https://tnt-labs.github.io/Segnapunti
 - Phone: (opzionale)
 
@@ -466,7 +466,7 @@ Menu: Policy → App content → Content rating
 
 → Start questionnaire
 
-Email: privacy@tntlabs.it
+Email: tntlabs.ita@gmail.com
 
 Q: Does your app contain violence?
 A: No
@@ -585,7 +585,7 @@ Menu: Release → Pricing & Distribution
 - All functionality available without special access: Yes
 
 📧 Contact email:
-- privacy@tntlabs.it
+- tntlabs.ita@gmail.com
 
 → Save
 ```
@@ -753,6 +753,6 @@ Condividi il link con gli utenti e goditi le recensioni! 🚀
 
 ---
 
-**Hai bisogno di aiuto?** Contatta: privacy@tntlabs.it
+**Hai bisogno di aiuto?** Contatta: tntlabs.ita@gmail.com
 
 **Buona pubblicazione! 🎊**
