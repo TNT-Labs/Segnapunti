@@ -363,6 +363,9 @@ const DatabaseModule = (() => {
   };
 })();
 
+// ✅ FIX #26: Esporta DatabaseModule globalmente per essere usato da statistics-module.js
+window.DatabaseModule = DatabaseModule;
+
 // -------------------------------------------------------------------
 // 🎮 GAME STATE MODULE - Gestione stato del gioco (✅ FIX #8, #9)
 // -------------------------------------------------------------------
