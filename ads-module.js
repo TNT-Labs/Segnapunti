@@ -163,7 +163,7 @@ const AdsModule = (() => {
       <ins class="adsbygoogle"
            style="display:inline-block;width:320px;height:50px"
            data-ad-client="ca-pub-4302173868436591"
-           data-ad-slot="6300978111"></ins>
+           data-ad-slot="6124127045"></ins>
     `;
     
     try {
