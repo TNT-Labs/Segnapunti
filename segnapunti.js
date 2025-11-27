@@ -791,6 +791,12 @@ const GameStateModule = (() => {
   };
 
   const saveToHistory = async (vincitori, puntiVincitore, roundsVincitore) => {
+    // ✅ FIX: Controllo difensivo per prevenire -Infinity se array vuoto
+    if (!giocatori || giocatori.length === 0) {
+      Logger.error('[saveToHistory] Tentativo di salvare partita senza giocatori');
+      return;
+    }
+
     // ✅ FIX #9: Calcola durata partita (usa timestamp più vecchio dei giocatori)
     const now = Date.now();
     const oldestPlayerTime = Math.min(...giocatori.map(g => g.createdAt || now));
