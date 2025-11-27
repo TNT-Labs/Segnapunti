@@ -151,18 +151,28 @@
     // ✅ FIX CRITICO #1: Loader gestito completamente in AppController.init()
     // per evitare race condition con il caricamento dello stato del gioco
 
-    // ✅ SPLASHSCREEN: Gestione splashscreen animata
+    // ✅ SPLASHSCREEN: Gestione splashscreen animata (solo prima visita della sessione)
     window.addEventListener('load', () => {
       const splashScreen = document.getElementById('splash-screen');
       if (splashScreen) {
-        // Mostra la splashscreen per almeno 2 secondi
-        setTimeout(() => {
-          splashScreen.classList.add('fade-out');
-          // Rimuovi completamente dal DOM dopo l'animazione
+        // Controlla se la splashscreen è già stata mostrata in questa sessione
+        const splashShown = sessionStorage.getItem('splashscreen_shown');
+
+        if (splashShown) {
+          // Nasconde immediatamente la splashscreen se già mostrata
+          splashScreen.remove();
+        } else {
+          // Mostra la splashscreen per almeno 2 secondi alla prima visita
           setTimeout(() => {
-            splashScreen.remove();
-          }, 500);
-        }, 2000);
+            splashScreen.classList.add('fade-out');
+            // Rimuovi completamente dal DOM dopo l'animazione
+            setTimeout(() => {
+              splashScreen.remove();
+            }, 500);
+          }, 2000);
+          // Segna che la splashscreen è stata mostrata in questa sessione
+          sessionStorage.setItem('splashscreen_shown', 'true');
+        }
       }
     });
   </script>

@@ -713,6 +713,26 @@ body.dark-mode .giocatore-rounds {
   white-space: nowrap;
 }
 
+/* ✅ FIX: Wrapper per stats e pulsante rimuovi nella pagina settings */
+.stats-controls-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  flex-wrap: nowrap;
+}
+
+.stats-controls-wrapper .giocatore-punti {
+  flex: 1;
+  min-width: 0; /* Permette al testo di essere troncato se necessario */
+}
+
+.stats-controls-wrapper .btn-rimuovi {
+  flex-shrink: 0;
+  margin-left: 0;
+}
+
 .btn-rimuovi {
   background: var(--colore-rimuovi);
   color: white;
