@@ -69,7 +69,6 @@
     }
   ],
   "android_manifest_ext": [
-    // Questo aggiunge la linea specifica nell'AndroidManifest.xml generato
     "<uses-permission android:name=\"com.google.android.gms.permission.AD_ID\"/>"
   ],
   "screenshots": [
