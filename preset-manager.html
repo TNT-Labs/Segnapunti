@@ -3,22 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title data-i18n="app.title">Segnapunti - Gestione Preset</title>
+  <title>Segnapunti - Gestione Preset</title>
   
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <meta name="theme-color" content="#4A148C">
-
+  <!-- ✅ FIX #27: Content Security Policy con Google AdSense -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://pagead2.googlesyndication.com https://adservice.google.com https://googleads.g.doubleclick.net https://tpc.googlesyndication.com https://ep2.adtrafficquality.google; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; frame-src 'self' https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://tpc.googlesyndication.com; connect-src 'self' https://pagead2.googlesyndication.com https://adservice.google.com https://googleads.g.doubleclick.net https://*.google.com https://*.google https://*.googlesyndication.com https://*.doubleclick.net;">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"> 
+  
   <link rel="apple-touch-icon" href="Segnapunti192x192.png"> 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet"> 
-
-  <link rel="stylesheet" href="segnapunti.css">
-  <link rel="stylesheet" href="preset-manager.css">
-  <link rel="stylesheet" href="segnapunti-mobile.css">
-  <link rel="stylesheet" href="utility-classes.css">
-
+  
   <style>
     body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
     .loader-overlay {
@@ -46,93 +46,174 @@
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
-    .loader-overlay p { color: white; margin-top: 20px; }
+    .loader-overlay p {
+      color: white;
+      margin-top: 20px;
+    }
   </style>
-
-  <!-- i18next -->
-  <script src="https://unpkg.com/i18next@23.0.1/i18next.min.js"></script>
-  <script src="https://unpkg.com/i18next-http-backend@1.6.1/i18nextHttpBackend.min.js"></script>
-  <script src="https://unpkg.com/i18next-browser-languagedetector@6.1.4/i18nextBrowserLanguageDetector.min.js"></script>
+  <link rel="stylesheet" href="segnapunti.css">
+  <link rel="stylesheet" href="preset-manager.css">
+  <link rel="stylesheet" href="segnapunti-mobile.css">
+  <link rel="stylesheet" href="utility-classes.css">
 </head>
 <body>
   <div class="container">
     <div class="header-controls fixed-header">
-      <h1 data-i18n="app.preset_title">🎮 Gestione Preset</h1>
+      <h1>🎮 Gestione Preset</h1>
       <div class="top-buttons">
+          <!-- ✅ FIX BUG #19: Aggiunto aria-label per accessibilità -->
           <button id="toggle-dark-mode" title="Attiva/Disattiva Modalità Scura" aria-label="Attiva o disattiva modalità scura" onclick="toggleDarkMode()">🌙</button>
       </div>
-    </div>
-
-    <!-- Selettore lingua -->
-    <div class="language-selector">
-      <label for="select-language" data-i18n="app.select_language">Lingua:</label>
-      <select id="select-language">
-        <option value="it">🇮🇹 Italiano</option>
-        <option value="en">🇬🇧 English</option>
-        <option value="es">🇪🇸 Español</option>
-        <option value="fr">🇫🇷 Français</option>
-        <option value="de">🇩🇪 Deutsch</option>
-      </select>
     </div>
     
     <!-- Toolbar -->
     <div class="preset-toolbar">
-      <button id="btn-create-preset" class="btn-primary" data-i18n="app.new_preset">➕ Nuovo Preset</button>
+      <button id="btn-create-preset" class="btn-primary">
+        ➕ Nuovo Preset
+      </button>
       
       <div class="preset-toolbar-actions">
-        <button id="btn-import-presets" class="btn-secondary" title="Importa preset da file JSON" data-i18n="app.import">📥 Importa</button>
-        <button id="btn-export-presets" class="btn-secondary" title="Esporta preset personalizzati" data-i18n="app.export">📤 Esporta</button>
-        <button id="btn-restore-defaults" class="btn-reset" title="Elimina tutti i preset personalizzati" data-i18n="app.restore_defaults">🔄 Ripristina Default</button>
+        <button id="btn-import-presets" class="btn-secondary" title="Importa preset da file JSON">
+          📥 Importa
+        </button>
+        <button id="btn-export-presets" class="btn-secondary" title="Esporta preset personalizzati">
+          📤 Esporta
+        </button>
+        <button id="btn-restore-defaults" class="btn-reset" title="Elimina tutti i preset personalizzati">
+          🔄 Ripristina Default
+        </button>
       </div>
     </div>
 
     <!-- Info Box -->
     <div class="info-box">
-      <p><strong data-i18n="app.how_it_works">💡 Come funziona:</strong></p>
+      <p><strong>💡 Come funziona:</strong></p>
       <ul>
-        <li data-i18n="app.preset_info_1">✅ 17 preset predefiniti pronti all'uso (Scala 40, Briscola, Tennis, ecc.)</li>
-        <li data-i18n="app.preset_info_2">➕ Preset personalizzati illimitati per tutti gli utenti!</li>
-        <li data-i18n="app.preset_info_3">✏️ Modifica i tuoi preset personalizzati</li>
-        <li data-i18n="app.preset_info_4">📋 Duplica qualsiasi preset per usarlo come base</li>
-        <li data-i18n="app.preset_info_5">🏆 Modalità Rounds: Imposta punteggio limite + chi vince (max/min) per determinare la fine di ogni round, poi scegli quanti round servono per vincere la partita</li>
-        <li data-i18n="app.preset_info_6">💾 Esporta/Importa i tuoi preset per condividerli o fare backup</li>
+        <li>✅ <strong>17 preset predefiniti</strong> pronti all'uso (Scala 40, Briscola, Tennis, ecc.)</li>
+        <li>➕ <strong>Preset personalizzati illimitati</strong> per tutti gli utenti!</li>
+        <li>✏️ <strong>Modifica</strong> i tuoi preset personalizzati</li>
+        <li>📋 <strong>Duplica</strong> qualsiasi preset per usarlo come base</li>
+        <li>🏆 <strong>Modalità Rounds</strong>: Imposta punteggio limite + chi vince (max/min) per determinare la fine di ogni round, poi scegli quanti round servono per vincere la partita</li>
+        <li>💾 <strong>Esporta/Importa</strong> i tuoi preset per condividerli o fare backup</li>
       </ul>
     </div>
 
     <!-- Lista Preset -->
-    <div id="preset-list-container" class="preset-list-container"></div>
+    <div id="preset-list-container" class="preset-list-container">
+      <!-- Popolato dinamicamente da JavaScript -->
+    </div>
 
   </div>
 
   <!-- Modal Crea/Modifica Preset -->
   <div id="preset-edit-modal" class="modal-overlay" style="display: none;">
     <div class="modal-content modal-large">
-      <h2 id="preset-modal-title" data-i18n="app.preset_modal_title">➕ Nuovo Preset</h2>
+      <h2 id="preset-modal-title">➕ Nuovo Preset</h2>
+      
       <form id="preset-form" onsubmit="return false;">
         <div class="form-row">
-          <div class="form-group">
-            <label for="preset-name" data-i18n="app.preset_name">Nome Gioco *</label>
-            <input type="text" id="preset-name" placeholder="es: Mio Gioco Preferito" maxlength="50" required>
+          <!-- ✅ NASCOSTO v1.3.3: Il codice viene auto-generato dal nome -->
+          <div class="form-group" style="display:none;">
+            <label for="preset-key">Codice Preset</label>
+            <input 
+              type="text" 
+              id="preset-key" 
+              placeholder="es: mio_gioco" 
+              pattern="[a-z0-9_]+"
+              title="Solo lettere minuscole, numeri e underscore">
+              <!-- ✅ RIMOSSO required - non più necessario -->
+            <small>Auto-generato dal nome del gioco</small>
           </div>
+
           <div class="form-group">
-            <label for="preset-mode" data-i18n="app.preset_mode">Modalità Vittoria *</label>
-            <select id="preset-mode" required>
-              <option value="max" data-i18n="app.preset_mode_max">Vince chi fa PIÙ punti</option>
-              <option value="min" data-i18n="app.preset_mode_min">Vince chi fa MENO punti</option>
-              <option value="rounds" data-i18n="app.preset_mode_rounds">Vince chi vince più ROUNDS</option>
-              <option value="darts" data-i18n="app.preset_mode_darts">Freccette (da punteggio a 0)</option>
-            </select>
+            <label for="preset-name">Nome Gioco *</label>
+            <input 
+              type="text" 
+              id="preset-name" 
+              placeholder="es: Mio Gioco Preferito" 
+              maxlength="50"
+              required>
+            <small>Il codice verrà generato automaticamente da questo nome</small>
           </div>
         </div>
+
         <div class="form-row">
           <div class="form-group">
-            <label for="preset-target" data-i18n="app.preset_target">Punteggio Obiettivo *</label>
-            <input type="number" id="preset-target" min="0" max="999999" placeholder="es: 100" required>
+            <label for="preset-mode">Modalità Vittoria *</label>
+            <select id="preset-mode" required>
+              <option value="max">📈 Vince chi fa PIÙ punti</option>
+              <option value="min">📉 Vince chi fa MENO punti</option>
+              <option value="rounds">🏆 Vince chi vince più ROUNDS</option>
+              <option value="darts">🎯 Freccette (da punteggio a 0)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="preset-target">Punteggio Obiettivo *</label>
+            <input 
+              type="number" 
+              id="preset-target" 
+              min="0" 
+              max="999999"
+              placeholder="es: 100" 
+              required>
           </div>
         </div>
+
+        <!-- 🆕 NUOVO: Campi Rounds -->
+        <div id="preset-round-mode-field" style="display: none;">
+          <div class="form-group">
+            <label for="preset-round-mode">📊 Come si Vince un Round *</label>
+            <select id="preset-round-mode">
+              <option value="max">📈 Vince chi fa PIÙ punti</option>
+              <option value="min">📉 Vince chi fa MENO punti</option>
+            </select>
+            <small>Determina quando finisce un singolo round e chi lo vince</small>
+          </div>
+        </div>
+        
+        <div id="preset-rounds-field" style="display: none;">
+          <div class="form-group">
+            <label for="preset-rounds-target">🏆 Rounds da Vincere *</label>
+            <input 
+              type="number" 
+              id="preset-rounds-target" 
+              min="1" 
+              max="99"
+              placeholder="es: 3" 
+              value="3">
+            <small>Numero di rounds/set/mani necessari per vincere la partita</small>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="preset-category">Categoria</label>
+          <select id="preset-category">
+            <option value="custom">⭐ Personalizzato</option>
+            <option value="carte">🃏 Giochi di Carte</option>
+            <option value="tavolo">🎲 Giochi da Tavolo</option>
+            <option value="sport">⚽ Sport</option>
+            <option value="altri">🎯 Altri</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="preset-description">Descrizione</label>
+          <textarea 
+            id="preset-description" 
+            rows="3" 
+            maxlength="200"
+            placeholder="Breve descrizione del gioco e delle sue regole..."></textarea>
+          <small>Massimo 200 caratteri</small>
+        </div>
+
         <div class="modal-action-buttons">
-          <button type="button" id="btn-close-preset-modal" class="btn-reset" data-i18n="app.preset_cancel">Annulla</button>
-          <button type="button" id="btn-save-preset" class="btn-primary" data-i18n="app.preset_save">💾 Salva Preset</button>
+          <button type="button" id="btn-close-preset-modal" class="btn-reset">
+            Annulla
+          </button>
+          <button type="button" id="btn-save-preset" class="btn-primary">
+            💾 Salva Preset
+          </button>
         </div>
       </form>
     </div>
@@ -140,53 +221,129 @@
 
   <div id="loader-overlay" class="loader-overlay" style="display: flex;">
       <div class="loader-spinner"></div>
-      <p data-i18n="app.loading">Caricamento preset...</p>
+      <p>Caricamento preset...</p>
   </div>
 
   <!-- Bottom Navigation Bar -->
+  <!-- ✅ FIX BUG #19: Aggiunto aria-current e aria-label per accessibilità -->
   <nav class="bottom-nav" role="navigation" aria-label="Navigazione principale">
-    <a href="index.html" class="nav-item" aria-label="Partita"><span class="nav-icon" aria-hidden="true">🃏</span><span class="nav-label" data-i18n="app.nav_game">Partita</span></a>
-    <a href="storico.html" class="nav-item" aria-label="Storico partite"><span class="nav-icon" aria-hidden="true">📜</span><span class="nav-label" data-i18n="app.nav_history">Storico</span></a>
-    <a href="settings.html" class="nav-item" aria-label="Impostazioni"><span class="nav-icon" aria-hidden="true">⚙️</span><span class="nav-label" data-i18n="app.nav_settings">Settings</span></a>
-    <a href="preset-manager.html" class="nav-item active" aria-current="page" aria-label="Gestione preset (pagina corrente)"><span class="nav-icon" aria-hidden="true">🎮</span><span class="nav-label" data-i18n="app.nav_preset">Preset</span></a>
-    <a href="about.html" class="nav-item" aria-label="Info"><span class="nav-icon" aria-hidden="true">ℹ️</span><span class="nav-label" data-i18n="app.nav_about">Info</span></a>
+    <a href="index.html" class="nav-item" aria-label="Partita">
+      <span class="nav-icon" aria-hidden="true">🃏</span>
+      <span class="nav-label">Partita</span>
+    </a>
+    <a href="storico.html" class="nav-item" aria-label="Storico partite">
+      <span class="nav-icon" aria-hidden="true">📜</span>
+      <span class="nav-label">Storico</span>
+    </a>
+    <a href="settings.html" class="nav-item" aria-label="Impostazioni">
+      <span class="nav-icon" aria-hidden="true">⚙️</span>
+      <span class="nav-label">Settings</span>
+    </a>
+    <a href="preset-manager.html" class="nav-item active" aria-current="page" aria-label="Gestione preset (pagina corrente)">
+      <span class="nav-icon" aria-hidden="true">🎮</span>
+      <span class="nav-label">Preset</span>
+    </a>
+    <a href="about.html" class="nav-item" aria-label="Info">
+      <span class="nav-icon" aria-hidden="true">ℹ️</span>
+      <span class="nav-label">Info</span>
+    </a>
   </nav>
 
   <!-- Scripts -->
+  <!-- Storage Helper (Safari private mode support) -->
+  <!-- ✅ FIX BUG #41: Production-safe logging -->
+  <!-- ✅ FIX BUG #43: Polyfills for older browsers -->
   <script src="polyfills.js"></script>
+
   <script src="logger.js"></script>
   <script src="error-handler.js"></script>
+
+  <!-- ✅ FIX AUDIT #3: Aggiunto dark-mode-toggle.js per funzione globale -->
   <script src="dark-mode-toggle.js"></script>
+
   <script src="storage-helper.js"></script>
   <script src="preset-manager.js"></script>
+  
+  <!-- ✅ ADS SYSTEM -->
   <script src="ads-module.js"></script>
-
+  
   <script>
-    // i18next initialization
-    i18next
-      .use(i18nextHttpBackend)
-      .use(i18nextBrowserLanguageDetector)
-      .init({
-        fallbackLng: 'it',
-        debug: false,
-        backend: { loadPath: '/locales/{{lng}}/translation.json' }
-      }, function(err, t) {
-        if(err) console.error(err);
-        updateContent();
-      });
+    // ✅ FIX #3 & #8: Inizializzazione with improved error handling
+    document.addEventListener('DOMContentLoaded', async () => {
+      const loader = document.getElementById('loader-overlay');
+      let hasError = false;
+      
+      if (loader) loader.style.display = 'flex';
 
-    function updateContent() {
-      document.querySelectorAll('[data-i18n]').forEach(el => {
-        const key = el.getAttribute('data-i18n');
-        el.innerHTML = i18next.t(key);
-      });
+      // Update dark mode icon
+      const darkMode = localStorage.getItem('darkMode') === 'true';
+      if (darkMode) {
+        document.body.classList.add('dark-mode');
+      }
+      const iconBtn = document.getElementById('toggle-dark-mode');
+      if (iconBtn) {
+        iconBtn.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
+      }
+
+      // ✅ Initialize Ads
+      try {
+        await AdsModule.init();
+        
+      } catch (error) {
+        Logger.error('Ads init error:', error);
+        hasError = true;
+        
+        // ✅ FIX #8: Mostra messaggio errore user-friendly
+        if (loader) {
+          const loaderText = loader.querySelector('p');
+          if (loaderText) {
+            loaderText.textContent = '⚠️ Errore caricamento. Ricarica la pagina.';
+            loaderText.style.color = '#ff6b6b';
+          }
+        }
+        
+      } finally {
+        // ✅ FIX #12: Render preset list con error handling
+        try {
+          if (window.PresetUI) {
+            PresetUI.renderPresetList();
+            PresetUI.setupEventListeners();
+          } else {
+            Logger.error('PresetUI not loaded!');
+            hasError = true;
+          }
+        } catch (renderError) {
+          Logger.error('Error rendering presets:', renderError);
+          hasError = true;
+        }
+
+        // ✅ FIX #8: Nascondi loader SEMPRE, con delay maggiore se c'è errore
+        if (loader) {
+          const delay = hasError ? 2000 : 300;
+          setTimeout(() => {
+            // ✅ Verifica che l'elemento esista ancora prima di nasconderlo
+            if (loader && loader.parentNode) {
+              loader.style.display = 'none';
+            }
+          }, delay);
+        }
+      }
+    });
+
+    // Service Worker
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('service-worker.js')
+                .then(registration => {
+                    Logger.log('Service Worker registrato con successo:', registration.scope);
+                })
+                .catch(error => {
+                    Logger.error('Registrazione Service Worker fallita:', error);
+                });
+        });
     }
 
-    document.getElementById('select-language').addEventListener('change', (e) => {
-      i18next.changeLanguage(e.target.value, () => {
-        updateContent();
-      });
-    });
+    // ✅ FIX AUDIT #3: Rimossa duplicazione toggleDarkMode - usa quella globale da dark-mode-toggle.js
   </script>
 </body>
 </html>
