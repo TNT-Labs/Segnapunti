@@ -1857,9 +1857,9 @@ const UIModule = (() => {
   // 🎨 TEMI PREMIUM: Lista temi disponibili
   const availableThemes = {
     default: { name: 'Default', premium: false },
-    'theme-ocean': { name: 'Ocean', premium: true },
-    'theme-sunset': { name: 'Sunset', premium: true },
-    'theme-forest': { name: 'Forest', premium: true }
+    'theme-ocean': { name: 'Ocean', premium: false },
+    'theme-sunset': { name: 'Sunset', premium: false },
+    'theme-forest': { name: 'Forest', premium: false }
   };
 
   // 🎨 TEMI PREMIUM: Cambia tema
