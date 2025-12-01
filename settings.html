@@ -148,11 +148,8 @@
         // Initialize Ads Module
         await AdsModule.init();
 
-        // 🎨 TEMI: Aspetta che UIModule sia disponibile, poi inizializza
-        // Usa un breve timeout per assicurarsi che segnapunti.js sia caricato
-        setTimeout(() => {
-          initThemeSelector();
-        }, 100);
+        // 🎨 TEMI: Inizializza selettore temi
+        initThemeSelector();
       } catch (error) {
         Logger.error('App init error:', error);
       }
@@ -161,23 +158,10 @@
     // 🎨 TEMI: Gestione selettore temi
     function initThemeSelector() {
       const themeSelector = document.getElementById('theme-selector');
-      if (!themeSelector) {
-        Logger.warn('[Theme] Theme selector not found');
-        return;
-      }
-
-      // Verifica che le funzioni globali siano disponibili
-      if (typeof window.SegnapuntiApp === 'undefined' || 
-          typeof window.SegnapuntiApp.changeTheme !== 'function' ||
-          typeof window.SegnapuntiApp.getCurrentTheme !== 'function') {
-        Logger.error('[Theme] SegnapuntiApp API not available yet. Retrying...');
-        // Riprova dopo un altro breve intervallo
-        setTimeout(initThemeSelector, 200);
-        return;
-      }
+      if (!themeSelector) return;
 
       // Carica il tema corrente
-      const currentTheme = window.SegnapuntiApp.getCurrentTheme();
+      const currentTheme = getCurrentTheme();
       themeSelector.value = currentTheme;
 
       // Listener per cambio tema
@@ -185,13 +169,10 @@
         const selectedTheme = e.target.value;
 
         // Cambia il tema
-        const success = window.SegnapuntiApp.changeTheme(selectedTheme);
+        const success = changeTheme(selectedTheme);
         if (!success) {
           // Se il cambio è fallito, ripristina il tema precedente
           themeSelector.value = currentTheme;
-          Logger.warn('[Theme] Theme change failed, reverting to:', currentTheme);
-        } else {
-          Logger.log('[Theme] Theme changed to:', selectedTheme);
         }
       });
 
