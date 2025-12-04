@@ -340,8 +340,9 @@ body.dark-mode .preset-card-actions {
 }
 
 /* ✅ FIX: Bottone Elimina occupa entrambe le colonne per allineamento */
-.btn-rimuovi {
+.preset-card-actions .btn-rimuovi {
   grid-column: span 2;
+  margin-left: 0 !important; /* Reset margin-left da segnapunti.css */
 }
 
 /* ✅ FIX v1.2.1: btn-secondary visibile in light mode
