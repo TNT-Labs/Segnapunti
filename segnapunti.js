@@ -1854,90 +1854,6 @@ const UIModule = (() => {
     GameStateModule.saveCurrentState();
   };
 
-  // 🎨 TEMI PREMIUM: Lista temi disponibili
-  const availableThemes = {
-    default: { name: 'Default', premium: false },
-    'theme-ocean': { name: 'Ocean', premium: false },
-    'theme-sunset': { name: 'Sunset', premium: false },
-    'theme-forest': { name: 'Forest', premium: false }
-  };
-
-  // 🎨 TEMI PREMIUM: Cambia tema
-  const changeTheme = (themeName) => {
-    // Verifica se il tema esiste
-    if (!availableThemes[themeName]) {
-      Logger.warn('[Theme] Tema non valido:', themeName);
-      themeName = 'default';
-    }
-
-    // Verifica se il tema richiede premium
-    const themeInfo = availableThemes[themeName];
-    if (themeInfo.premium && !BillingModule.isPremium()) {
-      Logger.warn('[Theme] Tema premium non accessibile senza abbonamento:', themeName);
-      // Mostra modal premium se disponibile
-      if (typeof PremiumUIModule !== 'undefined' && PremiumUIModule.showFeatureLockedModal) {
-        PremiumUIModule.showFeatureLockedModal('Temi Premium', 'Sblocca temi esclusivi con Premium!');
-      }
-      return false;
-    }
-
-    // Rimuovi tutti i temi esistenti
-    Object.keys(availableThemes).forEach(theme => {
-      if (theme !== 'default') {
-        document.body.classList.remove(theme);
-      }
-    });
-
-    // Applica il nuovo tema (se non è default)
-    if (themeName !== 'default') {
-      document.body.classList.add(themeName);
-    }
-
-    // Salva in localStorage
-    try {
-      localStorage.setItem('selectedTheme', themeName);
-      Logger.log('[Theme] Tema salvato:', themeName);
-    } catch (error) {
-      Logger.warn('[Theme] Cannot save to localStorage:', error);
-    }
-
-    return true;
-  };
-
-  // 🎨 TEMI PREMIUM: Carica tema salvato
-  const loadTheme = () => {
-    try {
-      const savedTheme = localStorage.getItem('selectedTheme');
-      if (savedTheme && savedTheme !== 'default') {
-        // Verifica se il tema salvato è premium e l'utente ha perso il premium
-        const themeInfo = availableThemes[savedTheme];
-        if (themeInfo && themeInfo.premium && !BillingModule.isPremium()) {
-          // Reset a default se non più premium
-          Logger.log('[Theme] Tema premium non più accessibile, reset a default');
-          localStorage.setItem('selectedTheme', 'default');
-          return;
-        }
-
-        // Applica il tema salvato
-        if (themeInfo) {
-          document.body.classList.add(savedTheme);
-          Logger.log('[Theme] Tema caricato:', savedTheme);
-        }
-      }
-    } catch (error) {
-      Logger.warn('[Theme] Cannot load from localStorage:', error);
-    }
-  };
-
-  // 🎨 TEMI PREMIUM: Ottieni tema corrente
-  const getCurrentTheme = () => {
-    for (const themeName in availableThemes) {
-      if (themeName !== 'default' && document.body.classList.contains(themeName)) {
-        return themeName;
-      }
-    }
-    return 'default';
-  };
 
   // ✅ FIX BUG #29: Setup escape key listener
   const setupEscapeKey = () => {
@@ -1986,11 +1902,6 @@ const UIModule = (() => {
     hideLoader,
     updateDarkModeIcon,
     toggleDarkMode,
-    // 🎨 TEMI PREMIUM: Funzioni per gestione temi
-    changeTheme,
-    loadTheme,
-    getCurrentTheme,
-    availableThemes,
     setupEscapeKey, // ✅ FIX BUG #29: Esponi setup method
     // ✅ FIX CRITICO #2: Esponi cleanup per gestione memory leaks
     cleanupAll,
@@ -2317,7 +2228,6 @@ const AppController = (() => {
       await DatabaseModule.requestPersistentStorage();
 
       UIModule.updateDarkModeIcon();
-      UIModule.loadTheme(); // 🎨 TEMI PREMIUM: Carica tema salvato
 
       const currentPage = getCurrentPage();
 
@@ -2458,25 +2368,6 @@ window.addEventListener('storage', (e) => {
     UIModule.updateDarkModeIcon();
     Logger.log('[DarkMode] Synced from other tab:', isDark);
   }
-
-  // 🎨 TEMI PREMIUM: Listener per sincronizzazione temi cross-tab
-  if (e.key === 'selectedTheme') {
-    const newTheme = e.newValue || 'default';
-
-    // Rimuovi tutti i temi esistenti
-    Object.keys(UIModule.availableThemes).forEach(theme => {
-      if (theme !== 'default') {
-        document.body.classList.remove(theme);
-      }
-    });
-
-    // Applica il nuovo tema
-    if (newTheme !== 'default') {
-      document.body.classList.add(newTheme);
-    }
-
-    Logger.log('[Theme] Synced from other tab:', newTheme);
-  }
 });
 
 // -------------------------------------------------------------------
@@ -2484,10 +2375,6 @@ window.addEventListener('storage', (e) => {
 // -------------------------------------------------------------------
 window.SegnapuntiApp = {
   toggleDarkMode: () => UIModule.toggleDarkMode(),
-  // 🎨 TEMI PREMIUM: API per gestione temi
-  changeTheme: (themeName) => UIModule.changeTheme(themeName),
-  getCurrentTheme: () => UIModule.getCurrentTheme(),
-  getAvailableThemes: () => UIModule.availableThemes,
   version: '1.1.2',
   debug: {
     getState: () => ({
@@ -2501,6 +2388,3 @@ window.SegnapuntiApp = {
 };
 
 window.toggleDarkMode = () => UIModule.toggleDarkMode();
-// 🎨 TEMI PREMIUM: Funzioni globali per compatibilità
-window.changeTheme = (themeName) => UIModule.changeTheme(themeName);
-window.getCurrentTheme = () => UIModule.getCurrentTheme();

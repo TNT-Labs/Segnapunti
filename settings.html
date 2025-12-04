@@ -135,37 +135,10 @@
       try {
         // Initialize Ads Module
         await AdsModule.init();
-
-        // 🎨 TEMI: Inizializza selettore temi
-        initThemeSelector();
       } catch (error) {
         Logger.error('App init error:', error);
       }
     });
-
-    // 🎨 TEMI: Gestione selettore temi
-    function initThemeSelector() {
-      const themeSelector = document.getElementById('theme-selector');
-      if (!themeSelector) return;
-
-      // Carica il tema corrente
-      const currentTheme = getCurrentTheme();
-      themeSelector.value = currentTheme;
-
-      // Listener per cambio tema
-      themeSelector.addEventListener('change', function(e) {
-        const selectedTheme = e.target.value;
-
-        // Cambia il tema
-        const success = changeTheme(selectedTheme);
-        if (!success) {
-          // Se il cambio è fallito, ripristina il tema precedente
-          themeSelector.value = currentTheme;
-        }
-      });
-
-      Logger.log('[Theme] Selettore temi inizializzato. Tema corrente:', currentTheme);
-    }
   </script>
 </body>
 </html>
