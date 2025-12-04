@@ -309,9 +309,9 @@ body.dark-mode .preset-description {
    ======================================== */
 
 .preset-card-actions {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: 8px;
-  flex-wrap: wrap;
   margin-top: 14px;
   padding-top: 14px;
   border-top: 2px solid #f0f0f0;
@@ -326,12 +326,16 @@ body.dark-mode .preset-card-actions {
   font-size: 0.88em;
   min-height: 38px;
   font-weight: 600;
-  flex: 1 1 auto;
-  min-width: 100px;
+  min-width: 0;
   /* ✅ FIX OVERFLOW TESTO */
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* ✅ FIX: Bottone Elimina occupa entrambe le colonne per allineamento */
+.btn-rimuovi {
+  grid-column: span 2;
 }
 
 /* ✅ FIX v1.2.1: btn-secondary visibile in light mode
@@ -573,10 +577,11 @@ body.dark-mode .preset-list-container:empty::after {
 
   .preset-card-actions {
     gap: 6px;
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .btn-small {
-    min-width: 80px;
+    min-width: 0;
     font-size: 0.85em;
     padding: 8px 10px;
   }
