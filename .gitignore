@@ -1,19 +1,25 @@
-# Dependencies
+# React Native / Node
 node_modules/
-package-lock.json
+npm-debug.log
+yarn-error.log
 
-# Capacitor
-android/
-ios/
-www/
-.capacitor/
+# Android
+android/app/build
+android/build
+android/.gradle
+android/gradle.properties
+*.keystore
+!debug.keystore
 
-# Build outputs
-*.apk
-*.aab
-*.ipa
-dist/
-build/
+# iOS
+ios/Pods/
+ios/build
+*.xcworkspace
+!default.xcworkspace
+
+# OS
+.DS_Store
+Thumbs.db
 
 # IDE
 .idea/
@@ -22,22 +28,10 @@ build/
 *.swo
 *~
 
-# OS
-.DS_Store
-Thumbs.db
-
-# Keystores (IMPORTANTE: non committare mai le chiavi!)
-*.keystore
-*.jks
-gradle.properties
-
 # Logs
 *.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
 
-# Temp files
+# Temp
 *.tmp
 *.temp
 .cache/
