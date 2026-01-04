@@ -1,409 +1,297 @@
-# 🃏 Segnapunti - App per Gestione Punteggi
+# 🃏 Segnapunti - React Native App
+
+**L'app segnapunti mobile nativa per Android**
 
 ![Version](https://img.shields.io/badge/version-1.3.0-blue.svg)
-![PWA](https://img.shields.io/badge/PWA-Ready-green.svg)
+![React Native](https://img.shields.io/badge/React%20Native-0.73.2-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 
-**Segnapunti** è un'applicazione web progressiva (PWA) completa per gestire i punteggi di partite a carte, giochi da tavolo, sport e molto altro. Supporta modalità di gioco multiple, preset personalizzabili illimitati, statistiche avanzate, export PDF/CSV e temi personalizzati.
+---
+
+## 📱 Panoramica
+
+Segnapunti è un'app React Native nativa per gestire punteggi di partite a carte, giochi da tavolo, sport e altro.
+
+### ✨ Caratteristiche
+
+- 🎯 **Multi-modalità**: Max, Min, Rounds, Darts
+- 📱 **UI Nativa Android** completamente funzionante
+- 🌙 **Dark Mode** con switch istantaneo
+- 💾 **Storage Locale** (AsyncStorage)
+- 📊 **Storico Partite** con dettagli completi
+- 🎮 **10 Preset Predefiniti** + preset personalizzabili
+- 🔒 **100% Privacy** - zero raccolta dati
 
 ---
 
-## 📋 Indice
+## 🚀 Quick Start (Windows)
 
-- [Caratteristiche](#-caratteristiche)
-- [Demo e Screenshot](#-demo-e-screenshot)
-- [Installazione](#-installazione)
-- [Uso](#-uso)
-- [Modalità di Gioco](#-modalità-di-gioco)
-- [Architettura](#️-architettura)
-- [Tecnologie Utilizzate](#-tecnologie-utilizzate)
-- [Browser Supportati](#-browser-supportati)
-- [Roadmap](#-roadmap)
-- [Contribuire](#-contribuire)
-- [Licenza](#-licenza)
+### Prerequisiti
 
----
+1. **Node.js 18+** → https://nodejs.org/
+2. **Java JDK 17** → https://adoptium.net/
+3. **Android Studio** → https://developer.android.com/studio
 
-## ✨ Caratteristiche
-
-### 🎮 Funzionalità Core
-
-- **Multi-Modalità Punteggio**
-  - 🎯 **Max**: Vince chi raggiunge per primo il punteggio massimo
-  - ⏱️ **Min**: Vince chi arriva a 0 o al punteggio minimo
-  - 🔄 **Rounds**: Sistema a round multipli con vincitori per round
-  - 🎯 **Darts**: Modalità specifica per freccette (501, 301)
-
-- **Gestione Giocatori**
-  - Aggiungi/Rimuovi giocatori dinamicamente (2-8 giocatori)
-  - Modifica punteggi con pulsanti +/- personalizzabili
-  - Validazione nomi anti-duplicati
-  - Supporto emoji nei nomi 😎
-
-- **Preset di Gioco**
-  - 9+ preset predefiniti (Scala 40, Burraco, Scopa, Tennis, ecc.)
-  - Creazione preset personalizzati illimitati
-  - Import/Export preset in JSON
-  - Categorizzazione: Carte 🃏, Tavolo 🎲, Sport ⚽, Altri 🎯
-
-- **Storico Partite**
-  - Salvataggio automatico partite completate
-  - Visualizzazione cronologica con dettagli completi
-  - Ricerca e filtri per gioco/giocatore
-  - Cancellazione singola o totale
-  - Export PDF/CSV
-
-- **Statistiche Avanzate**
-  - 📊 Grafici interattivi (Chart.js)
-  - 🏆 Win rate per giocatore
-  - 📈 Evoluzione punteggi nel tempo
-  - 🎯 Distribuzione modalità di gioco
-  - 📅 Timeline partite giocate
-
-- **Dark Mode** 🌙
-  - Toggle istantaneo tra modalità chiara/scura
-  - Risparmio batteria su schermi OLED
-  - Preferenza salvata localmente
-
-- **PWA (Progressive Web App)**
-  - Installabile come app nativa (iOS/Android)
-  - Funzionamento offline con Service Worker
-  - Icone ottimizzate per home screen
-  - Notifiche push (futuro)
-
-- **Temi Personalizzati** 🎨
-  - Tema Default
-  - Tema Ocean
-  - Tema Sunset
-  - Tema Forest
-
-- **Monetizzazione**
-  - Banner pubblicitari
-  - Interstitial ads
-
----
-
-## 🚀 Installazione
-
-### Opzione 1: Installazione Web (Consigliata)
-
-1. Visita l'app tramite browser
-2. Su **iOS Safari**: Tocca `Condividi` → `Aggiungi a Home`
-3. Su **Android Chrome**: Tocca menu → `Installa App`
-4. L'app sarà disponibile come icona sulla home screen!
-
-### Opzione 2: Sviluppo Locale
-
-Clona il repository:
+### Setup Rapido
 
 ```bash
+# 1. Clone repository
 git clone https://github.com/TNT-Labs/Segnapunti.git
 cd Segnapunti
+
+# 2. Inizializza progetto Android (PRIMA VOLTA)
+init-react-native-android.bat
+
+# 3. Installa dipendenze
+npm install
+
+# 4. Build APK
+build-react-native.bat
 ```
-
-Opzioni per servire l'app:
-
-**Con Python:**
-```bash
-python3 -m http.server 8000
-# Apri http://localhost:8000
-```
-
-**Con Node.js (http-server):**
-```bash
-npm install -g http-server
-http-server -p 8000
-# Apri http://localhost:8000
-```
-
-**Con VS Code Live Server:**
-1. Installa estensione "Live Server"
-2. Click destro su `index.html` → "Open with Live Server"
 
 ---
 
-## 📖 Uso
+## 📦 Script Automatici (Windows)
 
-### Avviare una Nuova Partita
+### `init-react-native-android.bat`
+Inizializza il progetto Android nativo (eseguire UNA SOLA VOLTA).
 
-1. **Seleziona Gioco**
-   - Scegli un preset predefinito dal menu a tendina
-   - Oppure crea un preset personalizzato da tab "Preset"
+```bash
+init-react-native-android.bat
+```
 
-2. **Aggiungi Giocatori**
-   - Inserisci nome giocatore e clicca `+`
-   - Aggiungi da 2 a 8 giocatori
-   - Nomi emoji supportati: "Mario 🍄", "Luigi 👻"
+### `build-react-native.bat`
+Build automatica APK Debug o Release.
 
-3. **Gioca!**
-   - Usa pulsanti `+` / `-` per aggiornare punteggi
-   - Il gioco termina automaticamente al raggiungimento obiettivo
-   - 🏆 Trofeo dorato appare per il vincitore
+```bash
+build-react-native.bat
+# Scegli: 1=Debug, 2=Release
+```
 
-4. **Salva Partita**
-   - Clicca "💾 Salva Partita" per aggiungere allo storico
-   - Partita salvata include: timestamp, giocatori, punteggi, durata
+**Output:**
+- Debug: `android/app/build/outputs/apk/debug/app-debug.apk`
+- Release: `android/app/build/outputs/apk/release/app-release.apk`
 
-### Modalità di Gioco Dettagliate
+### `run-android.bat`
+Avvia app su emulatore o dispositivo fisico.
 
-#### 🎯 Modalità Max (Punteggio Massimo)
-Esempio: Burraco (target: 2005 punti)
-
-- Vince chi raggiunge **per primo** il punteggio target
-- Punteggio cresce: 0 → 2005
-- Usa pulsanti `+` per incrementare
-
-#### ⏱️ Modalità Min (Punteggio Minimo)
-Esempio: Scala 40 (target: 101 punti)
-
-- Vince chi raggiunge **per primo** il target (o chi ha meno punti)
-- Punteggio cresce ma vince chi finisce prima: 0 → 101
-- Perde chi supera il target
-
-#### 🔄 Modalità Rounds (Round Multipli)
-Esempio: Scopa (target round: 21 pt, rounds da vincere: 2)
-
-- Ogni round finisce al raggiungimento target
-- Vince il round chi fa più punti (o meno, configurabile)
-- Vince la partita chi vince N rounds
-
-#### 🎯 Modalità Darts (Freccette)
-Esempio: Freccette 501
-
-- Parti da 501 punti
-- Scala **verso lo 0** esatto
-- Se vai sotto zero: **BUST!** → Torni al punteggio precedente
-- Vince chi arriva esattamente a 0
-
----
-
-## 🎮 Modalità di Gioco
-
-### Preset Predefiniti
-
-#### 🃏 Giochi di Carte
-
-| Gioco | Modalità | Target | Descrizione |
-|-------|----------|--------|-------------|
-| Scala 40 | Min | 101 | Perde chi raggiunge 101 punti |
-| Burraco | Max | 2005 | Vince chi totalizza 2005 punti |
-| Briscola | Max | 11 | Vince chi arriva a 11 vittorie |
-| Scopa | Rounds | 21 pt/round, 2 rounds | Vince 2 round |
-| Pinnacola | Max | 1500 | Totalizza 1500 punti |
-| Poker (Mani) | Rounds | 10k chips/mano, 5 mani | Vince 5 mani |
-
-#### ⚽ Sport
-
-| Gioco | Modalità | Target | Descrizione |
-|-------|----------|--------|-------------|
-| Tennis (Set) | Rounds | 6 game/set, 2 set | Vince 2 set |
-| Pallavolo (Set) | Rounds | 25 pt/set, 3 set | Vince 3 set |
-
-#### 🎯 Altri
-
-| Gioco | Modalità | Target | Descrizione |
-|-------|----------|--------|-------------|
-| Freccette 501 | Darts | 501 | Scala da 501 a 0 esatto |
-| Freccette 301 | Darts | 301 | Scala da 301 a 0 esatto |
+```bash
+run-android.bat
+```
 
 ---
 
 ## 🏗️ Architettura
 
-### Struttura File
+### Struttura Completa
 
 ```
-Segnapunti/
-├── index.html                  # Pagina principale partita
-├── settings.html               # Impostazioni
-├── storico.html                # Storico partite
-├── preset-manager.html         # Gestione preset
-├── statistiche.html            # Statistiche avanzate
-├── manifest.json               # PWA manifest
-├── service-worker.js           # Service Worker per offline
-│
-├── CSS/
-│   ├── segnapunti.css          # Stili principali
-│   ├── segnapunti-mobile.css   # Responsive mobile
-│   ├── utility-classes.css     # Utility CSS reusable
-│   └── preset-manager.css      # Stili preset manager
-│
-├── JavaScript/
-│   ├── segnapunti.js           # Core game logic
-│   ├── logger.js               # Production-safe logger
-│   ├── error-handler.js        # Global error boundary
-│   ├── storage-helper.js       # Storage abstraction
-│   ├── polyfills.js            # Browser compatibility
-│   ├── dark-mode-toggle.js     # Dark mode standalone
-│   ├── preset-manager.js       # Preset CRUD operations
-│   ├── ads-module.js           # AdMob ads management
-│   ├── export-module.js        # PDF/CSV export
-│   └── statistics-module.js    # Statistics charts
-│
-└── Docs/
-    ├── README.md               # Questo file
-    └── BUGS_AUDIT_REPORT.md    # Report audit completo
+src/
+├── App.js                      # Entry point con providers
+├── navigation/
+│   └── AppNavigator.js         # Bottom Tab Navigation
+├── screens/
+│   ├── GameScreen.js           # ✅ Partita completa
+│   ├── SettingsScreen.js       # ✅ Setup + Dark mode
+│   ├── HistoryScreen.js        # ✅ Storico partite
+│   ├── PresetManagerScreen.js  # ✅ Gestione preset
+│   └── AboutScreen.js          # ✅ Info app
+├── components/
+│   ├── PlayerCard.js           # ✅ Card giocatore interattiva
+│   ├── PresetCard.js           # ✅ Card preset selezionabile
+│   └── ScoreModal.js           # ✅ Modal aggiungi punti
+├── contexts/
+│   ├── ThemeContext.js         # ✅ Dark mode + tema
+│   └── GameContext.js          # ✅ Stato gioco globale
+├── services/
+│   └── StorageService.js       # ✅ AsyncStorage wrapper
+└── constants/
+    ├── colors.js               # ✅ Palette colori
+    └── presets.js              # ✅ 10 preset predefiniti
 ```
 
-### Pattern Architetturali
+### Features Implementate
 
-#### Module Pattern
-```javascript
-const ModuleName = (() => {
-  // Private variables
-  let privateVar = 0;
+✅ **GameScreen**
+- Lista giocatori con punteggi
+- Pulsanti +/- per modificare punteggio
+- Modal custom score
+- Rilevamento vittoria automatico
+- Salvataggio partita nello storico
 
-  // Public API
-  return {
-    publicMethod: () => { /*...*/ }
-  };
-})();
+✅ **SettingsScreen**
+- Selezione preset (10 predefiniti)
+- Input nomi giocatori (2-8)
+- Dark mode toggle
+- Avvio partita
+
+✅ **HistoryScreen**
+- Lista storico partite
+- Dettagli partita con vincitore
+- Elimina singola partita
+- Elimina tutto lo storico
+
+✅ **PresetManagerScreen**
+- Visualizzazione preset predefiniti
+- Creazione preset personalizzati
+- Eliminazione preset custom
+
+✅ **Componenti UI**
+- PlayerCard (interattiva)
+- PresetCard (selezionabile)
+- ScoreModal (quick scores)
+
+---
+
+## 🎮 Preset Predefiniti
+
+| Gioco | Categoria | Modalità | Target |
+|-------|-----------|----------|--------|
+| Scala 40 | 🃏 Carte | Min | 101 |
+| Burraco | 🃏 Carte | Max | 2005 |
+| Scopa | 🃏 Carte | Rounds | 2 rounds (21pt) |
+| Briscola | 🃏 Carte | Max | 11 |
+| Pinnacola | 🃏 Carte | Max | 1500 |
+| Poker | 🃏 Carte | Rounds | 5 mani (10k) |
+| Tennis | ⚽ Sport | Rounds | 2 set (6 game) |
+| Pallavolo | ⚽ Sport | Rounds | 3 set (25pt) |
+| Freccette 501 | 🎯 Altri | Darts | 501→0 |
+| Freccette 301 | 🎯 Altri | Darts | 301→0 |
+
+---
+
+## 🔧 Configurazione Android
+
+### Variabili d'Ambiente (Windows)
+
+```
+JAVA_HOME=C:\Program Files\Eclipse Adoptium\jdk-17.0.9+10
+ANDROID_HOME=C:\Users\TuoNome\AppData\Local\Android\Sdk
+
+PATH:
+  %JAVA_HOME%\bin
+  %ANDROID_HOME%\platform-tools
+  %ANDROID_HOME%\emulator
+  %ANDROID_HOME%\cmdline-tools\latest\bin
 ```
 
-#### Storage Abstraction (3-Layer Fallback)
+### Build Release (Firma APK)
+
+#### 1. Crea Keystore
+
+```bash
+cd android\app
+keytool -genkey -v -keystore segnapunti-release.keystore ^
+  -alias segnapunti -keyalg RSA -keysize 2048 -validity 10000
 ```
-1. IndexedDB (preferito) → Async, 50MB+
-2. localStorage (fallback) → Sync, 5-10MB
-3. Memory (Safari private) → Session only
+
+#### 2. Configura Firma
+
+Crea `android/gradle.properties`:
+
+```properties
+SEGNAPUNTI_UPLOAD_STORE_FILE=segnapunti-release.keystore
+SEGNAPUNTI_UPLOAD_KEY_ALIAS=segnapunti
+SEGNAPUNTI_UPLOAD_STORE_PASSWORD=your_store_password
+SEGNAPUNTI_UPLOAD_KEY_PASSWORD=your_key_password
+```
+
+⚠️ **NON committare `gradle.properties` su Git!**
+
+#### 3. Aggiorna `android/app/build.gradle`
+
+```gradle
+android {
+    ...
+    signingConfigs {
+        release {
+            storeFile file(SEGNAPUNTI_UPLOAD_STORE_FILE)
+            storePassword SEGNAPUNTI_UPLOAD_STORE_PASSWORD
+            keyAlias SEGNAPUNTI_UPLOAD_KEY_ALIAS
+            keyPassword SEGNAPUNTI_UPLOAD_KEY_PASSWORD
+        }
+    }
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+            ...
+        }
+    }
+}
 ```
 
 ---
 
-## 🛠️ Tecnologie Utilizzate
+## 📱 Test su Dispositivo
 
-### Frontend
-- **HTML5**: Semantic markup, ARIA labels
-- **CSS3**: Variables, Grid, Flexbox, Animations
-- **JavaScript ES6+**: Modules, Async/Await
+### Emulatore Android
 
-### Libraries
-- **Chart.js 4.4.1**: Grafici statistiche interattivi
-- **jsPDF 2.x**: Generazione PDF per export
+```bash
+# Avvia emulatore da Android Studio
+# Oppure da cmd:
+emulator -avd Pixel_5_API_33
 
-### APIs
-- **IndexedDB API**: Storage persistente asincrono
-- **localStorage API**: Storage sincrono fallback
-- **Service Worker API**: Offline support
-- **Web App Manifest**: PWA installation
-- **Payment Request API**: In-app purchases
+# Run app
+run-android.bat
+```
 
----
+### Dispositivo Fisico
 
-## 🌐 Browser Supportati
+```bash
+# 1. Abilita Debug USB sul dispositivo
+# 2. Connetti via USB
+# 3. Verifica connessione
+adb devices
 
-| Browser | Versione Minima | Supporto |
-|---------|----------------|----------|
-| Chrome (Desktop) | 80+ | ✅ Completo |
-| Chrome (Mobile) | 80+ | ✅ PWA installabile |
-| Safari (Desktop) | 14+ | ✅ Supportato |
-| Safari (iOS) | 14+ | ✅ PWA installabile |
-| Firefox | 75+ | ✅ Completo |
-| Edge (Chromium) | 80+ | ✅ Completo |
-| IE 11 | 11 | ⚠️ Supporto limitato |
-
-**Polyfills Inclusi Per:**
-- Object.assign (IE11)
-- Array.from (IE11)
-- Array.includes (IE11)
-- String.prototype.includes (IE11)
-- Promise.finally (IE11)
+# 4. Run app
+run-android.bat
+```
 
 ---
 
-## 🗺️ Roadmap
+## 🐛 Troubleshooting
 
-### ✅ v1.3 (Attuale)
-- [x] Bug fixes multipli (41+ fixes)
-- [x] Safari private mode support
-- [x] Security hardening (XSS protection)
-- [x] Performance optimizations
+### Metro Bundler Error
 
-### 🚧 v1.4 (In Pianificazione)
-- [ ] Tests automatizzati (Jest/Mocha)
-- [ ] Error monitoring (Sentry)
-- [ ] Cloud backup (Firebase/Supabase)
+```bash
+npm start -- --reset-cache
+```
 
-### 💡 v2.0 (Futuro)
-- [ ] Multi-player online (WebSockets)
-- [ ] Internazionalizzazione (i18n): EN, ES, FR
-- [ ] TypeScript migration
+### Gradle Build Failed
 
----
+```bash
+cd android
+gradlew clean
+cd ..
+npm run android
+```
 
-## 🤝 Contribuire
+### Android folder not found
 
-Contributi sono benvenuti! Segui questi passaggi:
-
-1. **Fork** del repository
-2. **Crea branch** per feature: `git checkout -b feature/nome-feature`
-3. **Commit** con messaggi descrittivi
-4. **Push** al tuo fork
-5. **Apri Pull Request** su GitHub
-
-### Coding Style
-- **JavaScript**: 2 spazi indentazione, camelCase
-- **CSS**: 2 spazi indentazione, kebab-case
-- **Error Handling**: Sempre try-catch per operazioni async
-- **Logging**: Usa `Logger.log/warn/error`
-
----
-
-## 🐛 Segnalare Bug
-
-Hai trovato un bug? Apri un issue su GitHub con:
-- Descrizione del problema
-- Passaggi per riprodurlo
-- Comportamento atteso vs attuale
-- Screenshot se possibile
-- Browser/OS/Device info
+```bash
+# Esegui script init
+init-react-native-android.bat
+```
 
 ---
 
 ## 📄 Licenza
 
-Questo progetto è rilasciato sotto licenza **MIT License**.
+MIT License - vedi [LICENSE](LICENSE)
 
 ---
 
 ## 🙏 Ringraziamenti
 
-- **Chart.js Team**: Per la libreria grafici
-- **jsPDF Team**: Per export PDF
-- **Google Fonts**: Inter font family
-- **Community**: Feedback e testing
+- React Native Team
+- React Navigation
+- AsyncStorage
+- Community open source
 
 ---
-
-## 📞 Contatti
-
-- **GitHub**: [@TNT-Labs](https://github.com/TNT-Labs)
-- **Issues**: [GitHub Issues](https://github.com/TNT-Labs/Segnapunti/issues)
-
----
-
-## ❓ FAQ
-
-### Come installo l'app come PWA?
-Su Chrome/Edge: Apri l'app, clicca sull'icona `+` nella barra URL → "Installa Segnapunti".
-Su Safari iOS: Apri Safari → Menu condividi → "Aggiungi a Home".
-
-### L'app funziona offline?
-Sì! Grazie al Service Worker, l'app funziona completamente offline dopo la prima visita.
-
-### Come posso esportare i miei dati?
-Vai a "Storico" → "Esporta Dati" → Scegli PDF o CSV.
-
-### I miei dati sono al sicuro?
-Sì, tutti i dati sono salvati localmente sul tuo device. Massima privacy.
-
----
-
-<div align="center">
 
 **Fatto con ❤️ da TNT Labs**
 
 ⭐ Se ti piace il progetto, lascia una stella su GitHub!
 
-[🐛 Report Bug](https://github.com/TNT-Labs/Segnapunti/issues) • [📖 Audit Report](BUGS_AUDIT_REPORT.md)
-
-</div>
+[🐛 Report Bug](https://github.com/TNT-Labs/Segnapunti/issues)
