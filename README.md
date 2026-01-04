@@ -120,6 +120,33 @@ http-server -p 8000
 1. Installa estensione "Live Server"
 2. Click destro su `index.html` → "Open with Live Server"
 
+### Opzione 3: Build Android Nativa (Windows)
+
+Trasforma l'app in un APK Android nativo:
+
+**Quick Start:**
+```bash
+# 1. Esegui lo script automatico
+.\build-android.bat
+
+# 2. Segui le istruzioni a schermo
+
+# 3. APK generato in:
+# android\app\build\outputs\apk\release\app-release.apk
+```
+
+**Prerequisiti:**
+- Node.js (LTS 20.x+)
+- Java JDK 17
+- Android Studio (consigliato)
+
+**Documentazione completa:** [ANDROID_BUILD_GUIDE.md](ANDROID_BUILD_GUIDE.md)
+
+**Script disponibili:**
+- `build-android.bat` - Build APK automatica (debug/release)
+- `open-android-studio.bat` - Apri progetto in Android Studio
+- `clean-android.bat` - Pulizia file di build
+
 ---
 
 ## 📖 Uso
