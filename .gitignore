@@ -1,19 +1,6 @@
-# Dependencies
-node_modules/
-package-lock.json
-
-# Capacitor
-android/
-ios/
-www/
-.capacitor/
-
-# Build outputs
-*.apk
-*.aab
-*.ipa
-dist/
-build/
+# OS
+.DS_Store
+Thumbs.db
 
 # IDE
 .idea/
@@ -21,15 +8,6 @@ build/
 *.swp
 *.swo
 *~
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Keystores (IMPORTANTE: non committare mai le chiavi!)
-*.keystore
-*.jks
-gradle.properties
 
 # Logs
 *.log
