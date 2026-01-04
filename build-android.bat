@@ -95,8 +95,18 @@ if not exist "android" (
     echo.
 )
 
+REM Prepara file web per Capacitor
+echo [STEP 3/6] Preparazione file web...
+echo.
+call prepare-web.bat
+if !errorlevel! neq 0 (
+    echo [ERRORE] Preparazione file web fallita!
+    pause
+    exit /b 1
+)
+
 REM Sincronizza file web con Android
-echo [STEP 3/5] Sincronizzazione file web con Android...
+echo [STEP 4/6] Sincronizzazione file web con Android...
 echo.
 call npx cap sync android
 if !errorlevel! neq 0 (
@@ -109,7 +119,7 @@ echo [OK] Sincronizzazione completata
 echo.
 
 REM Chiedi se build debug o release
-echo [STEP 4/5] Scegli il tipo di build:
+echo [STEP 5/6] Scegli il tipo di build:
 echo.
 echo 1. Debug (non firmato, per test^)
 echo 2. Release (firmato, per distribuzione^)
@@ -119,7 +129,7 @@ set BUILD_TYPE=!errorlevel!
 
 if !BUILD_TYPE!==1 (
     echo.
-    echo [STEP 5/5] Build APK Debug in corso...
+    echo [STEP 6/6] Build APK Debug in corso...
     echo.
     cd android
     call gradlew.bat assembleDebug
@@ -147,7 +157,7 @@ if !BUILD_TYPE!==1 (
 
 ) else (
     echo.
-    echo [STEP 5/5] Build APK Release in corso...
+    echo [STEP 6/6] Build APK Release in corso...
     echo.
 
     REM Verifica se esiste keystore

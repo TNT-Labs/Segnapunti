@@ -1,8 +1,7 @@
 {
   "appId": "com.tntlabs.segnapunti",
   "appName": "Segnapunti",
-  "webDir": ".",
-  "bundledWebRuntime": false,
+  "webDir": "www",
   "backgroundColor": "#212121",
   "android": {
     "backgroundColor": "#212121",

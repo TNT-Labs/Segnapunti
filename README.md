@@ -144,6 +144,7 @@ Trasforma l'app in un APK Android nativo:
 
 **Script disponibili:**
 - `build-android.bat` - Build APK automatica (debug/release)
+- `prepare-web.bat` - Preparazione file web (chiamato automaticamente)
 - `open-android-studio.bat` - Apri progetto in Android Studio
 - `clean-android.bat` - Pulizia file di build
 
