@@ -14,10 +14,23 @@ echo.
 echo Creating temporary React Native project...
 echo.
 
-call npx react-native init SegnapuntiTemp --skip-install
+REM Usa il comando aggiornato
+call npx @react-native-community/cli init SegnapuntiTemp --skip-install
 
 if %errorlevel% neq 0 (
+    echo.
     echo [ERROR] Failed to create React Native project!
+    echo.
+    echo Alternative method:
+    echo 1. Create a new React Native project manually:
+    echo    npx react-native@latest init TempProject
+    echo.
+    echo 2. Copy the android folder:
+    echo    xcopy /E /I /Y TempProject\android android
+    echo.
+    echo 3. Delete temp project:
+    echo    rmdir /s /q TempProject
+    echo.
     pause
     exit /b 1
 )
@@ -27,6 +40,12 @@ echo Copying android folder...
 echo.
 
 xcopy /E /I /Y SegnapuntiTemp\android android
+
+if %errorlevel% neq 0 (
+    echo [ERROR] Failed to copy android folder!
+    pause
+    exit /b 1
+)
 
 echo.
 echo Cleaning up temporary files...
