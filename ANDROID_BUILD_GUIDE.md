@@ -95,7 +95,7 @@ Gradle verrà installato automaticamente da Capacitor.
 
 ## 🪟 Build Automatica (Windows)
 
-Sono disponibili tre script BAT per semplificare il workflow:
+Sono disponibili quattro script BAT per semplificare il workflow:
 
 ### 1. `build-android.bat` - Build APK Automatica
 
@@ -103,6 +103,7 @@ Sono disponibili tre script BAT per semplificare il workflow:
 - ✅ Verifica prerequisiti (Node.js, Java, Android SDK)
 - ✅ Installa dipendenze npm automaticamente
 - ✅ Inizializza progetto Android con Capacitor
+- ✅ Prepara file web (copia in directory `www/`)
 - ✅ Sincronizza file web con progetto Android
 - ✅ Compila APK (debug o release)
 - ✅ Gestisce firma keystore per release
@@ -141,7 +142,22 @@ Sono disponibili tre script BAT per semplificare il workflow:
 .\open-android-studio.bat
 ```
 
-### 3. `clean-android.bat` - Pulizia Build
+### 3. `prepare-web.bat` - Preparazione File Web
+
+**Funzionalità:**
+- Copia tutti i file web (HTML, CSS, JS, immagini) nella directory `www/`
+- Copia cartelle (locales, screenshots, .well-known)
+- Chiamato automaticamente da `build-android.bat`
+
+**Uso:**
+```bash
+# Normalmente non serve eseguirlo manualmente
+.\prepare-web.bat
+```
+
+**Nota:** Questo script viene eseguito automaticamente da `build-android.bat`. Utile solo se vuoi preparare i file manualmente.
+
+### 4. `clean-android.bat` - Pulizia Build
 
 **Funzionalità:**
 - Elimina tutti i file di build
@@ -171,13 +187,19 @@ npm install
 npx cap add android
 ```
 
-### 3. Sincronizza file web
+### 3. Prepara file web
+
+```bash
+.\prepare-web.bat
+```
+
+### 4. Sincronizza file web
 
 ```bash
 npx cap sync android
 ```
 
-### 4. Build APK
+### 5. Build APK
 
 **Debug:**
 ```bash
