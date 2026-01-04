@@ -1,19 +1,146 @@
-import React from 'react';
-import {View, Text, StyleSheet} from 'react-native';
+import React, {useState} from 'react';
+import {View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert} from 'react-native';
 import {useTheme} from '../contexts/ThemeContext';
+import {useGame} from '../contexts/GameContext';
+import PresetCard from '../components/PresetCard';
+import {DEFAULT_PRESETS} from '../constants/presets';
 
 const PresetManagerScreen = () => {
   const {theme} = useTheme();
+  const {getAllPresets, addCustomPreset, removeCustomPreset, customPresets} = useGame();
+
+  const [showForm, setShowForm] = useState(false);
+  const [newPreset, setNewPreset] = useState({
+    name: '',
+    icon: '🎮',
+    category: 'other',
+    mode: 'max',
+    targetScore: 100,
+    defaultPlayers: 2,
+  });
+
+  const allPresets = getAllPresets();
+
+  const handleCreatePreset = () => {
+    if (!newPreset.name.trim()) {
+      Alert.alert('Errore', 'Inserisci un nome per il preset!');
+      return;
+    }
+
+    addCustomPreset({
+      ...newPreset,
+      incrementValues: [5, 10, 20, 50],
+    });
+
+    setNewPreset({
+      name: '',
+      icon: '🎮',
+      category: 'other',
+      mode: 'max',
+      targetScore: 100,
+      defaultPlayers: 2,
+    });
+    setShowForm(false);
+    Alert.alert('Successo', 'Preset creato con successo!');
+  };
+
+  const handleDeletePreset = presetId => {
+    Alert.alert(
+      'Elimina Preset',
+      'Vuoi davvero eliminare questo preset personalizzato?',
+      [
+        {text: 'Annulla', style: 'cancel'},
+        {text: 'Elimina', style: 'destructive', onPress: () => removeCustomPreset(presetId)},
+      ],
+    );
+  };
+
   return (
-    <View style={[styles.container, {backgroundColor: theme.colors.background}]}>
-      <Text style={[styles.text, {color: theme.colors.text}]}>🎮 Gestione Preset</Text>
-    </View>
+    <ScrollView style={[styles.container, {backgroundColor: theme.colors.background}]}>
+      <View style={styles.content}>
+        <TouchableOpacity
+          style={[styles.addButton, {backgroundColor: theme.colors.primary}]}
+          onPress={() => setShowForm(!showForm)}>
+          <Text style={styles.addButtonText}>
+            {showForm ? '❌ Annulla' : '➕ Crea Preset Personalizzato'}
+          </Text>
+        </TouchableOpacity>
+
+        {showForm && (
+          <View style={[styles.form, {backgroundColor: theme.colors.card}]}>
+            <TextInput
+              style={[styles.input, {backgroundColor: theme.colors.background, color: theme.colors.text, borderColor: theme.colors.border}]}
+              placeholder="Nome preset"
+              placeholderTextColor={theme.colors.textSecondary}
+              value={newPreset.name}
+              onChangeText={text => setNewPreset({...newPreset, name: text})}
+            />
+
+            <TextInput
+              style={[styles.input, {backgroundColor: theme.colors.background, color: theme.colors.text, borderColor: theme.colors.border}]}
+              placeholder="Icona (emoji)"
+              placeholderTextColor={theme.colors.textSecondary}
+              value={newPreset.icon}
+              onChangeText={text => setNewPreset({...newPreset, icon: text})}
+            />
+
+            <TextInput
+              style={[styles.input, {backgroundColor: theme.colors.background, color: theme.colors.text, borderColor: theme.colors.border}]}
+              placeholder="Punteggio target"
+              placeholderTextColor={theme.colors.textSecondary}
+              keyboardType="numeric"
+              value={String(newPreset.targetScore)}
+              onChangeText={text => setNewPreset({...newPreset, targetScore: parseInt(text, 10) || 0})}
+            />
+
+            <TouchableOpacity
+              style={[styles.createButton, {backgroundColor: theme.colors.success}]}
+              onPress={handleCreatePreset}>
+              <Text style={styles.createButtonText}>✅ Crea Preset</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        <Text style={[styles.sectionTitle, {color: theme.colors.text}]}>Preset Predefiniti</Text>
+        {DEFAULT_PRESETS.map(preset => (
+          <PresetCard key={preset.id} preset={preset} onPress={() => {}} />
+        ))}
+
+        {customPresets.length > 0 && (
+          <>
+            <Text style={[styles.sectionTitle, {color: theme.colors.text}]}>Preset Personalizzati</Text>
+            {customPresets.map(preset => (
+              <View key={preset.id} style={styles.customPresetWrapper}>
+                <View style={{flex: 1}}>
+                  <PresetCard preset={preset} onPress={() => {}} />
+                </View>
+                <TouchableOpacity
+                  style={[styles.deleteButton, {backgroundColor: theme.colors.error}]}
+                  onPress={() => handleDeletePreset(preset.id)}>
+                  <Text style={styles.deleteButtonText}>🗑️</Text>
+                </TouchableOpacity>
+              </View>
+            ))}
+          </>
+        )}
+      </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {flex: 1, justifyContent: 'center', alignItems: 'center'},
-  text: {fontSize: 24, fontWeight: 'bold'},
+  container: {flex: 1},
+  content: {padding: 16, paddingBottom: 32},
+  addButton: {paddingVertical: 14, borderRadius: 8, alignItems: 'center', marginBottom: 20},
+  addButtonText: {color: '#FFFFFF', fontSize: 16, fontWeight: '600'},
+  form: {padding: 16, borderRadius: 12, marginBottom: 20, elevation: 2, shadowColor: '#000', shadowOffset: {width: 0, height: 2}, shadowOpacity: 0.1, shadowRadius: 4},
+  input: {height: 50, borderWidth: 1, borderRadius: 8, paddingHorizontal: 16, fontSize: 16, marginBottom: 12},
+  createButton: {paddingVertical: 14, borderRadius: 8, alignItems: 'center', marginTop: 8},
+  createButtonText: {color: '#FFFFFF', fontSize: 16, fontWeight: '600'},
+  sectionTitle: {fontSize: 20, fontWeight: 'bold', marginBottom: 12, marginTop: 8},
+  customPresetWrapper: {flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12},
+  deleteButton: {width: 50, height: 50, borderRadius: 25, justifyContent: 'center', alignItems: 'center'},
+  deleteButtonText: {fontSize: 20},
 });
 
 export default PresetManagerScreen;
