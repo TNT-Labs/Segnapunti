@@ -6,9 +6,9 @@ L'app è stata completamente migrata da PWA a React Native standard (no Expo).
 
 ## 📋 Caratteristiche
 
-- **React Native 0.73.2** con JavaScript
+- **React Native 0.76.5** con JavaScript (supporta JDK 17-21)
 - **AsyncStorage** per persistenza dati locale
-- **React Navigation** con Bottom Tabs
+- **React Navigation 7** con Bottom Tabs
 - **Dark Mode** con Context API
 - **5 Schermate Complete**:
   - GameScreen (gioco con gestione punteggi)
@@ -24,7 +24,7 @@ L'app è stata completamente migrata da PWA a React Native standard (no Expo).
 ### Prerequisiti
 
 1. **Node.js** (v18+): https://nodejs.org/
-2. **Java JDK 17**: https://adoptium.net/
+2. **Java JDK** (17, 18, 19, 20, o 21): https://adoptium.net/
 3. **Android Studio** con:
    - Android SDK
    - Android SDK Platform-Tools
@@ -48,11 +48,11 @@ init-react-native-android.bat
 ```
 
 Questo script:
-- Crea un progetto React Native 0.73.2 temporaneo
+- Crea un progetto React Native 0.76.5 temporaneo
 - Copia la cartella `android/` compatibile
 - Pulisce i file temporanei
 
-⚠️ **Nota sulla versione**: Lo script ora usa `react-native@0.73.2` per garantire compatibilità con le dipendenze in `package.json`. Le versioni precedenti usavano l'ultima versione disponibile, causando errori di build.
+✅ **Supporto JDK**: React Native 0.76.5 supporta JDK 17-21, quindi puoi usare qualsiasi versione moderna di Java senza problemi di compatibilità.
 
 #### 2. Installa Dipendenze
 
@@ -94,13 +94,14 @@ Assicurati di avere:
 
 ## 🐛 Risoluzione Problemi
 
-### Errore: "autolinkLibrariesWithApp() not found"
+### Errore: "autolinkLibrariesWithApp() not found" o incompatibilità versioni
 
-**Causa**: Hai una cartella `android/` generata da una versione React Native diversa dalla 0.73.2.
+**Causa**: Hai una cartella `android/` generata da una versione React Native diversa dalla 0.76.5.
 
 **Soluzione**:
 1. Elimina la cartella android: `rmdir /s /q android`
-2. Esegui di nuovo: `init-react-native-android.bat`
+2. Elimina TempProject se esiste: `rmdir /s /q TempProject`
+3. Esegui di nuovo: `init-react-native-android.bat`
 
 ### Errore: Gradle download timeout
 
@@ -180,9 +181,12 @@ build-react-native.bat
 
 ## 🔄 Version History
 
-- **v1.3.0**: Migrazione completa a React Native
-  - Fix: Script init ora usa React Native 0.73.2 per compatibilità
-  - Risolti problemi di build con versioni template mismatch
+- **v2.0.0**: Upgrade a React Native 0.76.5
+  - ✅ Supporto JDK 17-21 (non serve downgrade a JDK 17!)
+  - ✅ React Navigation 7 con API migliorate
+  - ✅ Dipendenze aggiornate alle ultime versioni stabili
+  - ✅ Migliore compatibilità con strumenti moderni
+- **v1.3.0**: Migrazione completa a React Native 0.73.2
 - **v1.2.0**: App PWA originale
 
 ---
