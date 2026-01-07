@@ -14,8 +14,8 @@ echo.
 echo Creating temporary React Native project...
 echo.
 
-REM Usa React Native 0.76.5 per compatibilità con package.json (supporta JDK 21)
-call npx react-native@0.76.5 init SegnapuntiTemp --skip-install
+REM Usa il CLI ufficiale per React Native 0.76.5 (supporta JDK 21)
+call npx @react-native-community/cli@14.1.0 init SegnapuntiTemp --version 0.76.5 --skip-install
 
 if %errorlevel% neq 0 (
     echo.
@@ -23,7 +23,7 @@ if %errorlevel% neq 0 (
     echo.
     echo Alternative method:
     echo 1. Create a new React Native project manually:
-    echo    npx react-native@0.76.5 init TempProject
+    echo    npx @react-native-community/cli@14.1.0 init TempProject --version 0.76.5 --skip-install
     echo.
     echo 2. Copy the android folder:
     echo    xcopy /E /I /Y TempProject\android android
