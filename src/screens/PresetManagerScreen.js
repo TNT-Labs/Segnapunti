@@ -5,9 +5,9 @@ import {useGame} from '../contexts/GameContext';
 import PresetCard from '../components/PresetCard';
 import {DEFAULT_PRESETS} from '../constants/presets';
 
-const PresetManagerScreen = () => {
+const PresetManagerScreen = ({navigation}) => {
   const {theme} = useTheme();
-  const {getAllPresets, addCustomPreset, removeCustomPreset, customPresets} = useGame();
+  const {getAllPresets, addCustomPreset, removeCustomPreset, customPresets, startNewGame} = useGame();
 
   const [showForm, setShowForm] = useState(false);
   const [newPreset, setNewPreset] = useState({
@@ -51,6 +51,22 @@ const PresetManagerScreen = () => {
       [
         {text: 'Annulla', style: 'cancel'},
         {text: 'Elimina', style: 'destructive', onPress: () => removeCustomPreset(presetId)},
+      ],
+    );
+  };
+
+  const handleSelectPreset = preset => {
+    Alert.alert(
+      preset.name,
+      'Vuoi usare questo preset per iniziare una partita?',
+      [
+        {text: 'Annulla', style: 'cancel'},
+        {
+          text: 'Usa Preset',
+          onPress: () => {
+            navigation.navigate('Settings', {selectedPreset: preset});
+          },
+        },
       ],
     );
   };
@@ -103,7 +119,11 @@ const PresetManagerScreen = () => {
 
         <Text style={[styles.sectionTitle, {color: theme.colors.text}]}>Preset Predefiniti</Text>
         {DEFAULT_PRESETS.map(preset => (
-          <PresetCard key={preset.id} preset={preset} onPress={() => {}} />
+          <PresetCard
+            key={preset.id}
+            preset={preset}
+            onPress={() => handleSelectPreset(preset)}
+          />
         ))}
 
         {customPresets.length > 0 && (
@@ -112,7 +132,10 @@ const PresetManagerScreen = () => {
             {customPresets.map(preset => (
               <View key={preset.id} style={styles.customPresetWrapper}>
                 <View style={{flex: 1}}>
-                  <PresetCard preset={preset} onPress={() => {}} />
+                  <PresetCard
+                    preset={preset}
+                    onPress={() => handleSelectPreset(preset)}
+                  />
                 </View>
                 <TouchableOpacity
                   style={[styles.deleteButton, {backgroundColor: theme.colors.error}]}
