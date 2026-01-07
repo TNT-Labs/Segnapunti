@@ -6,9 +6,9 @@ L'app è stata completamente migrata da PWA a React Native standard (no Expo).
 
 ## 📋 Caratteristiche
 
-- **React Native 0.76.5** con JavaScript (supporta JDK 17-21)
+- **React Native 0.74.6** con JavaScript (LTS stabile, supporta JDK 17-21)
 - **AsyncStorage** per persistenza dati locale
-- **React Navigation 7** con Bottom Tabs
+- **React Navigation 6** con Bottom Tabs
 - **Dark Mode** con Context API
 - **5 Schermate Complete**:
   - GameScreen (gioco con gestione punteggi)
@@ -48,11 +48,12 @@ init-react-native-android.bat
 ```
 
 Questo script:
-- Crea un progetto React Native 0.76.5 temporaneo
+- Crea un progetto React Native 0.74.6 temporaneo
 - Copia la cartella `android/` compatibile
 - Pulisce i file temporanei
 
-✅ **Supporto JDK**: React Native 0.76.5 supporta JDK 17-21, quindi puoi usare qualsiasi versione moderna di Java senza problemi di compatibilità.
+✅ **Supporto JDK**: React Native 0.74.6 supporta JDK 17-21, quindi puoi usare qualsiasi versione moderna di Java senza problemi di compatibilità.
+✅ **Versione stabile**: 0.74.6 è una versione LTS (Long Term Support) con ecosistema maturo e testato.
 
 #### 2. Installa Dipendenze
 
@@ -96,12 +97,14 @@ Assicurati di avere:
 
 ### Errore: "autolinkLibrariesWithApp() not found" o incompatibilità versioni
 
-**Causa**: Hai una cartella `android/` generata da una versione React Native diversa dalla 0.76.5.
+**Causa**: Hai una cartella `android/` generata da una versione React Native diversa dalla 0.74.6.
 
 **Soluzione**:
 1. Elimina la cartella android: `rmdir /s /q android`
 2. Elimina TempProject se esiste: `rmdir /s /q TempProject`
-3. Esegui di nuovo: `init-react-native-android.bat`
+3. Elimina node_modules e package-lock.json: `rmdir /s /q node_modules && del package-lock.json`
+4. Reinstalla: `npm install`
+5. Esegui di nuovo: `init-react-native-android.bat`
 
 ### Errore: Gradle download timeout
 
@@ -181,12 +184,13 @@ build-react-native.bat
 
 ## 🔄 Version History
 
-- **v2.0.0**: Upgrade a React Native 0.76.5
+- **v2.0.0**: Migrazione a React Native 0.74.6 LTS
   - ✅ Supporto JDK 17-21 (non serve downgrade a JDK 17!)
-  - ✅ React Navigation 7 con API migliorate
-  - ✅ Dipendenze aggiornate alle ultime versioni stabili
-  - ✅ Migliore compatibilità con strumenti moderni
-- **v1.3.0**: Migrazione completa a React Native 0.73.2
+  - ✅ Versione LTS stabile con ecosistema maturo
+  - ✅ React Navigation 6 - testato e stabile
+  - ✅ Tutte le dipendenze compatibili e testate
+  - ✅ Fix compatibilità: react-native-reanimated, screens, gesture-handler
+- **v1.3.0**: Tentativo migrazione React Native 0.73-0.76 (instabile)
 - **v1.2.0**: App PWA originale
 
 ---
