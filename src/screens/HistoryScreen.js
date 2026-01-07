@@ -49,9 +49,13 @@ const HistoryScreen = () => {
           {date.toLocaleDateString('it-IT')} {date.toLocaleTimeString('it-IT', {hour: '2-digit', minute: '2-digit'})}
         </Text>
 
-        {winner && (
+        {winner ? (
           <Text style={[styles.winner, {color: theme.colors.success}]}>
             🏆 Vincitore: {winner.name}
+          </Text>
+        ) : (
+          <Text style={[styles.noWinner, {color: theme.colors.warning}]}>
+            ⚠️ Partita incompleta o abbandonata
           </Text>
         )}
 
@@ -114,6 +118,7 @@ const styles = StyleSheet.create({
   gameName: {fontSize: 18, fontWeight: 'bold', flex: 1},
   gameDate: {fontSize: 12, marginBottom: 8},
   winner: {fontSize: 14, fontWeight: '600', marginBottom: 12},
+  noWinner: {fontSize: 14, fontWeight: '600', marginBottom: 12, fontStyle: 'italic'},
   players: {gap: 6},
   playerRow: {flexDirection: 'row', justifyContent: 'space-between'},
   playerName: {fontSize: 14},
