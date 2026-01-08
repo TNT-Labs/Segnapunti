@@ -28,16 +28,25 @@ const SettingsScreen = ({navigation, route}) => {
   useEffect(() => {
     if (route.params?.selectedPreset) {
       setSelectedPreset(route.params.selectedPreset);
-      // Reset del parametro per evitare problemi
-      navigation.setParams({selectedPreset: undefined});
     }
-  }, [route.params?.selectedPreset, navigation]);
+  }, [route.params?.selectedPreset]);
+
+  // Pulisci params dopo averli letti
+  useEffect(() => {
+    return () => {
+      if (route.params?.selectedPreset) {
+        navigation.setParams({selectedPreset: null});
+      }
+    };
+  }, [navigation, route.params?.selectedPreset]);
 
   useEffect(() => {
     if (selectedPreset) {
       // Inizializza array giocatori con nomi di default
+      // Assicurati di avere almeno 2 giocatori
+      const numPlayers = Math.max(2, selectedPreset.defaultPlayers || 2);
       const names = Array.from(
-        {length: selectedPreset.defaultPlayers},
+        {length: numPlayers},
         (_, i) => `Giocatore ${i + 1}`,
       );
       setPlayerNames(names);
@@ -51,12 +60,21 @@ const SettingsScreen = ({navigation, route}) => {
   };
 
   const handleAddPlayer = () => {
+    const MAX_PLAYERS = 8;
+
+    if (playerNames.length >= MAX_PLAYERS) {
+      Alert.alert('Limite Raggiunto', `Puoi aggiungere al massimo ${MAX_PLAYERS} giocatori.`);
+      return;
+    }
+
     setPlayerNames([...playerNames, `Giocatore ${playerNames.length + 1}`]);
   };
 
   const handleRemovePlayer = index => {
-    if (playerNames.length <= 1) {
-      Alert.alert('Errore', 'Devi avere almeno 1 giocatore!');
+    const MIN_PLAYERS = 2;
+
+    if (playerNames.length <= MIN_PLAYERS) {
+      Alert.alert('Errore', `Devi avere almeno ${MIN_PLAYERS} giocatori!`);
       return;
     }
     const updatedNames = playerNames.filter((_, i) => i !== index);
@@ -70,8 +88,25 @@ const SettingsScreen = ({navigation, route}) => {
     }
 
     const validNames = playerNames.filter(name => name.trim() !== '');
-    if (validNames.length === 0) {
-      Alert.alert('Errore', 'Inserisci almeno un nome giocatore!');
+
+    // Validazione numero giocatori
+    const MIN_PLAYERS = 2;
+    const MAX_PLAYERS = 8;
+
+    if (validNames.length < MIN_PLAYERS) {
+      Alert.alert('Errore', `Servono almeno ${MIN_PLAYERS} giocatori per iniziare una partita!`);
+      return;
+    }
+
+    if (validNames.length > MAX_PLAYERS) {
+      Alert.alert('Errore', `Puoi avere al massimo ${MAX_PLAYERS} giocatori!`);
+      return;
+    }
+
+    // Verifica nomi duplicati
+    const uniqueNames = new Set(validNames.map(name => name.trim().toLowerCase()));
+    if (uniqueNames.size !== validNames.length) {
+      Alert.alert('Errore', 'Ci sono nomi di giocatori duplicati! Ogni giocatore deve avere un nome unico.');
       return;
     }
 

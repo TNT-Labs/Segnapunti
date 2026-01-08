@@ -23,10 +23,15 @@ const ScoreModal = ({visible, onClose, onSubmit, playerName, incrementValues}) =
 
   const handleCustomSubmit = () => {
     const score = parseInt(customScore, 10);
-    if (!isNaN(score)) {
+    if (!isNaN(score) && customScore.trim() !== '') {
       onSubmit(score);
       setCustomScore('');
     }
+  };
+
+  const handleClose = () => {
+    setCustomScore('');
+    onClose();
   };
 
   return (
@@ -38,12 +43,12 @@ const ScoreModal = ({visible, onClose, onSubmit, playerName, incrementValues}) =
       <TouchableOpacity
         style={styles.overlay}
         activeOpacity={1}
-        onPress={onClose}>
+        onPress={handleClose}>
         <View
           style={[styles.modal, {backgroundColor: theme.colors.card}]}
           onStartShouldSetResponder={() => true}>
           <Text style={[styles.title, {color: theme.colors.text}]}>
-            Aggiungi Punti
+            Modifica Punteggio
           </Text>
           <Text style={[styles.subtitle, {color: theme.colors.textSecondary}]}>
             {playerName}
@@ -58,34 +63,52 @@ const ScoreModal = ({visible, onClose, onSubmit, playerName, incrementValues}) =
                 borderColor: theme.colors.border,
               },
             ]}
-            placeholder="Inserisci punteggio"
+            placeholder="Es: +10 o -5"
             placeholderTextColor={theme.colors.textSecondary}
-            keyboardType="numeric"
+            keyboardType="numbers-and-punctuation"
             value={customScore}
             onChangeText={setCustomScore}
             autoFocus
           />
 
           {incrementValues && (
-            <View style={styles.quickButtons}>
-              {incrementValues.map(value => (
-                <TouchableOpacity
-                  key={value}
-                  style={[
-                    styles.quickButton,
-                    {backgroundColor: theme.colors.primary},
-                  ]}
-                  onPress={() => handleQuickScore(value)}>
-                  <Text style={styles.quickButtonText}>+{value}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
+            <>
+              <Text style={[styles.sectionLabel, {color: theme.colors.textSecondary}]}>
+                Punteggi Rapidi:
+              </Text>
+              <View style={styles.quickButtons}>
+                {incrementValues.map(value => (
+                  <TouchableOpacity
+                    key={`pos-${value}`}
+                    style={[
+                      styles.quickButton,
+                      {backgroundColor: theme.colors.success},
+                    ]}
+                    onPress={() => handleQuickScore(value)}>
+                    <Text style={styles.quickButtonText}>+{value}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+              <View style={styles.quickButtons}>
+                {incrementValues.slice(0, 3).map(value => (
+                  <TouchableOpacity
+                    key={`neg-${value}`}
+                    style={[
+                      styles.quickButton,
+                      {backgroundColor: theme.colors.error},
+                    ]}
+                    onPress={() => handleQuickScore(-value)}>
+                    <Text style={styles.quickButtonText}>-{value}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </>
           )}
 
           <View style={styles.actions}>
             <TouchableOpacity
               style={[styles.button, {backgroundColor: theme.colors.border}]}
-              onPress={onClose}>
+              onPress={handleClose}>
               <Text style={[styles.buttonText, {color: theme.colors.text}]}>
                 Annulla
               </Text>
@@ -128,6 +151,12 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 16,
     marginBottom: 20,
+    textAlign: 'center',
+  },
+  sectionLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    marginBottom: 8,
     textAlign: 'center',
   },
   input: {

@@ -7,7 +7,7 @@ const AboutScreen = () => {
   return (
     <View style={[styles.container, {backgroundColor: theme.colors.background}]}>
       <Text style={[styles.title, {color: theme.colors.text}]}>🃏 Segnapunti</Text>
-      <Text style={[styles.version, {color: theme.colors.textSecondary}]}>v1.3.0</Text>
+      <Text style={[styles.version, {color: theme.colors.textSecondary}]}>v2.0.0</Text>
       <Text style={[styles.subtitle, {color: theme.colors.textSecondary}]}>
         L'app segnapunti definitiva per ogni gioco
       </Text>
