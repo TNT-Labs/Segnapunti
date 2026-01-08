@@ -37,9 +37,9 @@ export const DEFAULT_PRESETS = [
     category: 'cards',
     icon: '♠️',
     mode: 'max',
-    targetScore: 61,
+    targetScore: 11,
     defaultPlayers: 2,
-    incrementValues: [2, 3, 4, 10, 11],
+    incrementValues: [1],
   },
   {
     id: 'pinnacola',
