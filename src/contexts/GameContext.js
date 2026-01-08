@@ -173,15 +173,24 @@ export const GameProvider = ({children}) => {
 
     switch (preset.mode) {
       case 'max':
+        // Vince chi raggiunge per primo il punteggio target
         winner = currentPlayers.find(p => p.score >= preset.targetScore);
         break;
       case 'min':
-        winner = currentPlayers.find(p => p.score >= preset.targetScore);
+        // Quando qualcuno supera il target, vince chi ha il punteggio PIÙ BASSO
+        const hasExceeded = currentPlayers.some(p => p.score >= preset.targetScore);
+        if (hasExceeded) {
+          winner = currentPlayers.reduce((lowest, player) =>
+            player.score < lowest.score ? player : lowest
+          );
+        }
         break;
       case 'darts':
+        // Vince chi arriva esattamente a 0
         winner = currentPlayers.find(p => p.score === 0);
         break;
       case 'rounds':
+        // Vince chi raggiunge per primo il numero di round target
         winner = currentPlayers.find(p => p.roundsWon >= preset.targetRounds);
         break;
     }
