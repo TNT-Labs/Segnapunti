@@ -1131,7 +1131,6 @@ body.dark-mode .bottom-nav {
 
 .nav-item {
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
   text-decoration: none;
@@ -1168,13 +1167,11 @@ body.dark-mode .nav-item.active {
 }
 
 .nav-icon {
-  font-size: 1.4em;
-  margin-bottom: 4px;
-  line-height: 1;
+  display: none;
 }
 
 .nav-label {
-  font-size: 0.7em;
+  font-size: 0.9em;
   font-weight: 600;
   text-align: center;
   line-height: 1.2;
