@@ -2,6 +2,8 @@ import React from 'react';
 import {View, Text, StyleSheet, TouchableOpacity, Linking, Alert} from 'react-native';
 import {useTheme} from '../contexts/ThemeContext';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import AdBanner from '../components/AdBanner';
+import {AD_UNITS, AD_BANNER_SIZES} from '../config/adConfig';
 
 const AboutScreen = () => {
   const {theme} = useTheme();
@@ -72,6 +74,12 @@ const AboutScreen = () => {
           </TouchableOpacity>
         </View>
 
+        <AdBanner
+          size={AD_BANNER_SIZES.ABOUT_SCREEN}
+          style={styles.adBanner}
+          adUnitId={AD_UNITS.ABOUT_SCREEN}
+        />
+
         <Text
           style={[styles.footer, {color: theme.colors.textSecondary}]}
           accessibilityRole="text">
@@ -102,6 +110,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
   },
   linkText: {flex: 1, fontSize: 16, fontWeight: '500', marginLeft: 12},
+  adBanner: {marginVertical: 20, width: '100%'},
   footer: {fontSize: 14, marginTop: 20},
 });
 

@@ -5,6 +5,7 @@ import {useGame} from '../contexts/GameContext';
 import PresetCard from '../components/PresetCard';
 import AdBanner from '../components/AdBanner';
 import {DEFAULT_PRESETS} from '../constants/presets';
+import {AD_UNITS, AD_BANNER_SIZES} from '../config/adConfig';
 
 const PresetManagerScreen = ({navigation}) => {
   const {theme} = useTheme();
@@ -266,9 +267,9 @@ const PresetManagerScreen = ({navigation}) => {
         ))}
 
         <AdBanner
-          size="small"
+          size={AD_BANNER_SIZES.PRESET_MANAGER_SCREEN}
           style={styles.adBanner}
-          adUnitId="ca-app-pub-4302173868436591/1173463289"
+          adUnitId={AD_UNITS.PRESET_MANAGER_SCREEN}
         />
 
         {customPresets.length > 0 && (

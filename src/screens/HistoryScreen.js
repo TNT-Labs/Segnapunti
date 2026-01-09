@@ -4,6 +4,7 @@ import {useTheme} from '../contexts/ThemeContext';
 import {useGame} from '../contexts/GameContext';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import AdBanner from '../components/AdBanner';
+import {AD_UNITS, AD_BANNER_SIZES} from '../config/adConfig';
 
 const HistoryScreen = () => {
   const {theme} = useTheme();
@@ -132,9 +133,9 @@ const HistoryScreen = () => {
         ListHeaderComponent={
           <>
             <AdBanner
-              size="medium"
+              size={AD_BANNER_SIZES.HISTORY_SCREEN}
               style={styles.adBanner}
-              adUnitId="ca-app-pub-4302173868436591/6124127045"
+              adUnitId={AD_UNITS.HISTORY_SCREEN}
             />
             <TouchableOpacity
               accessible={true}

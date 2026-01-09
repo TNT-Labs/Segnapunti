@@ -12,6 +12,7 @@ import {useGame} from '../contexts/GameContext';
 import PlayerCard from '../components/PlayerCard';
 import ScoreModal from '../components/ScoreModal';
 import AdBanner from '../components/AdBanner';
+import {AD_UNITS, AD_BANNER_SIZES} from '../config/adConfig';
 
 const GameScreen = ({navigation}) => {
   const {theme} = useTheme();
@@ -165,9 +166,9 @@ const GameScreen = ({navigation}) => {
         </View>
 
         <AdBanner
-          size="small"
+          size={AD_BANNER_SIZES.GAME_SCREEN}
           style={styles.adBanner}
-          adUnitId="ca-app-pub-4302173868436591/2924694505"
+          adUnitId={AD_UNITS.GAME_SCREEN}
         />
 
         {gameState.isFinished ? (
