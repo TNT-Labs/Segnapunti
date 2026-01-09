@@ -12,6 +12,7 @@ import {
 import {useTheme} from '../contexts/ThemeContext';
 import {useGame} from '../contexts/GameContext';
 import PresetCard from '../components/PresetCard';
+import AdBanner from '../components/AdBanner';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const SettingsScreen = ({navigation, route}) => {
@@ -163,6 +164,12 @@ const SettingsScreen = ({navigation, route}) => {
         </View>
       </View>
 
+      <AdBanner
+        size="small"
+        style={styles.adBanner}
+        adUnitId="ca-app-pub-4302173868436591/2155550079"
+      />
+
       {/* Nuova Partita */}
       <Text
         style={[styles.sectionTitle, {color: theme.colors.text}]}
@@ -301,6 +308,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   label: {fontSize: 16, fontWeight: '500'},
+  adBanner: {marginVertical: 16},
   presetsList: {marginBottom: 12},
   playersHeader: {
     flexDirection: 'row',

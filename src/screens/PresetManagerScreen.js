@@ -3,6 +3,7 @@ import {View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert} 
 import {useTheme} from '../contexts/ThemeContext';
 import {useGame} from '../contexts/GameContext';
 import PresetCard from '../components/PresetCard';
+import AdBanner from '../components/AdBanner';
 import {DEFAULT_PRESETS} from '../constants/presets';
 
 const PresetManagerScreen = ({navigation}) => {
@@ -264,6 +265,12 @@ const PresetManagerScreen = ({navigation}) => {
           />
         ))}
 
+        <AdBanner
+          size="small"
+          style={styles.adBanner}
+          adUnitId="ca-app-pub-4302173868436591/1173463289"
+        />
+
         {customPresets.length > 0 && (
           <>
             <Text
@@ -310,6 +317,7 @@ const styles = StyleSheet.create({
   groupButtonText: {fontSize: 12, fontWeight: '500', textAlign: 'center'},
   createButton: {paddingVertical: 14, borderRadius: 8, alignItems: 'center', marginTop: 16},
   createButtonText: {color: '#FFFFFF', fontSize: 16, fontWeight: '600'},
+  adBanner: {marginVertical: 16},
   sectionTitle: {fontSize: 20, fontWeight: 'bold', marginBottom: 12, marginTop: 8},
   customPresetWrapper: {flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12},
   deleteButton: {width: 50, height: 50, borderRadius: 25, justifyContent: 'center', alignItems: 'center'},
