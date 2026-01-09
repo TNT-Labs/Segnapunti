@@ -14,7 +14,6 @@ import {useGame} from '../contexts/GameContext';
 import PresetCard from '../components/PresetCard';
 import AdBanner from '../components/AdBanner';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import consentService from '../services/ConsentService';
 import {AD_UNITS, AD_BANNER_SIZES} from '../config/adConfig';
 
 const SettingsScreen = ({navigation, route}) => {
@@ -82,69 +81,6 @@ const SettingsScreen = ({navigation, route}) => {
     }
     const updatedNames = playerNames.filter((_, i) => i !== index);
     setPlayerNames(updatedNames);
-  };
-
-  const handlePrivacySettings = async () => {
-    try {
-      // Ottieni lo stato attuale del consenso
-      const consentInfo = consentService.getConsentInfo();
-      const canShowPersonalized = consentService.canShowPersonalizedAds();
-
-      let statusMessage = 'Stato attuale: ';
-      if (!consentInfo) {
-        statusMessage += 'Non inizializzato';
-      } else if (consentInfo.status === 1) { // OBTAINED
-        statusMessage += canShowPersonalized
-          ? '✅ Consenso dato per annunci personalizzati'
-          : '❌ Consenso negato per annunci personalizzati';
-      } else if (consentInfo.status === 3) { // NOT_REQUIRED
-        statusMessage += 'Non richiesto nella tua regione';
-      } else {
-        statusMessage += 'Sconosciuto';
-      }
-
-      Alert.alert(
-        'Impostazioni Privacy',
-        `${statusMessage}\n\nVuoi modificare le tue preferenze sulla privacy?`,
-        [
-          {
-            text: 'Annulla',
-            style: 'cancel',
-          },
-          {
-            text: 'Visualizza Privacy Policy',
-            onPress: () => {
-              const privacyUrl = 'https://tnt-labs.github.io/Segnapunti/privacy-policy.html';
-              require('react-native').Linking.openURL(privacyUrl);
-            },
-          },
-          {
-            text: 'Modifica Consenso',
-            onPress: async () => {
-              // Reset del consenso e mostra il form di nuovo
-              await consentService.resetConsent();
-              const result = await consentService.initialize();
-
-              if (result.isRequired) {
-                const consentResult = await consentService.showConsentForm();
-                Alert.alert(
-                  'Preferenze Aggiornate',
-                  `Le tue preferenze sulla privacy sono state aggiornate. Stato: ${consentResult.status}`,
-                );
-              } else {
-                Alert.alert(
-                  'Informazione',
-                  'Il consenso GDPR non è richiesto nella tua regione.',
-                );
-              }
-            },
-          },
-        ],
-      );
-    } catch (error) {
-      console.error('Errore nelle impostazioni privacy:', error);
-      Alert.alert('Errore', 'Si è verificato un errore durante la gestione delle impostazioni privacy.');
-    }
   };
 
   const handleStartGame = async () => {
@@ -228,28 +164,6 @@ const SettingsScreen = ({navigation, route}) => {
           />
         </View>
       </View>
-
-      {/* Privacy Settings */}
-      <TouchableOpacity
-        accessible={true}
-        accessibilityLabel="Impostazioni privacy"
-        accessibilityHint="Gestisci le tue preferenze sulla privacy e il consenso per gli annunci"
-        accessibilityRole="button"
-        style={[styles.section, {backgroundColor: theme.colors.card}]}
-        onPress={handlePrivacySettings}>
-        <View style={styles.row}>
-          <Text
-            style={[styles.label, {color: theme.colors.text}]}
-            accessibilityRole="text">
-            🔒 Privacy & Consenso GDPR
-          </Text>
-          <Icon
-            name="chevron-right"
-            size={24}
-            color={theme.colors.text}
-          />
-        </View>
-      </TouchableOpacity>
 
       <AdBanner
         size={AD_BANNER_SIZES.SETTINGS_SCREEN}
