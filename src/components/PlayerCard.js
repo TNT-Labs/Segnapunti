@@ -7,32 +7,51 @@ const PlayerCard = ({player, onAddScore, onSubtractScore, showActions = true}) =
   const {theme} = useTheme();
 
   return (
-    <View style={[styles.container, {backgroundColor: theme.colors.card}]}>
+    <View
+      style={[styles.container, {backgroundColor: theme.colors.card}]}
+      accessible={true}
+      accessibilityLabel={`Giocatore ${player.name}, punteggio ${player.score}${player.roundsWon !== undefined ? `, rounds vinti ${player.roundsWon}` : ''}`}>
       <View style={styles.leftSection}>
-        <Text style={[styles.playerName, {color: theme.colors.text}]}>
+        <Text
+          style={[styles.playerName, {color: theme.colors.text}]}
+          accessibilityRole="text">
           {player.name}
         </Text>
         {player.roundsWon !== undefined && (
-          <Text style={[styles.rounds, {color: theme.colors.textSecondary}]}>
+          <Text
+            style={[styles.rounds, {color: theme.colors.textSecondary}]}
+            accessibilityRole="text"
+            accessibilityLabel={`Rounds vinti: ${player.roundsWon}`}>
             🏆 Rounds: {player.roundsWon}
           </Text>
         )}
       </View>
 
       <View style={styles.rightSection}>
-        <Text style={[styles.score, {color: theme.colors.primary}]}>
+        <Text
+          style={[styles.score, {color: theme.colors.primary}]}
+          accessibilityRole="text"
+          accessibilityLabel={`Punteggio: ${player.score}`}>
           {player.score}
         </Text>
 
         {showActions && (
           <View style={styles.actions}>
             <TouchableOpacity
+              accessible={true}
+              accessibilityLabel={`Sottrai punti a ${player.name}`}
+              accessibilityHint="Riduce il punteggio del giocatore"
+              accessibilityRole="button"
               style={[styles.button, {backgroundColor: theme.colors.error}]}
               onPress={() => onSubtractScore(player.id)}>
               <Icon name="minus" size={20} color="#FFFFFF" />
             </TouchableOpacity>
 
             <TouchableOpacity
+              accessible={true}
+              accessibilityLabel={`Aggiungi punti a ${player.name}`}
+              accessibilityHint="Aumenta il punteggio del giocatore"
+              accessibilityRole="button"
               style={[styles.button, {backgroundColor: theme.colors.success}]}
               onPress={() => onAddScore(player.id)}>
               <Icon name="plus" size={20} color="#FFFFFF" />

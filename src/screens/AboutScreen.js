@@ -6,12 +6,25 @@ const AboutScreen = () => {
   const {theme} = useTheme();
   return (
     <View style={[styles.container, {backgroundColor: theme.colors.background}]}>
-      <Text style={[styles.title, {color: theme.colors.text}]}>🃏 Segnapunti</Text>
-      <Text style={[styles.version, {color: theme.colors.textSecondary}]}>v2.0.0</Text>
-      <Text style={[styles.subtitle, {color: theme.colors.textSecondary}]}>
+      <Text
+        style={[styles.title, {color: theme.colors.text}]}
+        accessibilityRole="header">
+        🃏 Segnapunti
+      </Text>
+      <Text
+        style={[styles.version, {color: theme.colors.textSecondary}]}
+        accessibilityRole="text"
+        accessibilityLabel="Versione 1.0.0">
+        v1.0.0
+      </Text>
+      <Text
+        style={[styles.subtitle, {color: theme.colors.textSecondary}]}
+        accessibilityRole="text">
         L'app segnapunti definitiva per ogni gioco
       </Text>
-      <Text style={[styles.footer, {color: theme.colors.textSecondary}]}>
+      <Text
+        style={[styles.footer, {color: theme.colors.textSecondary}]}
+        accessibilityRole="text">
         Fatto con ❤️ da TNT Labs
       </Text>
     </View>
