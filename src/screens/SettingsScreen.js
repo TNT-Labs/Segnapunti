@@ -15,6 +15,7 @@ import PresetCard from '../components/PresetCard';
 import AdBanner from '../components/AdBanner';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import consentService from '../services/ConsentService';
+import {AD_UNITS, AD_BANNER_SIZES} from '../config/adConfig';
 
 const SettingsScreen = ({navigation, route}) => {
   const {theme, isDark, toggleDarkMode} = useTheme();
@@ -251,9 +252,9 @@ const SettingsScreen = ({navigation, route}) => {
       </TouchableOpacity>
 
       <AdBanner
-        size="small"
+        size={AD_BANNER_SIZES.SETTINGS_SCREEN}
         style={styles.adBanner}
-        adUnitId="ca-app-pub-4302173868436591/2155550079"
+        adUnitId={AD_UNITS.SETTINGS_SCREEN}
       />
 
       {/* Nuova Partita */}

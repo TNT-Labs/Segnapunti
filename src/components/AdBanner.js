@@ -1,6 +1,6 @@
-import React, {useState} from 'react';
-import {View, StyleSheet, Platform} from 'react-native';
-import {BannerAd, BannerAdSize, TestIds} from 'react-native-google-mobile-ads';
+import React, {useState, useEffect} from 'react';
+import {View, StyleSheet} from 'react-native';
+import {BannerAd, BannerAdSize} from 'react-native-google-mobile-ads';
 import consentService from '../services/ConsentService';
 
 /**
@@ -8,12 +8,20 @@ import consentService from '../services/ConsentService';
  *
  * @param {Object} props
  * @param {string} props.size - Dimensione del banner: 'small', 'medium', 'large' (default: 'small')
- * @param {string} props.adUnitId - ID dell'unità pubblicitaria (opzionale, usa test ID se non fornito)
+ * @param {string} props.adUnitId - ID dell'unità pubblicitaria (OBBLIGATORIO)
  * @param {Object} props.style - Stili personalizzati per il container
  */
 const AdBanner = ({size = 'small', adUnitId, style}) => {
   const [isVisible, setIsVisible] = useState(true);
   const [hasError, setHasError] = useState(false);
+
+  // Validazione: adUnitId è obbligatorio
+  useEffect(() => {
+    if (!adUnitId) {
+      console.error('[AdBanner] ERRORE: adUnitId è obbligatorio ma non è stato fornito!');
+      setHasError(true);
+    }
+  }, [adUnitId]);
 
   // Determina la dimensione del banner
   const getBannerSize = () => {
@@ -30,14 +38,6 @@ const AdBanner = ({size = 'small', adUnitId, style}) => {
         return BannerAdSize.BANNER;
     }
   };
-
-  // Usa l'ID test se non è fornito un ID reale
-  // IMPORTANTE: Sostituire con i veri Ad Unit ID in produzione!
-  const unitId = adUnitId || (
-    Platform.OS === 'ios'
-      ? TestIds.BANNER
-      : TestIds.BANNER
-  );
 
   // Handlers per gli eventi dell'annuncio
   const handleAdLoaded = () => {
@@ -63,7 +63,7 @@ const AdBanner = ({size = 'small', adUnitId, style}) => {
   return (
     <View style={[styles.container, style]}>
       <BannerAd
-        unitId={unitId}
+        unitId={adUnitId}
         size={getBannerSize()}
         requestOptions={{
           // Richiedi solo annunci non personalizzati se l'utente non ha dato il consenso
