@@ -10,6 +10,15 @@ const PresetCard = ({preset, onPress, isSelected = false}) => {
 
   return (
     <TouchableOpacity
+      accessible={true}
+      accessibilityLabel={`Preset ${preset.name}, modalità ${preset.mode}, ${
+        preset.mode === 'rounds'
+          ? `${preset.targetRounds} rounds`
+          : `punteggio target ${preset.targetScore}`
+      }, ${preset.defaultPlayers} giocatori${isSelected ? ', selezionato' : ''}`}
+      accessibilityHint="Tocca per selezionare questo preset"
+      accessibilityRole="button"
+      accessibilityState={{selected: isSelected}}
       style={[
         styles.container,
         {
@@ -20,23 +29,39 @@ const PresetCard = ({preset, onPress, isSelected = false}) => {
       ]}
       onPress={onPress}>
       <View style={styles.header}>
-        <Text style={styles.icon}>{preset.icon}</Text>
+        <Text
+          style={styles.icon}
+          accessibilityLabel={`Icona ${preset.icon}`}
+          accessibilityRole="image">
+          {preset.icon}
+        </Text>
         <View style={[styles.badge, {backgroundColor: categoryColor}]}>
-          <Text style={styles.badgeText}>{preset.mode.toUpperCase()}</Text>
+          <Text
+            style={styles.badgeText}
+            accessibilityLabel={`Modalità ${preset.mode}`}>
+            {preset.mode.toUpperCase()}
+          </Text>
         </View>
       </View>
 
-      <Text style={[styles.name, {color: theme.colors.text}]}>
+      <Text
+        style={[styles.name, {color: theme.colors.text}]}
+        accessibilityRole="header">
         {preset.name}
       </Text>
 
       <View style={styles.info}>
-        <Text style={[styles.infoText, {color: theme.colors.textSecondary}]}>
+        <Text
+          style={[styles.infoText, {color: theme.colors.textSecondary}]}
+          accessibilityRole="text">
           {preset.mode === 'rounds'
             ? `${preset.targetRounds} rounds`
             : `Target: ${preset.targetScore}`}
         </Text>
-        <Text style={[styles.infoText, {color: theme.colors.textSecondary}]}>
+        <Text
+          style={[styles.infoText, {color: theme.colors.textSecondary}]}
+          accessibilityRole="text"
+          accessibilityLabel={`${preset.defaultPlayers} giocatori predefiniti`}>
           👥 {preset.defaultPlayers} giocatori
         </Text>
       </View>

@@ -75,6 +75,10 @@ const PresetManagerScreen = ({navigation}) => {
     <ScrollView style={[styles.container, {backgroundColor: theme.colors.background}]}>
       <View style={styles.content}>
         <TouchableOpacity
+          accessible={true}
+          accessibilityLabel={showForm ? "Annulla creazione preset" : "Crea preset personalizzato"}
+          accessibilityHint={showForm ? "Chiudi il form di creazione" : "Apri il form per creare un nuovo preset"}
+          accessibilityRole="button"
           style={[styles.addButton, {backgroundColor: theme.colors.primary}]}
           onPress={() => setShowForm(!showForm)}>
           <Text style={styles.addButtonText}>
@@ -85,6 +89,9 @@ const PresetManagerScreen = ({navigation}) => {
         {showForm && (
           <View style={[styles.form, {backgroundColor: theme.colors.card}]}>
             <TextInput
+              accessible={true}
+              accessibilityLabel="Nome preset"
+              accessibilityHint="Inserisci il nome del nuovo preset"
               style={[styles.input, {backgroundColor: theme.colors.background, color: theme.colors.text, borderColor: theme.colors.border}]}
               placeholder="Nome preset"
               placeholderTextColor={theme.colors.textSecondary}
@@ -93,6 +100,9 @@ const PresetManagerScreen = ({navigation}) => {
             />
 
             <TextInput
+              accessible={true}
+              accessibilityLabel="Icona preset"
+              accessibilityHint="Inserisci un'emoji per l'icona del preset"
               style={[styles.input, {backgroundColor: theme.colors.background, color: theme.colors.text, borderColor: theme.colors.border}]}
               placeholder="Icona (emoji)"
               placeholderTextColor={theme.colors.textSecondary}
@@ -101,6 +111,9 @@ const PresetManagerScreen = ({navigation}) => {
             />
 
             <TextInput
+              accessible={true}
+              accessibilityLabel="Punteggio target"
+              accessibilityHint="Inserisci il punteggio obiettivo del preset"
               style={[styles.input, {backgroundColor: theme.colors.background, color: theme.colors.text, borderColor: theme.colors.border}]}
               placeholder="Punteggio target"
               placeholderTextColor={theme.colors.textSecondary}
@@ -110,6 +123,10 @@ const PresetManagerScreen = ({navigation}) => {
             />
 
             <TouchableOpacity
+              accessible={true}
+              accessibilityLabel="Conferma creazione preset"
+              accessibilityHint="Salva il nuovo preset personalizzato"
+              accessibilityRole="button"
               style={[styles.createButton, {backgroundColor: theme.colors.success}]}
               onPress={handleCreatePreset}>
               <Text style={styles.createButtonText}>✅ Crea Preset</Text>
@@ -117,7 +134,11 @@ const PresetManagerScreen = ({navigation}) => {
           </View>
         )}
 
-        <Text style={[styles.sectionTitle, {color: theme.colors.text}]}>Preset Predefiniti</Text>
+        <Text
+          style={[styles.sectionTitle, {color: theme.colors.text}]}
+          accessibilityRole="header">
+          Preset Predefiniti
+        </Text>
         {DEFAULT_PRESETS.map(preset => (
           <PresetCard
             key={preset.id}
@@ -128,7 +149,11 @@ const PresetManagerScreen = ({navigation}) => {
 
         {customPresets.length > 0 && (
           <>
-            <Text style={[styles.sectionTitle, {color: theme.colors.text}]}>Preset Personalizzati</Text>
+            <Text
+              style={[styles.sectionTitle, {color: theme.colors.text}]}
+              accessibilityRole="header">
+              Preset Personalizzati
+            </Text>
             {customPresets.map(preset => (
               <View key={preset.id} style={styles.customPresetWrapper}>
                 <View style={{flex: 1}}>
@@ -138,6 +163,10 @@ const PresetManagerScreen = ({navigation}) => {
                   />
                 </View>
                 <TouchableOpacity
+                  accessible={true}
+                  accessibilityLabel={`Elimina preset ${preset.name}`}
+                  accessibilityHint="Rimuove questo preset personalizzato dalla lista"
+                  accessibilityRole="button"
                   style={[styles.deleteButton, {backgroundColor: theme.colors.error}]}
                   onPress={() => handleDeletePreset(preset.id)}>
                   <Text style={styles.deleteButtonText}>🗑️</Text>
