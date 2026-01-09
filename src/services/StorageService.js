@@ -241,18 +241,72 @@ class StorageService {
   }
 
   /**
-   * Importa dati
+   * Valida la struttura dei dati prima dell'importazione
+   */
+  _validateImportData(data) {
+    if (!data || typeof data !== 'object') {
+      return {valid: false, error: 'Dati non validi o mancanti'};
+    }
+
+    // Verifica versione (opzionale ma consigliato)
+    if (data.version && typeof data.version !== 'string') {
+      return {valid: false, error: 'Versione non valida'};
+    }
+
+    // Valida gameHistory
+    if (data.gameHistory) {
+      if (!Array.isArray(data.gameHistory)) {
+        return {valid: false, error: 'Storico partite deve essere un array'};
+      }
+      for (const game of data.gameHistory) {
+        if (!game.id || !game.preset || !Array.isArray(game.players)) {
+          return {valid: false, error: 'Formato storico partite non valido'};
+        }
+      }
+    }
+
+    // Valida presets
+    if (data.presets) {
+      if (!Array.isArray(data.presets)) {
+        return {valid: false, error: 'Preset deve essere un array'};
+      }
+      for (const preset of data.presets) {
+        if (!preset.id || !preset.name || !preset.mode) {
+          return {valid: false, error: 'Formato preset non valido'};
+        }
+      }
+    }
+
+    // Valida settings
+    if (data.settings && typeof data.settings !== 'object') {
+      return {valid: false, error: 'Impostazioni devono essere un oggetto'};
+    }
+
+    return {valid: true};
+  }
+
+  /**
+   * Importa dati con validazione
    */
   async importAllData(data) {
     try {
+      // Valida i dati prima di importarli
+      const validation = this._validateImportData(data);
+      if (!validation.valid) {
+        console.error('Validation error:', validation.error);
+        return {success: false, error: validation.error};
+      }
+
+      // Importa i dati validati
       if (data.gameState) await this.saveGameState(data.gameState);
       if (data.gameHistory) await this.saveGameHistory(data.gameHistory);
       if (data.presets) await this.savePresets(data.presets);
       if (data.settings) await this.saveSettings(data.settings);
-      return true;
+
+      return {success: true};
     } catch (error) {
       console.error('Error importing data:', error);
-      return false;
+      return {success: false, error: error.message};
     }
   }
 }

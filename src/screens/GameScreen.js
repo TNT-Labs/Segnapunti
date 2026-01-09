@@ -64,14 +64,23 @@ const GameScreen = ({navigation}) => {
     );
   };
 
-  const handleSaveGame = () => {
-    saveGameToHistory();
-    Alert.alert('Partita Salvata', 'La partita è stata salvata nello storico!', [
-      {text: 'OK', onPress: () => {
-        resetGame();
-        navigation.navigate('History');
-      }},
-    ]);
+  const handleSaveGame = async () => {
+    const success = await saveGameToHistory();
+
+    if (success) {
+      Alert.alert('Partita Salvata', 'La partita è stata salvata nello storico!', [
+        {text: 'OK', onPress: () => {
+          resetGame();
+          navigation.navigate('History');
+        }},
+      ]);
+    } else {
+      Alert.alert(
+        'Errore',
+        'Impossibile salvare la partita. Riprova più tardi.',
+        [{text: 'OK'}]
+      );
+    }
   };
 
   if (!gameState || !currentPreset) {

@@ -85,16 +85,40 @@ const SettingsScreen = ({navigation, route}) => {
 
   const handlePrivacySettings = async () => {
     try {
+      // Ottieni lo stato attuale del consenso
+      const consentInfo = consentService.getConsentInfo();
+      const canShowPersonalized = consentService.canShowPersonalizedAds();
+
+      let statusMessage = 'Stato attuale: ';
+      if (!consentInfo) {
+        statusMessage += 'Non inizializzato';
+      } else if (consentInfo.status === 1) { // OBTAINED
+        statusMessage += canShowPersonalized
+          ? '✅ Consenso dato per annunci personalizzati'
+          : '❌ Consenso negato per annunci personalizzati';
+      } else if (consentInfo.status === 3) { // NOT_REQUIRED
+        statusMessage += 'Non richiesto nella tua regione';
+      } else {
+        statusMessage += 'Sconosciuto';
+      }
+
       Alert.alert(
         'Impostazioni Privacy',
-        'Vuoi rivedere le tue preferenze sulla privacy e gestire il consenso per gli annunci personalizzati?',
+        `${statusMessage}\n\nVuoi modificare le tue preferenze sulla privacy?`,
         [
           {
             text: 'Annulla',
             style: 'cancel',
           },
           {
-            text: 'Gestisci Consenso',
+            text: 'Visualizza Privacy Policy',
+            onPress: () => {
+              const privacyUrl = 'https://tnt-labs.github.io/Segnapunti/privacy-policy.html';
+              require('react-native').Linking.openURL(privacyUrl);
+            },
+          },
+          {
+            text: 'Modifica Consenso',
             onPress: async () => {
               // Reset del consenso e mostra il form di nuovo
               await consentService.resetConsent();
