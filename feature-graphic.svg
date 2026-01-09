@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1024" height="500" viewBox="0 0 1024 500" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <!-- Background Gradient -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4A148C;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#212121;stop-opacity:1" />
+    </linearGradient>
+
+    <!-- Glow effect for logo -->
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Shadow for text -->
+    <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
+      <feOffset dx="2" dy="2" result="offsetblur"/>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"/>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1024" height="500" fill="url(#bgGradient)"/>
+
+  <!-- Decorative circles (background pattern) -->
+  <circle cx="900" cy="80" r="120" fill="#9C27B0" opacity="0.1"/>
+  <circle cx="100" cy="400" r="100" fill="#7B1FA2" opacity="0.1"/>
+  <circle cx="850" cy="420" r="80" fill="#6A1B9A" opacity="0.1"/>
+
+  <!-- Logo Container (Left side) -->
+  <g transform="translate(80, 150)">
+    <!-- Logo background circle -->
+    <circle cx="100" cy="100" r="105" fill="#FFFFFF" opacity="0.1"/>
+    <circle cx="100" cy="100" r="100" fill="#FFFFFF" filter="url(#glow)"/>
+
+    <!-- App Icon placeholder - usando un design semplice con carte -->
+    <g transform="translate(50, 50)">
+      <!-- Card 1 (back) -->
+      <rect x="10" y="20" width="60" height="80" rx="6" fill="#4A148C" stroke="#9C27B0" stroke-width="2"/>
+
+      <!-- Card 2 (front) -->
+      <rect x="30" y="10" width="60" height="80" rx="6" fill="#FFFFFF" stroke="#9C27B0" stroke-width="2"/>
+
+      <!-- Card symbols -->
+      <text x="60" y="40" font-size="24" fill="#4A148C" text-anchor="middle">♠</text>
+      <text x="60" y="70" font-size="24" fill="#E91E63" text-anchor="middle">♥</text>
+    </g>
+  </g>
+
+  <!-- Main Content (Right side) -->
+  <g transform="translate(300, 0)">
+    <!-- Main Title -->
+    <text x="0" y="180" font-family="Arial, Helvetica, sans-serif" font-size="80" font-weight="bold" fill="#FFFFFF" filter="url(#shadow)">
+      SEGNAPUNTI
+    </text>
+
+    <!-- Subtitle -->
+    <text x="0" y="240" font-family="Arial, Helvetica, sans-serif" font-size="32" font-weight="600" fill="#E1BEE7">
+      Traccia Punteggi
+    </text>
+
+    <!-- Second line subtitle -->
+    <text x="0" y="280" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="400" fill="#CE93D8">
+      Giochi di Carte • Sport • Tavolo
+    </text>
+
+    <!-- Feature badges -->
+    <g transform="translate(0, 320)">
+      <!-- Badge 1 -->
+      <rect x="0" y="0" width="140" height="40" rx="20" fill="#9C27B0" opacity="0.8"/>
+      <text x="70" y="27" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="600" fill="#FFFFFF" text-anchor="middle">
+        🌙 Dark Mode
+      </text>
+
+      <!-- Badge 2 -->
+      <rect x="155" y="0" width="130" height="40" rx="20" fill="#7B1FA2" opacity="0.8"/>
+      <text x="220" y="27" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="600" fill="#FFFFFF" text-anchor="middle">
+        📱 Offline
+      </text>
+
+      <!-- Badge 3 -->
+      <rect x="300" y="0" width="150" height="40" rx="20" fill="#6A1B9A" opacity="0.8"/>
+      <text x="375" y="27" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="600" fill="#FFFFFF" text-anchor="middle">
+        🔒 Privacy
+      </text>
+    </g>
+  </g>
+
+  <!-- Decorative Icons (bottom right) -->
+  <g transform="translate(850, 380)">
+    <text x="0" y="0" font-size="48" opacity="0.6">🃏</text>
+    <text x="50" y="0" font-size="48" opacity="0.6">🎯</text>
+    <text x="100" y="0" font-size="48" opacity="0.6">🎲</text>
+  </g>
+
+  <!-- Version tag (small, bottom left) -->
+  <text x="30" y="480" font-family="Arial, Helvetica, sans-serif" font-size="14" fill="#FFFFFF" opacity="0.5">
+    v1.0.0 • TNT Labs
+  </text>
+</svg>
