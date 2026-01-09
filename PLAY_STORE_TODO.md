@@ -309,8 +309,8 @@ Settings → Accessibility → TalkBack → ON
 
 ---
 
-### ❌ 6. Creare Feature Graphic
-**Status**: ❌ MANCANTE
+### ✅ 6. Creare Feature Graphic
+**Status**: ✅ COMPLETATO
 **Blocca**: Store listing publication
 **Effort**: 1-2 ore
 **Assignee**: Designer / Developer
@@ -354,11 +354,11 @@ Elements:
 3. **Photoshop/GIMP** (avanzato)
 
 **Acceptance Criteria**:
-- [ ] File `feature-graphic.png` creato
-- [ ] Dimensioni esatte 1024x500
-- [ ] Leggibile su thumbnail piccolo
-- [ ] Logo e testo ben visibili
-- [ ] Size <1MB
+- [x] File `feature-graphic.png` creato
+- [x] Dimensioni esatte 1024x500
+- [x] Leggibile su thumbnail piccolo
+- [x] Logo e testo ben visibili
+- [x] Size <1MB (95KB)
 
 ---
 
@@ -1366,7 +1366,7 @@ npm install @react-native-firebase/analytics
 #### Assets
 - [ ] ✅ App icon 512x512 pronto
 - [ ] ✅ Adaptive icon XML generato
-- [ ] ✅ Feature graphic 1024x500 creato
+- [x] ✅ Feature graphic 1024x500 creato
 - [ ] ✅ 6-8 screenshots 1080x1920 pronti
 - [ ] ⚠️ Video promo caricato (opzionale)
 
@@ -1391,9 +1391,9 @@ npm install @react-native-firebase/analytics
 ### Week 1 - Minimum Viable Release
 1. ✅ Genera android/ (30min)
 2. ✅ Configura build.gradle + keystore (1h)
-3. ✅ Fix versioning (15min)
-4. ✅ Aggiungi accessibilità base (4h)
-5. ✅ Crea feature graphic (1h)
+3. ✅ Fix versioning (15min) - DONE
+4. ✅ Aggiungi accessibilità base (4h) - DONE
+5. ✅ Crea feature graphic (1h) - DONE
 6. ✅ Test su 3 dispositivi (3h)
 7. ✅ Setup Play Console (1h)
 8. ✅ Upload internal test (30min)
