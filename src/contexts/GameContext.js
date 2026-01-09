@@ -8,7 +8,7 @@ const GameContext = createContext();
 // Generatore di ID univoci
 let idCounter = 0;
 const generateUniqueId = (prefix = 'id') => {
-  return `${prefix}_${Date.now()}_${++idCounter}_${Math.random().toString(36).substr(2, 9)}`;
+  return `${prefix}_${Date.now()}_${++idCounter}_${Math.random().toString(36).substring(2, 11)}`;
 };
 
 export const GameProvider = ({children}) => {
@@ -92,7 +92,7 @@ export const GameProvider = ({children}) => {
         // Gestione modalità darts (non può andare sotto 0)
         if (currentPreset.mode === 'darts' && newScore < 0) {
           Alert.alert('BUST!', `${player.name} è andato sotto zero! Il punteggio rimane ${player.score}.`);
-          return {...player, bustFlag: true};
+          return {...player, score: player.score, bustFlag: true};
         }
 
         return {...player, score: newScore, bustFlag: false};
@@ -152,6 +152,36 @@ export const GameProvider = ({children}) => {
       setGameState(updatedGameState);
       await StorageService.saveGameState(updatedGameState);
 
+      // Controlla se è stato raggiunto il limite massimo di round
+      const maxRounds = preset.targetRounds * 3; // Limite: 3x i round target
+      const hasReachedMaxRounds = updatedGameState.currentRound > maxRounds;
+
+      if (hasReachedMaxRounds) {
+        // Termina la partita per timeout, vince chi ha più round
+        const maxRoundsWon = Math.max(...updatedPlayers.map(p => p.roundsWon));
+        const playersWithMaxRounds = updatedPlayers.filter(p => p.roundsWon === maxRoundsWon);
+
+        if (playersWithMaxRounds.length === 1) {
+          // Un vincitore chiaro
+          Alert.alert(
+            'Limite Round Raggiunto!',
+            `La partita ha raggiunto il limite massimo di ${maxRounds} round.\n\n🏆 ${playersWithMaxRounds[0].name} vince con ${maxRoundsWon} round vinti!`,
+            [{text: 'OK'}]
+          );
+          await endGame(playersWithMaxRounds[0]);
+        } else {
+          // Pareggio
+          Alert.alert(
+            'Pareggio!',
+            `La partita ha raggiunto il limite massimo di ${maxRounds} round.\n\nPareggio tra:\n${playersWithMaxRounds.map(p => `${p.name} (${p.roundsWon} round)`).join('\n')}`,
+            [{text: 'OK'}]
+          );
+          // Termina comunque la partita con il primo giocatore in pareggio come "vincitore"
+          await endGame(playersWithMaxRounds[0]);
+        }
+        return;
+      }
+
       // Notifica il vincitore del round
       Alert.alert(
         `Round ${gameState.currentRound} Completato!`,
@@ -180,9 +210,22 @@ export const GameProvider = ({children}) => {
         // Quando qualcuno supera il target, vince chi ha il punteggio PIÙ BASSO
         const hasExceeded = currentPlayers.some(p => p.score >= preset.targetScore);
         if (hasExceeded) {
-          winner = currentPlayers.reduce((lowest, player) =>
-            player.score < lowest.score ? player : lowest
-          );
+          // Trova il punteggio più basso
+          const lowestScore = Math.min(...currentPlayers.map(p => p.score));
+          // Trova tutti i giocatori con quel punteggio
+          const playersWithLowestScore = currentPlayers.filter(p => p.score === lowestScore);
+
+          // Se c'è un solo giocatore con il punteggio più basso, ha vinto
+          if (playersWithLowestScore.length === 1) {
+            winner = playersWithLowestScore[0];
+          } else {
+            // Pareggio: mostra alert e continua a giocare
+            Alert.alert(
+              'Pareggio!',
+              `Più giocatori hanno il punteggio più basso (${lowestScore}). Continuate a giocare per determinare il vincitore!\n\n${playersWithLowestScore.map(p => p.name).join(', ')}`,
+              [{text: 'OK'}]
+            );
+          }
         }
         break;
       case 'darts':
