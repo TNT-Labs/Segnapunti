@@ -162,16 +162,16 @@
 <body>
   <div class="container">
     <h1>🔒 Privacy Policy</h1>
-    <p class="last-updated"><strong>Ultimo aggiornamento:</strong> 27 Novembre 2025</p>
-    <p class="last-updated"><strong>Versione:</strong> 1.0.0</p>
+    <p class="last-updated"><strong>Ultimo aggiornamento:</strong> 9 Gennaio 2026</p>
+    <p class="last-updated"><strong>Versione:</strong> 2.0.0</p>
 
     <div class="highlight">
-      <strong>📌 In Breve:</strong> Segnapunti è un'applicazione per tracciare punteggi di giochi da tavolo. Tutti i tuoi dati rimangono <strong>sul tuo dispositivo</strong>. Non raccogliamo, non vendiamo e non condividiamo nessuna tua informazione personale. Utilizziamo Google AdSense per mostrare pubblicità, che può raccogliere dati anonimi per personalizzare gli annunci.
+      <strong>📌 In Breve:</strong> Segnapunti è un'applicazione mobile per tracciare punteggi di giochi da tavolo. Tutti i tuoi dati rimangono <strong>sul tuo dispositivo</strong>. Non raccogliamo, non vendiamo e non condividiamo nessuna tua informazione personale. Utilizziamo Google Mobile Ads (AdMob) per mostrare pubblicità, che può raccogliere dati anonimi per personalizzare gli annunci secondo le tue preferenze GDPR.
     </div>
 
     <h2>1. Chi Siamo</h2>
     <p>
-      <strong>Segnapunti</strong> è un'applicazione web progressiva (PWA) sviluppata da <strong>TNT Labs</strong> per aiutare i giocatori a tenere traccia dei punteggi durante partite a giochi da tavolo, carte e altri giochi competitivi.
+      <strong>Segnapunti</strong> è un'applicazione mobile nativa sviluppata da <strong>TNT Labs</strong> per Android e iOS, progettata per aiutare i giocatori a tenere traccia dei punteggi durante partite a giochi da tavolo, carte e altri giochi competitivi.
     </p>
     <p>
       <strong>Sviluppatore:</strong> TNT Labs<br>
@@ -182,66 +182,82 @@
     <h2>2. Quali Dati Raccogliamo</h2>
 
     <h3>2.1 Dati Memorizzati Localmente (Sul Tuo Dispositivo)</h3>
-    <p>L'applicazione memorizza i seguenti dati <strong>esclusivamente sul tuo dispositivo</strong> utilizzando tecnologie web standard (IndexedDB e LocalStorage):</p>
+    <p>L'applicazione memorizza i seguenti dati <strong>esclusivamente sul tuo dispositivo</strong> utilizzando AsyncStorage, lo storage nativo di React Native:</p>
 
     <table>
       <thead>
         <tr>
           <th>Tipo di Dato</th>
           <th>Scopo</th>
-          <th>Dove è Memorizzato</th>
+          <th>Chiave Storage</th>
         </tr>
       </thead>
       <tbody>
         <tr>
           <td><strong>Nomi Giocatori</strong></td>
           <td>Tenere traccia dei partecipanti alle partite</td>
-          <td>IndexedDB (locale)</td>
+          <td>@segnapunti:gameState</td>
         </tr>
         <tr>
           <td><strong>Punteggi e Rounds</strong></td>
-          <td>Registrare i risultati delle partite</td>
-          <td>IndexedDB (locale)</td>
+          <td>Registrare i risultati delle partite in corso</td>
+          <td>@segnapunti:gameState</td>
         </tr>
         <tr>
           <td><strong>Storico Partite</strong></td>
-          <td>Visualizzare statistiche e cronologia</td>
-          <td>IndexedDB (locale)</td>
+          <td>Visualizzare cronologia delle partite completate</td>
+          <td>@segnapunti:gameHistory</td>
         </tr>
         <tr>
-          <td><strong>Preset di Gioco</strong></td>
-          <td>Salvare configurazioni personalizzate</td>
-          <td>LocalStorage (locale)</td>
+          <td><strong>Preset di Gioco Personalizzati</strong></td>
+          <td>Salvare configurazioni di gioco create dall'utente</td>
+          <td>@segnapunti:presets</td>
         </tr>
         <tr>
           <td><strong>Preferenze UI</strong></td>
-          <td>Ricordare tema (dark/light mode)</td>
-          <td>LocalStorage (locale)</td>
+          <td>Ricordare tema scuro/chiaro e altre impostazioni</td>
+          <td>@segnapunti:darkMode, @segnapunti:settings</td>
+        </tr>
+        <tr>
+          <td><strong>Consenso GDPR</strong></td>
+          <td>Memorizzare preferenze consenso pubblicità</td>
+          <td>Gestito da Google Mobile Ads SDK</td>
         </tr>
       </tbody>
     </table>
 
     <div class="info-box">
-      <strong>✅ Importante:</strong> Questi dati NON lasciano MAI il tuo dispositivo. Non abbiamo accesso ai tuoi punteggi, nomi giocatori o qualsiasi altra informazione salvata nell'app. Se cancelli i dati del browser o disinstalli l'app, tutti questi dati vengono eliminati permanentemente.
+      <strong>✅ Importante:</strong> Questi dati NON lasciano MAI il tuo dispositivo. Non abbiamo accesso ai tuoi punteggi, nomi giocatori o qualsiasi altra informazione salvata nell'app. Se cancelli i dati dell'app o la disinstalli, tutti questi dati vengono eliminati permanentemente.
     </div>
 
-    <h3>2.2 Dati Raccolti da Terze Parti (Google AdSense)</h3>
+    <h3>2.2 Dati Raccolti da Terze Parti (Google Mobile Ads - AdMob)</h3>
     <p>
-      Per sostenere lo sviluppo e la manutenzione dell'applicazione, utilizziamo <strong>Google AdSense</strong> per mostrare pubblicità. Google potrebbe raccogliere automaticamente:
+      Per sostenere lo sviluppo e la manutenzione dell'applicazione, utilizziamo <strong>Google Mobile Ads (AdMob)</strong> per mostrare pubblicità. Google potrebbe raccogliere automaticamente:
     </p>
     <ul>
-      <li><strong>Identificatori pubblicitari:</strong> Cookie e ID dispositivo per personalizzare gli annunci</li>
-      <li><strong>Informazioni di navigazione:</strong> Pagine visitate, tempo di permanenza, interazioni</li>
-      <li><strong>Informazioni tecniche:</strong> Tipo di browser, sistema operativo, indirizzo IP (anonimizzato)</li>
-      <li><strong>Posizione approssimativa:</strong> Città/regione dedotta dall'IP (non GPS preciso)</li>
+      <li><strong>Advertising ID:</strong> ID pubblicitario del dispositivo (resettabile dalle impostazioni)</li>
+      <li><strong>Informazioni sul dispositivo:</strong> Modello dispositivo, versione OS, manufacturer</li>
+      <li><strong>Informazioni di utilizzo app:</strong> Schermate visualizzate, tempo di utilizzo, interazioni con gli annunci</li>
+      <li><strong>Informazioni tecniche:</strong> Indirizzo IP (anonimizzato), carrier di rete, fuso orario</li>
+      <li><strong>Posizione approssimativa:</strong> Città/regione dedotta dall'IP (l'app NON accede al GPS)</li>
     </ul>
+
+    <div class="highlight">
+      <strong>🔒 Gestione Consenso GDPR:</strong> Al primo avvio dell'app, ti viene chiesto il consenso per gli annunci personalizzati secondo il GDPR. Puoi scegliere di:
+      <ul style="margin-top: 10px;">
+        <li>✅ <strong>Accettare annunci personalizzati:</strong> Gli annunci saranno più pertinenti ai tuoi interessi</li>
+        <li>❌ <strong>Rifiutare annunci personalizzati:</strong> Vedrai annunci generici non basati sul tuo profilo</li>
+      </ul>
+      <p style="margin-top: 10px;"><strong>Nota:</strong> In entrambi i casi, Google AdMob raccoglierà dati tecnici minimi necessari per mostrare gli annunci, ma se rifiuti, non verranno usati dati personali per la personalizzazione.</p>
+    </div>
 
     <p>
       <strong>Non abbiamo controllo su questi dati</strong> e non abbiamo accesso alle informazioni raccolte da Google. Per maggiori dettagli, consulta:
     </p>
     <ul>
       <li><a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Privacy Policy di Google</a></li>
-      <li><a href="https://policies.google.com/technologies/ads" target="_blank" rel="noopener">Come Google utilizza i dati pubblicitari</a></li>
+      <li><a href="https://support.google.com/admob/answer/6128543" target="_blank" rel="noopener">Google AdMob e Privacy dell'Utente</a></li>
+      <li><a href="https://support.google.com/googleplay/android-developer/answer/10787469" target="_blank" rel="noopener">Trasparenza Pubblicità su Android</a></li>
     </ul>
 
     <h3>2.3 Dati Analitici (Opzionale - Se Implementato)</h3>
@@ -258,11 +274,12 @@
       <li>✅ Funzionamento offline dell'applicazione</li>
     </ul>
 
-    <h3>3.2 Dati Pubblicitari (Google AdSense)</h3>
+    <h3>3.2 Dati Pubblicitari (Google Mobile Ads - AdMob)</h3>
     <ul>
-      <li>📢 Mostrare annunci pubblicitari pertinenti</li>
-      <li>💰 Generare entrate per sostenere lo sviluppo</li>
-      <li>📊 Misurare l'efficacia delle campagne pubblicitarie (gestito da Google)</li>
+      <li>📢 Mostrare banner pubblicitari nelle schermate dell'app</li>
+      <li>💰 Generare entrate per sostenere lo sviluppo e la manutenzione gratuita dell'app</li>
+      <li>📊 Misurare l'efficacia delle campagne pubblicitarie (gestito interamente da Google)</li>
+      <li>🎯 Personalizzare gli annunci in base alle tue preferenze di consenso GDPR</li>
     </ul>
 
     <h2>4. Condivisione dei Dati</h2>
@@ -280,14 +297,14 @@
       </thead>
       <tbody>
         <tr>
-          <td><strong>Google AdSense</strong></td>
-          <td>Pubblicità contestuale</td>
-          <td>Cookie, ID pubblicitari, dati di navigazione anonimi</td>
+          <td><strong>Google Mobile Ads (AdMob)</strong></td>
+          <td>Pubblicità mobile in-app</td>
+          <td>Advertising ID, info dispositivo, interazioni con annunci, preferenze GDPR</td>
         </tr>
         <tr>
-          <td><strong>Hosting Provider</strong></td>
-          <td>Servire l'applicazione web</td>
-          <td>Indirizzo IP, User-Agent (log tecnici standard)</td>
+          <td><strong>Google Play Store / Apple App Store</strong></td>
+          <td>Distribuzione app e aggiornamenti</td>
+          <td>Dati di installazione, crash reports (opzionali), recensioni</td>
         </tr>
       </tbody>
     </table>
@@ -306,37 +323,36 @@
       Poiché tutti i dati sono memorizzati localmente sul tuo dispositivo, hai accesso completo in qualsiasi momento:
     </p>
     <ul>
-      <li>🔍 <strong>Visualizza i tuoi dati:</strong> Apri l'app → Sezione "Storico" o "Statistiche"</li>
-      <li>📥 <strong>Esporta i tuoi dati:</strong> Usa la funzione "Esporta CSV" o "Esporta PDF" nella pagina Storico</li>
+      <li>🔍 <strong>Visualizza i tuoi dati:</strong> Apri l'app → Tab "Storico" per vedere tutte le partite salvate</li>
+      <li>📊 <strong>Consulta dati in corso:</strong> Apri l'app → Tab "Partita" per vedere i dati della partita corrente</li>
+      <li>⚙️ <strong>Verifica preset:</strong> Apri l'app → Tab "Preset" per vedere le configurazioni salvate</li>
     </ul>
 
     <h3>5.2 Diritto di Cancellazione ("Diritto all'Oblio")</h3>
     <p>Puoi eliminare i tuoi dati in qualsiasi momento:</p>
     <ul>
-      <li>🗑️ <strong>Cancella Storico:</strong> Apri l'app → Storico → "Cancella Tutto lo Storico"</li>
-      <li>🧹 <strong>Cancella Preset:</strong> Apri l'app → Gestione Giochi → Elimina singoli preset</li>
-      <li>💣 <strong>Reset Completo:</strong>
+      <li>🗑️ <strong>Cancella Storico Completo:</strong> Apri l'app → Tab "Storico" → Pulsante "Elimina Tutto lo Storico"</li>
+      <li>🧹 <strong>Cancella Singoli Preset:</strong> Apri l'app → Tab "Preset" → Elimina preset personalizzati individualmente</li>
+      <li>💣 <strong>Reset Completo App:</strong>
         <ol>
-          <li>Apri le Impostazioni del browser</li>
-          <li>Vai su "Privacy e Sicurezza" → "Cancella dati di navigazione"</li>
-          <li>Seleziona "Cookie e dati dei siti" e "Immagini e file memorizzati nella cache"</li>
-          <li>Scegli il periodo "Tutto" e conferma</li>
+          <li><strong>Android:</strong> Impostazioni → App → Segnapunti → Archiviazione → "Cancella dati" + "Cancella cache"</li>
+          <li><strong>iOS:</strong> Elimina e reinstalla l'app (tutti i dati vengono cancellati)</li>
         </ol>
       </li>
     </ul>
 
     <h3>5.3 Diritto di Opposizione alla Pubblicità</h3>
-    <p>Puoi gestire le preferenze pubblicitarie:</p>
+    <p>Puoi gestire le preferenze pubblicitarie in diversi modi:</p>
     <ul>
-      <li>🚫 <strong>Disattiva annunci personalizzati:</strong> <a href="https://adssettings.google.com/" target="_blank" rel="noopener">Google Ads Settings</a></li>
-      <li>🍪 <strong>Blocca cookie pubblicitari:</strong> Imposta il browser in "modalità navigazione privata" o usa estensioni come uBlock Origin</li>
-      <li>📱 <strong>Su Android:</strong> Impostazioni → Google → Annunci → "Disattiva annunci basati sugli interessi"</li>
-      <li>🍎 <strong>Su iOS:</strong> Impostazioni → Privacy → Pubblicità Apple → "Limite tracciamento annunci"</li>
+      <li>📱 <strong>Reset Advertising ID Android:</strong> Impostazioni → Google → Annunci → "Resetta ID pubblicitario"</li>
+      <li>🍎 <strong>Limit Ad Tracking iOS:</strong> Impostazioni → Privacy e Sicurezza → Tracking → Disattiva "Consenti richieste di tracking"</li>
+      <li>🚫 <strong>Gestisci preferenze Google:</strong> <a href="https://adssettings.google.com/" target="_blank" rel="noopener">Google Ads Settings</a></li>
+      <li>🔄 <strong>Modifica consenso GDPR:</strong> Al momento la gestione del consenso avviene solo al primo avvio. Per modificarlo, cancella i dati dell'app e riavviala (verrà richiesto nuovamente il consenso)</li>
     </ul>
 
     <h3>5.4 Diritto di Portabilità</h3>
     <p>
-      ✅ Puoi esportare tutti i tuoi dati in formato <strong>CSV</strong> o <strong>PDF</strong> usando la funzione "Esporta" nella sezione Storico. I file generati sono in formato standard e possono essere aperti con qualsiasi foglio di calcolo (Excel, Google Sheets, LibreOffice).
+      ⚠️ <strong>Attualmente non disponibile:</strong> La funzionalità di esportazione dati in CSV/PDF non è ancora implementata. È prevista per una futura versione dell'app. Nel frattempo, i tuoi dati rimangono sempre accessibili localmente sull'app.
     </p>
 
     <h2>6. Sicurezza dei Dati</h2>
@@ -344,63 +360,83 @@
 
     <h3>6.1 Sicurezza Tecnica</h3>
     <ul>
-      <li>🔒 <strong>HTTPS obbligatorio:</strong> Tutta la comunicazione è crittografata con SSL/TLS</li>
-      <li>🛡️ <strong>Content Security Policy (CSP):</strong> Protezione contro attacchi XSS</li>
-      <li>✅ <strong>Sanificazione input:</strong> Tutti gli input utente vengono validati e sanificati</li>
-      <li>🔐 <strong>No database cloud:</strong> Nessun database remoto significa zero rischio di data breach lato server</li>
+      <li>🔒 <strong>Comunicazioni crittografate:</strong> Tutte le chiamate API (AdMob, aggiornamenti) usano HTTPS/TLS</li>
+      <li>🛡️ <strong>App sandboxing:</strong> L'app opera in un ambiente isolato secondo le policy di Android/iOS</li>
+      <li>✅ <strong>Validazione input:</strong> Tutti gli input utente vengono validati e sanificati</li>
+      <li>🔐 <strong>Storage locale protetto:</strong> AsyncStorage usa lo storage sicuro nativo del sistema operativo</li>
+      <li>📱 <strong>Permessi minimi:</strong> L'app richiede solo i permessi strettamente necessari (internet per annunci)</li>
+      <li>🚫 <strong>No database cloud:</strong> Nessun server remoto significa zero rischio di data breach lato server</li>
     </ul>
 
-    <h3>6.2 Limitazioni</h3>
+    <h3>6.2 Responsabilità dell'Utente</h3>
     <p>
       ⚠️ <strong>Importante:</strong> Poiché i dati sono memorizzati localmente sul tuo dispositivo, la sicurezza dipende anche da te:
     </p>
     <ul>
-      <li>🔒 Proteggi il tuo dispositivo con password/PIN/biometria</li>
-      <li>🔄 Mantieni aggiornato il sistema operativo e il browser</li>
+      <li>🔒 Proteggi il tuo dispositivo con password/PIN/impronta digitale/Face ID</li>
+      <li>🔄 Mantieni aggiornati sistema operativo e app (gli aggiornamenti contengono patch di sicurezza)</li>
       <li>⚠️ Non condividere il dispositivo con persone non autorizzate</li>
-      <li>💾 Fai backup regolari esportando i dati (CSV/PDF)</li>
+      <li>📲 Scarica l'app solo da store ufficiali (Google Play Store, Apple App Store)</li>
+      <li>🚫 Evita di installare l'app su dispositivi rooted/jailbroken (riduce la sicurezza)</li>
     </ul>
 
-    <h2>7. Cookie e Tecnologie di Tracciamento</h2>
+    <h2>7. Storage Locale e Tecnologie di Tracciamento</h2>
 
-    <h3>7.1 Cookie Tecnici (Strettamente Necessari)</h3>
+    <h3>7.1 Storage Locale (AsyncStorage - Necessario per Funzionamento)</h3>
+    <p>L'app utilizza AsyncStorage (storage nativo di React Native) per memorizzare dati sul dispositivo:</p>
     <table>
       <thead>
         <tr>
-          <th>Nome</th>
+          <th>Chiave</th>
           <th>Scopo</th>
           <th>Durata</th>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td><strong>darkMode</strong></td>
-          <td>Memorizza la preferenza tema (dark/light)</td>
-          <td>Permanente (LocalStorage)</td>
+          <td><strong>@segnapunti:gameState</strong></td>
+          <td>Stato partita corrente (giocatori, punteggi, round)</td>
+          <td>Finché non cancellato manualmente</td>
         </tr>
         <tr>
-          <td><strong>segnapunti_state_fallback</strong></td>
-          <td>Backup stato partita per Safari Private Mode</td>
-          <td>Permanente (LocalStorage)</td>
+          <td><strong>@segnapunti:gameHistory</strong></td>
+          <td>Storico partite completate</td>
+          <td>Finché non cancellato manualmente</td>
+        </tr>
+        <tr>
+          <td><strong>@segnapunti:presets</strong></td>
+          <td>Preset di gioco personalizzati creati dall'utente</td>
+          <td>Finché non cancellato manualmente</td>
+        </tr>
+        <tr>
+          <td><strong>@segnapunti:darkMode</strong></td>
+          <td>Preferenza tema scuro/chiaro</td>
+          <td>Finché non cancellato manualmente</td>
+        </tr>
+        <tr>
+          <td><strong>@segnapunti:settings</strong></td>
+          <td>Altre impostazioni dell'app</td>
+          <td>Finché non cancellato manualmente</td>
         </tr>
       </tbody>
     </table>
 
-    <h3>7.2 Cookie di Terze Parti (Google AdSense)</h3>
-    <p>Google AdSense utilizza cookie per:</p>
+    <h3>7.2 Identificatori Pubblicitari (Google Mobile Ads)</h3>
+    <p>Google Mobile Ads (AdMob) utilizza identificatori del dispositivo per:</p>
     <ul>
-      <li>Personalizzare gli annunci in base ai tuoi interessi</li>
-      <li>Limitare il numero di volte che vedi lo stesso annuncio</li>
-      <li>Misurare l'efficacia delle campagne pubblicitarie</li>
+      <li>🎯 Personalizzare gli annunci in base ai tuoi interessi (solo se consenti annunci personalizzati)</li>
+      <li>🔢 Limitare la frequenza degli annunci (frequency capping)</li>
+      <li>📊 Misurare l'efficacia delle campagne pubblicitarie</li>
+      <li>🚫 Prevenire frodi pubblicitarie</li>
     </ul>
 
     <p>
-      <strong>Gestisci cookie AdSense:</strong>
+      <strong>Gestisci preferenze pubblicitarie:</strong>
     </p>
     <ul>
-      <li>🔧 <a href="https://adssettings.google.com/" target="_blank" rel="noopener">Google Ads Settings</a></li>
-      <li>🚫 <a href="https://optout.aboutads.info/" target="_blank" rel="noopener">DAA Opt-Out</a></li>
-      <li>🇪🇺 <a href="https://www.youronlinechoices.com/" target="_blank" rel="noopener">Your Online Choices (EU)</a></li>
+      <li>📱 <strong>Android:</strong> Impostazioni → Google → Annunci → Resetta ID / Disattiva personalizzazione</li>
+      <li>🍎 <strong>iOS:</strong> Impostazioni → Privacy e Sicurezza → Tracking → Disattiva tracking</li>
+      <li>🔧 <strong>Online:</strong> <a href="https://adssettings.google.com/" target="_blank" rel="noopener">Google Ads Settings</a></li>
     </ul>
 
     <h2>8. Privacy dei Minori</h2>
@@ -408,15 +444,17 @@
       L'applicazione Segnapunti è adatta a <strong>tutte le età</strong> e non raccoglie consapevolmente informazioni personali identificabili da minori di 13 anni (o 16 anni nell'UE).
     </p>
     <p>
-      Poiché l'app non richiede registrazione e non raccoglie dati personali (tutti i dati rimangono sul dispositivo), può essere utilizzata in sicurezza anche da minori sotto la supervisione di un adulto.
+      Poiché l'app non richiede registrazione e non raccoglie dati personali identificabili (tutti i dati delle partite rimangono sul dispositivo), può essere utilizzata in sicurezza anche da minori sotto la supervisione di un adulto.
     </p>
     <p>
-      <strong>Nota per i genitori:</strong> Gli annunci pubblicitari di Google AdSense potrebbero essere visualizzati. Google applica politiche rigorose per garantire che gli annunci siano appropriati per tutte le età. Tuttavia, se desideri un controllo totale, puoi:
+      <strong>Nota per i genitori:</strong> L'app mostra banner pubblicitari tramite Google Mobile Ads. Google applica politiche rigorose (incluse le policy "Families") per garantire che gli annunci siano appropriati per tutte le età. Inoltre:
     </p>
     <ul>
-      <li>Utilizzare l'app in modalità aereo (offline)</li>
-      <li>Usare un ad-blocker nel browser</li>
-      <li>Abilitare il parental control del dispositivo</li>
+      <li>✅ Al primo avvio, puoi rifiutare annunci personalizzati (verranno mostrati solo annunci generici)</li>
+      <li>🔒 L'app non raccoglie dati sensibili (posizione GPS, contatti, foto, ecc.)</li>
+      <li>👨‍👩‍👧‍👦 Puoi abilitare il parental control del dispositivo per maggiore sicurezza</li>
+      <li>📱 Su Android: Family Link permette di gestire contenuti e tempo d'uso</li>
+      <li>🍎 Su iOS: Tempo di utilizzo permette restrizioni su app e contenuti</li>
     </ul>
 
     <h2>9. Trasferimenti Internazionali di Dati</h2>
@@ -463,15 +501,19 @@
       </thead>
       <tbody>
         <tr>
-          <td>Memorizzazione dati di gioco locali</td>
+          <td>Memorizzazione dati di gioco locali (AsyncStorage)</td>
           <td><strong>Esecuzione contratto</strong> (Art. 6(1)(b) GDPR) - Necessario per fornire il servizio</td>
         </tr>
         <tr>
-          <td>Google AdSense (pubblicità)</td>
-          <td><strong>Interesse legittimo</strong> (Art. 6(1)(f) GDPR) - Sostenere lo sviluppo dell'app</td>
+          <td>Google Mobile Ads - annunci non personalizzati</td>
+          <td><strong>Interesse legittimo</strong> (Art. 6(1)(f) GDPR) - Sostenere lo sviluppo gratuito dell'app</td>
         </tr>
         <tr>
-          <td>Cookie tecnici essenziali</td>
+          <td>Google Mobile Ads - annunci personalizzati</td>
+          <td><strong>Consenso</strong> (Art. 6(1)(a) GDPR) - Richiesto tramite form GDPR al primo avvio</td>
+        </tr>
+        <tr>
+          <td>Storage tecnico essenziale (preset, tema, impostazioni)</td>
           <td><strong>Esecuzione contratto</strong> (Art. 6(1)(b) GDPR) - Funzionamento dell'app</td>
         </tr>
       </tbody>
@@ -479,9 +521,10 @@
 
     <h2>12. Periodo di Conservazione</h2>
     <ul>
-      <li>📊 <strong>Dati di gioco (locali):</strong> Conservati indefinitamente sul tuo dispositivo fino a cancellazione manuale</li>
-      <li>🍪 <strong>Cookie tecnici:</strong> Conservati indefinitamente fino a cancellazione dati browser</li>
-      <li>📢 <strong>Dati pubblicitari (Google):</strong> Gestiti da Google secondo la loro <a href="https://policies.google.com/technologies/retention" target="_blank" rel="noopener">politica di conservazione</a> (tipicamente 24 mesi per cookie pubblicitari)</li>
+      <li>📊 <strong>Dati di gioco (AsyncStorage locale):</strong> Conservati indefinitamente sul tuo dispositivo fino a cancellazione manuale o disinstallazione app</li>
+      <li>⚙️ <strong>Preferenze e impostazioni:</strong> Conservate indefinitamente sul tuo dispositivo fino a cancellazione manuale o disinstallazione app</li>
+      <li>🔒 <strong>Consenso GDPR:</strong> Memorizzato sul dispositivo fino a reset manuale dei dati app</li>
+      <li>📢 <strong>Dati pubblicitari (Google AdMob):</strong> Gestiti da Google secondo la loro <a href="https://policies.google.com/technologies/retention" target="_blank" rel="noopener">politica di conservazione</a> (tipicamente 90-540 giorni per advertising ID)</li>
     </ul>
 
     <h2>13. Autorità di Controllo</h2>
@@ -505,73 +548,99 @@
 
     <h3>❓ I miei dati sono al sicuro?</h3>
     <p>
-      ✅ Sì! Tutti i dati delle partite rimangono sul tuo dispositivo e non vengono mai inviati a nessun server. Solo Google AdSense raccoglie dati pubblicitari anonimi.
+      ✅ Sì! Tutti i dati delle partite rimangono sul tuo dispositivo (AsyncStorage) e non vengono mai inviati a nessun server. Solo Google Mobile Ads raccoglie dati pubblicitari secondo le tue preferenze GDPR.
     </p>
 
-    <h3>❓ Posso usare l'app offline?</h3>
+    <h3>❓ L'app funziona offline?</h3>
     <p>
-      ✅ Sì! L'app funziona completamente offline. Solo gli annunci pubblicitari richiedono connessione internet.
+      ✅ Sì! Le funzionalità principali (tracciamento punteggi, storico, preset) funzionano completamente offline. Solo i banner pubblicitari richiedono connessione internet.
     </p>
 
     <h3>❓ Cosa succede se cambio dispositivo?</h3>
     <p>
-      ⚠️ I dati non si sincronizzano automaticamente tra dispositivi. Prima di cambiare dispositivo:
+      ⚠️ I dati non si sincronizzano automaticamente tra dispositivi. Se cambi dispositivo o disinstalli l'app, <strong>tutti i dati locali vengono persi</strong>. Attualmente non è disponibile un sistema di backup/esportazione (previsto per future versioni).
+    </p>
+
+    <h3>❓ Come rimuovo o modifico il consenso GDPR?</h3>
+    <p>
+      Al momento, il consenso GDPR viene richiesto solo al primo avvio dell'app. Per modificarlo:
     </p>
     <ol>
-      <li>Esporta lo storico in CSV/PDF (Storico → Esporta)</li>
-      <li>Salva il file sul cloud (Google Drive, Dropbox, etc.)</li>
-      <li>Sul nuovo dispositivo, importa manualmente i dati (se necessario)</li>
+      <li><strong>Android:</strong> Impostazioni → App → Segnapunti → Archiviazione → "Cancella dati"</li>
+      <li><strong>iOS:</strong> Elimina e reinstalla l'app</li>
+      <li>Al prossimo avvio, ti verrà richiesto nuovamente il consenso</li>
     </ol>
-
-    <h3>❓ Come rimuovo gli annunci?</h3>
-    <p>
-      Attualmente non offriamo una versione premium senza pubblicità. Puoi:
-    </p>
-    <ul>
-      <li>Usare l'app offline (nessun annuncio senza connessione)</li>
-      <li>Disattivare annunci personalizzati su <a href="https://adssettings.google.com/" target="_blank" rel="noopener">Google Ads Settings</a></li>
-      <li>Usare un ad-blocker (a tuo rischio)</li>
-    </ul>
 
     <h3>❓ L'app raccoglie la mia posizione GPS?</h3>
     <p>
-      ❌ No! L'app non richiede né accede ai permessi di localizzazione. Google AdSense potrebbe dedurre una posizione approssimativa (città/regione) dall'indirizzo IP per annunci contestuali, ma non usa il GPS.
+      ❌ No! L'app NON richiede né accede ai permessi di localizzazione GPS. Google AdMob potrebbe dedurre una posizione approssimativa (città/regione) dall'indirizzo IP per annunci contestuali, ma non usa mai il GPS preciso.
     </p>
 
-    <h3>❓ Posso cancellare solo alcune partite?</h3>
+    <h3>❓ Posso cancellare singole partite dallo storico?</h3>
     <p>
-      ⚠️ Attualmente l'app permette solo di cancellare tutto lo storico in blocco. La cancellazione selettiva sarà implementata in una futura versione.
+      ❌ Attualmente l'app permette solo di cancellare tutto lo storico in blocco tramite il pulsante "Elimina Tutto lo Storico". La cancellazione selettiva di singole partite sarà implementata in una futura versione.
     </p>
+
+    <h3>❓ Quali permessi richiede l'app?</h3>
+    <p>
+      L'app richiede <strong>solo il permesso INTERNET</strong> per mostrare i banner pubblicitari. Non richiede:
+    </p>
+    <ul>
+      <li>❌ Posizione GPS</li>
+      <li>❌ Accesso a foto/galleria</li>
+      <li>❌ Accesso a contatti</li>
+      <li>❌ Accesso a microfono/fotocamera</li>
+      <li>❌ Chiamate telefoniche</li>
+    </ul>
 
     <h2>15. Tecnologie Utilizzate</h2>
-    <p>Per trasparenza, ecco le tecnologie di storage utilizzate:</p>
+    <p>Per trasparenza, ecco le tecnologie e librerie utilizzate nell'app:</p>
 
     <table>
       <thead>
         <tr>
           <th>Tecnologia</th>
-          <th>Utilizzo</th>
-          <th>Limite Storage</th>
+          <th>Scopo</th>
+          <th>Versione</th>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td><strong>IndexedDB</strong></td>
-          <td>Storico partite, stato gioco</td>
-          <td>~50MB (variabile per browser)</td>
+          <td><strong>React Native</strong></td>
+          <td>Framework principale per app iOS/Android</td>
+          <td>0.74.x</td>
         </tr>
         <tr>
-          <td><strong>LocalStorage</strong></td>
-          <td>Preferenze UI, preset di gioco, fallback Safari</td>
-          <td>~5-10MB</td>
+          <td><strong>@react-native-async-storage/async-storage</strong></td>
+          <td>Storage locale persistente (dati partite, preset, impostazioni)</td>
+          <td>1.23.x</td>
         </tr>
         <tr>
-          <td><strong>Service Worker Cache</strong></td>
-          <td>Asset statici per funzionamento offline</td>
-          <td>~20MB</td>
+          <td><strong>react-native-google-mobile-ads</strong></td>
+          <td>Integrazione Google Mobile Ads (AdMob) per banner pubblicitari</td>
+          <td>13.6.x</td>
+        </tr>
+        <tr>
+          <td><strong>@react-navigation</strong></td>
+          <td>Navigazione tra schermate app</td>
+          <td>6.x</td>
+        </tr>
+        <tr>
+          <td><strong>react-native-paper</strong></td>
+          <td>Componenti UI Material Design</td>
+          <td>5.x</td>
         </tr>
       </tbody>
     </table>
+
+    <p style="margin-top: 20px;">
+      <strong>📝 Note tecniche:</strong>
+    </p>
+    <ul>
+      <li>💾 <strong>Limite storage:</strong> AsyncStorage non ha limiti fissi, ma dipende dallo spazio disponibile sul dispositivo (tipicamente diversi GB)</li>
+      <li>🔧 <strong>Compatibilità:</strong> L'app richiede Android 5.0+ (API 21+) o iOS 12.0+</li>
+      <li>📦 <strong>Dimensione app:</strong> ~20-30 MB (varia per piattaforma e architettura)</li>
+    </ul>
 
     <div class="contact-box">
       <h3>📬 Contattaci</h3>
@@ -596,8 +665,8 @@
     <hr style="margin: 40px 0; border: none; border-top: 2px solid #e0e0e0;">
 
     <p style="text-align: center; color: #666; font-size: 0.9em;">
-      <strong>Segnapunti</strong> - Sviluppato con ❤️ da TNT Labs<br>
-      Privacy Policy v1.0.0 - Ultimo aggiornamento: 27 Novembre 2025
+      <strong>Segnapunti</strong> - App Mobile Sviluppata con ❤️ da TNT Labs<br>
+      Privacy Policy v2.0.0 - Ultimo aggiornamento: 9 Gennaio 2026
     </p>
   </div>
 
