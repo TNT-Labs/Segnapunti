@@ -74,11 +74,14 @@ const AboutScreen = () => {
           </TouchableOpacity>
         </View>
 
+        {/* TODO: Riabilitare banner dopo aver creato Ad Unit ID valido su AdMob Console
+            Attualmente disabilitato perché usa un placeholder che causa errori in produzione
         <AdBanner
           size={AD_BANNER_SIZES.ABOUT_SCREEN}
           style={styles.adBanner}
           adUnitId={AD_UNITS.ABOUT_SCREEN}
         />
+        */}
 
         <Text
           style={[styles.footer, {color: theme.colors.textSecondary}]}

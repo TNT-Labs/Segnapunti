@@ -69,27 +69,27 @@ const AppNavigator = () => {
         <Tab.Screen
           name="Game"
           component={GameScreen}
-          options={{title: '🃏 Partita'}}
+          options={{title: 'Partita'}}
         />
         <Tab.Screen
           name="History"
           component={HistoryScreen}
-          options={{title: '📜 Storico'}}
+          options={{title: 'Storico'}}
         />
         <Tab.Screen
           name="Settings"
           component={SettingsScreen}
-          options={{title: '⚙️ Impostazioni'}}
+          options={{title: 'Impostazioni'}}
         />
         <Tab.Screen
           name="Presets"
           component={PresetManagerScreen}
-          options={{title: '🎮 Preset'}}
+          options={{title: 'Preset'}}
         />
         <Tab.Screen
           name="About"
           component={AboutScreen}
-          options={{title: 'ℹ️ Info'}}
+          options={{title: 'Info'}}
         />
       </Tab.Navigator>
     </NavigationContainer>
