@@ -14,6 +14,7 @@ import {useGame} from '../contexts/GameContext';
 import PresetCard from '../components/PresetCard';
 import AdBanner from '../components/AdBanner';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import consentService from '../services/ConsentService';
 
 const SettingsScreen = ({navigation, route}) => {
   const {theme, isDark, toggleDarkMode} = useTheme();
@@ -80,6 +81,45 @@ const SettingsScreen = ({navigation, route}) => {
     }
     const updatedNames = playerNames.filter((_, i) => i !== index);
     setPlayerNames(updatedNames);
+  };
+
+  const handlePrivacySettings = async () => {
+    try {
+      Alert.alert(
+        'Impostazioni Privacy',
+        'Vuoi rivedere le tue preferenze sulla privacy e gestire il consenso per gli annunci personalizzati?',
+        [
+          {
+            text: 'Annulla',
+            style: 'cancel',
+          },
+          {
+            text: 'Gestisci Consenso',
+            onPress: async () => {
+              // Reset del consenso e mostra il form di nuovo
+              await consentService.resetConsent();
+              const result = await consentService.initialize();
+
+              if (result.isRequired) {
+                const consentResult = await consentService.showConsentForm();
+                Alert.alert(
+                  'Preferenze Aggiornate',
+                  `Le tue preferenze sulla privacy sono state aggiornate. Stato: ${consentResult.status}`,
+                );
+              } else {
+                Alert.alert(
+                  'Informazione',
+                  'Il consenso GDPR non è richiesto nella tua regione.',
+                );
+              }
+            },
+          },
+        ],
+      );
+    } catch (error) {
+      console.error('Errore nelle impostazioni privacy:', error);
+      Alert.alert('Errore', 'Si è verificato un errore durante la gestione delle impostazioni privacy.');
+    }
   };
 
   const handleStartGame = async () => {
@@ -163,6 +203,28 @@ const SettingsScreen = ({navigation, route}) => {
           />
         </View>
       </View>
+
+      {/* Privacy Settings */}
+      <TouchableOpacity
+        accessible={true}
+        accessibilityLabel="Impostazioni privacy"
+        accessibilityHint="Gestisci le tue preferenze sulla privacy e il consenso per gli annunci"
+        accessibilityRole="button"
+        style={[styles.section, {backgroundColor: theme.colors.card}]}
+        onPress={handlePrivacySettings}>
+        <View style={styles.row}>
+          <Text
+            style={[styles.label, {color: theme.colors.text}]}
+            accessibilityRole="text">
+            🔒 Privacy & Consenso GDPR
+          </Text>
+          <Icon
+            name="chevron-right"
+            size={24}
+            color={theme.colors.text}
+          />
+        </View>
+      </TouchableOpacity>
 
       <AdBanner
         size="small"
