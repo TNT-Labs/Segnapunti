@@ -67,11 +67,11 @@ const HistoryScreen = () => {
             style={[styles.winner, {color: theme.colors.success}]}
             accessibilityRole="text"
             accessibilityLabel={`Vincitore: ${winner.name}`}>
-            🏆 Vincitore: {winner.name}
+            Vincitore: {winner.name}
           </Text>
         ) : (
           <Text style={[styles.noWinner, {color: theme.colors.warning}]}>
-            ⚠️ Partita incompleta o abbandonata
+            Partita incompleta o abbandonata
           </Text>
         )}
 
@@ -100,12 +100,13 @@ const HistoryScreen = () => {
     return (
       <View style={[styles.container, {backgroundColor: theme.colors.background}]}>
         <View style={styles.emptyState}>
-          <Text
+          <Icon
+            name="history"
+            size={64}
+            color={theme.colors.textSecondary}
             style={styles.emptyIcon}
             accessibilityLabel="Icona storico vuoto"
-            accessibilityRole="image">
-            📜
-          </Text>
+          />
           <Text
             style={[styles.emptyTitle, {color: theme.colors.text}]}
             accessibilityRole="header">
@@ -142,7 +143,8 @@ const HistoryScreen = () => {
               accessibilityRole="button"
               style={[styles.clearButton, {backgroundColor: theme.colors.error}]}
               onPress={handleClearAll}>
-              <Text style={styles.clearButtonText}>🗑️ Elimina Tutto lo Storico</Text>
+              <Icon name="delete-sweep" size={20} color="#FFFFFF" style={styles.clearButtonIcon} />
+              <Text style={styles.clearButtonText}>Elimina Tutto lo Storico</Text>
             </TouchableOpacity>
           </>
         }
@@ -155,10 +157,11 @@ const styles = StyleSheet.create({
   container: {flex: 1},
   list: {padding: 16, paddingBottom: 32},
   emptyState: {flex: 1, justifyContent: 'center', alignItems: 'center', padding: 32},
-  emptyIcon: {fontSize: 64, marginBottom: 16},
+  emptyIcon: {marginBottom: 16},
   emptyTitle: {fontSize: 24, fontWeight: 'bold', marginBottom: 8},
   emptySubtitle: {fontSize: 16, textAlign: 'center'},
-  clearButton: {paddingVertical: 12, borderRadius: 8, alignItems: 'center', marginBottom: 8},
+  clearButton: {flexDirection: 'row', paddingVertical: 12, borderRadius: 8, alignItems: 'center', justifyContent: 'center', marginBottom: 8, gap: 8},
+  clearButtonIcon: {marginRight: 4},
   clearButtonText: {color: '#FFFFFF', fontSize: 14, fontWeight: '600'},
   adBanner: {marginBottom: 16},
   gameCard: {padding: 16, borderRadius: 12, marginBottom: 12, elevation: 2, shadowColor: '#000', shadowOffset: {width: 0, height: 2}, shadowOpacity: 0.1, shadowRadius: 4},
