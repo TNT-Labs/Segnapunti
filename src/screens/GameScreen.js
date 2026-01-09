@@ -155,7 +155,11 @@ const GameScreen = ({navigation}) => {
           ))}
         </View>
 
-        <AdBanner size="small" style={styles.adBanner} />
+        <AdBanner
+          size="small"
+          style={styles.adBanner}
+          adUnitId="ca-app-pub-4302173868436591/2924694505"
+        />
 
         {gameState.isFinished ? (
           <View style={styles.actions}>

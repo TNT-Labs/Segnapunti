@@ -129,15 +129,22 @@ const HistoryScreen = () => {
         keyExtractor={item => item.id}
         contentContainerStyle={styles.list}
         ListHeaderComponent={
-          <TouchableOpacity
-            accessible={true}
-            accessibilityLabel="Elimina tutto lo storico"
-            accessibilityHint={`Rimuove tutte le ${gameHistory.length} partite salvate`}
-            accessibilityRole="button"
-            style={[styles.clearButton, {backgroundColor: theme.colors.error}]}
-            onPress={handleClearAll}>
-            <Text style={styles.clearButtonText}>🗑️ Elimina Tutto lo Storico</Text>
-          </TouchableOpacity>
+          <>
+            <AdBanner
+              size="medium"
+              style={styles.adBanner}
+              adUnitId="ca-app-pub-4302173868436591/6124127045"
+            />
+            <TouchableOpacity
+              accessible={true}
+              accessibilityLabel="Elimina tutto lo storico"
+              accessibilityHint={`Rimuove tutte le ${gameHistory.length} partite salvate`}
+              accessibilityRole="button"
+              style={[styles.clearButton, {backgroundColor: theme.colors.error}]}
+              onPress={handleClearAll}>
+              <Text style={styles.clearButtonText}>🗑️ Elimina Tutto lo Storico</Text>
+            </TouchableOpacity>
+          </>
         }
       />
     </View>
