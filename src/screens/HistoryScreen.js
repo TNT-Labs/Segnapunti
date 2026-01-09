@@ -3,6 +3,7 @@ import {View, Text, StyleSheet, FlatList, TouchableOpacity, Alert} from 'react-n
 import {useTheme} from '../contexts/ThemeContext';
 import {useGame} from '../contexts/GameContext';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import AdBanner from '../components/AdBanner';
 
 const HistoryScreen = () => {
   const {theme} = useTheme();
@@ -150,8 +151,9 @@ const styles = StyleSheet.create({
   emptyIcon: {fontSize: 64, marginBottom: 16},
   emptyTitle: {fontSize: 24, fontWeight: 'bold', marginBottom: 8},
   emptySubtitle: {fontSize: 16, textAlign: 'center'},
-  clearButton: {paddingVertical: 12, borderRadius: 8, alignItems: 'center', marginBottom: 16},
+  clearButton: {paddingVertical: 12, borderRadius: 8, alignItems: 'center', marginBottom: 8},
   clearButtonText: {color: '#FFFFFF', fontSize: 14, fontWeight: '600'},
+  adBanner: {marginBottom: 16},
   gameCard: {padding: 16, borderRadius: 12, marginBottom: 12, elevation: 2, shadowColor: '#000', shadowOffset: {width: 0, height: 2}, shadowOpacity: 0.1, shadowRadius: 4},
   gameHeader: {flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8},
   gameName: {fontSize: 18, fontWeight: 'bold', flex: 1},
