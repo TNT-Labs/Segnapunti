@@ -68,6 +68,10 @@ const HistoryScreen = () => {
             accessibilityLabel={`Vincitore: ${winner.name}`}>
             🏆 Vincitore: {winner.name}
           </Text>
+        ) : (
+          <Text style={[styles.noWinner, {color: theme.colors.warning}]}>
+            ⚠️ Partita incompleta o abbandonata
+          </Text>
         )}
 
         <View style={styles.players}>
@@ -153,6 +157,7 @@ const styles = StyleSheet.create({
   gameName: {fontSize: 18, fontWeight: 'bold', flex: 1},
   gameDate: {fontSize: 12, marginBottom: 8},
   winner: {fontSize: 14, fontWeight: '600', marginBottom: 12},
+  noWinner: {fontSize: 14, fontWeight: '600', marginBottom: 12, fontStyle: 'italic'},
   players: {gap: 6},
   playerRow: {flexDirection: 'row', justifyContent: 'space-between'},
   playerName: {fontSize: 14},

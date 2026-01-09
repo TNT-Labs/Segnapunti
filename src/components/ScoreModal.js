@@ -23,10 +23,15 @@ const ScoreModal = ({visible, onClose, onSubmit, playerName, incrementValues}) =
 
   const handleCustomSubmit = () => {
     const score = parseInt(customScore, 10);
-    if (!isNaN(score)) {
+    if (!isNaN(score) && customScore.trim() !== '') {
       onSubmit(score);
       setCustomScore('');
     }
+  };
+
+  const handleClose = () => {
+    setCustomScore('');
+    onClose();
   };
 
   return (
@@ -41,7 +46,7 @@ const ScoreModal = ({visible, onClose, onSubmit, playerName, incrementValues}) =
         accessibilityRole="button"
         style={styles.overlay}
         activeOpacity={1}
-        onPress={onClose}>
+        onPress={handleClose}>
         <View
           style={[styles.modal, {backgroundColor: theme.colors.card}]}
           onStartShouldSetResponder={() => true}>
@@ -68,9 +73,9 @@ const ScoreModal = ({visible, onClose, onSubmit, playerName, incrementValues}) =
                 borderColor: theme.colors.border,
               },
             ]}
-            placeholder="Inserisci punteggio"
+            placeholder="Es: +10 o -5"
             placeholderTextColor={theme.colors.textSecondary}
-            keyboardType="numeric"
+            keyboardType="numbers-and-punctuation"
             value={customScore}
             onChangeText={setCustomScore}
             autoFocus
@@ -103,7 +108,7 @@ const ScoreModal = ({visible, onClose, onSubmit, playerName, incrementValues}) =
               accessibilityHint="Chiude la modale senza aggiungere punti"
               accessibilityRole="button"
               style={[styles.button, {backgroundColor: theme.colors.border}]}
-              onPress={onClose}>
+              onPress={handleClose}>
               <Text style={[styles.buttonText, {color: theme.colors.text}]}>
                 Annulla
               </Text>
@@ -150,6 +155,12 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 16,
     marginBottom: 20,
+    textAlign: 'center',
+  },
+  sectionLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    marginBottom: 8,
     textAlign: 'center',
   },
   input: {

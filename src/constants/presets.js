@@ -39,7 +39,7 @@ export const DEFAULT_PRESETS = [
     mode: 'max',
     targetScore: 11,
     defaultPlayers: 2,
-    incrementValues: [1, 2, 3, 4, 5],
+    incrementValues: [1],
   },
   {
     id: 'pinnacola',

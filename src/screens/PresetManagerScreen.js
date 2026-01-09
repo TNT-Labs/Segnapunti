@@ -16,10 +16,26 @@ const PresetManagerScreen = ({navigation}) => {
     category: 'other',
     mode: 'max',
     targetScore: 100,
+    targetRounds: 3,
+    roundTargetScore: 21,
     defaultPlayers: 2,
   });
 
   const allPresets = getAllPresets();
+
+  const MODES = [
+    {value: 'max', label: 'Max (primo a raggiungere)'},
+    {value: 'min', label: 'Min (ultimo a superare)'},
+    {value: 'rounds', label: 'Rounds (migliore di X round)'},
+    {value: 'darts', label: 'Darts (da X a 0)'},
+  ];
+
+  const CATEGORIES = [
+    {value: 'cards', label: '🃏 Carte'},
+    {value: 'table', label: '🎲 Giochi da Tavolo'},
+    {value: 'sports', label: '⚽ Sport'},
+    {value: 'other', label: '🎯 Altri'},
+  ];
 
   const handleCreatePreset = () => {
     if (!newPreset.name.trim()) {
@@ -27,10 +43,29 @@ const PresetManagerScreen = ({navigation}) => {
       return;
     }
 
-    addCustomPreset({
-      ...newPreset,
+    if (newPreset.defaultPlayers < 2 || newPreset.defaultPlayers > 8) {
+      Alert.alert('Errore', 'Il numero di giocatori deve essere tra 2 e 8!');
+      return;
+    }
+
+    // Costruisci il preset in base alla modalità
+    const presetToAdd = {
+      name: newPreset.name,
+      icon: newPreset.icon,
+      category: newPreset.category,
+      mode: newPreset.mode,
+      defaultPlayers: newPreset.defaultPlayers,
       incrementValues: [5, 10, 20, 50],
-    });
+    };
+
+    if (newPreset.mode === 'rounds') {
+      presetToAdd.targetRounds = newPreset.targetRounds;
+      presetToAdd.roundTargetScore = newPreset.roundTargetScore;
+    } else {
+      presetToAdd.targetScore = newPreset.targetScore;
+    }
+
+    addCustomPreset(presetToAdd);
 
     setNewPreset({
       name: '',
@@ -38,6 +73,8 @@ const PresetManagerScreen = ({navigation}) => {
       category: 'other',
       mode: 'max',
       targetScore: 100,
+      targetRounds: 3,
+      roundTargetScore: 21,
       defaultPlayers: 2,
     });
     setShowForm(false);
@@ -88,38 +125,118 @@ const PresetManagerScreen = ({navigation}) => {
 
         {showForm && (
           <View style={[styles.form, {backgroundColor: theme.colors.card}]}>
+            <Text style={[styles.label, {color: theme.colors.text}]}>Nome Preset</Text>
             <TextInput
               accessible={true}
               accessibilityLabel="Nome preset"
               accessibilityHint="Inserisci il nome del nuovo preset"
               style={[styles.input, {backgroundColor: theme.colors.background, color: theme.colors.text, borderColor: theme.colors.border}]}
-              placeholder="Nome preset"
+              placeholder="Es: Mio Gioco Preferito"
               placeholderTextColor={theme.colors.textSecondary}
               value={newPreset.name}
               onChangeText={text => setNewPreset({...newPreset, name: text})}
             />
 
+            <Text style={[styles.label, {color: theme.colors.text}]}>Icona (emoji)</Text>
             <TextInput
               accessible={true}
               accessibilityLabel="Icona preset"
               accessibilityHint="Inserisci un'emoji per l'icona del preset"
               style={[styles.input, {backgroundColor: theme.colors.background, color: theme.colors.text, borderColor: theme.colors.border}]}
-              placeholder="Icona (emoji)"
+              placeholder="🎮"
               placeholderTextColor={theme.colors.textSecondary}
               value={newPreset.icon}
               onChangeText={text => setNewPreset({...newPreset, icon: text})}
+              maxLength={2}
             />
 
+            <Text style={[styles.label, {color: theme.colors.text}]}>Categoria</Text>
+            <View style={styles.buttonGroup}>
+              {CATEGORIES.map(cat => (
+                <TouchableOpacity
+                  key={cat.value}
+                  style={[
+                    styles.groupButton,
+                    {
+                      backgroundColor: newPreset.category === cat.value ? theme.colors.primary : theme.colors.border,
+                    },
+                  ]}
+                  onPress={() => setNewPreset({...newPreset, category: cat.value})}>
+                  <Text style={[styles.groupButtonText, {color: newPreset.category === cat.value ? '#FFFFFF' : theme.colors.text}]}>
+                    {cat.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            <Text style={[styles.label, {color: theme.colors.text}]}>Modalità di Gioco</Text>
+            <View style={styles.buttonGroup}>
+              {MODES.map(mode => (
+                <TouchableOpacity
+                  key={mode.value}
+                  style={[
+                    styles.groupButton,
+                    {
+                      backgroundColor: newPreset.mode === mode.value ? theme.colors.primary : theme.colors.border,
+                    },
+                  ]}
+                  onPress={() => setNewPreset({...newPreset, mode: mode.value})}>
+                  <Text style={[styles.groupButtonText, {color: newPreset.mode === mode.value ? '#FFFFFF' : theme.colors.text}]}>
+                    {mode.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            {newPreset.mode === 'rounds' ? (
+              <>
+                <Text style={[styles.label, {color: theme.colors.text}]}>Numero di Round da Vincere</Text>
+                <TextInput
+                  style={[styles.input, {backgroundColor: theme.colors.background, color: theme.colors.text, borderColor: theme.colors.border}]}
+                  placeholder="3"
+                  placeholderTextColor={theme.colors.textSecondary}
+                  keyboardType="numeric"
+                  value={String(newPreset.targetRounds)}
+                  onChangeText={text => setNewPreset({...newPreset, targetRounds: parseInt(text, 10) || 1})}
+                />
+
+                <Text style={[styles.label, {color: theme.colors.text}]}>Punteggio per Vincere un Round</Text>
+                <TextInput
+                  style={[styles.input, {backgroundColor: theme.colors.background, color: theme.colors.text, borderColor: theme.colors.border}]}
+                  placeholder="21"
+                  placeholderTextColor={theme.colors.textSecondary}
+                  keyboardType="numeric"
+                  value={String(newPreset.roundTargetScore)}
+                  onChangeText={text => setNewPreset({...newPreset, roundTargetScore: parseInt(text, 10) || 1})}
+                />
+              </>
+            ) : (
+              <>
+                <Text style={[styles.label, {color: theme.colors.text}]}>
+                  {newPreset.mode === 'darts' ? 'Punteggio Iniziale' : 'Punteggio Target'}
+                </Text>
+                <TextInput
+                  style={[styles.input, {backgroundColor: theme.colors.background, color: theme.colors.text, borderColor: theme.colors.border}]}
+                  placeholder="100"
+                  placeholderTextColor={theme.colors.textSecondary}
+                  keyboardType="numeric"
+                  value={String(newPreset.targetScore)}
+                  onChangeText={text => setNewPreset({...newPreset, targetScore: parseInt(text, 10) || 0})}
+                />
+              </>
+            )}
+
+            <Text style={[styles.label, {color: theme.colors.text}]}>Numero Giocatori Predefinito (2-8)</Text>
             <TextInput
               accessible={true}
               accessibilityLabel="Punteggio target"
               accessibilityHint="Inserisci il punteggio obiettivo del preset"
               style={[styles.input, {backgroundColor: theme.colors.background, color: theme.colors.text, borderColor: theme.colors.border}]}
-              placeholder="Punteggio target"
+              placeholder="2"
               placeholderTextColor={theme.colors.textSecondary}
               keyboardType="numeric"
-              value={String(newPreset.targetScore)}
-              onChangeText={text => setNewPreset({...newPreset, targetScore: parseInt(text, 10) || 0})}
+              value={String(newPreset.defaultPlayers)}
+              onChangeText={text => setNewPreset({...newPreset, defaultPlayers: parseInt(text, 10) || 2})}
             />
 
             <TouchableOpacity
@@ -186,8 +303,12 @@ const styles = StyleSheet.create({
   addButton: {paddingVertical: 14, borderRadius: 8, alignItems: 'center', marginBottom: 20},
   addButtonText: {color: '#FFFFFF', fontSize: 16, fontWeight: '600'},
   form: {padding: 16, borderRadius: 12, marginBottom: 20, elevation: 2, shadowColor: '#000', shadowOffset: {width: 0, height: 2}, shadowOpacity: 0.1, shadowRadius: 4},
+  label: {fontSize: 14, fontWeight: '600', marginBottom: 8, marginTop: 8},
   input: {height: 50, borderWidth: 1, borderRadius: 8, paddingHorizontal: 16, fontSize: 16, marginBottom: 12},
-  createButton: {paddingVertical: 14, borderRadius: 8, alignItems: 'center', marginTop: 8},
+  buttonGroup: {flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 12},
+  groupButton: {paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8, minWidth: 80},
+  groupButtonText: {fontSize: 12, fontWeight: '500', textAlign: 'center'},
+  createButton: {paddingVertical: 14, borderRadius: 8, alignItems: 'center', marginTop: 16},
   createButtonText: {color: '#FFFFFF', fontSize: 16, fontWeight: '600'},
   sectionTitle: {fontSize: 20, fontWeight: 'bold', marginBottom: 12, marginTop: 8},
   customPresetWrapper: {flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12},
