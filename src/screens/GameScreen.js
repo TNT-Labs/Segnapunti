@@ -11,6 +11,7 @@ import {useTheme} from '../contexts/ThemeContext';
 import {useGame} from '../contexts/GameContext';
 import PlayerCard from '../components/PlayerCard';
 import ScoreModal from '../components/ScoreModal';
+import AdBanner from '../components/AdBanner';
 
 const GameScreen = ({navigation}) => {
   const {theme} = useTheme();
@@ -128,6 +129,8 @@ const GameScreen = ({navigation}) => {
           ))}
         </View>
 
+        <AdBanner size="small" style={styles.adBanner} />
+
         {gameState.isFinished ? (
           <View style={styles.actions}>
             <TouchableOpacity
@@ -176,7 +179,8 @@ const styles = StyleSheet.create({
   gameInfo: {fontSize: 14},
   winnerBanner: {padding: 16, borderRadius: 12, marginBottom: 16, alignItems: 'center'},
   winnerText: {color: '#FFFFFF', fontSize: 18, fontWeight: 'bold'},
-  playersList: {marginBottom: 16},
+  playersList: {marginBottom: 8},
+  adBanner: {marginBottom: 16},
   actions: {gap: 12},
   actionButton: {paddingVertical: 14, borderRadius: 8, alignItems: 'center'},
   actionButtonText: {color: '#FFFFFF', fontSize: 16, fontWeight: '600'},
