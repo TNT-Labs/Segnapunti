@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import {View, StyleSheet, Platform} from 'react-native';
 import {BannerAd, BannerAdSize, TestIds} from 'react-native-google-mobile-ads';
+import consentService from '../services/ConsentService';
 
 /**
  * Componente per visualizzare banner pubblicitari AdMob
@@ -56,13 +57,17 @@ const AdBanner = ({size = 'small', adUnitId, style}) => {
     return null;
   }
 
+  // Verifica se l'utente ha dato il consenso per annunci personalizzati
+  const canShowPersonalizedAds = consentService.canShowPersonalizedAds();
+
   return (
     <View style={[styles.container, style]}>
       <BannerAd
         unitId={unitId}
         size={getBannerSize()}
         requestOptions={{
-          requestNonPersonalizedAdsOnly: false,
+          // Richiedi solo annunci non personalizzati se l'utente non ha dato il consenso
+          requestNonPersonalizedAdsOnly: !canShowPersonalizedAds,
         }}
         onAdLoaded={handleAdLoaded}
         onAdFailedToLoad={handleAdFailedToLoad}
