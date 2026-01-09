@@ -2,8 +2,8 @@
 
 **L'app segnapunti mobile nativa per Android**
 
-![Version](https://img.shields.io/badge/version-1.3.0-blue.svg)
-![React Native](https://img.shields.io/badge/React%20Native-0.73.2-blue.svg)
+![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
+![React Native](https://img.shields.io/badge/React%20Native-0.74.6-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 
 ---

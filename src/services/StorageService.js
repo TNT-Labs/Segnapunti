@@ -232,7 +232,7 @@ class StorageService {
         presets,
         settings,
         exportedAt: new Date().toISOString(),
-        version: '1.3.0',
+        version: '1.0.0',
       };
     } catch (error) {
       console.error('Error exporting data:', error);
