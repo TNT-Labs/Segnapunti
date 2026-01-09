@@ -62,7 +62,7 @@ const HistoryScreen = () => {
           {date.toLocaleDateString('it-IT')} {date.toLocaleTimeString('it-IT', {hour: '2-digit', minute: '2-digit'})}
         </Text>
 
-        {winner && (
+        {winner ? (
           <Text
             style={[styles.winner, {color: theme.colors.success}]}
             accessibilityRole="text"
