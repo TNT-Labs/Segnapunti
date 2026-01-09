@@ -78,14 +78,27 @@ const GameScreen = ({navigation}) => {
     return (
       <View style={[styles.container, {backgroundColor: theme.colors.background}]}>
         <View style={styles.emptyState}>
-          <Text style={styles.emptyIcon}>🎮</Text>
-          <Text style={[styles.emptyTitle, {color: theme.colors.text}]}>
+          <Text
+            style={styles.emptyIcon}
+            accessibilityLabel="Icona gioco"
+            accessibilityRole="image">
+            🎮
+          </Text>
+          <Text
+            style={[styles.emptyTitle, {color: theme.colors.text}]}
+            accessibilityRole="header">
             Nessuna Partita Attiva
           </Text>
-          <Text style={[styles.emptySubtitle, {color: theme.colors.textSecondary}]}>
+          <Text
+            style={[styles.emptySubtitle, {color: theme.colors.textSecondary}]}
+            accessibilityRole="text">
             Vai in Impostazioni per iniziare una nuova partita!
           </Text>
           <TouchableOpacity
+            accessible={true}
+            accessibilityLabel="Inizia nuova partita"
+            accessibilityHint="Naviga alla schermata Impostazioni per configurare una nuova partita"
+            accessibilityRole="button"
             style={[styles.startButton, {backgroundColor: theme.colors.primary}]}
             onPress={() => navigation.navigate('Settings')}>
             <Text style={styles.startButtonText}>Inizia Partita</Text>
@@ -101,10 +114,18 @@ const GameScreen = ({navigation}) => {
     <View style={[styles.container, {backgroundColor: theme.colors.background}]}>
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
         <View style={[styles.header, {backgroundColor: theme.colors.card}]}>
-          <Text style={[styles.presetName, {color: theme.colors.primary}]}>
+          <Text
+            style={[styles.presetName, {color: theme.colors.primary}]}
+            accessibilityRole="header"
+            accessibilityLabel={`Partita a ${currentPreset.name}`}>
             {currentPreset.icon} {currentPreset.name}
           </Text>
-          <Text style={[styles.gameInfo, {color: theme.colors.textSecondary}]}>
+          <Text
+            style={[styles.gameInfo, {color: theme.colors.textSecondary}]}
+            accessibilityRole="text"
+            accessibilityLabel={currentPreset.mode === 'rounds'
+              ? `${currentPreset.targetRounds} rounds, punteggio target ${currentPreset.roundTargetScore}`
+              : `Punteggio target ${currentPreset.targetScore}`}>
             {currentPreset.mode === 'rounds'
               ? `${currentPreset.targetRounds} rounds - Target: ${currentPreset.roundTargetScore}`
               : `Target: ${currentPreset.targetScore}`}
@@ -112,7 +133,12 @@ const GameScreen = ({navigation}) => {
         </View>
 
         {winner && (
-          <View style={[styles.winnerBanner, {backgroundColor: theme.colors.success}]}>
+          <View
+            style={[styles.winnerBanner, {backgroundColor: theme.colors.success}]}
+            accessible={true}
+            accessibilityRole="alert"
+            accessibilityLabel={`${winner.name} ha vinto la partita!`}
+            accessibilityLiveRegion="polite">
             <Text style={styles.winnerText}>🏆 {winner.name} ha vinto! 🏆</Text>
           </View>
         )}
@@ -134,11 +160,19 @@ const GameScreen = ({navigation}) => {
         {gameState.isFinished ? (
           <View style={styles.actions}>
             <TouchableOpacity
+              accessible={true}
+              accessibilityLabel="Salva partita nello storico"
+              accessibilityHint="Salva la partita completata e naviga allo storico"
+              accessibilityRole="button"
               style={[styles.actionButton, {backgroundColor: theme.colors.primary}]}
               onPress={handleSaveGame}>
               <Text style={styles.actionButtonText}>💾 Salva Partita</Text>
             </TouchableOpacity>
             <TouchableOpacity
+              accessible={true}
+              accessibilityLabel="Inizia nuova partita"
+              accessibilityHint="Ricomincia dall'inizio con nuovi giocatori"
+              accessibilityRole="button"
               style={[styles.actionButton, {backgroundColor: theme.colors.textSecondary}]}
               onPress={handleResetGame}>
               <Text style={styles.actionButtonText}>🔄 Nuova Partita</Text>
@@ -146,6 +180,10 @@ const GameScreen = ({navigation}) => {
           </View>
         ) : (
           <TouchableOpacity
+            accessible={true}
+            accessibilityLabel="Ricomincia partita"
+            accessibilityHint="Azzera tutti i punteggi e ricomincia la partita"
+            accessibilityRole="button"
             style={[styles.resetButton, {backgroundColor: theme.colors.error}]}
             onPress={handleResetGame}>
             <Text style={styles.resetButtonText}>🔄 Ricomincia Partita</Text>

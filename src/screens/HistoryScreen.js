@@ -36,22 +36,37 @@ const HistoryScreen = () => {
     const date = new Date(item.timestamp);
 
     return (
-      <View style={[styles.gameCard, {backgroundColor: theme.colors.card}]}>
+      <View
+        style={[styles.gameCard, {backgroundColor: theme.colors.card}]}
+        accessible={true}
+        accessibilityLabel={`Partita a ${item.preset.name}, giocata il ${date.toLocaleDateString('it-IT')}${winner ? `, vinta da ${winner.name}` : ''}`}>
         <View style={styles.gameHeader}>
-          <Text style={[styles.gameName, {color: theme.colors.text}]}>
+          <Text
+            style={[styles.gameName, {color: theme.colors.text}]}
+            accessibilityRole="header">
             {item.preset.icon} {item.preset.name}
           </Text>
-          <TouchableOpacity onPress={() => handleDeleteGame(item.id)}>
+          <TouchableOpacity
+            accessible={true}
+            accessibilityLabel="Elimina partita"
+            accessibilityHint="Rimuove questa partita dallo storico"
+            accessibilityRole="button"
+            onPress={() => handleDeleteGame(item.id)}>
             <Icon name="delete" size={24} color={theme.colors.error} />
           </TouchableOpacity>
         </View>
 
-        <Text style={[styles.gameDate, {color: theme.colors.textSecondary}]}>
+        <Text
+          style={[styles.gameDate, {color: theme.colors.textSecondary}]}
+          accessibilityRole="text">
           {date.toLocaleDateString('it-IT')} {date.toLocaleTimeString('it-IT', {hour: '2-digit', minute: '2-digit'})}
         </Text>
 
-        {winner ? (
-          <Text style={[styles.winner, {color: theme.colors.success}]}>
+        {winner && (
+          <Text
+            style={[styles.winner, {color: theme.colors.success}]}
+            accessibilityRole="text"
+            accessibilityLabel={`Vincitore: ${winner.name}`}>
             🏆 Vincitore: {winner.name}
           </Text>
         ) : (
@@ -63,8 +78,17 @@ const HistoryScreen = () => {
         <View style={styles.players}>
           {item.players.map(player => (
             <View key={player.id} style={styles.playerRow}>
-              <Text style={[styles.playerName, {color: theme.colors.text}]}>{player.name}</Text>
-              <Text style={[styles.playerScore, {color: theme.colors.textSecondary}]}>{player.score}</Text>
+              <Text
+                style={[styles.playerName, {color: theme.colors.text}]}
+                accessibilityRole="text">
+                {player.name}
+              </Text>
+              <Text
+                style={[styles.playerScore, {color: theme.colors.textSecondary}]}
+                accessibilityRole="text"
+                accessibilityLabel={`Punteggio: ${player.score}`}>
+                {player.score}
+              </Text>
             </View>
           ))}
         </View>
@@ -76,9 +100,20 @@ const HistoryScreen = () => {
     return (
       <View style={[styles.container, {backgroundColor: theme.colors.background}]}>
         <View style={styles.emptyState}>
-          <Text style={styles.emptyIcon}>📜</Text>
-          <Text style={[styles.emptyTitle, {color: theme.colors.text}]}>Nessuna Partita</Text>
-          <Text style={[styles.emptySubtitle, {color: theme.colors.textSecondary}]}>
+          <Text
+            style={styles.emptyIcon}
+            accessibilityLabel="Icona storico vuoto"
+            accessibilityRole="image">
+            📜
+          </Text>
+          <Text
+            style={[styles.emptyTitle, {color: theme.colors.text}]}
+            accessibilityRole="header">
+            Nessuna Partita
+          </Text>
+          <Text
+            style={[styles.emptySubtitle, {color: theme.colors.textSecondary}]}
+            accessibilityRole="text">
             Le partite salvate appariranno qui
           </Text>
         </View>
@@ -94,14 +129,15 @@ const HistoryScreen = () => {
         keyExtractor={item => item.id}
         contentContainerStyle={styles.list}
         ListHeaderComponent={
-          <View>
-            <TouchableOpacity
-              style={[styles.clearButton, {backgroundColor: theme.colors.error}]}
-              onPress={handleClearAll}>
-              <Text style={styles.clearButtonText}>🗑️ Elimina Tutto lo Storico</Text>
-            </TouchableOpacity>
-            <AdBanner size="medium" style={styles.adBanner} />
-          </View>
+          <TouchableOpacity
+            accessible={true}
+            accessibilityLabel="Elimina tutto lo storico"
+            accessibilityHint={`Rimuove tutte le ${gameHistory.length} partite salvate`}
+            accessibilityRole="button"
+            style={[styles.clearButton, {backgroundColor: theme.colors.error}]}
+            onPress={handleClearAll}>
+            <Text style={styles.clearButtonText}>🗑️ Elimina Tutto lo Storico</Text>
+          </TouchableOpacity>
         }
       />
     </View>

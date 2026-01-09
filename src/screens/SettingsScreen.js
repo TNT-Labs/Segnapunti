@@ -138,27 +138,47 @@ const SettingsScreen = ({navigation, route}) => {
     <ScrollView
       style={[styles.container, {backgroundColor: theme.colors.background}]}
       contentContainerStyle={styles.content}>
-      <Text style={[styles.title, {color: theme.colors.text}]}>
+      <Text
+        style={[styles.title, {color: theme.colors.text}]}
+        accessibilityRole="header">
         ⚙️ Impostazioni
       </Text>
 
       {/* Dark Mode Toggle */}
       <View style={[styles.section, {backgroundColor: theme.colors.card}]}>
         <View style={styles.row}>
-          <Text style={[styles.label, {color: theme.colors.text}]}>
+          <Text
+            style={[styles.label, {color: theme.colors.text}]}
+            accessibilityRole="text">
             🌙 Dark Mode
           </Text>
-          <Switch value={isDark} onValueChange={toggleDarkMode} />
+          <Switch
+            accessible={true}
+            accessibilityLabel={isDark ? "Dark mode attivo" : "Dark mode disattivo"}
+            accessibilityHint="Attiva o disattiva la modalità scura"
+            accessibilityRole="switch"
+            value={isDark}
+            onValueChange={toggleDarkMode}
+          />
         </View>
       </View>
 
       {/* Nuova Partita */}
-      <Text style={[styles.sectionTitle, {color: theme.colors.text}]}>
+      <Text
+        style={[styles.sectionTitle, {color: theme.colors.text}]}
+        accessibilityRole="header">
         🎮 Nuova Partita
       </Text>
 
       {/* Preset Selection */}
       <TouchableOpacity
+        accessible={true}
+        accessibilityLabel={selectedPreset
+          ? `Gioco selezionato: ${selectedPreset.name}. Tocca per cambiare`
+          : 'Seleziona un gioco'}
+        accessibilityHint={showPresets ? "Chiudi lista giochi" : "Apri lista giochi"}
+        accessibilityRole="button"
+        accessibilityState={{expanded: showPresets}}
         style={[styles.section, {backgroundColor: theme.colors.card}]}
         onPress={() => setShowPresets(!showPresets)}>
         <View style={styles.row}>
@@ -195,10 +215,16 @@ const SettingsScreen = ({navigation, route}) => {
       {selectedPreset && (
         <>
           <View style={styles.playersHeader}>
-            <Text style={[styles.sectionTitle, {color: theme.colors.text}]}>
+            <Text
+              style={[styles.sectionTitle, {color: theme.colors.text}]}
+              accessibilityRole="header">
               👥 Giocatori
             </Text>
             <TouchableOpacity
+              accessible={true}
+              accessibilityLabel="Aggiungi giocatore"
+              accessibilityHint="Aggiunge un nuovo campo per inserire un giocatore"
+              accessibilityRole="button"
               style={[styles.addPlayerButton, {backgroundColor: theme.colors.primary}]}
               onPress={handleAddPlayer}>
               <Icon name="account-plus" size={20} color="#FFFFFF" />
@@ -210,6 +236,9 @@ const SettingsScreen = ({navigation, route}) => {
               key={index}
               style={[styles.playerInput, {backgroundColor: theme.colors.card}]}>
               <TextInput
+                accessible={true}
+                accessibilityLabel={`Nome giocatore ${index + 1}`}
+                accessibilityHint="Inserisci il nome del giocatore"
                 style={[
                   styles.input,
                   {
@@ -224,6 +253,10 @@ const SettingsScreen = ({navigation, route}) => {
               />
               {playerNames.length > 1 && (
                 <TouchableOpacity
+                  accessible={true}
+                  accessibilityLabel={`Rimuovi ${name || `giocatore ${index + 1}`}`}
+                  accessibilityHint="Rimuove questo giocatore dalla lista"
+                  accessibilityRole="button"
                   style={[styles.removeButton, {backgroundColor: theme.colors.error}]}
                   onPress={() => handleRemovePlayer(index)}>
                   <Icon name="minus" size={20} color="#FFFFFF" />
@@ -233,6 +266,10 @@ const SettingsScreen = ({navigation, route}) => {
           ))}
 
           <TouchableOpacity
+            accessible={true}
+            accessibilityLabel="Inizia partita"
+            accessibilityHint={`Avvia una nuova partita a ${selectedPreset.name} con ${playerNames.filter(n => n.trim()).length} giocatori`}
+            accessibilityRole="button"
             style={[styles.startButton, {backgroundColor: theme.colors.success}]}
             onPress={handleStartGame}>
             <Text style={styles.startButtonText}>🚀 Inizia Partita</Text>

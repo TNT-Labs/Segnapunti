@@ -41,20 +41,30 @@ const ScoreModal = ({visible, onClose, onSubmit, playerName, incrementValues}) =
       animationType="fade"
       onRequestClose={onClose}>
       <TouchableOpacity
+        accessible={true}
+        accessibilityLabel="Chiudi modale"
+        accessibilityRole="button"
         style={styles.overlay}
         activeOpacity={1}
         onPress={handleClose}>
         <View
           style={[styles.modal, {backgroundColor: theme.colors.card}]}
           onStartShouldSetResponder={() => true}>
-          <Text style={[styles.title, {color: theme.colors.text}]}>
-            Modifica Punteggio
+          <Text
+            style={[styles.title, {color: theme.colors.text}]}
+            accessibilityRole="header">
+            Aggiungi Punti
           </Text>
-          <Text style={[styles.subtitle, {color: theme.colors.textSecondary}]}>
+          <Text
+            style={[styles.subtitle, {color: theme.colors.textSecondary}]}
+            accessibilityRole="text">
             {playerName}
           </Text>
 
           <TextInput
+            accessible={true}
+            accessibilityLabel="Punteggio personalizzato"
+            accessibilityHint="Inserisci un punteggio personalizzato da aggiungere"
             style={[
               styles.input,
               {
@@ -72,41 +82,31 @@ const ScoreModal = ({visible, onClose, onSubmit, playerName, incrementValues}) =
           />
 
           {incrementValues && (
-            <>
-              <Text style={[styles.sectionLabel, {color: theme.colors.textSecondary}]}>
-                Punteggi Rapidi:
-              </Text>
-              <View style={styles.quickButtons}>
-                {incrementValues.map(value => (
-                  <TouchableOpacity
-                    key={`pos-${value}`}
-                    style={[
-                      styles.quickButton,
-                      {backgroundColor: theme.colors.success},
-                    ]}
-                    onPress={() => handleQuickScore(value)}>
-                    <Text style={styles.quickButtonText}>+{value}</Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-              <View style={styles.quickButtons}>
-                {incrementValues.slice(0, 3).map(value => (
-                  <TouchableOpacity
-                    key={`neg-${value}`}
-                    style={[
-                      styles.quickButton,
-                      {backgroundColor: theme.colors.error},
-                    ]}
-                    onPress={() => handleQuickScore(-value)}>
-                    <Text style={styles.quickButtonText}>-{value}</Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </>
+            <View style={styles.quickButtons}>
+              {incrementValues.map(value => (
+                <TouchableOpacity
+                  key={value}
+                  accessible={true}
+                  accessibilityLabel={`Aggiungi ${value} punti`}
+                  accessibilityHint={`Aggiunge ${value} punti al giocatore e chiude la modale`}
+                  accessibilityRole="button"
+                  style={[
+                    styles.quickButton,
+                    {backgroundColor: theme.colors.primary},
+                  ]}
+                  onPress={() => handleQuickScore(value)}>
+                  <Text style={styles.quickButtonText}>+{value}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
           )}
 
           <View style={styles.actions}>
             <TouchableOpacity
+              accessible={true}
+              accessibilityLabel="Annulla"
+              accessibilityHint="Chiude la modale senza aggiungere punti"
+              accessibilityRole="button"
               style={[styles.button, {backgroundColor: theme.colors.border}]}
               onPress={handleClose}>
               <Text style={[styles.buttonText, {color: theme.colors.text}]}>
@@ -115,6 +115,10 @@ const ScoreModal = ({visible, onClose, onSubmit, playerName, incrementValues}) =
             </TouchableOpacity>
 
             <TouchableOpacity
+              accessible={true}
+              accessibilityLabel="Applica punteggio personalizzato"
+              accessibilityHint="Aggiunge il punteggio inserito e chiude la modale"
+              accessibilityRole="button"
               style={[styles.button, {backgroundColor: theme.colors.primary}]}
               onPress={handleCustomSubmit}>
               <Text style={[styles.buttonText, {color: '#FFFFFF'}]}>
