@@ -409,6 +409,97 @@ Elements:
 
 ---
 
+### ❌ 7a. Configurare e Verificare app-ads.txt (AdMob)
+**Status**: ⚠️ FILE CREATO, HOSTING RICHIESTO
+**Blocca**: Pubblicazione annunci AdMob dopo Gennaio 2025
+**Effort**: 1-2 ore (+ 24-48h attesa verifica)
+**Assignee**: Developer / Project Owner
+
+**⚠️ NUOVO REQUISITO OBBLIGATORIO**: A partire da gennaio 2025, tutte le app AdMob devono essere verificate con app-ads.txt.
+
+**7a.1 File app-ads.txt Creato**
+
+✅ Il file è già stato generato nel repository: `app-ads.txt`
+
+Contenuto:
+```
+google.com, pub-4302173868436591, DIRECT, f08c47fec0942fa0
+```
+
+**7a.2 Hosting del File** (AZIONE RICHIESTA)
+
+Il file deve essere ospitato sul tuo dominio web:
+
+**Opzioni**:
+1. **Dominio Esistente**: Se hai già un sito web
+   - Carica `app-ads.txt` nella directory root
+   - Deve essere accessibile a: `https://tuo-dominio.com/app-ads.txt`
+
+2. **Nuovo Dominio**: Se non hai un dominio
+   - Acquista dominio (~$10-15/anno): Namecheap, Google Domains, Cloudflare
+   - Usa hosting gratuito: Netlify, Vercel, GitHub Pages (con dominio custom)
+   - Carica il file app-ads.txt
+
+3. **GitHub Pages con Dominio Custom** (RACCOMANDATO)
+   - Configura dominio custom su GitHub Pages
+   - Aggiungi file app-ads.txt al repository principale
+   - Accessibile a: `https://tuo-dominio.com/app-ads.txt`
+
+**7a.3 Configurare nel Play Store**
+
+1. Vai a **Google Play Console**
+2. Seleziona app **Segnapunti**
+3. **Configurazione dell'app** → **Dettagli dell'app**
+4. Campo **Sito web dello sviluppatore**: inserisci `https://tuo-dominio.com`
+
+⚠️ **Il dominio nel Play Store deve essere lo stesso dove è ospitato app-ads.txt!**
+
+**7a.4 Verifica in AdMob**
+
+1. Attendi **24-48 ore** per la scansione automatica di AdMob
+2. Vai su **AdMob** → **App** → **Segnapunti** → **Impostazioni app**
+3. Clicca su **Verifica app**
+4. Clicca su **Verifica la disponibilità di aggiornamenti**
+5. Verifica stato: **AdMob** → **Account** → **app-ads.txt**
+
+**7a.5 Test Manuale**
+
+Verifica che il file sia accessibile:
+```bash
+# Nel browser, vai a:
+https://tuo-dominio.com/app-ads.txt
+
+# Deve mostrare:
+google.com, pub-4302173868436591, DIRECT, f08c47fec0942fa0
+```
+
+**Risoluzione Problemi**:
+
+- **File non trovato (404)**: Verifica che il file sia nella root del dominio
+- **Nome file errato**: Deve essere esattamente `app-ads.txt` (minuscolo)
+- **Dominio non corrisponde**: Il dominio nel Play Store deve essere identico
+- **Formato errato**: Non aggiungere spazi extra o righe vuote
+
+**Riferimenti**:
+- 📄 Guida completa: `APP_ADS_TXT_SETUP.md`
+- 📚 [Guida ufficiale Google](https://support.google.com/admob/answer/9787654)
+
+**Acceptance Criteria**:
+- [ ] File `app-ads.txt` creato ✅
+- [ ] File ospitato su dominio web pubblico
+- [ ] Dominio configurato nel Play Store
+- [ ] File accessibile via browser
+- [ ] Atteso 24-48h per scansione AdMob
+- [ ] App verificata in AdMob Console
+- [ ] Stato "Verificato" ✅ in AdMob → app-ads.txt
+
+**Timeline**:
+- Configurazione: 1-2 ore
+- Attesa verifica: 24-48 ore
+- **Totale**: 2-3 giorni prima di pubblicazione completa annunci
+
+---
+
 ## 🟠 PRIORITÀ ALTA - QUALITÀ & COMPLIANCE
 
 ### ⚠️ 8. Aggiornare Privacy Policy per App Nativa
