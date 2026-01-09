@@ -14,7 +14,6 @@ const PresetManagerScreen = ({navigation}) => {
   const [showForm, setShowForm] = useState(false);
   const [newPreset, setNewPreset] = useState({
     name: '',
-    icon: '🎮',
     category: 'other',
     mode: 'max',
     targetScore: 100,
@@ -33,11 +32,17 @@ const PresetManagerScreen = ({navigation}) => {
   ];
 
   const CATEGORIES = [
-    {value: 'cards', label: '🃏 Carte'},
-    {value: 'table', label: '🎲 Giochi da Tavolo'},
-    {value: 'sports', label: '⚽ Sport'},
-    {value: 'other', label: '🎯 Altri'},
+    {value: 'cards', label: '🃏 Carte', icon: '🃏'},
+    {value: 'table', label: '🎲 Giochi da Tavolo', icon: '🎲'},
+    {value: 'sports', label: '⚽ Sport', icon: '⚽'},
+    {value: 'other', label: '🎯 Altri', icon: '🎯'},
   ];
+
+  // Funzione helper per ottenere l'icona dalla categoria
+  const getCategoryIcon = categoryValue => {
+    const category = CATEGORIES.find(cat => cat.value === categoryValue);
+    return category ? category.icon : '🎯';
+  };
 
   const handleCreatePreset = () => {
     if (!newPreset.name.trim()) {
@@ -53,7 +58,7 @@ const PresetManagerScreen = ({navigation}) => {
     // Costruisci il preset in base alla modalità
     const presetToAdd = {
       name: newPreset.name,
-      icon: newPreset.icon,
+      icon: getCategoryIcon(newPreset.category),
       category: newPreset.category,
       mode: newPreset.mode,
       defaultPlayers: newPreset.defaultPlayers,
@@ -71,7 +76,6 @@ const PresetManagerScreen = ({navigation}) => {
 
     setNewPreset({
       name: '',
-      icon: '🎮',
       category: 'other',
       mode: 'max',
       targetScore: 100,
@@ -139,20 +143,7 @@ const PresetManagerScreen = ({navigation}) => {
               onChangeText={text => setNewPreset({...newPreset, name: text})}
             />
 
-            <Text style={[styles.label, {color: theme.colors.text}]}>Icona (emoji)</Text>
-            <TextInput
-              accessible={true}
-              accessibilityLabel="Icona preset"
-              accessibilityHint="Inserisci un'emoji per l'icona del preset"
-              style={[styles.input, {backgroundColor: theme.colors.background, color: theme.colors.text, borderColor: theme.colors.border}]}
-              placeholder="🎮"
-              placeholderTextColor={theme.colors.textSecondary}
-              value={newPreset.icon}
-              onChangeText={text => setNewPreset({...newPreset, icon: text})}
-              maxLength={2}
-            />
-
-            <Text style={[styles.label, {color: theme.colors.text}]}>Categoria</Text>
+            <Text style={[styles.label, {color: theme.colors.text}]}>Categoria (l'icona verrà scelta automaticamente)</Text>
             <View style={styles.buttonGroup}>
               {CATEGORIES.map(cat => (
                 <TouchableOpacity
