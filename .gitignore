@@ -38,3 +38,27 @@ Thumbs.db
 
 # Test coverage
 coverage/
+# Keystore files (DO NOT COMMIT)
+*.jks
+*.keystore
+android/app/*.jks
+Segnapunti.jks
+Segnapuntikey.txt
+
+# Gradle properties with passwords (DO NOT COMMIT)
+gradle.properties
+android/gradle.properties.local
+
+# Backup files
+*.backup
+backup_*/
+
+# Build outputs
+gradle/
+www/
+
+# Temporary directories
+Segnapunti/
+
+# Temporary files
+app.js
