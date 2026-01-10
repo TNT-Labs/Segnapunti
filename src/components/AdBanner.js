@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import {View, StyleSheet} from 'react-native';
+import {View, StyleSheet, ActivityIndicator} from 'react-native';
 import {BannerAd, BannerAdSize} from 'react-native-google-mobile-ads';
 import consentService from '../services/ConsentService';
 
@@ -12,7 +12,7 @@ import consentService from '../services/ConsentService';
  * @param {Object} props.style - Stili personalizzati per il container
  */
 const AdBanner = ({size = 'small', adUnitId, style}) => {
-  const [isVisible, setIsVisible] = useState(true);
+  const [loadingState, setLoadingState] = useState('loading'); // 'loading' | 'loaded' | 'failed'
   const [hasError, setHasError] = useState(false);
 
   // Validazione: adUnitId è obbligatorio
@@ -20,6 +20,7 @@ const AdBanner = ({size = 'small', adUnitId, style}) => {
     if (!adUnitId) {
       console.error('[AdBanner] ERRORE: adUnitId è obbligatorio ma non è stato fornito!');
       setHasError(true);
+      setLoadingState('failed');
     }
   }, [adUnitId]);
 
@@ -39,29 +40,79 @@ const AdBanner = ({size = 'small', adUnitId, style}) => {
     }
   };
 
+  // Ottieni le dimensioni del placeholder in base al size
+  const getPlaceholderHeight = () => {
+    switch (size) {
+      case 'small':
+        return 50;
+      case 'medium':
+        return 250;
+      case 'large':
+        return 100;
+      case 'full':
+        return 60;
+      default:
+        return 50;
+    }
+  };
+
   // Handlers per gli eventi dell'annuncio
   const handleAdLoaded = () => {
-    console.log('AdMob: Annuncio caricato con successo');
-    setIsVisible(true);
+    console.log('[AdBanner] Annuncio caricato con successo');
+    setLoadingState('loaded');
     setHasError(false);
   };
 
   const handleAdFailedToLoad = error => {
-    console.warn('AdMob: Errore nel caricamento annuncio:', error);
-    setIsVisible(false);
+    console.warn('[AdBanner] Errore nel caricamento annuncio:', error);
+    setLoadingState('failed');
     setHasError(true);
   };
-
-  // Non mostrare nulla se c'è stato un errore
-  if (hasError || !isVisible) {
-    return null;
-  }
 
   // Verifica se l'utente ha dato il consenso per annunci personalizzati
   const canShowPersonalizedAds = consentService.canShowPersonalizedAds();
 
+  // Se c'è un errore critico, mostra placeholder vuoto
+  if (hasError && loadingState === 'failed') {
+    return (
+      <View
+        style={[
+          styles.container,
+          styles.placeholder,
+          {height: getPlaceholderHeight()},
+          style,
+        ]}
+        accessible={true}
+        accessibilityLabel="Spazio riservato per banner pubblicitario"
+        accessibilityRole="none"
+      />
+    );
+  }
+
+  // Mostra loading indicator durante il caricamento
+  if (loadingState === 'loading') {
+    return (
+      <View
+        style={[
+          styles.container,
+          styles.loadingContainer,
+          {height: getPlaceholderHeight()},
+          style,
+        ]}
+        accessible={true}
+        accessibilityLabel="Caricamento banner pubblicitario"
+        accessibilityRole="progressbar">
+        <ActivityIndicator size="small" color="#999" />
+      </View>
+    );
+  }
+
   return (
-    <View style={[styles.container, style]}>
+    <View
+      style={[styles.container, style]}
+      accessible={true}
+      accessibilityLabel="Banner pubblicitario"
+      accessibilityRole="image">
       <BannerAd
         unitId={adUnitId}
         size={getBannerSize()}
@@ -82,6 +133,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginVertical: 8,
     backgroundColor: 'transparent',
+  },
+  placeholder: {
+    backgroundColor: 'transparent',
+  },
+  loadingContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 
