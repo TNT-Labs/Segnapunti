@@ -2,7 +2,7 @@ module.exports = {
   project: {
     ios: {},
     android: {
-      packageName: 'com.segnapuntitemp',
+      packageName: 'com.tntlabs.segnapunti',
     },
   },
   assets: ['./assets/fonts/'],
