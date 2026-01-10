@@ -79,6 +79,23 @@ Avvia app su emulatore o dispositivo fisico.
 run-android.bat
 ```
 
+### `build-aab.bat` ⭐ **GOOGLE PLAY**
+Build automatica AAB (Android App Bundle) per Google Play Store.
+
+```bash
+build-aab.bat
+# Scegli: 1=Clean Build, 2=Quick Build
+```
+
+**Output:**
+- Release AAB: `android/app/build/outputs/bundle/release/app-release.aab`
+
+**Perché AAB invece di APK?**
+- ✅ Formato preferito da Google Play (obbligatorio dal 2021)
+- ✅ Dimensione ridotta (~30% più piccolo)
+- ✅ Ottimizzazione automatica per ogni dispositivo
+- ✅ Download più veloci per gli utenti
+
 ---
 
 ## 🏗️ Architettura
