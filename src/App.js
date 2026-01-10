@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {StatusBar} from 'react-native';
 import {Provider as PaperProvider} from 'react-native-paper';
+import {SafeAreaProvider} from 'react-native-safe-area-context';
 import mobileAds from 'react-native-google-mobile-ads';
 import {ThemeProvider, useTheme} from './contexts/ThemeContext';
 import {GameProvider} from './contexts/GameContext';
@@ -11,17 +12,18 @@ const AppContent = () => {
   const {theme, isDark} = useTheme();
 
   return (
-    <>
+    <SafeAreaProvider>
       <StatusBar
         barStyle={isDark ? 'light-content' : 'dark-content'}
-        backgroundColor={theme.colors.primary}
+        backgroundColor="transparent"
+        translucent={true}
       />
       <PaperProvider>
         <GameProvider>
           <AppNavigator />
         </GameProvider>
       </PaperProvider>
-    </>
+    </SafeAreaProvider>
   );
 };
 
