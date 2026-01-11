@@ -44,8 +44,8 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
 
         // VERSION SYNC - MUST INCREMENT for each Play Store release
-        versionCode 5  // Incremented from 4 (previous release with targetSdk 34)
-        versionName "1.0.1"  // Updated to reflect bug fix for API level requirement
+        versionCode 6  // Incremented for React Native 0.76.7 + Android API 35 release
+        versionName "1.0.2"  // Updated for RN 0.76 upgrade and Android 15 support
 
         buildConfigField("boolean", "IS_NEW_ARCHITECTURE_ENABLED", "false")
     }
