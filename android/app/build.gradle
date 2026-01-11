@@ -44,8 +44,8 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
 
         // VERSION SYNC - MUST INCREMENT for each Play Store release
-        versionCode 6  // Incremented for React Native 0.76.7 + Android API 35 release
-        versionName "1.0.2"  // Updated for RN 0.76 upgrade and Android 15 support
+        versionCode 7  // Fix Hermes native libraries inclusion
+        versionName "1.0.3"  // Fix libhermes_executor.so not found error
 
         buildConfigField("boolean", "IS_NEW_ARCHITECTURE_ENABLED", "false")
     }
