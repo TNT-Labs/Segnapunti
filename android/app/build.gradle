@@ -44,8 +44,8 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
 
         // VERSION SYNC - MUST INCREMENT for each Play Store release
-        versionCode 5  // Incremented from 4 (previous release with targetSdk 34)
-        versionName "1.0.1"  // Updated to reflect bug fix for API level requirement
+        versionCode 7  // Fix Hermes native libraries inclusion
+        versionName "1.0.3"  // Fix libhermes_executor.so not found error
 
         buildConfigField("boolean", "IS_NEW_ARCHITECTURE_ENABLED", "false")
     }
@@ -74,7 +74,7 @@ android {
         release {
             signingConfig signingConfigs.release
             minifyEnabled enableProguardInReleaseBuilds
-            shrinkResources enableProguardInReleaseBuilds
+            shrinkResources false  // Disabilitato temporaneamente - shrinking può rimuovere librerie native
             proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
         }
     }

@@ -103,3 +103,13 @@
 -keepclassmembers class * {
     native <methods>;
 }
+
+# Hermes - Keep all Hermes classes and native libraries
+-keep class com.facebook.hermes.** { *; }
+-keep class com.facebook.jni.** { *; }
+-keepclassmembers class com.facebook.hermes.** { *; }
+-dontwarn com.facebook.hermes.**
+
+# Keep SoLoader classes (used to load native libraries)
+-keep class com.facebook.soloader.** { *; }
+-dontwarn com.facebook.soloader.**
