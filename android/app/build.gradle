@@ -48,6 +48,11 @@ android {
         versionName "1.0.3"  // Fix libhermes_executor.so not found error
 
         buildConfigField("boolean", "IS_NEW_ARCHITECTURE_ENABLED", "false")
+
+        // Specifica esplicitamente le architetture per includere tutte le librerie .so
+        ndk {
+            abiFilters "armeabi-v7a", "arm64-v8a", "x86", "x86_64"
+        }
     }
 
     signingConfigs {
@@ -76,6 +81,18 @@ android {
             minifyEnabled enableProguardInReleaseBuilds
             shrinkResources false  // Disabilitato temporaneamente - shrinking può rimuovere librerie native
             proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
+        }
+    }
+
+    packagingOptions {
+        pickFirst 'lib/x86/libc++_shared.so'
+        pickFirst 'lib/x86_64/libc++_shared.so'
+        pickFirst 'lib/armeabi-v7a/libc++_shared.so'
+        pickFirst 'lib/arm64-v8a/libc++_shared.so'
+
+        // Assicura che le librerie Hermes siano incluse
+        jniLibs {
+            useLegacyPackaging = true
         }
     }
 }
