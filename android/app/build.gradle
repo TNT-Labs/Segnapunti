@@ -5,30 +5,17 @@ apply plugin: "com.google.gms.google-services"
 
 def projectRoot = rootDir.getAbsoluteFile().getParentFile().getAbsolutePath()
 
-/**
- * This is the configuration block to customize your React Native Android app.
- * By default you don't need to apply any configuration, just uncomment the lines you need.
- */
 react {
-    /* Folders */
-    //   The root of your project, i.e. where "package.json" lives. Default is '..'
     root = file(projectRoot)
-    //   The folder where the react-native NPM package is. Default is ../node_modules/react-native
     reactNativeDir = file("$projectRoot/node_modules/react-native")
-    //   The folder where the react-native Codegen package is. Default is ../node_modules/@react-native/codegen
     codegenDir = file("$projectRoot/node_modules/@react-native/codegen")
-    //   The cli.js file which is the React Native CLI entrypoint. Default is ../node_modules/react-native/cli.js
     cliFile = file("$projectRoot/node_modules/react-native/cli.js")
+
+    /* AGGIUNTA CRITICA: Forza l'uso di Hermes all'interno del plugin */
+    hermesEnabled = true 
 }
 
-/**
- * Set this to true to Run Proguard on Release builds to minify the Java bytecode.
- */
 def enableProguardInReleaseBuilds = true
-
-/**
- * The preferred build flavor of JavaScriptCore (JSC)
- */
 def jscFlavor = 'org.webkit:android-jsc:+'
 
 android {
@@ -43,13 +30,11 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
 
-        // VERSION SYNC - MUST INCREMENT for each Play Store release
-        versionCode 7  // Fix Hermes native libraries inclusion
-        versionName "1.0.3"  // Fix libhermes_executor.so not found error
+        versionCode 7
+        versionName "1.0.3"
 
         buildConfigField("boolean", "IS_NEW_ARCHITECTURE_ENABLED", "false")
 
-        // Specifica esplicitamente le architetture per includere tutte le librerie .so
         ndk {
             abiFilters "armeabi-v7a", "arm64-v8a", "x86", "x86_64"
         }
@@ -79,9 +64,14 @@ android {
         release {
             signingConfig signingConfigs.release
             minifyEnabled enableProguardInReleaseBuilds
-            shrinkResources false  // Disabilitato temporaneamente - shrinking può rimuovere librerie native
+            shrinkResources false 
             proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
         }
+    }
+
+    /* AGGIUNTA: Supporto Prefab per il linking delle librerie native */
+    buildFeatures {
+        prefab true
     }
 
     packagingOptions {
@@ -89,8 +79,8 @@ android {
         pickFirst 'lib/x86_64/libc++_shared.so'
         pickFirst 'lib/armeabi-v7a/libc++_shared.so'
         pickFirst 'lib/arm64-v8a/libc++_shared.so'
-
-        // Assicura che le librerie Hermes siano incluse
+        
+        // Assicura che le librerie non vengano compresse (fondamentale per alcuni dispositivi)
         jniLibs {
             useLegacyPackaging = true
         }
@@ -98,10 +88,9 @@ android {
 }
 
 dependencies {
-    // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
 
-    // React Native modules
+    // Moduli React Native (usando l'autolinking se possibile, altrimenti questi vanno bene)
     implementation project(':react-native-async-storage_async-storage')
     implementation project(':react-native-gesture-handler')
     implementation project(':react-native-google-mobile-ads')
@@ -109,6 +98,7 @@ dependencies {
     implementation project(':react-native-screens')
     implementation project(':react-native-vector-icons')
 
+    // Utilizziamo l'estensione del progetto per determinare Hermes
     if (hermesEnabled.toBoolean()) {
         implementation("com.facebook.react:hermes-android")
     } else {
