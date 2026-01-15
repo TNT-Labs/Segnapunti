@@ -11,8 +11,8 @@ react {
     codegenDir = file("$projectRoot/node_modules/@react-native/codegen")
     cliFile = file("$projectRoot/node_modules/react-native/cli.js")
 
-    /* AGGIUNTA CRITICA: Forza l'uso di Hermes all'interno del plugin */
-    hermesEnabled = true 
+    /* CRITICAL: Force JSC instead of Hermes */
+    hermesEnabled = false
 }
 
 def enableProguardInReleaseBuilds = true
@@ -31,8 +31,8 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
 
         // VERSION SYNC - MUST INCREMENT for each Play Store release
-        versionCode 8  // Switch to JSC (JavaScriptCore) for stability
-        versionName "1.0.4"  // Use JSC instead of Hermes to resolve packaging issues
+        versionCode 9  // FORCE JSC by setting hermesEnabled=false in react{} block
+        versionName "1.0.5"  // Fix: hermesEnabled was true in build.gradle, now false
 
         buildConfigField("boolean", "IS_NEW_ARCHITECTURE_ENABLED", "false")
 
