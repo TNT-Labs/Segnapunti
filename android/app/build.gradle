@@ -30,8 +30,9 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
 
-        versionCode 7
-        versionName "1.0.3"
+        // VERSION SYNC - MUST INCREMENT for each Play Store release
+        versionCode 8  // Switch to JSC (JavaScriptCore) for stability
+        versionName "1.0.4"  // Use JSC instead of Hermes to resolve packaging issues
 
         buildConfigField("boolean", "IS_NEW_ARCHITECTURE_ENABLED", "false")
 
