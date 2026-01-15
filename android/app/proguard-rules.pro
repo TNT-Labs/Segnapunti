@@ -1,115 +1,50 @@
-# Add project specific ProGuard rules here.
-# By default, the flags in this file are appended to flags specified
-# in /usr/local/Cellar/android-sdk/24.3.3/tools/proguard/proguard-android.txt
-# You can edit the include path and order by changing the proguardFiles
-# directive in build.gradle.
-#
-# For more details, see
-#   http://developer.android.com/guide/developing/tools/proguard.html
-
-# Add any project specific keep options here:
-
-# React Native
+# --- REGOLE GENERALI REACT NATIVE ---
 -keep,allowobfuscation @interface com.facebook.proguard.annotations.DoNotStrip
--keep,allowobfuscation @interface com.facebook.proguard.annotations.DoNotStrip
+-keep,allowobfuscation @interface com.facebook.proguard.annotations.KeepGettersAndSetters
 -keep,allowobfuscation @interface com.facebook.react.bridge.JavaScriptModule
 
-# Do not strip any method/class that is annotated with @DoNotStrip
 -keep @com.facebook.proguard.annotations.DoNotStrip class *
 -keep @com.facebook.react.bridge.ReactMethod class * { *; }
--keepclassmembers class *  {
+
+-keepclassmembers class * {
     @com.facebook.react.uimanager.annotations.ReactProp <methods>;
     @com.facebook.react.uimanager.annotations.ReactPropGroup <methods>;
 }
 
-# Keep native methods
--keepclassmembers class * {
-    native <methods>;
-}
+-keep class * implements com.facebook.react.bridge.JavaScriptModule { *; }
+-keep class * implements com.facebook.react.bridge.NativeModule { *; }
 
-# Keep react-native classes
--keep,allowobfuscation @interface com.facebook.proguard.annotations.DoNotStrip
--keep,allowobfuscation @interface com.facebook.proguard.annotations.DoNotStrip
--keep,allowobfuscation @interface com.facebook.proguard.annotations.KeepGettersAndSetters
--keep @com.facebook.proguard.annotations.DoNotStrip class *
--keep @com.facebook.proguard.annotations.DoNotStrip class *
--keepclassmembers class * {
-    @com.facebook.proguard.annotations.DoNotStrip *;
-    @com.facebook.proguard.annotations.DoNotStrip *;
+# Mantieni i metodi nativi e le classi di bridge
+-keepclassmembers,includedescriptorclasses class * { 
+    native <methods>; 
 }
-
--keepclassmembers @com.facebook.proguard.annotations.DoNotStrip class * {
-    *;
-}
-
--keepclassmembers @com.facebook.proguard.annotations.DoNotStrip class * {
-    *;
-}
-
--keepclassmembers class * {
-  @com.facebook.react.uimanager.annotations.ReactProp <methods>;
-  @com.facebook.react.uimanager.annotations.ReactPropGroup <methods>;
-}
+-keep,includedescriptorclasses class com.facebook.react.bridge.** { *; }
 
 -dontwarn com.facebook.react.**
--keep,allowobfuscation @interface com.facebook.proguard.annotations.DoNotStrip
--keep,allowobfuscation @interface com.facebook.proguard.annotations.DoNotStrip
--keep,allowobfuscation @interface com.facebook.proguard.annotations.DoNotStrip
--keep,allowobfuscation @interface com.facebook.proguard.annotations.DoNotStrip
--keep,allowobfuscation @interface com.facebook.proguard.annotations.DoNotStrip
--keep,allowobfuscation @interface com.facebook.proguard.annotations.DoNotStrip
--keep,allowobfuscation @interface com.facebook.proguard.annotations.DoNotStrip
--keep,allowobfuscation @interface com.facebook.proguard.annotations.DoNotStrip
--keep,allowobfuscation @interface com.facebook.proguard.annotations.DoNotStrip
--keep,allowobfuscation @interface com.facebook.proguard.annotations.DoNotStrip
--keep,allowobfuscation @interface com.facebook.proguard.annotations.DoNotStrip
--keep,allowobfuscation @interface com.facebook.proguard.annotations.DoNotStrip
--keep,allowobfuscation @interface com.facebook.proguard.annotations.DoNotStrip
--keep,allowobfuscation @interface com.facebook.proguard.annotations.DoNotStrip
--keep,allowobfuscation @interface com.facebook.proguard.annotations.DoNotStrip
--keep,allowobfuscation @interface com.facebook.proguard.annotations.DoNotStrip
--keep,allowobfuscation @interface com.facebook.proguard.annotations.DoNotStrip
--keep,allowobfuscation @interface com.facebook.proguard.annotations.DoNotStrip
--keep,allowobfuscation @interface com.facebook.proguard.annotations.KeepGettersAndSetters
--keep,allowobfuscation @interface com.facebook.jni.annotations.DoNotStrip
 
-# Do not strip any method/class that is annotated with @DoNotStrip
--keep @com.facebook.proguard.annotations.DoNotStrip class *
+# --- HERMES & JNI (Cruciale per il tuo errore) ---
+# Impedisce a ProGuard di rimuovere le classi che caricano libhermes_executor.so
+-keep class com.facebook.hermes.** { *; }
+-keepclassmembers class com.facebook.hermes.** { *; }
+-keep class com.facebook.jni.** { *; }
 -keep @com.facebook.jni.annotations.DoNotStrip class *
 -keepclassmembers class * {
-    @com.facebook.proguard.annotations.DoNotStrip *;
     @com.facebook.jni.annotations.DoNotStrip *;
 }
 
+-dontwarn com.facebook.hermes.**
+-dontwarn com.facebook.jni.**
+
+# --- SOLOADER (Il caricatore di librerie native) ---
+-keep class com.facebook.soloader.** { *; }
+-dontwarn com.facebook.soloader.**
+
+# --- GOOGLE MOBILE ADS ---
+-keep class com.google.android.gms.ads.** { *; }
+-dontwarn com.google.android.gms.ads.**
+
+# --- REGOLE AGGIUNTIVE PER LE CLASSI SETTER/GETTER ---
 -keepclassmembers @com.facebook.proguard.annotations.KeepGettersAndSetters class * {
   void set*(***);
   *** get*();
 }
-
--keep class * implements com.facebook.react.bridge.JavaScriptModule { *; }
--keep class * implements com.facebook.react.bridge.NativeModule { *; }
--keepclassmembers,includedescriptorclasses class * { native <methods>; }
--keepclassmembers class *  { @com.facebook.react.uimanager.annotations.ReactProp <methods>; }
--keepclassmembers class *  { @com.facebook.react.uimanager.annotations.ReactPropGroup <methods>; }
-
--dontwarn com.facebook.react.**
--keep,includedescriptorclasses class com.facebook.react.bridge.** { *; }
-
-# Google Mobile Ads
--keep class com.google.android.gms.ads.** { *; }
--dontwarn com.google.android.gms.ads.**
-
-# Keep native methods
--keepclassmembers class * {
-    native <methods>;
-}
-
-# Hermes - Keep all Hermes classes and native libraries
--keep class com.facebook.hermes.** { *; }
--keep class com.facebook.jni.** { *; }
--keepclassmembers class com.facebook.hermes.** { *; }
--dontwarn com.facebook.hermes.**
-
-# Keep SoLoader classes (used to load native libraries)
--keep class com.facebook.soloader.** { *; }
--dontwarn com.facebook.soloader.**
