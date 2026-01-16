@@ -11,7 +11,9 @@ const AboutScreen = () => {
   const handlePrivacyPolicy = () => {
     const privacyUrl = 'https://tnt-labs.github.io/Segnapunti/privacy-policy.html';
     Linking.openURL(privacyUrl).catch(err => {
-      console.error('Errore apertura privacy policy:', err);
+      if (__DEV__) {
+        console.error('Errore apertura privacy policy:', err);
+      }
       Alert.alert('Errore', 'Impossibile aprire la privacy policy.');
     });
   };

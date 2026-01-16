@@ -6,15 +6,18 @@ import {
   TextInput,
   StyleSheet,
   TouchableOpacity,
-  Dimensions,
+  useWindowDimensions,
+  Alert,
 } from 'react-native';
 import {useTheme} from '../contexts/ThemeContext';
 
-const {width} = Dimensions.get('window');
-
 const ScoreModal = ({visible, onClose, onSubmit, playerName, incrementValues}) => {
   const {theme} = useTheme();
+  const {width} = useWindowDimensions();
   const [customScore, setCustomScore] = useState('');
+
+  const MIN_SCORE = -9999;
+  const MAX_SCORE = 9999;
 
   const handleQuickScore = value => {
     onSubmit(value);
@@ -23,10 +26,22 @@ const ScoreModal = ({visible, onClose, onSubmit, playerName, incrementValues}) =
 
   const handleCustomSubmit = () => {
     const score = parseInt(customScore, 10);
-    if (!isNaN(score) && customScore.trim() !== '') {
-      onSubmit(score);
-      setCustomScore('');
+
+    if (isNaN(score) || customScore.trim() === '') {
+      Alert.alert('Errore', 'Inserisci un punteggio valido.');
+      return;
     }
+
+    if (score < MIN_SCORE || score > MAX_SCORE) {
+      Alert.alert(
+        'Punteggio Non Valido',
+        `Il punteggio deve essere compreso tra ${MIN_SCORE} e ${MAX_SCORE}.`
+      );
+      return;
+    }
+
+    onSubmit(score);
+    setCustomScore('');
   };
 
   const handleClose = () => {

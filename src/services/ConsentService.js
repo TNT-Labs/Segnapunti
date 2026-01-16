@@ -26,7 +26,9 @@ class ConsentService {
         await AdsConsent.setDebugGeography(
           AdsConsentDebugGeography.EEA,
         );
-        console.log('ConsentService: Debug mode attivo - simulazione geografica EEA');
+        if (__DEV__) {
+          console.log('ConsentService: Debug mode attivo - simulazione geografica EEA');
+        }
       }
 
       // Richiedi informazioni sul consenso
@@ -36,10 +38,12 @@ class ConsentService {
       const isRequired = this.consentInfo.isConsentFormAvailable;
       const status = this.consentInfo.status;
 
-      console.log('ConsentService: Inizializzazione completata', {
-        isConsentFormAvailable: isRequired,
-        status: this._getStatusName(status),
-      });
+      if (__DEV__) {
+        console.log('ConsentService: Inizializzazione completata', {
+          isConsentFormAvailable: isRequired,
+          status: this._getStatusName(status),
+        });
+      }
 
       return {
         isRequired,
@@ -47,7 +51,9 @@ class ConsentService {
         canRequestAds: this._canRequestAds(),
       };
     } catch (error) {
-      console.error('ConsentService: Errore durante inizializzazione:', error);
+      if (__DEV__) {
+        console.error('ConsentService: Errore durante inizializzazione:', error);
+      }
       // In caso di errore, permetti comunque gli annunci non personalizzati
       return {
         isRequired: false,
@@ -69,7 +75,9 @@ class ConsentService {
 
       // Verifica se il form è disponibile
       if (!this.consentInfo?.isConsentFormAvailable) {
-        console.log('ConsentService: Form di consenso non disponibile');
+        if (__DEV__) {
+          console.log('ConsentService: Form di consenso non disponibile');
+        }
         return {
           status: 'NOT_REQUIRED',
           canRequestAds: true,
@@ -78,7 +86,9 @@ class ConsentService {
 
       // Verifica se il consenso è già stato ottenuto
       if (this.consentInfo.status === AdsConsentStatus.OBTAINED) {
-        console.log('ConsentService: Consenso già ottenuto');
+        if (__DEV__) {
+          console.log('ConsentService: Consenso già ottenuto');
+        }
         return {
           status: 'OBTAINED',
           canRequestAds: true,
@@ -86,21 +96,27 @@ class ConsentService {
       }
 
       // Mostra il form di consenso
-      console.log('ConsentService: Mostro form di consenso');
+      if (__DEV__) {
+        console.log('ConsentService: Mostro form di consenso');
+      }
       const result = await AdsConsent.showForm();
 
       // Aggiorna le informazioni sul consenso
       this.consentInfo = await AdsConsent.requestInfoUpdate();
 
       const newStatus = this._getStatusName(this.consentInfo.status);
-      console.log('ConsentService: Consenso aggiornato -', newStatus);
+      if (__DEV__) {
+        console.log('ConsentService: Consenso aggiornato -', newStatus);
+      }
 
       return {
         status: newStatus,
         canRequestAds: this._canRequestAds(),
       };
     } catch (error) {
-      console.error('ConsentService: Errore durante visualizzazione form:', error);
+      if (__DEV__) {
+        console.error('ConsentService: Errore durante visualizzazione form:', error);
+      }
       // In caso di errore, permetti annunci non personalizzati
       return {
         status: 'ERROR',
@@ -118,9 +134,13 @@ class ConsentService {
       await AdsConsent.reset();
       this.consentInfo = null;
       this.isInitialized = false;
-      console.log('ConsentService: Consenso resettato');
+      if (__DEV__) {
+        console.log('ConsentService: Consenso resettato');
+      }
     } catch (error) {
-      console.error('ConsentService: Errore durante reset del consenso:', error);
+      if (__DEV__) {
+        console.error('ConsentService: Errore durante reset del consenso:', error);
+      }
     }
   }
 

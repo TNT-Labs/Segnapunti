@@ -33,15 +33,6 @@ const SettingsScreen = ({navigation, route}) => {
     }
   }, [route.params?.selectedPreset]);
 
-  // Pulisci params dopo averli letti
-  useEffect(() => {
-    return () => {
-      if (route.params?.selectedPreset) {
-        navigation.setParams({selectedPreset: null});
-      }
-    };
-  }, [navigation, route.params?.selectedPreset]);
-
   useEffect(() => {
     if (selectedPreset) {
       // Inizializza array giocatori con nomi di default

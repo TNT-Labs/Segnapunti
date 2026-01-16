@@ -23,7 +23,9 @@ class StorageService {
       await AsyncStorage.setItem(key, jsonValue);
       return true;
     } catch (error) {
-      console.error('Error saving data:', error);
+      if (__DEV__) {
+        console.error('Error saving data:', error);
+      }
       return false;
     }
   }
@@ -36,7 +38,9 @@ class StorageService {
       const jsonValue = await AsyncStorage.getItem(key);
       return jsonValue != null ? JSON.parse(jsonValue) : defaultValue;
     } catch (error) {
-      console.error('Error loading data:', error);
+      if (__DEV__) {
+        console.error('Error loading data:', error);
+      }
       return defaultValue;
     }
   }
@@ -49,7 +53,9 @@ class StorageService {
       await AsyncStorage.removeItem(key);
       return true;
     } catch (error) {
-      console.error('Error removing data:', error);
+      if (__DEV__) {
+        console.error('Error removing data:', error);
+      }
       return false;
     }
   }
@@ -211,7 +217,9 @@ class StorageService {
       await AsyncStorage.clear();
       return true;
     } catch (error) {
-      console.error('Error clearing all data:', error);
+      if (__DEV__) {
+        console.error('Error clearing all data:', error);
+      }
       return false;
     }
   }
@@ -235,7 +243,9 @@ class StorageService {
         version: '1.0.0',
       };
     } catch (error) {
-      console.error('Error exporting data:', error);
+      if (__DEV__) {
+        console.error('Error exporting data:', error);
+      }
       return null;
     }
   }
@@ -293,7 +303,9 @@ class StorageService {
       // Valida i dati prima di importarli
       const validation = this._validateImportData(data);
       if (!validation.valid) {
-        console.error('Validation error:', validation.error);
+        if (__DEV__) {
+          console.error('Validation error:', validation.error);
+        }
         return {success: false, error: validation.error};
       }
 
@@ -305,7 +317,9 @@ class StorageService {
 
       return {success: true};
     } catch (error) {
-      console.error('Error importing data:', error);
+      if (__DEV__) {
+        console.error('Error importing data:', error);
+      }
       return {success: false, error: error.message};
     }
   }

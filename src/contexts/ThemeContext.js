@@ -12,21 +12,24 @@ export const ThemeProvider = ({children}) => {
 
   // Carica dark mode preference al mount
   useEffect(() => {
-    loadDarkModePreference();
-  }, []);
+    const loadDarkModePreference = async () => {
+      try {
+        const savedDarkMode = await StorageService.loadDarkMode();
+        setIsDark(savedDarkMode);
+      } catch (error) {
+        if (__DEV__) {
+          console.error('Error loading dark mode:', error);
+        }
+        // Fallback to system preference
+        setIsDark(systemColorScheme === 'dark');
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  const loadDarkModePreference = async () => {
-    try {
-      const savedDarkMode = await StorageService.loadDarkMode();
-      setIsDark(savedDarkMode);
-    } catch (error) {
-      console.error('Error loading dark mode:', error);
-      // Fallback to system preference
-      setIsDark(systemColorScheme === 'dark');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    loadDarkModePreference();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const toggleDarkMode = async () => {
     const newValue = !isDark;
