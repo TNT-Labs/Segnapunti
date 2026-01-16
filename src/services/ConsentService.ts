@@ -1,6 +1,5 @@
 import {
   AdsConsent,
-  AdsConsentDebugGeography,
   AdsConsentStatus,
   AdsConsentInfo,
 } from 'react-native-google-mobile-ads';
@@ -34,12 +33,9 @@ class ConsentService {
    */
   async initialize(debugMode: boolean = false): Promise<ConsentInitializeResult> {
     try {
-      // Configura il debug mode se richiesto (solo per test)
+      // Note: Debug geography configuration non disponibile in questa versione
       if (debugMode && __DEV__) {
-        await AdsConsent.setDebugGeography(AdsConsentDebugGeography.EEA);
-        if (__DEV__) {
-          console.log('ConsentService: Debug mode attivo - simulazione geografica EEA');
-        }
+        console.log('ConsentService: Debug mode richiesto (non supportato in questa versione API)');
       }
 
       // Richiedi informazioni sul consenso

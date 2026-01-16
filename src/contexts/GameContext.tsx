@@ -6,12 +6,12 @@ import {GamePreset} from '../constants/presets';
 
 // Interfaces and Types
 
-interface Round {
+export interface Round {
   roundNumber: number;
   score: number;
 }
 
-interface Player {
+export interface Player {
   id: string;
   name: string;
   score: number;
@@ -20,7 +20,7 @@ interface Player {
   bustFlag: boolean;
 }
 
-interface GameState {
+export interface GameState {
   preset: GamePreset;
   players: Player[];
   startTime: string;
@@ -30,6 +30,8 @@ interface GameState {
   endTime?: string;
   isSaved?: boolean;
 }
+
+export type {GamePreset};
 
 interface GameContextValue {
   // State
@@ -120,7 +122,7 @@ export const GameProvider: React.FC<GameProviderProps> = ({children}) => {
   // ==================== GAME MANAGEMENT ====================
 
   const startNewGame = async (preset: GamePreset, playerNames: string[]): Promise<void> => {
-    const newPlayers: Player[] = playerNames.map((name, index) => ({
+    const newPlayers: Player[] = playerNames.map((name) => ({
       id: generateUniqueId('player'),
       name,
       score: preset.mode === 'darts' ? preset.targetScore : 0,

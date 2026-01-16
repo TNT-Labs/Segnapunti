@@ -1,4 +1,4 @@
-import { GameMode, PresetCategory } from './colors';
+import { PresetCategory } from './colors';
 
 // Base properties common to all presets
 interface BasePreset {

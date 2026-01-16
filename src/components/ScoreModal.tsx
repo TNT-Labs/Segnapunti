@@ -16,7 +16,7 @@ interface ScoreModalProps {
   visible: boolean;
   onClose: () => void;
   onSubmit: (score: number) => void;
-  playerName: string;
+  playerName: string | undefined;
   incrementValues?: number[];
 }
 

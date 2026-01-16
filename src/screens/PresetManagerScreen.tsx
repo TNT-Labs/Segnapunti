@@ -35,7 +35,7 @@ interface NewPresetForm {
 const PresetManagerScreen: React.FC<PresetsScreenProps> = ({navigation}) => {
   const {t} = useTranslation();
   const {theme} = useTheme();
-  const {getAllPresets, addCustomPreset, removeCustomPreset, customPresets} = useGame();
+  const {addCustomPreset, removeCustomPreset, customPresets} = useGame();
 
   const [showForm, setShowForm] = useState<boolean>(false);
   const [newPreset, setNewPreset] = useState<NewPresetForm>({
@@ -47,8 +47,6 @@ const PresetManagerScreen: React.FC<PresetsScreenProps> = ({navigation}) => {
     roundTargetScore: 21,
     defaultPlayers: 2,
   });
-
-  const allPresets = getAllPresets();
 
   const MODES: ModeOption[] = [
     {value: 'max', label: t('presets.modes.max')},

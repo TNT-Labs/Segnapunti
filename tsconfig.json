@@ -1,5 +1,4 @@
 {
-  "extends": "@react-native/typescript-config/tsconfig.json",
   "compilerOptions": {
     "target": "ESNext",
     "module": "ESNext",
@@ -28,7 +27,7 @@
       "@config/*": ["src/config/*"],
       "@navigation/*": ["src/navigation/*"]
     },
-    "types": ["jest", "react-native", "react"]
+    "types": ["jest"]
   },
   "include": [
     "src/**/*",

@@ -3,7 +3,7 @@ import {renderHook, act, waitFor} from '@testing-library/react-native';
 import {Alert} from 'react-native';
 import {GameProvider, useGame} from '../../contexts/GameContext';
 import StorageService from '../../services/StorageService';
-import type {GamePreset, Player, GameState} from '../../contexts/GameContext';
+import type {GamePreset} from '../../contexts/GameContext';
 
 // Mock dependencies
 jest.mock('../../services/StorageService');

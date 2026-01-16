@@ -16,7 +16,7 @@ const LoadingScreen: React.FC = () => (
 );
 
 const AppContent: React.FC = () => {
-  const {theme, isDark} = useTheme();
+  const {isDark} = useTheme();
 
   return (
     <SafeAreaProvider>
