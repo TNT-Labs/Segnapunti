@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
+import {useTranslation} from 'react-i18next';
 import {useTheme} from '../contexts/ThemeContext';
 import {useGame} from '../contexts/GameContext';
 import PlayerCard from '../components/PlayerCard';
@@ -15,6 +16,7 @@ import AdBanner from '../components/AdBanner';
 import {AD_UNITS, AD_BANNER_SIZES} from '../config/adConfig';
 
 const GameScreen = ({navigation}) => {
+  const {t} = useTranslation();
   const {theme} = useTheme();
   const {
     gameState,
@@ -49,12 +51,12 @@ const GameScreen = ({navigation}) => {
 
   const handleResetGame = () => {
     Alert.alert(
-      'Ricomincia Partita',
-      'Vuoi davvero ricominciare? I punteggi attuali verranno persi.',
+      t('game.resetConfirm'),
+      t('game.resetConfirmMessage'),
       [
-        {text: 'Annulla', style: 'cancel'},
+        {text: t('common.cancel'), style: 'cancel'},
         {
-          text: 'Ricomincia',
+          text: t('game.reset'),
           style: 'destructive',
           onPress: () => {
             resetGame();
@@ -69,17 +71,17 @@ const GameScreen = ({navigation}) => {
     const success = await saveGameToHistory();
 
     if (success) {
-      Alert.alert('Partita Salvata', 'La partita è stata salvata nello storico!', [
-        {text: 'OK', onPress: () => {
+      Alert.alert(t('game.gameOver'), t('game.gameSaved'), [
+        {text: t('common.ok'), onPress: () => {
           resetGame();
           navigation.navigate('History');
         }},
       ]);
     } else {
       Alert.alert(
-        'Errore',
-        'Impossibile salvare la partita. Riprova più tardi.',
-        [{text: 'OK'}]
+        t('common.error'),
+        t('game.gameSaveError'),
+        [{text: t('common.ok')}]
       );
     }
   };
@@ -90,28 +92,28 @@ const GameScreen = ({navigation}) => {
         <View style={styles.emptyState}>
           <Text
             style={styles.emptyIcon}
-            accessibilityLabel="Icona gioco"
+            accessibilityLabel="🎮"
             accessibilityRole="image">
             🎮
           </Text>
           <Text
             style={[styles.emptyTitle, {color: theme.colors.text}]}
             accessibilityRole="header">
-            Nessuna Partita Attiva
+            {t('game.noGame')}
           </Text>
           <Text
             style={[styles.emptySubtitle, {color: theme.colors.textSecondary}]}
             accessibilityRole="text">
-            Vai in Impostazioni per iniziare una nuova partita!
+            {t('game.noGameMessage')}
           </Text>
           <TouchableOpacity
             accessible={true}
-            accessibilityLabel="Inizia nuova partita"
-            accessibilityHint="Naviga alla schermata Impostazioni per configurare una nuova partita"
+            accessibilityLabel={t('game.goToSettings')}
+            accessibilityHint={t('game.noGameMessage')}
             accessibilityRole="button"
             style={[styles.startButton, {backgroundColor: theme.colors.primary}]}
             onPress={() => navigation.navigate('Settings')}>
-            <Text style={styles.startButtonText}>Inizia Partita</Text>
+            <Text style={styles.startButtonText}>{t('game.goToSettings')}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -127,18 +129,18 @@ const GameScreen = ({navigation}) => {
           <Text
             style={[styles.presetName, {color: theme.colors.primary}]}
             accessibilityRole="header"
-            accessibilityLabel={`Partita a ${currentPreset.name}`}>
+            accessibilityLabel={t('game.matchTo', {gameName: currentPreset.name})}>
             {currentPreset.icon} {currentPreset.name}
           </Text>
           <Text
             style={[styles.gameInfo, {color: theme.colors.textSecondary}]}
             accessibilityRole="text"
             accessibilityLabel={currentPreset.mode === 'rounds'
-              ? `${currentPreset.targetRounds} rounds, punteggio target ${currentPreset.roundTargetScore}`
-              : `Punteggio target ${currentPreset.targetScore}`}>
+              ? t('game.roundsDescription', {rounds: currentPreset.targetRounds, target: currentPreset.roundTargetScore})
+              : t('game.targetDescription', {target: currentPreset.targetScore})}>
             {currentPreset.mode === 'rounds'
-              ? `${currentPreset.targetRounds} rounds - Target: ${currentPreset.roundTargetScore}`
-              : `Target: ${currentPreset.targetScore}`}
+              ? t('game.roundsInfo', {rounds: currentPreset.targetRounds, target: currentPreset.roundTargetScore})
+              : t('game.targetInfo', {target: currentPreset.targetScore})}
           </Text>
         </View>
 
@@ -147,9 +149,9 @@ const GameScreen = ({navigation}) => {
             style={[styles.winnerBanner, {backgroundColor: theme.colors.success}]}
             accessible={true}
             accessibilityRole="alert"
-            accessibilityLabel={`${winner.name} ha vinto la partita!`}
+            accessibilityLabel={t('game.winnerAnnouncement', {playerName: winner.name})}
             accessibilityLiveRegion="polite">
-            <Text style={styles.winnerText}>🏆 {winner.name} ha vinto! 🏆</Text>
+            <Text style={styles.winnerText}>{t('game.winnerBanner', {playerName: winner.name})}</Text>
           </View>
         )}
 
@@ -175,32 +177,32 @@ const GameScreen = ({navigation}) => {
           <View style={styles.actions}>
             <TouchableOpacity
               accessible={true}
-              accessibilityLabel="Salva partita nello storico"
-              accessibilityHint="Salva la partita completata e naviga allo storico"
+              accessibilityLabel={t('game.saveGameLabel')}
+              accessibilityHint={t('game.saveGameHint')}
               accessibilityRole="button"
               style={[styles.actionButton, {backgroundColor: theme.colors.primary}]}
               onPress={handleSaveGame}>
-              <Text style={styles.actionButtonText}>💾 Salva Partita</Text>
+              <Text style={styles.actionButtonText}>{t('game.saveGame')}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               accessible={true}
-              accessibilityLabel="Inizia nuova partita"
-              accessibilityHint="Ricomincia dall'inizio con nuovi giocatori"
+              accessibilityLabel={t('game.startNewGameLabel')}
+              accessibilityHint={t('game.startNewGameHint')}
               accessibilityRole="button"
               style={[styles.actionButton, {backgroundColor: theme.colors.textSecondary}]}
               onPress={handleResetGame}>
-              <Text style={styles.actionButtonText}>🔄 Nuova Partita</Text>
+              <Text style={styles.actionButtonText}>{t('game.startNewGame')}</Text>
             </TouchableOpacity>
           </View>
         ) : (
           <TouchableOpacity
             accessible={true}
-            accessibilityLabel="Ricomincia partita"
-            accessibilityHint="Azzera tutti i punteggi e ricomincia la partita"
+            accessibilityLabel={t('game.restartGameLabel')}
+            accessibilityHint={t('game.restartGameHint')}
             accessibilityRole="button"
             style={[styles.resetButton, {backgroundColor: theme.colors.error}]}
             onPress={handleResetGame}>
-            <Text style={styles.resetButtonText}>🔄 Ricomincia Partita</Text>
+            <Text style={styles.resetButtonText}>{t('game.restartGame')}</Text>
           </TouchableOpacity>
         )}
       </ScrollView>

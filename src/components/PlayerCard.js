@@ -1,16 +1,20 @@
 import React from 'react';
 import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import {useTranslation} from 'react-i18next';
 import {useTheme} from '../contexts/ThemeContext';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const PlayerCard = ({player, onAddScore, onSubtractScore, showActions = true}) => {
+  const {t} = useTranslation();
   const {theme} = useTheme();
 
   return (
     <View
       style={[styles.container, {backgroundColor: theme.colors.card}]}
       accessible={true}
-      accessibilityLabel={`Giocatore ${player.name}, punteggio ${player.score}${player.roundsWon !== undefined ? `, rounds vinti ${player.roundsWon}` : ''}`}>
+      accessibilityLabel={player.roundsWon !== undefined
+        ? t('playerCard.playerWithRoundsLabel', {playerName: player.name, score: player.score, roundsWon: player.roundsWon})
+        : t('playerCard.playerLabel', {playerName: player.name, score: player.score})}>
       <View style={styles.leftSection}>
         <Text
           style={[styles.playerName, {color: theme.colors.text}]}
@@ -21,8 +25,8 @@ const PlayerCard = ({player, onAddScore, onSubtractScore, showActions = true}) =
           <Text
             style={[styles.rounds, {color: theme.colors.textSecondary}]}
             accessibilityRole="text"
-            accessibilityLabel={`Rounds vinti: ${player.roundsWon}`}>
-            🏆 Rounds: {player.roundsWon}
+            accessibilityLabel={t('playerCard.roundsLabel', {roundsWon: player.roundsWon})}>
+            🏆 {t('playerCard.rounds')}: {player.roundsWon}
           </Text>
         )}
       </View>
@@ -31,7 +35,7 @@ const PlayerCard = ({player, onAddScore, onSubtractScore, showActions = true}) =
         <Text
           style={[styles.score, {color: theme.colors.primary}]}
           accessibilityRole="text"
-          accessibilityLabel={`Punteggio: ${player.score}`}>
+          accessibilityLabel={t('playerCard.scoreLabel', {score: player.score})}>
           {player.score}
         </Text>
 
@@ -39,8 +43,8 @@ const PlayerCard = ({player, onAddScore, onSubtractScore, showActions = true}) =
           <View style={styles.actions}>
             <TouchableOpacity
               accessible={true}
-              accessibilityLabel={`Sottrai punti a ${player.name}`}
-              accessibilityHint="Riduce il punteggio del giocatore"
+              accessibilityLabel={t('playerCard.subtractPoints', {playerName: player.name})}
+              accessibilityHint={t('playerCard.subtractPointsHint')}
               accessibilityRole="button"
               style={[styles.button, {backgroundColor: theme.colors.error}]}
               onPress={() => onSubtractScore(player.id)}>
@@ -49,8 +53,8 @@ const PlayerCard = ({player, onAddScore, onSubtractScore, showActions = true}) =
 
             <TouchableOpacity
               accessible={true}
-              accessibilityLabel={`Aggiungi punti a ${player.name}`}
-              accessibilityHint="Aumenta il punteggio del giocatore"
+              accessibilityLabel={t('playerCard.addPoints', {playerName: player.name})}
+              accessibilityHint={t('playerCard.addPointsHint')}
               accessibilityRole="button"
               style={[styles.button, {backgroundColor: theme.colors.success}]}
               onPress={() => onAddScore(player.id)}>

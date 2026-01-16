@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
 import {View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert} from 'react-native';
+import {useTranslation} from 'react-i18next';
 import {useTheme} from '../contexts/ThemeContext';
 import {useGame} from '../contexts/GameContext';
 import PresetCard from '../components/PresetCard';
@@ -8,6 +9,7 @@ import {DEFAULT_PRESETS} from '../constants/presets';
 import {AD_UNITS, AD_BANNER_SIZES} from '../config/adConfig';
 
 const PresetManagerScreen = ({navigation}) => {
+  const {t} = useTranslation();
   const {theme} = useTheme();
   const {getAllPresets, addCustomPreset, removeCustomPreset, customPresets, startNewGame} = useGame();
 
@@ -25,17 +27,17 @@ const PresetManagerScreen = ({navigation}) => {
   const allPresets = getAllPresets();
 
   const MODES = [
-    {value: 'max', label: 'Max (primo a raggiungere)'},
-    {value: 'min', label: 'Min (ultimo a superare)'},
-    {value: 'rounds', label: 'Rounds (migliore di X round)'},
-    {value: 'darts', label: 'Darts (da X a 0)'},
+    {value: 'max', label: t('presets.modes.max')},
+    {value: 'min', label: t('presets.modes.min')},
+    {value: 'rounds', label: t('presets.modes.rounds')},
+    {value: 'darts', label: t('presets.modes.darts')},
   ];
 
   const CATEGORIES = [
-    {value: 'cards', label: '🃏 Carte', icon: '🃏'},
-    {value: 'table', label: '🎲 Giochi da Tavolo', icon: '🎲'},
-    {value: 'sports', label: '⚽ Sport', icon: '⚽'},
-    {value: 'other', label: '🎯 Altri', icon: '🎯'},
+    {value: 'cards', label: t('presets.categories.cards'), icon: '🃏'},
+    {value: 'table', label: t('presets.categories.table'), icon: '🎲'},
+    {value: 'sports', label: t('presets.categories.sports'), icon: '⚽'},
+    {value: 'other', label: t('presets.categories.other'), icon: '🎯'},
   ];
 
   // Funzione helper per ottenere l'icona dalla categoria
@@ -46,12 +48,12 @@ const PresetManagerScreen = ({navigation}) => {
 
   const handleCreatePreset = () => {
     if (!newPreset.name.trim()) {
-      Alert.alert('Errore', 'Inserisci un nome per il preset!');
+      Alert.alert(t('common.error'), t('presets.errors.noName'));
       return;
     }
 
     if (newPreset.defaultPlayers < 2 || newPreset.defaultPlayers > 8) {
-      Alert.alert('Errore', 'Il numero di giocatori deve essere tra 2 e 8!');
+      Alert.alert(t('common.error'), t('presets.errors.invalidPlayers'));
       return;
     }
 
@@ -84,16 +86,16 @@ const PresetManagerScreen = ({navigation}) => {
       defaultPlayers: 2,
     });
     setShowForm(false);
-    Alert.alert('Successo', 'Preset creato con successo!');
+    Alert.alert(t('common.success'), t('presets.createSuccess'));
   };
 
   const handleDeletePreset = presetId => {
     Alert.alert(
-      'Elimina Preset',
-      'Vuoi davvero eliminare questo preset personalizzato?',
+      t('presets.deleteConfirm'),
+      t('presets.deleteConfirmMessage'),
       [
-        {text: 'Annulla', style: 'cancel'},
-        {text: 'Elimina', style: 'destructive', onPress: () => removeCustomPreset(presetId)},
+        {text: t('common.cancel'), style: 'cancel'},
+        {text: t('common.delete'), style: 'destructive', onPress: () => removeCustomPreset(presetId)},
       ],
     );
   };
@@ -101,11 +103,11 @@ const PresetManagerScreen = ({navigation}) => {
   const handleSelectPreset = preset => {
     Alert.alert(
       preset.name,
-      'Vuoi usare questo preset per iniziare una partita?',
+      t('presets.usePresetMessage'),
       [
-        {text: 'Annulla', style: 'cancel'},
+        {text: t('common.cancel'), style: 'cancel'},
         {
-          text: 'Usa Preset',
+          text: t('presets.usePreset'),
           onPress: () => {
             navigation.navigate('Settings', {selectedPreset: preset});
           },
@@ -119,31 +121,31 @@ const PresetManagerScreen = ({navigation}) => {
       <View style={styles.content}>
         <TouchableOpacity
           accessible={true}
-          accessibilityLabel={showForm ? "Annulla creazione preset" : "Crea preset personalizzato"}
-          accessibilityHint={showForm ? "Chiudi il form di creazione" : "Apri il form per creare un nuovo preset"}
+          accessibilityLabel={showForm ? t('presets.cancelCreateLabel') : t('presets.createLabel')}
+          accessibilityHint={showForm ? t('presets.cancelCreateHint') : t('presets.createHint')}
           accessibilityRole="button"
           style={[styles.addButton, {backgroundColor: theme.colors.primary}]}
           onPress={() => setShowForm(!showForm)}>
           <Text style={styles.addButtonText}>
-            {showForm ? '❌ Annulla' : '➕ Crea Preset Personalizzato'}
+            {showForm ? t('presets.cancelCreate') : t('presets.addPreset')}
           </Text>
         </TouchableOpacity>
 
         {showForm && (
           <View style={[styles.form, {backgroundColor: theme.colors.card}]}>
-            <Text style={[styles.label, {color: theme.colors.text}]}>Nome Preset</Text>
+            <Text style={[styles.label, {color: theme.colors.text}]}>{t('presets.form.nameLabel')}</Text>
             <TextInput
               accessible={true}
-              accessibilityLabel="Nome preset"
-              accessibilityHint="Inserisci il nome del nuovo preset"
+              accessibilityLabel={t('presets.form.nameAccessibilityLabel')}
+              accessibilityHint={t('presets.form.nameAccessibilityHint')}
               style={[styles.input, {backgroundColor: theme.colors.background, color: theme.colors.text, borderColor: theme.colors.border}]}
-              placeholder="Es: Mio Gioco Preferito"
+              placeholder={t('presets.form.namePlaceholder')}
               placeholderTextColor={theme.colors.textSecondary}
               value={newPreset.name}
               onChangeText={text => setNewPreset({...newPreset, name: text})}
             />
 
-            <Text style={[styles.label, {color: theme.colors.text}]}>Categoria (l'icona verrà scelta automaticamente)</Text>
+            <Text style={[styles.label, {color: theme.colors.text}]}>{t('presets.form.categoryLabel')}</Text>
             <View style={styles.buttonGroup}>
               {CATEGORIES.map(cat => (
                 <TouchableOpacity
@@ -162,7 +164,7 @@ const PresetManagerScreen = ({navigation}) => {
               ))}
             </View>
 
-            <Text style={[styles.label, {color: theme.colors.text}]}>Modalità di Gioco</Text>
+            <Text style={[styles.label, {color: theme.colors.text}]}>{t('presets.form.modeLabel')}</Text>
             <View style={styles.buttonGroup}>
               {MODES.map(mode => (
                 <TouchableOpacity
@@ -183,20 +185,20 @@ const PresetManagerScreen = ({navigation}) => {
 
             {newPreset.mode === 'rounds' ? (
               <>
-                <Text style={[styles.label, {color: theme.colors.text}]}>Numero di Round da Vincere</Text>
+                <Text style={[styles.label, {color: theme.colors.text}]}>{t('presets.form.roundsLabel')}</Text>
                 <TextInput
                   style={[styles.input, {backgroundColor: theme.colors.background, color: theme.colors.text, borderColor: theme.colors.border}]}
-                  placeholder="3"
+                  placeholder={t('presets.form.roundsPlaceholder')}
                   placeholderTextColor={theme.colors.textSecondary}
                   keyboardType="numeric"
                   value={String(newPreset.targetRounds)}
                   onChangeText={text => setNewPreset({...newPreset, targetRounds: parseInt(text, 10) || 1})}
                 />
 
-                <Text style={[styles.label, {color: theme.colors.text}]}>Punteggio per Vincere un Round</Text>
+                <Text style={[styles.label, {color: theme.colors.text}]}>{t('presets.form.roundTargetLabel')}</Text>
                 <TextInput
                   style={[styles.input, {backgroundColor: theme.colors.background, color: theme.colors.text, borderColor: theme.colors.border}]}
-                  placeholder="21"
+                  placeholder={t('presets.form.roundTargetPlaceholder')}
                   placeholderTextColor={theme.colors.textSecondary}
                   keyboardType="numeric"
                   value={String(newPreset.roundTargetScore)}
@@ -206,11 +208,11 @@ const PresetManagerScreen = ({navigation}) => {
             ) : (
               <>
                 <Text style={[styles.label, {color: theme.colors.text}]}>
-                  {newPreset.mode === 'darts' ? 'Punteggio Iniziale' : 'Punteggio Target'}
+                  {newPreset.mode === 'darts' ? t('presets.form.startingScoreLabel') : t('presets.form.targetScoreLabel')}
                 </Text>
                 <TextInput
                   style={[styles.input, {backgroundColor: theme.colors.background, color: theme.colors.text, borderColor: theme.colors.border}]}
-                  placeholder="100"
+                  placeholder={t('presets.form.targetScorePlaceholder')}
                   placeholderTextColor={theme.colors.textSecondary}
                   keyboardType="numeric"
                   value={String(newPreset.targetScore)}
@@ -219,13 +221,13 @@ const PresetManagerScreen = ({navigation}) => {
               </>
             )}
 
-            <Text style={[styles.label, {color: theme.colors.text}]}>Numero Giocatori Predefinito (2-8)</Text>
+            <Text style={[styles.label, {color: theme.colors.text}]}>{t('presets.form.defaultPlayersLabel')}</Text>
             <TextInput
               accessible={true}
-              accessibilityLabel="Punteggio target"
-              accessibilityHint="Inserisci il punteggio obiettivo del preset"
+              accessibilityLabel={t('presets.form.targetScoreAccessibilityLabel')}
+              accessibilityHint={t('presets.form.targetScoreAccessibilityHint')}
               style={[styles.input, {backgroundColor: theme.colors.background, color: theme.colors.text, borderColor: theme.colors.border}]}
-              placeholder="2"
+              placeholder={t('presets.form.defaultPlayersPlaceholder')}
               placeholderTextColor={theme.colors.textSecondary}
               keyboardType="numeric"
               value={String(newPreset.defaultPlayers)}
@@ -234,12 +236,12 @@ const PresetManagerScreen = ({navigation}) => {
 
             <TouchableOpacity
               accessible={true}
-              accessibilityLabel="Conferma creazione preset"
-              accessibilityHint="Salva il nuovo preset personalizzato"
+              accessibilityLabel={t('presets.createButtonLabel')}
+              accessibilityHint={t('presets.createButtonHint')}
               accessibilityRole="button"
               style={[styles.createButton, {backgroundColor: theme.colors.success}]}
               onPress={handleCreatePreset}>
-              <Text style={styles.createButtonText}>✅ Crea Preset</Text>
+              <Text style={styles.createButtonText}>{t('presets.createButton')}</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -247,7 +249,7 @@ const PresetManagerScreen = ({navigation}) => {
         <Text
           style={[styles.sectionTitle, {color: theme.colors.text}]}
           accessibilityRole="header">
-          Preset Predefiniti
+          {t('presets.defaultPresets')}
         </Text>
         {DEFAULT_PRESETS.map(preset => (
           <PresetCard
@@ -268,7 +270,7 @@ const PresetManagerScreen = ({navigation}) => {
             <Text
               style={[styles.sectionTitle, {color: theme.colors.text}]}
               accessibilityRole="header">
-              Preset Personalizzati
+              {t('presets.customPresets')}
             </Text>
             {customPresets.map(preset => (
               <View key={preset.id} style={styles.customPresetWrapper}>
@@ -280,8 +282,8 @@ const PresetManagerScreen = ({navigation}) => {
                 </View>
                 <TouchableOpacity
                   accessible={true}
-                  accessibilityLabel={`Elimina preset ${preset.name}`}
-                  accessibilityHint="Rimuove questo preset personalizzato dalla lista"
+                  accessibilityLabel={t('presets.deletePresetLabel', {presetName: preset.name})}
+                  accessibilityHint={t('presets.deletePresetLabelHint')}
                   accessibilityRole="button"
                   style={[styles.deleteButton, {backgroundColor: theme.colors.error}]}
                   onPress={() => handleDeletePreset(preset.id)}>

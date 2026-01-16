@@ -1,22 +1,38 @@
 import React from 'react';
 import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import {useTranslation} from 'react-i18next';
 import {useTheme} from '../contexts/ThemeContext';
 import {CATEGORY_COLORS} from '../constants/colors';
 
 const PresetCard = ({preset, onPress, isSelected = false}) => {
+  const {t} = useTranslation();
   const {theme} = useTheme();
 
   const categoryColor = CATEGORY_COLORS[preset.category] || theme.colors.primary;
 
+  const targetInfo = preset.mode === 'rounds'
+    ? t('presetCard.roundsTarget', {rounds: preset.targetRounds})
+    : t('presetCard.targetScore', {score: preset.targetScore});
+
+  const accessibilityLabel = isSelected
+    ? t('presetCard.presetLabelSelected', {
+        presetName: preset.name,
+        mode: preset.mode,
+        targetInfo: targetInfo,
+        playerCount: preset.defaultPlayers
+      })
+    : t('presetCard.presetLabel', {
+        presetName: preset.name,
+        mode: preset.mode,
+        targetInfo: targetInfo,
+        playerCount: preset.defaultPlayers
+      });
+
   return (
     <TouchableOpacity
       accessible={true}
-      accessibilityLabel={`Preset ${preset.name}, modalità ${preset.mode}, ${
-        preset.mode === 'rounds'
-          ? `${preset.targetRounds} rounds`
-          : `punteggio target ${preset.targetScore}`
-      }, ${preset.defaultPlayers} giocatori${isSelected ? ', selezionato' : ''}`}
-      accessibilityHint="Tocca per selezionare questo preset"
+      accessibilityLabel={accessibilityLabel}
+      accessibilityHint={t('presetCard.selectHint')}
       accessibilityRole="button"
       accessibilityState={{selected: isSelected}}
       style={[
@@ -31,14 +47,14 @@ const PresetCard = ({preset, onPress, isSelected = false}) => {
       <View style={styles.header}>
         <Text
           style={styles.icon}
-          accessibilityLabel={`Icona ${preset.icon}`}
+          accessibilityLabel={t('presetCard.iconLabel', {icon: preset.icon})}
           accessibilityRole="image">
           {preset.icon}
         </Text>
         <View style={[styles.badge, {backgroundColor: categoryColor}]}>
           <Text
             style={styles.badgeText}
-            accessibilityLabel={`Modalità ${preset.mode}`}>
+            accessibilityLabel={t('presetCard.modeLabel', {mode: preset.mode})}>
             {preset.mode.toUpperCase()}
           </Text>
         </View>
@@ -55,14 +71,14 @@ const PresetCard = ({preset, onPress, isSelected = false}) => {
           style={[styles.infoText, {color: theme.colors.textSecondary}]}
           accessibilityRole="text">
           {preset.mode === 'rounds'
-            ? `${preset.targetRounds} rounds`
-            : `Target: ${preset.targetScore}`}
+            ? t('presetCard.roundsTarget', {rounds: preset.targetRounds})
+            : `${t('presets.target', {target: preset.targetScore})}`}
         </Text>
         <Text
           style={[styles.infoText, {color: theme.colors.textSecondary}]}
           accessibilityRole="text"
-          accessibilityLabel={`${preset.defaultPlayers} giocatori predefiniti`}>
-          👥 {preset.defaultPlayers} giocatori
+          accessibilityLabel={t('presetCard.playersLabel', {count: preset.defaultPlayers})}>
+          👥 {t('presetCard.playersCount', {count: preset.defaultPlayers})}
         </Text>
       </View>
     </TouchableOpacity>

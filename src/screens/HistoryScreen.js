@@ -1,5 +1,6 @@
 import React from 'react';
 import {View, Text, StyleSheet, FlatList, TouchableOpacity, Alert} from 'react-native';
+import {useTranslation} from 'react-i18next';
 import {useTheme} from '../contexts/ThemeContext';
 import {useGame} from '../contexts/GameContext';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -7,27 +8,28 @@ import AdBanner from '../components/AdBanner';
 import {AD_UNITS, AD_BANNER_SIZES} from '../config/adConfig';
 
 const HistoryScreen = () => {
+  const {t, i18n} = useTranslation();
   const {theme} = useTheme();
   const {gameHistory, removeGameFromHistory, clearHistory} = useGame();
 
   const handleDeleteGame = gameId => {
     Alert.alert(
-      'Elimina Partita',
-      'Vuoi davvero eliminare questa partita dallo storico?',
+      t('history.deleteGame'),
+      t('history.deleteGameMessage'),
       [
-        {text: 'Annulla', style: 'cancel'},
-        {text: 'Elimina', style: 'destructive', onPress: () => removeGameFromHistory(gameId)},
+        {text: t('common.cancel'), style: 'cancel'},
+        {text: t('common.delete'), style: 'destructive', onPress: () => removeGameFromHistory(gameId)},
       ],
     );
   };
 
   const handleClearAll = () => {
     Alert.alert(
-      'Elimina Tutto',
-      'Vuoi davvero eliminare tutto lo storico? Questa azione non può essere annullata.',
+      t('history.clearConfirm'),
+      t('history.clearConfirmMessage'),
       [
-        {text: 'Annulla', style: 'cancel'},
-        {text: 'Elimina Tutto', style: 'destructive', onPress: clearHistory},
+        {text: t('common.cancel'), style: 'cancel'},
+        {text: t('history.clearConfirm'), style: 'destructive', onPress: clearHistory},
       ],
     );
   };
@@ -35,12 +37,17 @@ const HistoryScreen = () => {
   const renderGame = ({item}) => {
     const winner = item.players.find(p => p.id === item.winner);
     const date = new Date(item.timestamp);
+    const locale = i18n.language || 'it';
 
     return (
       <View
         style={[styles.gameCard, {backgroundColor: theme.colors.card}]}
         accessible={true}
-        accessibilityLabel={`Partita a ${item.preset.name}, giocata il ${date.toLocaleDateString('it-IT')}${winner ? `, vinta da ${winner.name}` : ''}`}>
+        accessibilityLabel={t('history.gameAccessibilityLabel', {
+          gameName: item.preset.name,
+          date: date.toLocaleDateString(locale),
+          winnerText: winner ? t('history.gameWonBy', {playerName: winner.name}) : ''
+        })}>
         <View style={styles.gameHeader}>
           <Text
             style={[styles.gameName, {color: theme.colors.text}]}
@@ -49,8 +56,8 @@ const HistoryScreen = () => {
           </Text>
           <TouchableOpacity
             accessible={true}
-            accessibilityLabel="Elimina partita"
-            accessibilityHint="Rimuove questa partita dallo storico"
+            accessibilityLabel={t('history.gameCard.deleteGame')}
+            accessibilityHint={t('history.gameCard.deleteGameHint')}
             accessibilityRole="button"
             onPress={() => handleDeleteGame(item.id)}>
             <Icon name="delete" size={24} color={theme.colors.error} />
@@ -60,19 +67,19 @@ const HistoryScreen = () => {
         <Text
           style={[styles.gameDate, {color: theme.colors.textSecondary}]}
           accessibilityRole="text">
-          {date.toLocaleDateString('it-IT')} {date.toLocaleTimeString('it-IT', {hour: '2-digit', minute: '2-digit'})}
+          {date.toLocaleDateString(locale)} {date.toLocaleTimeString(locale, {hour: '2-digit', minute: '2-digit'})}
         </Text>
 
         {winner ? (
           <Text
             style={[styles.winner, {color: theme.colors.success}]}
             accessibilityRole="text"
-            accessibilityLabel={`Vincitore: ${winner.name}`}>
-            Vincitore: {winner.name}
+            accessibilityLabel={t('history.winnerLabel', {playerName: winner.name})}>
+            {t('history.gameCard.winner')}: {winner.name}
           </Text>
         ) : (
           <Text style={[styles.noWinner, {color: theme.colors.warning}]}>
-            Partita incompleta o abbandonata
+            {t('history.incompleteGame')}
           </Text>
         )}
 
@@ -87,7 +94,7 @@ const HistoryScreen = () => {
               <Text
                 style={[styles.playerScore, {color: theme.colors.textSecondary}]}
                 accessibilityRole="text"
-                accessibilityLabel={`Punteggio: ${player.score}`}>
+                accessibilityLabel={t('history.scoreLabel', {score: player.score})}>
                 {player.score}
               </Text>
             </View>
@@ -106,17 +113,17 @@ const HistoryScreen = () => {
             size={64}
             color={theme.colors.textSecondary}
             style={styles.emptyIcon}
-            accessibilityLabel="Icona storico vuoto"
+            accessibilityLabel={t('history.emptyIcon')}
           />
           <Text
             style={[styles.emptyTitle, {color: theme.colors.text}]}
             accessibilityRole="header">
-            Nessuna Partita
+            {t('history.noGames')}
           </Text>
           <Text
             style={[styles.emptySubtitle, {color: theme.colors.textSecondary}]}
             accessibilityRole="text">
-            Le partite salvate appariranno qui
+            {t('history.noGamesMessage')}
           </Text>
         </View>
       </View>
@@ -139,13 +146,13 @@ const HistoryScreen = () => {
             />
             <TouchableOpacity
               accessible={true}
-              accessibilityLabel="Elimina tutto lo storico"
-              accessibilityHint={`Rimuove tutte le ${gameHistory.length} partite salvate`}
+              accessibilityLabel={t('history.clearAllLabel')}
+              accessibilityHint={t('history.clearAllHint', {count: gameHistory.length})}
               accessibilityRole="button"
               style={[styles.clearButton, {backgroundColor: theme.colors.error}]}
               onPress={handleClearAll}>
               <Icon name="delete-sweep" size={20} color="#FFFFFF" style={styles.clearButtonIcon} />
-              <Text style={styles.clearButtonText}>Elimina Tutto lo Storico</Text>
+              <Text style={styles.clearButtonText}>{t('history.clearAllButton')}</Text>
             </TouchableOpacity>
           </>
         }
