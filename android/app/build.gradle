@@ -36,9 +36,10 @@ android {
 
         buildConfigField("boolean", "IS_NEW_ARCHITECTURE_ENABLED", "false")
 
-        ndk {
-            abiFilters "armeabi-v7a", "arm64-v8a", "x86", "x86_64"
-        }
+        // Commenta abiFilters per creare un APK universale con tutte le architetture
+        // ndk {
+        //     abiFilters "armeabi-v7a", "arm64-v8a", "x86", "x86_64"
+        // }
     }
 
     signingConfigs {
@@ -55,6 +56,16 @@ android {
                 keyAlias SEGNAPUNTI_UPLOAD_KEY_ALIAS
                 keyPassword SEGNAPUNTI_UPLOAD_KEY_PASSWORD
             }
+        }
+    }
+
+    // Configurazione splits per generare APK universale + splits per architettura
+    splits {
+        abi {
+            reset()
+            enable true
+            universalApk true  // Genera anche un APK universale con tutte le architetture
+            include "armeabi-v7a", "arm64-v8a", "x86", "x86_64"
         }
     }
 
