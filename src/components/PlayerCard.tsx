@@ -4,7 +4,33 @@ import {useTranslation} from 'react-i18next';
 import {useTheme} from '../contexts/ThemeContext';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
-const PlayerCard = ({player, onAddScore, onSubtractScore, showActions = true}) => {
+interface Round {
+  roundNumber: number;
+  score: number;
+}
+
+interface Player {
+  id: string;
+  name: string;
+  score: number;
+  rounds?: Round[];
+  roundsWon?: number;
+  bustFlag: boolean;
+}
+
+interface PlayerCardProps {
+  player: Player;
+  onAddScore: (playerId: string) => void;
+  onSubtractScore: (playerId: string) => void;
+  showActions?: boolean;
+}
+
+const PlayerCard: React.FC<PlayerCardProps> = ({
+  player,
+  onAddScore,
+  onSubtractScore,
+  showActions = true,
+}) => {
   const {t} = useTranslation();
   const {theme} = useTheme();
 

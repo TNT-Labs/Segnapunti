@@ -5,12 +5,13 @@ import {useTheme} from '../contexts/ThemeContext';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import AdBanner from '../components/AdBanner';
 import {AD_UNITS, AD_BANNER_SIZES} from '../config/adConfig';
+import type {AboutScreenProps} from '../navigation/AppNavigator';
 
-const AboutScreen = () => {
+const AboutScreen: React.FC<AboutScreenProps> = () => {
   const {t} = useTranslation();
   const {theme} = useTheme();
 
-  const handlePrivacyPolicy = () => {
+  const handlePrivacyPolicy = (): void => {
     const privacyUrl = 'https://tnt-labs.github.io/Segnapunti/privacy-policy.html';
     Linking.openURL(privacyUrl).catch(err => {
       if (__DEV__) {
@@ -20,7 +21,7 @@ const AboutScreen = () => {
     });
   };
 
-  const handleTermsOfService = () => {
+  const handleTermsOfService = (): void => {
     Alert.alert(
       t('about.termsTitle'),
       t('about.termsMessage'),

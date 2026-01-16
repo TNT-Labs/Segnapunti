@@ -9,13 +9,13 @@ import AppNavigator from './navigation/AppNavigator';
 import consentService from './services/ConsentService';
 import i18nService from './services/i18nService';
 
-const LoadingScreen = () => (
+const LoadingScreen: React.FC = () => (
   <View style={styles.loadingContainer}>
     <ActivityIndicator size="large" color="#4A148C" />
   </View>
 );
 
-const AppContent = () => {
+const AppContent: React.FC = () => {
   const {theme, isDark} = useTheme();
 
   return (
@@ -34,12 +34,12 @@ const AppContent = () => {
   );
 };
 
-const App = () => {
-  const [consentHandled, setConsentHandled] = useState(false);
+const App: React.FC = () => {
+  const [consentHandled, setConsentHandled] = useState<boolean>(false);
 
   useEffect(() => {
     // Gestisce il flusso di consenso GDPR, i18n e inizializza AdMob
-    const initializeApp = async () => {
+    const initializeApp = async (): Promise<void> => {
       try {
         // 0. Inizializza i18n
         if (__DEV__) {

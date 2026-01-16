@@ -17,15 +17,17 @@ import AdBanner from '../components/AdBanner';
 import LanguageSelector from '../components/LanguageSelector';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {AD_UNITS, AD_BANNER_SIZES} from '../config/adConfig';
+import type {SettingsScreenProps} from '../navigation/AppNavigator';
+import type {GamePreset} from '../constants/presets';
 
-const SettingsScreen = ({navigation, route}) => {
+const SettingsScreen: React.FC<SettingsScreenProps> = ({navigation, route}) => {
   const {t} = useTranslation();
   const {theme, isDark, toggleDarkMode} = useTheme();
   const {getAllPresets, startNewGame, gameState} = useGame();
 
-  const [selectedPreset, setSelectedPreset] = useState(null);
-  const [playerNames, setPlayerNames] = useState([]);
-  const [showPresets, setShowPresets] = useState(false);
+  const [selectedPreset, setSelectedPreset] = useState<GamePreset | null>(null);
+  const [playerNames, setPlayerNames] = useState<string[]>([]);
+  const [showPresets, setShowPresets] = useState<boolean>(false);
 
   const allPresets = getAllPresets();
 
@@ -49,13 +51,13 @@ const SettingsScreen = ({navigation, route}) => {
     }
   }, [selectedPreset, t]);
 
-  const handlePlayerNameChange = (index, name) => {
+  const handlePlayerNameChange = (index: number, name: string): void => {
     const updatedNames = [...playerNames];
     updatedNames[index] = name;
     setPlayerNames(updatedNames);
   };
 
-  const handleAddPlayer = () => {
+  const handleAddPlayer = (): void => {
     const MAX_PLAYERS = 8;
 
     if (playerNames.length >= MAX_PLAYERS) {
@@ -69,7 +71,7 @@ const SettingsScreen = ({navigation, route}) => {
     setPlayerNames([...playerNames, t('settings.playerName', {number: playerNames.length + 1, defaultValue: `Giocatore ${playerNames.length + 1}`})]);
   };
 
-  const handleRemovePlayer = index => {
+  const handleRemovePlayer = (index: number): void => {
     const MIN_PLAYERS = 2;
 
     if (playerNames.length <= MIN_PLAYERS) {
@@ -83,7 +85,7 @@ const SettingsScreen = ({navigation, route}) => {
     setPlayerNames(updatedNames);
   };
 
-  const handleStartGame = async () => {
+  const handleStartGame = async (): Promise<void> => {
     if (!selectedPreset) {
       Alert.alert(t('common.error'), t('settings.errors.selectPreset'));
       return;

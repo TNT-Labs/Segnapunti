@@ -1,18 +1,39 @@
 import React from 'react';
-import {View, Text, StyleSheet, FlatList, TouchableOpacity, Alert} from 'react-native';
+import {View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, ListRenderItem} from 'react-native';
 import {useTranslation} from 'react-i18next';
 import {useTheme} from '../contexts/ThemeContext';
 import {useGame} from '../contexts/GameContext';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import AdBanner from '../components/AdBanner';
 import {AD_UNITS, AD_BANNER_SIZES} from '../config/adConfig';
+import type {HistoryScreenProps} from '../navigation/AppNavigator';
+import type {GamePreset} from '../constants/presets';
 
-const HistoryScreen = () => {
+interface Player {
+  id: string;
+  name: string;
+  score: number;
+  rounds?: Array<{roundNumber: number; score: number}>;
+  roundsWon?: number;
+  bustFlag: boolean;
+}
+
+interface HistoricalGame {
+  id: string;
+  preset: GamePreset;
+  players: Player[];
+  winner: string | null;
+  timestamp: string;
+  startTime: string;
+  endTime?: string;
+}
+
+const HistoryScreen: React.FC<HistoryScreenProps> = () => {
   const {t, i18n} = useTranslation();
   const {theme} = useTheme();
   const {gameHistory, removeGameFromHistory, clearHistory} = useGame();
 
-  const handleDeleteGame = gameId => {
+  const handleDeleteGame = (gameId: string): void => {
     Alert.alert(
       t('history.deleteGame'),
       t('history.deleteGameMessage'),
@@ -23,7 +44,7 @@ const HistoryScreen = () => {
     );
   };
 
-  const handleClearAll = () => {
+  const handleClearAll = (): void => {
     Alert.alert(
       t('history.clearConfirm'),
       t('history.clearConfirmMessage'),
@@ -34,7 +55,7 @@ const HistoryScreen = () => {
     );
   };
 
-  const renderGame = ({item}) => {
+  const renderGame: ListRenderItem<HistoricalGame> = ({item}) => {
     const winner = item.players.find(p => p.id === item.winner);
     const date = new Date(item.timestamp);
     const locale = i18n.language || 'it';
@@ -133,7 +154,7 @@ const HistoryScreen = () => {
   return (
     <View style={[styles.container, {backgroundColor: theme.colors.background}]}>
       <FlatList
-        data={gameHistory}
+        data={gameHistory as HistoricalGame[]}
         renderItem={renderGame}
         keyExtractor={item => item.id}
         contentContainerStyle={styles.list}

@@ -1,23 +1,81 @@
-import React, {createContext, useState, useEffect, useContext} from 'react';
+import React, {createContext, useState, useEffect, useContext, ReactNode} from 'react';
 import {Alert} from 'react-native';
 import StorageService from '../services/StorageService';
 import {DEFAULT_PRESETS} from '../constants/presets';
+import {GamePreset} from '../constants/presets';
 
-const GameContext = createContext();
+// Interfaces and Types
+
+interface Round {
+  roundNumber: number;
+  score: number;
+}
+
+interface Player {
+  id: string;
+  name: string;
+  score: number;
+  rounds?: Round[];
+  roundsWon?: number;
+  bustFlag: boolean;
+}
+
+interface GameState {
+  preset: GamePreset;
+  players: Player[];
+  startTime: string;
+  isFinished: boolean;
+  winner: string | null;
+  currentRound?: number;
+  endTime?: string;
+  isSaved?: boolean;
+}
+
+interface GameContextValue {
+  // State
+  gameState: GameState | null;
+  players: Player[];
+  currentPreset: GamePreset | null;
+  gameHistory: any[];
+  customPresets: GamePreset[];
+  isLoading: boolean;
+
+  // Game actions
+  startNewGame: (preset: GamePreset, playerNames: string[]) => Promise<void>;
+  updatePlayerScore: (playerId: string, scoreChange: number) => Promise<void>;
+  endGame: (winner: Player) => Promise<void>;
+  saveGameToHistory: () => Promise<boolean>;
+  resetGame: () => Promise<void>;
+
+  // History actions
+  removeGameFromHistory: (gameId: string) => Promise<void>;
+  clearHistory: () => Promise<void>;
+
+  // Preset actions
+  getAllPresets: () => GamePreset[];
+  addCustomPreset: (preset: GamePreset) => Promise<void>;
+  removeCustomPreset: (presetId: string) => Promise<void>;
+}
+
+interface GameProviderProps {
+  children: ReactNode;
+}
+
+const GameContext = createContext<GameContextValue | undefined>(undefined);
 
 // Generatore di ID univoci
-const generateUniqueId = (prefix = 'id') => {
+const generateUniqueId = (prefix: string = 'id'): string => {
   return `${prefix}_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
 };
 
-export const GameProvider = ({children}) => {
+export const GameProvider: React.FC<GameProviderProps> = ({children}) => {
   // Game state
-  const [gameState, setGameState] = useState(null);
-  const [players, setPlayers] = useState([]);
-  const [currentPreset, setCurrentPreset] = useState(null);
-  const [gameHistory, setGameHistory] = useState([]);
-  const [customPresets, setCustomPresets] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [gameState, setGameState] = useState<GameState | null>(null);
+  const [players, setPlayers] = useState<Player[]>([]);
+  const [currentPreset, setCurrentPreset] = useState<GamePreset | null>(null);
+  const [gameHistory, setGameHistory] = useState<any[]>([]);
+  const [customPresets, setCustomPresets] = useState<GamePreset[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   // Carica dati al mount
   useEffect(() => {
@@ -28,8 +86,8 @@ export const GameProvider = ({children}) => {
         // Carica stato partita
         const savedGame = await StorageService.loadGameState();
         if (savedGame) {
-          setGameState(savedGame);
-          setPlayers(savedGame.players || []);
+          setGameState(savedGame as any);
+          setPlayers((savedGame.players as any) || []);
           setCurrentPreset(savedGame.preset || null);
         }
 
@@ -61,8 +119,8 @@ export const GameProvider = ({children}) => {
 
   // ==================== GAME MANAGEMENT ====================
 
-  const startNewGame = async (preset, playerNames) => {
-    const newPlayers = playerNames.map((name, index) => ({
+  const startNewGame = async (preset: GamePreset, playerNames: string[]): Promise<void> => {
+    const newPlayers: Player[] = playerNames.map((name, index) => ({
       id: generateUniqueId('player'),
       name,
       score: preset.mode === 'darts' ? preset.targetScore : 0,
@@ -71,7 +129,7 @@ export const GameProvider = ({children}) => {
       bustFlag: false,
     }));
 
-    const newGameState = {
+    const newGameState: GameState = {
       preset,
       players: newPlayers,
       startTime: new Date().toISOString(),
@@ -83,16 +141,16 @@ export const GameProvider = ({children}) => {
     setGameState(newGameState);
     setPlayers(newPlayers);
     setCurrentPreset(preset);
-    await StorageService.saveGameState(newGameState);
+    await StorageService.saveGameState(newGameState as any);
   };
 
-  const updatePlayerScore = async (playerId, scoreChange) => {
+  const updatePlayerScore = async (playerId: string, scoreChange: number): Promise<void> => {
     const updatedPlayers = players.map(player => {
       if (player.id === playerId) {
         let newScore = player.score + scoreChange;
 
         // Gestione modalità darts (non può andare sotto 0)
-        if (currentPreset.mode === 'darts' && newScore < 0) {
+        if (currentPreset!.mode === 'darts' && newScore < 0) {
           Alert.alert('BUST!', `${player.name} è andato sotto zero! Il punteggio rimane ${player.score}.`);
           return {...player, score: player.score, bustFlag: true};
         }
@@ -104,16 +162,16 @@ export const GameProvider = ({children}) => {
 
     setPlayers(updatedPlayers);
 
-    const updatedGameState = {
-      ...gameState,
+    const updatedGameState: GameState = {
+      ...gameState!,
       players: updatedPlayers,
     };
 
     setGameState(updatedGameState);
-    await StorageService.saveGameState(updatedGameState);
+    await StorageService.saveGameState(updatedGameState as any);
 
     // Per modalità rounds, controlla se qualcuno ha vinto il round
-    if (currentPreset.mode === 'rounds') {
+    if (currentPreset!.mode === 'rounds') {
       await checkRoundCompletion(updatedPlayers);
     } else {
       // Controlla condizione vittoria per altre modalità
@@ -122,8 +180,8 @@ export const GameProvider = ({children}) => {
   };
 
   // Controlla se un round è stato completato (modalità rounds)
-  const checkRoundCompletion = async (currentPlayers) => {
-    const preset = currentPreset;
+  const checkRoundCompletion = async (currentPlayers: Player[]): Promise<void> => {
+    const preset = currentPreset as Extract<GamePreset, {mode: 'rounds'}>;
 
     // Trova il vincitore del round
     const roundWinner = currentPlayers.find(p => p.score >= preset.roundTargetScore);
@@ -131,36 +189,36 @@ export const GameProvider = ({children}) => {
     if (roundWinner) {
       // Salva i punteggi del round per tutti i giocatori
       const updatedPlayers = currentPlayers.map(player => {
-        const newRoundsHistory = [...(player.rounds || []), {
-          roundNumber: gameState.currentRound,
+        const newRoundsHistory: Round[] = [...(player.rounds || []), {
+          roundNumber: gameState!.currentRound!,
           score: player.score,
         }];
 
         return {
           ...player,
           rounds: newRoundsHistory,
-          roundsWon: player.id === roundWinner.id ? (player.roundsWon + 1) : player.roundsWon,
+          roundsWon: player.id === roundWinner.id ? (player.roundsWon! + 1) : player.roundsWon!,
           score: 0, // Reset score per il prossimo round
         };
       });
 
-      const updatedGameState = {
-        ...gameState,
+      const updatedGameState: GameState = {
+        ...gameState!,
         players: updatedPlayers,
-        currentRound: gameState.currentRound + 1,
+        currentRound: gameState!.currentRound! + 1,
       };
 
       setPlayers(updatedPlayers);
       setGameState(updatedGameState);
-      await StorageService.saveGameState(updatedGameState);
+      await StorageService.saveGameState(updatedGameState as any);
 
       // Controlla se è stato raggiunto il limite massimo di round
       const maxRounds = preset.targetRounds * 3; // Limite: 3x i round target
-      const hasReachedMaxRounds = updatedGameState.currentRound > maxRounds;
+      const hasReachedMaxRounds = updatedGameState.currentRound! > maxRounds;
 
       if (hasReachedMaxRounds) {
         // Termina la partita per timeout, vince chi ha più round
-        const maxRoundsWon = Math.max(...updatedPlayers.map(p => p.roundsWon));
+        const maxRoundsWon = Math.max(...updatedPlayers.map(p => p.roundsWon!));
         const playersWithMaxRounds = updatedPlayers.filter(p => p.roundsWon === maxRoundsWon);
 
         if (playersWithMaxRounds.length === 1) {
@@ -186,7 +244,7 @@ export const GameProvider = ({children}) => {
 
       // Notifica il vincitore del round
       Alert.alert(
-        `Round ${gameState.currentRound} Completato!`,
+        `Round ${gameState!.currentRound} Completato!`,
         `🏆 ${roundWinner.name} ha vinto il round con ${roundWinner.score} punti!\n\nRounds vinti:\n${updatedPlayers.map(p => `${p.name}: ${p.roundsWon}`).join('\n')}`,
         [{text: 'Continua'}]
       );
@@ -196,12 +254,12 @@ export const GameProvider = ({children}) => {
     }
   };
 
-  const checkWinCondition = async (currentPlayers) => {
+  const checkWinCondition = async (currentPlayers: Player[]): Promise<void> => {
     const preset = currentPreset;
 
     if (!preset) return;
 
-    let winner = null;
+    let winner: Player | undefined = undefined;
 
     switch (preset.mode) {
       case 'max':
@@ -236,7 +294,8 @@ export const GameProvider = ({children}) => {
         break;
       case 'rounds':
         // Vince chi raggiunge per primo il numero di round target
-        winner = currentPlayers.find(p => p.roundsWon >= preset.targetRounds);
+        const roundsPreset = preset as Extract<GamePreset, {mode: 'rounds'}>;
+        winner = currentPlayers.find(p => p.roundsWon! >= roundsPreset.targetRounds);
         break;
     }
 
@@ -245,19 +304,19 @@ export const GameProvider = ({children}) => {
     }
   };
 
-  const endGame = async (winner) => {
-    const finishedGame = {
-      ...gameState,
+  const endGame = async (winner: Player): Promise<void> => {
+    const finishedGame: GameState = {
+      ...gameState!,
       isFinished: true,
       winner: winner.id,
       endTime: new Date().toISOString(),
     };
 
     setGameState(finishedGame);
-    await StorageService.saveGameState(finishedGame);
+    await StorageService.saveGameState(finishedGame as any);
   };
 
-  const saveGameToHistory = async () => {
+  const saveGameToHistory = async (): Promise<boolean> => {
     if (!gameState || !gameState.isFinished) return false;
 
     // Previeni duplicati controllando se questa partita è già stata salvata
@@ -267,17 +326,17 @@ export const GameProvider = ({children}) => {
     }
 
     try {
-      await StorageService.addGameToHistory(gameState);
+      await StorageService.addGameToHistory(gameState as any);
       const updatedHistory = await StorageService.loadGameHistory();
       setGameHistory(updatedHistory);
 
       // Marca la partita come salvata
-      const savedGameState = {
+      const savedGameState: GameState = {
         ...gameState,
         isSaved: true,
       };
       setGameState(savedGameState);
-      await StorageService.saveGameState(savedGameState);
+      await StorageService.saveGameState(savedGameState as any);
 
       return true;
     } catch (error) {
@@ -289,7 +348,7 @@ export const GameProvider = ({children}) => {
     }
   };
 
-  const resetGame = async () => {
+  const resetGame = async (): Promise<void> => {
     setGameState(null);
     setPlayers([]);
     setCurrentPreset(null);
@@ -298,36 +357,36 @@ export const GameProvider = ({children}) => {
 
   // ==================== HISTORY MANAGEMENT ====================
 
-  const removeGameFromHistory = async (gameId) => {
+  const removeGameFromHistory = async (gameId: string): Promise<void> => {
     await StorageService.removeGameFromHistory(gameId);
     const updatedHistory = await StorageService.loadGameHistory();
     setGameHistory(updatedHistory);
   };
 
-  const clearHistory = async () => {
+  const clearHistory = async (): Promise<void> => {
     await StorageService.clearGameHistory();
     setGameHistory([]);
   };
 
   // ==================== PRESET MANAGEMENT ====================
 
-  const getAllPresets = () => {
+  const getAllPresets = (): GamePreset[] => {
     return [...DEFAULT_PRESETS, ...customPresets];
   };
 
-  const addCustomPreset = async (preset) => {
-    await StorageService.addPreset(preset);
+  const addCustomPreset = async (preset: GamePreset): Promise<void> => {
+    await StorageService.addPreset(preset as any);
     const updatedPresets = await StorageService.loadPresets();
     setCustomPresets(updatedPresets);
   };
 
-  const removeCustomPreset = async (presetId) => {
+  const removeCustomPreset = async (presetId: string): Promise<void> => {
     await StorageService.removePreset(presetId);
     const updatedPresets = await StorageService.loadPresets();
     setCustomPresets(updatedPresets);
   };
 
-  const value = {
+  const value: GameContextValue = {
     // State
     gameState,
     players,
@@ -356,7 +415,7 @@ export const GameProvider = ({children}) => {
   return <GameContext.Provider value={value}>{children}</GameContext.Provider>;
 };
 
-export const useGame = () => {
+export const useGame = (): GameContextValue => {
   const context = useContext(GameContext);
   if (!context) {
     throw new Error('useGame must be used within GameProvider');

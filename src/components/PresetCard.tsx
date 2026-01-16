@@ -3,16 +3,23 @@ import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import {useTranslation} from 'react-i18next';
 import {useTheme} from '../contexts/ThemeContext';
 import {CATEGORY_COLORS} from '../constants/colors';
+import {GamePreset} from '../constants/presets';
 
-const PresetCard = ({preset, onPress, isSelected = false}) => {
+interface PresetCardProps {
+  preset: GamePreset;
+  onPress: () => void;
+  isSelected?: boolean;
+}
+
+const PresetCard: React.FC<PresetCardProps> = ({preset, onPress, isSelected = false}) => {
   const {t} = useTranslation();
   const {theme} = useTheme();
 
   const categoryColor = CATEGORY_COLORS[preset.category] || theme.colors.primary;
 
   const targetInfo = preset.mode === 'rounds'
-    ? t('presetCard.roundsTarget', {rounds: preset.targetRounds})
-    : t('presetCard.targetScore', {score: preset.targetScore});
+    ? t('presetCard.roundsTarget', {rounds: (preset as Extract<GamePreset, {mode: 'rounds'}>).targetRounds})
+    : t('presetCard.targetScore', {score: (preset as Extract<GamePreset, {mode: 'max' | 'min' | 'darts'}>).targetScore});
 
   const accessibilityLabel = isSelected
     ? t('presetCard.presetLabelSelected', {
@@ -71,8 +78,8 @@ const PresetCard = ({preset, onPress, isSelected = false}) => {
           style={[styles.infoText, {color: theme.colors.textSecondary}]}
           accessibilityRole="text">
           {preset.mode === 'rounds'
-            ? t('presetCard.roundsTarget', {rounds: preset.targetRounds})
-            : `${t('presets.target', {target: preset.targetScore})}`}
+            ? t('presetCard.roundsTarget', {rounds: (preset as Extract<GamePreset, {mode: 'rounds'}>).targetRounds})
+            : `${t('presets.target', {target: (preset as Extract<GamePreset, {mode: 'max' | 'min' | 'darts'}>).targetScore})}`}
         </Text>
         <Text
           style={[styles.infoText, {color: theme.colors.textSecondary}]}

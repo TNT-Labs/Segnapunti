@@ -1,7 +1,16 @@
 import React, {useState, useEffect} from 'react';
-import {View, StyleSheet, ActivityIndicator} from 'react-native';
+import {View, StyleSheet, ActivityIndicator, ViewStyle} from 'react-native';
 import {BannerAd, BannerAdSize} from 'react-native-google-mobile-ads';
 import consentService from '../services/ConsentService';
+
+type BannerSize = 'small' | 'medium' | 'large' | 'full';
+type LoadingState = 'loading' | 'loaded' | 'failed';
+
+interface AdBannerProps {
+  size?: BannerSize;
+  adUnitId: string;
+  style?: ViewStyle;
+}
 
 /**
  * Componente per visualizzare banner pubblicitari AdMob
@@ -11,9 +20,9 @@ import consentService from '../services/ConsentService';
  * @param {string} props.adUnitId - ID dell'unità pubblicitaria (OBBLIGATORIO)
  * @param {Object} props.style - Stili personalizzati per il container
  */
-const AdBanner = ({size = 'small', adUnitId, style}) => {
-  const [loadingState, setLoadingState] = useState('loading'); // 'loading' | 'loaded' | 'failed'
-  const [hasError, setHasError] = useState(false);
+const AdBanner: React.FC<AdBannerProps> = ({size = 'small', adUnitId, style}) => {
+  const [loadingState, setLoadingState] = useState<LoadingState>('loading');
+  const [hasError, setHasError] = useState<boolean>(false);
 
   // Validazione: adUnitId è obbligatorio
   useEffect(() => {
@@ -27,7 +36,7 @@ const AdBanner = ({size = 'small', adUnitId, style}) => {
   }, [adUnitId]);
 
   // Determina la dimensione del banner
-  const getBannerSize = () => {
+  const getBannerSize = (): string => {
     switch (size) {
       case 'small':
         return BannerAdSize.BANNER; // 320x50
@@ -43,7 +52,7 @@ const AdBanner = ({size = 'small', adUnitId, style}) => {
   };
 
   // Ottieni le dimensioni del placeholder in base al size
-  const getPlaceholderHeight = () => {
+  const getPlaceholderHeight = (): number => {
     switch (size) {
       case 'small':
         return 50;
@@ -59,7 +68,7 @@ const AdBanner = ({size = 'small', adUnitId, style}) => {
   };
 
   // Handlers per gli eventi dell'annuncio
-  const handleAdLoaded = () => {
+  const handleAdLoaded = (): void => {
     if (__DEV__) {
       console.log('[AdBanner] Annuncio caricato con successo');
     }
@@ -67,7 +76,7 @@ const AdBanner = ({size = 'small', adUnitId, style}) => {
     setHasError(false);
   };
 
-  const handleAdFailedToLoad = error => {
+  const handleAdFailedToLoad = (error: any): void => {
     if (__DEV__) {
       console.warn('[AdBanner] Errore nel caricamento annuncio:', error);
     }

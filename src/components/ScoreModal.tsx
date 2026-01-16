@@ -12,21 +12,35 @@ import {
 import {useTranslation} from 'react-i18next';
 import {useTheme} from '../contexts/ThemeContext';
 
-const ScoreModal = ({visible, onClose, onSubmit, playerName, incrementValues}) => {
+interface ScoreModalProps {
+  visible: boolean;
+  onClose: () => void;
+  onSubmit: (score: number) => void;
+  playerName: string;
+  incrementValues?: number[];
+}
+
+const ScoreModal: React.FC<ScoreModalProps> = ({
+  visible,
+  onClose,
+  onSubmit,
+  playerName,
+  incrementValues,
+}) => {
   const {t} = useTranslation();
   const {theme} = useTheme();
   const {width} = useWindowDimensions();
-  const [customScore, setCustomScore] = useState('');
+  const [customScore, setCustomScore] = useState<string>('');
 
   const MIN_SCORE = -9999;
   const MAX_SCORE = 9999;
 
-  const handleQuickScore = value => {
+  const handleQuickScore = (value: number): void => {
     onSubmit(value);
     setCustomScore('');
   };
 
-  const handleCustomSubmit = () => {
+  const handleCustomSubmit = (): void => {
     const score = parseInt(customScore, 10);
 
     if (isNaN(score) || customScore.trim() === '') {
@@ -46,7 +60,7 @@ const ScoreModal = ({visible, onClose, onSubmit, playerName, incrementValues}) =
     setCustomScore('');
   };
 
-  const handleClose = () => {
+  const handleClose = (): void => {
     setCustomScore('');
     onClose();
   };
@@ -65,7 +79,7 @@ const ScoreModal = ({visible, onClose, onSubmit, playerName, incrementValues}) =
         activeOpacity={1}
         onPress={handleClose}>
         <View
-          style={[styles.modal, {backgroundColor: theme.colors.card}]}
+          style={[styles.modal, {backgroundColor: theme.colors.card, width: width * 0.9}]}
           onStartShouldSetResponder={() => true}>
           <Text
             style={[styles.title, {color: theme.colors.text}]}
@@ -157,7 +171,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modal: {
-    width: width * 0.9,
     maxWidth: 400,
     borderRadius: 16,
     padding: 24,

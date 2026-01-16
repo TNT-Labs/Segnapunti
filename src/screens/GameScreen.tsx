@@ -14,8 +14,18 @@ import PlayerCard from '../components/PlayerCard';
 import ScoreModal from '../components/ScoreModal';
 import AdBanner from '../components/AdBanner';
 import {AD_UNITS, AD_BANNER_SIZES} from '../config/adConfig';
+import type {GameScreenProps} from '../navigation/AppNavigator';
 
-const GameScreen = ({navigation}) => {
+interface Player {
+  id: string;
+  name: string;
+  score: number;
+  rounds?: Array<{roundNumber: number; score: number}>;
+  roundsWon?: number;
+  bustFlag: boolean;
+}
+
+const GameScreen: React.FC<GameScreenProps> = ({navigation}) => {
   const {t} = useTranslation();
   const {theme} = useTheme();
   const {
@@ -27,21 +37,21 @@ const GameScreen = ({navigation}) => {
     saveGameToHistory,
   } = useGame();
 
-  const [modalVisible, setModalVisible] = useState(false);
-  const [selectedPlayer, setSelectedPlayer] = useState(null);
+  const [modalVisible, setModalVisible] = useState<boolean>(false);
+  const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
 
-  const handleAddScore = playerId => {
+  const handleAddScore = (playerId: string): void => {
     const player = players.find(p => p.id === playerId);
-    setSelectedPlayer(player);
+    setSelectedPlayer(player || null);
     setModalVisible(true);
   };
 
-  const handleSubtractScore = playerId => {
+  const handleSubtractScore = (playerId: string): void => {
     const value = currentPreset?.incrementValues?.[0] || 10;
     updatePlayerScore(playerId, -value);
   };
 
-  const handleScoreSubmit = score => {
+  const handleScoreSubmit = (score: number): void => {
     if (selectedPlayer) {
       updatePlayerScore(selectedPlayer.id, score);
     }
@@ -49,7 +59,7 @@ const GameScreen = ({navigation}) => {
     setSelectedPlayer(null);
   };
 
-  const handleResetGame = () => {
+  const handleResetGame = (): void => {
     Alert.alert(
       t('game.resetConfirm'),
       t('game.resetConfirmMessage'),
@@ -67,7 +77,7 @@ const GameScreen = ({navigation}) => {
     );
   };
 
-  const handleSaveGame = async () => {
+  const handleSaveGame = async (): Promise<void> => {
     const success = await saveGameToHistory();
 
     if (success) {

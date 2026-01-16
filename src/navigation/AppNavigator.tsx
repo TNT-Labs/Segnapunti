@@ -1,19 +1,36 @@
 import React from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import type {BottomTabScreenProps} from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useTheme} from '../contexts/ThemeContext';
 
-// Screens (da implementare)
+// Screens
 import GameScreen from '../screens/GameScreen';
 import HistoryScreen from '../screens/HistoryScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import PresetManagerScreen from '../screens/PresetManagerScreen';
 import AboutScreen from '../screens/AboutScreen';
 
-const Tab = createBottomTabNavigator();
+// Define tab param list
+export type TabParamList = {
+  Game: undefined;
+  History: undefined;
+  Settings: {selectedPreset?: import('../constants/presets').GamePreset} | undefined;
+  Presets: undefined;
+  About: undefined;
+};
 
-const AppNavigator = () => {
+// Screen props types
+export type GameScreenProps = BottomTabScreenProps<TabParamList, 'Game'>;
+export type HistoryScreenProps = BottomTabScreenProps<TabParamList, 'History'>;
+export type SettingsScreenProps = BottomTabScreenProps<TabParamList, 'Settings'>;
+export type PresetsScreenProps = BottomTabScreenProps<TabParamList, 'Presets'>;
+export type AboutScreenProps = BottomTabScreenProps<TabParamList, 'About'>;
+
+const Tab = createBottomTabNavigator<TabParamList>();
+
+const AppNavigator: React.FC = () => {
   const {theme} = useTheme();
 
   return (
@@ -26,12 +43,13 @@ const AppNavigator = () => {
           card: theme.colors.card,
           text: theme.colors.text,
           border: theme.colors.border,
+          notification: theme.colors.primary,
         },
       }}>
       <Tab.Navigator
         screenOptions={({route}) => ({
           tabBarIcon: ({focused, color, size}) => {
-            let iconName;
+            let iconName: string;
 
             switch (route.name) {
               case 'Game':
@@ -66,31 +84,11 @@ const AppNavigator = () => {
           },
           headerTintColor: '#FFFFFF',
         })}>
-        <Tab.Screen
-          name="Game"
-          component={GameScreen}
-          options={{title: 'Partita'}}
-        />
-        <Tab.Screen
-          name="History"
-          component={HistoryScreen}
-          options={{title: 'Storico'}}
-        />
-        <Tab.Screen
-          name="Settings"
-          component={SettingsScreen}
-          options={{title: 'Impostazioni'}}
-        />
-        <Tab.Screen
-          name="Presets"
-          component={PresetManagerScreen}
-          options={{title: 'Preset'}}
-        />
-        <Tab.Screen
-          name="About"
-          component={AboutScreen}
-          options={{title: 'Info'}}
-        />
+        <Tab.Screen name="Game" component={GameScreen} options={{title: 'Partita'}} />
+        <Tab.Screen name="History" component={HistoryScreen} options={{title: 'Storico'}} />
+        <Tab.Screen name="Settings" component={SettingsScreen} options={{title: 'Impostazioni'}} />
+        <Tab.Screen name="Presets" component={PresetManagerScreen} options={{title: 'Preset'}} />
+        <Tab.Screen name="About" component={AboutScreen} options={{title: 'Info'}} />
       </Tab.Navigator>
     </NavigationContainer>
   );

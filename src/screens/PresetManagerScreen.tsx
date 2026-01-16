@@ -7,14 +7,38 @@ import PresetCard from '../components/PresetCard';
 import AdBanner from '../components/AdBanner';
 import {DEFAULT_PRESETS} from '../constants/presets';
 import {AD_UNITS, AD_BANNER_SIZES} from '../config/adConfig';
+import type {PresetsScreenProps} from '../navigation/AppNavigator';
+import type {GamePreset} from '../constants/presets';
+import type {GameMode, PresetCategory} from '../constants/colors';
 
-const PresetManagerScreen = ({navigation}) => {
+interface ModeOption {
+  value: GameMode;
+  label: string;
+}
+
+interface CategoryOption {
+  value: PresetCategory;
+  label: string;
+  icon: string;
+}
+
+interface NewPresetForm {
+  name: string;
+  category: PresetCategory;
+  mode: GameMode;
+  targetScore: number;
+  targetRounds: number;
+  roundTargetScore: number;
+  defaultPlayers: number;
+}
+
+const PresetManagerScreen: React.FC<PresetsScreenProps> = ({navigation}) => {
   const {t} = useTranslation();
   const {theme} = useTheme();
-  const {getAllPresets, addCustomPreset, removeCustomPreset, customPresets, startNewGame} = useGame();
+  const {getAllPresets, addCustomPreset, removeCustomPreset, customPresets} = useGame();
 
-  const [showForm, setShowForm] = useState(false);
-  const [newPreset, setNewPreset] = useState({
+  const [showForm, setShowForm] = useState<boolean>(false);
+  const [newPreset, setNewPreset] = useState<NewPresetForm>({
     name: '',
     category: 'other',
     mode: 'max',
@@ -26,14 +50,14 @@ const PresetManagerScreen = ({navigation}) => {
 
   const allPresets = getAllPresets();
 
-  const MODES = [
+  const MODES: ModeOption[] = [
     {value: 'max', label: t('presets.modes.max')},
     {value: 'min', label: t('presets.modes.min')},
     {value: 'rounds', label: t('presets.modes.rounds')},
     {value: 'darts', label: t('presets.modes.darts')},
   ];
 
-  const CATEGORIES = [
+  const CATEGORIES: CategoryOption[] = [
     {value: 'cards', label: t('presets.categories.cards'), icon: '🃏'},
     {value: 'table', label: t('presets.categories.table'), icon: '🎲'},
     {value: 'sports', label: t('presets.categories.sports'), icon: '⚽'},
@@ -41,12 +65,12 @@ const PresetManagerScreen = ({navigation}) => {
   ];
 
   // Funzione helper per ottenere l'icona dalla categoria
-  const getCategoryIcon = categoryValue => {
+  const getCategoryIcon = (categoryValue: PresetCategory): string => {
     const category = CATEGORIES.find(cat => cat.value === categoryValue);
     return category ? category.icon : '🎯';
   };
 
-  const handleCreatePreset = () => {
+  const handleCreatePreset = (): void => {
     if (!newPreset.name.trim()) {
       Alert.alert(t('common.error'), t('presets.errors.noName'));
       return;
@@ -58,7 +82,7 @@ const PresetManagerScreen = ({navigation}) => {
     }
 
     // Costruisci il preset in base alla modalità
-    const presetToAdd = {
+    const basePreset = {
       name: newPreset.name,
       icon: getCategoryIcon(newPreset.category),
       category: newPreset.category,
@@ -67,11 +91,23 @@ const PresetManagerScreen = ({navigation}) => {
       incrementValues: [5, 10, 20, 50],
     };
 
+    let presetToAdd: GamePreset;
+
     if (newPreset.mode === 'rounds') {
-      presetToAdd.targetRounds = newPreset.targetRounds;
-      presetToAdd.roundTargetScore = newPreset.roundTargetScore;
+      presetToAdd = {
+        ...basePreset,
+        mode: 'rounds',
+        targetRounds: newPreset.targetRounds,
+        roundTargetScore: newPreset.roundTargetScore,
+        id: `custom_${Date.now()}`,
+      };
     } else {
-      presetToAdd.targetScore = newPreset.targetScore;
+      presetToAdd = {
+        ...basePreset,
+        mode: newPreset.mode as 'max' | 'min' | 'darts',
+        targetScore: newPreset.targetScore,
+        id: `custom_${Date.now()}`,
+      };
     }
 
     addCustomPreset(presetToAdd);
@@ -89,7 +125,7 @@ const PresetManagerScreen = ({navigation}) => {
     Alert.alert(t('common.success'), t('presets.createSuccess'));
   };
 
-  const handleDeletePreset = presetId => {
+  const handleDeletePreset = (presetId: string): void => {
     Alert.alert(
       t('presets.deleteConfirm'),
       t('presets.deleteConfirmMessage'),
@@ -100,7 +136,7 @@ const PresetManagerScreen = ({navigation}) => {
     );
   };
 
-  const handleSelectPreset = preset => {
+  const handleSelectPreset = (preset: GamePreset): void => {
     Alert.alert(
       preset.name,
       t('presets.usePresetMessage'),
