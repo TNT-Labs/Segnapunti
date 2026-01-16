@@ -7,6 +7,7 @@ import {ThemeProvider, useTheme} from './contexts/ThemeContext';
 import {GameProvider} from './contexts/GameContext';
 import AppNavigator from './navigation/AppNavigator';
 import consentService from './services/ConsentService';
+import i18nService from './services/i18nService';
 
 const LoadingScreen = () => (
   <View style={styles.loadingContainer}>
@@ -37,9 +38,18 @@ const App = () => {
   const [consentHandled, setConsentHandled] = useState(false);
 
   useEffect(() => {
-    // Gestisce il flusso di consenso GDPR e inizializza AdMob
+    // Gestisce il flusso di consenso GDPR, i18n e inizializza AdMob
     const initializeApp = async () => {
       try {
+        // 0. Inizializza i18n
+        if (__DEV__) {
+          console.log('App: Inizializzo i18n...');
+        }
+        await i18nService.initializeI18n();
+        if (__DEV__) {
+          console.log('App: i18n inizializzato -', i18nService.getCurrentLanguage());
+        }
+
         // 1. Inizializza il servizio di consenso
         if (__DEV__) {
           console.log('App: Inizializzo servizio di consenso GDPR...');

@@ -13,6 +13,7 @@ import {useTheme} from '../contexts/ThemeContext';
 import {useGame} from '../contexts/GameContext';
 import PresetCard from '../components/PresetCard';
 import AdBanner from '../components/AdBanner';
+import LanguageSelector from '../components/LanguageSelector';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {AD_UNITS, AD_BANNER_SIZES} from '../config/adConfig';
 
@@ -136,6 +137,9 @@ const SettingsScreen = ({navigation, route}) => {
         accessibilityRole="header">
         ⚙️ Impostazioni
       </Text>
+
+      {/* Language Selector */}
+      <LanguageSelector />
 
       {/* Dark Mode Toggle */}
       <View style={[styles.section, {backgroundColor: theme.colors.card}]}>
