@@ -49,10 +49,8 @@
   *** get*();
 }
 
-# --- JSC (JavaScriptCore) - Using JSC instead of Hermes ---
--keep class com.facebook.jsc.** { *; }
--dontwarn com.facebook.jsc.**
-
-# Keep all WebKit classes used by JSC
--keep class org.webkit.** { *; }
--dontwarn org.webkit.**
+# --- JSC (JavaScriptCore) - Non più usato, ora si usa Hermes ---
+# -keep class com.facebook.jsc.** { *; }
+# -dontwarn com.facebook.jsc.**
+# -keep class org.webkit.** { *; }
+# -dontwarn org.webkit.**

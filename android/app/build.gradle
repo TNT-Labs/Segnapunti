@@ -11,12 +11,11 @@ react {
     codegenDir = file("$projectRoot/node_modules/@react-native/codegen")
     cliFile = file("$projectRoot/node_modules/react-native/cli.js")
 
-    /* CRITICAL: Force JSC instead of Hermes */
-    hermesEnabled = false
+    /* Abilita Hermes (raccomandato per React Native 0.76+) */
+    hermesEnabled = true
 }
 
 def enableProguardInReleaseBuilds = true
-def jscFlavor = 'org.webkit:android-jsc:+'
 
 android {
     ndkVersion rootProject.ext.ndkVersion
@@ -111,14 +110,8 @@ dependencies {
     implementation project(':react-native-screens')
     implementation project(':react-native-vector-icons')
 
-    // JSC - Forza l'inclusione esplicita di JSC
-    implementation 'org.webkit:android-jsc:+'
-
-    // React Native executor - assicura che JSCExecutor sia incluso
+    // Hermes - Motore JavaScript raccomandato per React Native 0.76+
     if (hermesEnabled.toBoolean()) {
         implementation("com.facebook.react:hermes-android")
-    } else {
-        // JSC già incluso sopra esplicitamente
-        debugImplementation("com.facebook.react:react-android:+")
     }
 }
