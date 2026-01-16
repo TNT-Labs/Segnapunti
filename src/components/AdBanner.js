@@ -18,7 +18,9 @@ const AdBanner = ({size = 'small', adUnitId, style}) => {
   // Validazione: adUnitId è obbligatorio
   useEffect(() => {
     if (!adUnitId) {
-      console.error('[AdBanner] ERRORE: adUnitId è obbligatorio ma non è stato fornito!');
+      if (__DEV__) {
+        console.error('[AdBanner] ERRORE: adUnitId è obbligatorio ma non è stato fornito!');
+      }
       setHasError(true);
       setLoadingState('failed');
     }
@@ -58,13 +60,17 @@ const AdBanner = ({size = 'small', adUnitId, style}) => {
 
   // Handlers per gli eventi dell'annuncio
   const handleAdLoaded = () => {
-    console.log('[AdBanner] Annuncio caricato con successo');
+    if (__DEV__) {
+      console.log('[AdBanner] Annuncio caricato con successo');
+    }
     setLoadingState('loaded');
     setHasError(false);
   };
 
   const handleAdFailedToLoad = error => {
-    console.warn('[AdBanner] Errore nel caricamento annuncio:', error);
+    if (__DEV__) {
+      console.warn('[AdBanner] Errore nel caricamento annuncio:', error);
+    }
     setLoadingState('failed');
     setHasError(true);
   };
