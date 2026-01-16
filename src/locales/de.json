@@ -226,7 +226,9 @@
     "en": "Englisch",
     "de": "Deutsch",
     "es": "Spanisch",
-    "fr": "Französisch"
+    "fr": "Französisch",
+    "ar": "Arabisch",
+    "zh": "Chinesisch"
   },
   "playerCard": {
     "player": "Spieler",

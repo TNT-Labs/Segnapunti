@@ -226,7 +226,9 @@
     "en": "English",
     "de": "Deutsch",
     "es": "Español",
-    "fr": "Français"
+    "fr": "Français",
+    "ar": "العربية",
+    "zh": "中文"
   },
   "playerCard": {
     "player": "Giocatore",
