@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
+import {useTranslation} from 'react-i18next';
 import {useTheme} from '../contexts/ThemeContext';
 import {useGame} from '../contexts/GameContext';
 import PresetCard from '../components/PresetCard';
@@ -18,6 +19,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {AD_UNITS, AD_BANNER_SIZES} from '../config/adConfig';
 
 const SettingsScreen = ({navigation, route}) => {
+  const {t} = useTranslation();
   const {theme, isDark, toggleDarkMode} = useTheme();
   const {getAllPresets, startNewGame, gameState} = useGame();
 
@@ -41,11 +43,11 @@ const SettingsScreen = ({navigation, route}) => {
       const numPlayers = Math.max(2, selectedPreset.defaultPlayers || 2);
       const names = Array.from(
         {length: numPlayers},
-        (_, i) => `Giocatore ${i + 1}`,
+        (_, i) => t('settings.playerName', {number: i + 1, defaultValue: `Giocatore ${i + 1}`}),
       );
       setPlayerNames(names);
     }
-  }, [selectedPreset]);
+  }, [selectedPreset, t]);
 
   const handlePlayerNameChange = (index, name) => {
     const updatedNames = [...playerNames];
@@ -57,18 +59,24 @@ const SettingsScreen = ({navigation, route}) => {
     const MAX_PLAYERS = 8;
 
     if (playerNames.length >= MAX_PLAYERS) {
-      Alert.alert('Limite Raggiunto', `Puoi aggiungere al massimo ${MAX_PLAYERS} giocatori.`);
+      Alert.alert(
+        t('common.error'),
+        t('settings.errors.maxPlayersReached', {count: MAX_PLAYERS})
+      );
       return;
     }
 
-    setPlayerNames([...playerNames, `Giocatore ${playerNames.length + 1}`]);
+    setPlayerNames([...playerNames, t('settings.playerName', {number: playerNames.length + 1, defaultValue: `Giocatore ${playerNames.length + 1}`})]);
   };
 
   const handleRemovePlayer = index => {
     const MIN_PLAYERS = 2;
 
     if (playerNames.length <= MIN_PLAYERS) {
-      Alert.alert('Errore', `Devi avere almeno ${MIN_PLAYERS} giocatori!`);
+      Alert.alert(
+        t('common.error'),
+        t('settings.errors.minPlayersRequired', {count: MIN_PLAYERS})
+      );
       return;
     }
     const updatedNames = playerNames.filter((_, i) => i !== index);
@@ -77,7 +85,7 @@ const SettingsScreen = ({navigation, route}) => {
 
   const handleStartGame = async () => {
     if (!selectedPreset) {
-      Alert.alert('Errore', 'Seleziona un preset di gioco!');
+      Alert.alert(t('common.error'), t('settings.errors.selectPreset'));
       return;
     }
 
@@ -88,30 +96,36 @@ const SettingsScreen = ({navigation, route}) => {
     const MAX_PLAYERS = 8;
 
     if (validNames.length < MIN_PLAYERS) {
-      Alert.alert('Errore', `Servono almeno ${MIN_PLAYERS} giocatori per iniziare una partita!`);
+      Alert.alert(
+        t('common.error'),
+        t('settings.errors.minPlayers', {count: MIN_PLAYERS})
+      );
       return;
     }
 
     if (validNames.length > MAX_PLAYERS) {
-      Alert.alert('Errore', `Puoi avere al massimo ${MAX_PLAYERS} giocatori!`);
+      Alert.alert(
+        t('common.error'),
+        t('settings.errors.maxPlayers', {count: MAX_PLAYERS})
+      );
       return;
     }
 
     // Verifica nomi duplicati
     const uniqueNames = new Set(validNames.map(name => name.trim().toLowerCase()));
     if (uniqueNames.size !== validNames.length) {
-      Alert.alert('Errore', 'Ci sono nomi di giocatori duplicati! Ogni giocatore deve avere un nome unico.');
+      Alert.alert(t('common.error'), t('settings.errors.duplicateNames'));
       return;
     }
 
     if (gameState && !gameState.isFinished) {
       Alert.alert(
-        'Partita in Corso',
-        'C\'è già una partita in corso. Vuoi abbandonarla e iniziarne una nuova?',
+        t('settings.gameInProgress'),
+        t('settings.gameInProgressMessage'),
         [
-          {text: 'Annulla', style: 'cancel'},
+          {text: t('common.cancel'), style: 'cancel'},
           {
-            text: 'Nuova Partita',
+            text: t('settings.newGameAction'),
             style: 'destructive',
             onPress: async () => {
               await startNewGame(selectedPreset, validNames);
@@ -122,8 +136,8 @@ const SettingsScreen = ({navigation, route}) => {
       );
     } else {
       await startNewGame(selectedPreset, validNames);
-      Alert.alert('Partita Iniziata!', 'Buon divertimento! 🎉', [
-        {text: 'OK', onPress: () => navigation.navigate('Game')},
+      Alert.alert(t('settings.gameStarted'), t('settings.gameStartedMessage'), [
+        {text: t('common.ok'), onPress: () => navigation.navigate('Game')},
       ]);
     }
   };
@@ -135,7 +149,7 @@ const SettingsScreen = ({navigation, route}) => {
       <Text
         style={[styles.title, {color: theme.colors.text}]}
         accessibilityRole="header">
-        ⚙️ Impostazioni
+        {t('settings.title')}
       </Text>
 
       {/* Language Selector */}
@@ -147,12 +161,12 @@ const SettingsScreen = ({navigation, route}) => {
           <Text
             style={[styles.label, {color: theme.colors.text}]}
             accessibilityRole="text">
-            🌙 Dark Mode
+            {t('settings.darkMode')}
           </Text>
           <Switch
             accessible={true}
-            accessibilityLabel={isDark ? "Dark mode attivo" : "Dark mode disattivo"}
-            accessibilityHint="Attiva o disattiva la modalità scura"
+            accessibilityLabel={isDark ? t('settings.darkModeActive') : t('settings.darkModeInactive')}
+            accessibilityHint={t('settings.darkModeHint')}
             accessibilityRole="switch"
             value={isDark}
             onValueChange={toggleDarkMode}
@@ -170,16 +184,16 @@ const SettingsScreen = ({navigation, route}) => {
       <Text
         style={[styles.sectionTitle, {color: theme.colors.text}]}
         accessibilityRole="header">
-        🎮 Nuova Partita
+        {t('settings.newGame')}
       </Text>
 
       {/* Preset Selection */}
       <TouchableOpacity
         accessible={true}
         accessibilityLabel={selectedPreset
-          ? `Gioco selezionato: ${selectedPreset.name}. Tocca per cambiare`
-          : 'Seleziona un gioco'}
-        accessibilityHint={showPresets ? "Chiudi lista giochi" : "Apri lista giochi"}
+          ? `${t('settings.selectGame')}: ${selectedPreset.name}`
+          : t('settings.selectGame')}
+        accessibilityHint={showPresets ? t('settings.closeGameList') : t('settings.selectGameHint')}
         accessibilityRole="button"
         accessibilityState={{expanded: showPresets}}
         style={[styles.section, {backgroundColor: theme.colors.card}]}
@@ -188,7 +202,7 @@ const SettingsScreen = ({navigation, route}) => {
           <Text style={[styles.label, {color: theme.colors.text}]}>
             {selectedPreset
               ? `${selectedPreset.icon} ${selectedPreset.name}`
-              : 'Seleziona Gioco'}
+              : t('settings.selectGame')}
           </Text>
           <Icon
             name={showPresets ? 'chevron-up' : 'chevron-down'}
@@ -221,12 +235,12 @@ const SettingsScreen = ({navigation, route}) => {
             <Text
               style={[styles.sectionTitle, {color: theme.colors.text}]}
               accessibilityRole="header">
-              👥 Giocatori
+              {t('settings.players')}
             </Text>
             <TouchableOpacity
               accessible={true}
-              accessibilityLabel="Aggiungi giocatore"
-              accessibilityHint="Aggiunge un nuovo campo per inserire un giocatore"
+              accessibilityLabel={t('settings.addPlayer')}
+              accessibilityHint={t('settings.addPlayerHint')}
               accessibilityRole="button"
               style={[styles.addPlayerButton, {backgroundColor: theme.colors.primary}]}
               onPress={handleAddPlayer}>
@@ -240,8 +254,8 @@ const SettingsScreen = ({navigation, route}) => {
               style={[styles.playerInput, {backgroundColor: theme.colors.card}]}>
               <TextInput
                 accessible={true}
-                accessibilityLabel={`Nome giocatore ${index + 1}`}
-                accessibilityHint="Inserisci il nome del giocatore"
+                accessibilityLabel={t('settings.playerName', {number: index + 1})}
+                accessibilityHint={t('settings.playerNameHint')}
                 style={[
                   styles.input,
                   {
@@ -249,7 +263,7 @@ const SettingsScreen = ({navigation, route}) => {
                     flex: 1,
                   },
                 ]}
-                placeholder={`Giocatore ${index + 1}`}
+                placeholder={t('settings.playerName', {number: index + 1})}
                 placeholderTextColor={theme.colors.textSecondary}
                 value={name}
                 onChangeText={text => handlePlayerNameChange(index, text)}
@@ -257,8 +271,8 @@ const SettingsScreen = ({navigation, route}) => {
               {playerNames.length > 1 && (
                 <TouchableOpacity
                   accessible={true}
-                  accessibilityLabel={`Rimuovi ${name || `giocatore ${index + 1}`}`}
-                  accessibilityHint="Rimuove questo giocatore dalla lista"
+                  accessibilityLabel={t('settings.removePlayer', {name: name || t('settings.playerName', {number: index + 1})})}
+                  accessibilityHint={t('settings.removePlayerHint')}
                   accessibilityRole="button"
                   style={[styles.removeButton, {backgroundColor: theme.colors.error}]}
                   onPress={() => handleRemovePlayer(index)}>
@@ -270,12 +284,15 @@ const SettingsScreen = ({navigation, route}) => {
 
           <TouchableOpacity
             accessible={true}
-            accessibilityLabel="Inizia partita"
-            accessibilityHint={`Avvia una nuova partita a ${selectedPreset.name} con ${playerNames.filter(n => n.trim()).length} giocatori`}
+            accessibilityLabel={t('settings.startGame')}
+            accessibilityHint={t('settings.startGameHint', {
+              gameName: selectedPreset.name,
+              playerCount: playerNames.filter(n => n.trim()).length
+            })}
             accessibilityRole="button"
             style={[styles.startButton, {backgroundColor: theme.colors.success}]}
             onPress={handleStartGame}>
-            <Text style={styles.startButtonText}>🚀 Inizia Partita</Text>
+            <Text style={styles.startButtonText}>{t('settings.startGame')}</Text>
           </TouchableOpacity>
         </>
       )}
