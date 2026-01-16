@@ -6,9 +6,8 @@ import {DEFAULT_PRESETS} from '../constants/presets';
 const GameContext = createContext();
 
 // Generatore di ID univoci
-let idCounter = 0;
 const generateUniqueId = (prefix = 'id') => {
-  return `${prefix}_${Date.now()}_${++idCounter}_${Math.random().toString(36).substring(2, 11)}`;
+  return `${prefix}_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
 };
 
 export const GameProvider = ({children}) => {
@@ -22,40 +21,43 @@ export const GameProvider = ({children}) => {
 
   // Carica dati al mount
   useEffect(() => {
-    loadAllData();
-  }, []);
+    const loadAllData = async () => {
+      try {
+        setIsLoading(true);
 
-  const loadAllData = async () => {
-    try {
-      setIsLoading(true);
+        // Carica stato partita
+        const savedGame = await StorageService.loadGameState();
+        if (savedGame) {
+          setGameState(savedGame);
+          setPlayers(savedGame.players || []);
+          setCurrentPreset(savedGame.preset || null);
+        }
 
-      // Carica stato partita
-      const savedGame = await StorageService.loadGameState();
-      if (savedGame) {
-        setGameState(savedGame);
-        setPlayers(savedGame.players || []);
-        setCurrentPreset(savedGame.preset || null);
+        // Carica storico
+        const history = await StorageService.loadGameHistory();
+        setGameHistory(history);
+
+        // Carica preset personalizzati
+        const presets = await StorageService.loadPresets();
+        setCustomPresets(presets);
+
+      } catch (error) {
+        if (__DEV__) {
+          console.error('Error loading game data:', error);
+        }
+        Alert.alert(
+          'Errore Caricamento',
+          'Impossibile caricare i dati salvati. I dati potrebbero essere corrotti.',
+          [{text: 'OK'}]
+        );
+      } finally {
+        setIsLoading(false);
       }
+    };
 
-      // Carica storico
-      const history = await StorageService.loadGameHistory();
-      setGameHistory(history);
-
-      // Carica preset personalizzati
-      const presets = await StorageService.loadPresets();
-      setCustomPresets(presets);
-
-    } catch (error) {
-      console.error('Error loading game data:', error);
-      Alert.alert(
-        'Errore Caricamento',
-        'Impossibile caricare i dati salvati. I dati potrebbero essere corrotti.',
-        [{text: 'OK'}]
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    loadAllData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // ==================== GAME MANAGEMENT ====================
 
@@ -279,7 +281,9 @@ export const GameProvider = ({children}) => {
 
       return true;
     } catch (error) {
-      console.error('Error saving game to history:', error);
+      if (__DEV__) {
+        console.error('Error saving game to history:', error);
+      }
       Alert.alert('Errore', 'Impossibile salvare la partita nello storico.');
       return false;
     }

@@ -54,16 +54,22 @@ const TEST_AD_UNITS = {
  */
 const getAdUnits = () => {
   if (USE_TEST_ADS) {
-    console.log('[AdConfig] Usando Test Ads (__DEV__ mode)');
+    if (__DEV__) {
+      console.log('[AdConfig] Usando Test Ads (__DEV__ mode)');
+    }
     return TEST_AD_UNITS;
   }
 
   if (Platform.OS === 'ios') {
-    console.log('[AdConfig] Usando Production Ads per iOS');
+    if (__DEV__) {
+      console.log('[AdConfig] Usando Production Ads per iOS');
+    }
     return PRODUCTION_AD_UNITS_IOS;
   }
 
-  console.log('[AdConfig] Usando Production Ads per Android');
+  if (__DEV__) {
+    console.log('[AdConfig] Usando Production Ads per Android');
+  }
   return PRODUCTION_AD_UNITS_ANDROID;
 };
 
@@ -89,7 +95,9 @@ export const AD_BANNER_SIZES = {
  */
 export const getAdConfig = screenName => {
   if (!AD_UNITS[screenName]) {
-    console.error(`[AdConfig] Schermata non trovata: ${screenName}`);
+    if (__DEV__) {
+      console.error(`[AdConfig] Schermata non trovata: ${screenName}`);
+    }
     return null;
   }
 

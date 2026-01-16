@@ -1,26 +1,30 @@
 import React from 'react';
 import {View, Text, StyleSheet, TouchableOpacity, Linking, Alert} from 'react-native';
+import {useTranslation} from 'react-i18next';
 import {useTheme} from '../contexts/ThemeContext';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import AdBanner from '../components/AdBanner';
 import {AD_UNITS, AD_BANNER_SIZES} from '../config/adConfig';
 
 const AboutScreen = () => {
+  const {t} = useTranslation();
   const {theme} = useTheme();
 
   const handlePrivacyPolicy = () => {
     const privacyUrl = 'https://tnt-labs.github.io/Segnapunti/privacy-policy.html';
     Linking.openURL(privacyUrl).catch(err => {
-      console.error('Errore apertura privacy policy:', err);
-      Alert.alert('Errore', 'Impossibile aprire la privacy policy.');
+      if (__DEV__) {
+        console.error('Errore apertura privacy policy:', err);
+      }
+      Alert.alert(t('common.error'), t('about.privacyError'));
     });
   };
 
   const handleTermsOfService = () => {
     Alert.alert(
-      'Termini di Servizio',
-      'Segnapunti è fornita "così com\'è" senza garanzie di alcun tipo. L\'utilizzo dell\'app è soggetto all\'accettazione della nostra Privacy Policy.',
-      [{text: 'OK'}]
+      t('about.termsTitle'),
+      t('about.termsMessage'),
+      [{text: t('common.ok')}]
     );
   };
 
@@ -30,45 +34,45 @@ const AboutScreen = () => {
         <Text
           style={[styles.title, {color: theme.colors.text}]}
           accessibilityRole="header">
-          🃏 Segnapunti
+          {t('about.title')}
         </Text>
         <Text
           style={[styles.version, {color: theme.colors.textSecondary}]}
           accessibilityRole="text"
-          accessibilityLabel="Versione 1.0.0">
-          v1.0.0
+          accessibilityLabel={t('about.version', {version: '1.0.6'})}>
+          v1.0.6
         </Text>
         <Text
           style={[styles.subtitle, {color: theme.colors.textSecondary}]}
           accessibilityRole="text">
-          L'app segnapunti definitiva per ogni gioco
+          {t('about.subtitle')}
         </Text>
 
         <View style={styles.linksContainer}>
           <TouchableOpacity
             accessible={true}
-            accessibilityLabel="Privacy Policy"
-            accessibilityHint="Apri la privacy policy dell'app"
+            accessibilityLabel={t('about.privacyPolicy')}
+            accessibilityHint={t('about.privacyPolicyHint')}
             accessibilityRole="button"
             style={[styles.linkButton, {backgroundColor: theme.colors.card}]}
             onPress={handlePrivacyPolicy}>
             <Icon name="shield-lock" size={24} color={theme.colors.primary} />
             <Text style={[styles.linkText, {color: theme.colors.text}]}>
-              Privacy Policy
+              {t('about.privacyPolicy')}
             </Text>
             <Icon name="chevron-right" size={24} color={theme.colors.textSecondary} />
           </TouchableOpacity>
 
           <TouchableOpacity
             accessible={true}
-            accessibilityLabel="Termini di Servizio"
-            accessibilityHint="Visualizza i termini di servizio"
+            accessibilityLabel={t('about.termsOfService')}
+            accessibilityHint={t('about.termsOfServiceHint')}
             accessibilityRole="button"
             style={[styles.linkButton, {backgroundColor: theme.colors.card}]}
             onPress={handleTermsOfService}>
             <Icon name="file-document" size={24} color={theme.colors.primary} />
             <Text style={[styles.linkText, {color: theme.colors.text}]}>
-              Termini di Servizio
+              {t('about.termsOfService')}
             </Text>
             <Icon name="chevron-right" size={24} color={theme.colors.textSecondary} />
           </TouchableOpacity>
@@ -83,7 +87,7 @@ const AboutScreen = () => {
         <Text
           style={[styles.footer, {color: theme.colors.textSecondary}]}
           accessibilityRole="text">
-          Fatto con ❤️ da TNT Labs
+          {t('about.footer')}
         </Text>
       </View>
     </View>
