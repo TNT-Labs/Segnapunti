@@ -9,6 +9,8 @@ import en from '../locales/en.json';
 import de from '../locales/de.json';
 import es from '../locales/es.json';
 import fr from '../locales/fr.json';
+import ar from '../locales/ar.json';
+import zh from '../locales/zh.json';
 
 // Get device language
 const getDeviceLanguage = () => {
@@ -28,7 +30,7 @@ const getDeviceLanguage = () => {
     deviceLanguage = deviceLanguage.split('_')[0].toLowerCase();
 
     // Check if language is supported
-    const supportedLanguages = ['it', 'en', 'de', 'es', 'fr'];
+    const supportedLanguages = ['it', 'en', 'de', 'es', 'fr', 'ar', 'zh'];
     if (!supportedLanguages.includes(deviceLanguage)) {
       deviceLanguage = 'it'; // Fallback to Italian
     }
@@ -61,6 +63,8 @@ const initializeI18n = async () => {
         de: {translation: de},
         es: {translation: es},
         fr: {translation: fr},
+        ar: {translation: ar},
+        zh: {translation: zh},
       },
       lng: languageToUse,
       fallbackLng: 'it',
@@ -117,6 +121,8 @@ const getAvailableLanguages = () => {
     {code: 'de', name: 'Deutsch', flag: '🇩🇪'},
     {code: 'es', name: 'Español', flag: '🇪🇸'},
     {code: 'fr', name: 'Français', flag: '🇫🇷'},
+    {code: 'ar', name: 'العربية', flag: '🇸🇦'},
+    {code: 'zh', name: '中文', flag: '🇨🇳'},
   ];
 };
 
