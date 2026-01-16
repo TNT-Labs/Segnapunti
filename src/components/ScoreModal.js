@@ -9,9 +9,11 @@ import {
   useWindowDimensions,
   Alert,
 } from 'react-native';
+import {useTranslation} from 'react-i18next';
 import {useTheme} from '../contexts/ThemeContext';
 
 const ScoreModal = ({visible, onClose, onSubmit, playerName, incrementValues}) => {
+  const {t} = useTranslation();
   const {theme} = useTheme();
   const {width} = useWindowDimensions();
   const [customScore, setCustomScore] = useState('');
@@ -28,14 +30,14 @@ const ScoreModal = ({visible, onClose, onSubmit, playerName, incrementValues}) =
     const score = parseInt(customScore, 10);
 
     if (isNaN(score) || customScore.trim() === '') {
-      Alert.alert('Errore', 'Inserisci un punteggio valido.');
+      Alert.alert(t('common.error'), t('scoreModal.errors.invalidScore'));
       return;
     }
 
     if (score < MIN_SCORE || score > MAX_SCORE) {
       Alert.alert(
-        'Punteggio Non Valido',
-        `Il punteggio deve essere compreso tra ${MIN_SCORE} e ${MAX_SCORE}.`
+        t('scoreModal.invalidScoreTitle'),
+        t('scoreModal.errors.invalidRange', {min: MIN_SCORE, max: MAX_SCORE})
       );
       return;
     }
@@ -57,7 +59,7 @@ const ScoreModal = ({visible, onClose, onSubmit, playerName, incrementValues}) =
       onRequestClose={onClose}>
       <TouchableOpacity
         accessible={true}
-        accessibilityLabel="Chiudi modale"
+        accessibilityLabel={t('scoreModal.closeModal')}
         accessibilityRole="button"
         style={styles.overlay}
         activeOpacity={1}
@@ -68,18 +70,18 @@ const ScoreModal = ({visible, onClose, onSubmit, playerName, incrementValues}) =
           <Text
             style={[styles.title, {color: theme.colors.text}]}
             accessibilityRole="header">
-            Aggiungi Punti
+            {t('scoreModal.title')}
           </Text>
           <Text
             style={[styles.subtitle, {color: theme.colors.textSecondary}]}
             accessibilityRole="text">
-            {playerName}
+            {t('scoreModal.playerName', {name: playerName})}
           </Text>
 
           <TextInput
             accessible={true}
-            accessibilityLabel="Punteggio personalizzato"
-            accessibilityHint="Inserisci un punteggio personalizzato da aggiungere"
+            accessibilityLabel={t('scoreModal.customScore')}
+            accessibilityHint={t('scoreModal.customScoreHint')}
             style={[
               styles.input,
               {
@@ -88,7 +90,7 @@ const ScoreModal = ({visible, onClose, onSubmit, playerName, incrementValues}) =
                 borderColor: theme.colors.border,
               },
             ]}
-            placeholder="Es: +10 o -5"
+            placeholder={t('scoreModal.placeholder')}
             placeholderTextColor={theme.colors.textSecondary}
             keyboardType="numbers-and-punctuation"
             value={customScore}
@@ -102,8 +104,8 @@ const ScoreModal = ({visible, onClose, onSubmit, playerName, incrementValues}) =
                 <TouchableOpacity
                   key={value}
                   accessible={true}
-                  accessibilityLabel={`Aggiungi ${value} punti`}
-                  accessibilityHint={`Aggiunge ${value} punti al giocatore e chiude la modale`}
+                  accessibilityLabel={t('scoreModal.addPoints', {points: value})}
+                  accessibilityHint={t('scoreModal.addPointsHint', {points: value})}
                   accessibilityRole="button"
                   style={[
                     styles.quickButton,
@@ -119,25 +121,25 @@ const ScoreModal = ({visible, onClose, onSubmit, playerName, incrementValues}) =
           <View style={styles.actions}>
             <TouchableOpacity
               accessible={true}
-              accessibilityLabel="Annulla"
-              accessibilityHint="Chiude la modale senza aggiungere punti"
+              accessibilityLabel={t('scoreModal.cancel')}
+              accessibilityHint={t('scoreModal.cancelHint')}
               accessibilityRole="button"
               style={[styles.button, {backgroundColor: theme.colors.border}]}
               onPress={handleClose}>
               <Text style={[styles.buttonText, {color: theme.colors.text}]}>
-                Annulla
+                {t('scoreModal.cancel')}
               </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               accessible={true}
-              accessibilityLabel="Applica punteggio personalizzato"
-              accessibilityHint="Aggiunge il punteggio inserito e chiude la modale"
+              accessibilityLabel={t('scoreModal.apply')}
+              accessibilityHint={t('scoreModal.applyHint')}
               accessibilityRole="button"
               style={[styles.button, {backgroundColor: theme.colors.primary}]}
               onPress={handleCustomSubmit}>
               <Text style={[styles.buttonText, {color: '#FFFFFF'}]}>
-                Applica
+                {t('scoreModal.apply')}
               </Text>
             </TouchableOpacity>
           </View>
