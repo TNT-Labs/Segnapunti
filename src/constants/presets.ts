@@ -1,0 +1,155 @@
+import { GameMode, PresetCategory } from './colors';
+
+// Base properties common to all presets
+interface BasePreset {
+  id: string;
+  name: string;
+  category: PresetCategory;
+  icon: string;
+  defaultPlayers: number;
+  incrementValues: number[];
+}
+
+// Preset types based on game mode (discriminated union)
+interface MaxModePreset extends BasePreset {
+  mode: 'max';
+  targetScore: number;
+}
+
+interface MinModePreset extends BasePreset {
+  mode: 'min';
+  targetScore: number;
+}
+
+interface RoundsModePreset extends BasePreset {
+  mode: 'rounds';
+  targetRounds: number;
+  roundTargetScore: number;
+}
+
+interface DartsModePreset extends BasePreset {
+  mode: 'darts';
+  targetScore: number;
+}
+
+// Union type for all preset types
+export type GamePreset =
+  | MaxModePreset
+  | MinModePreset
+  | RoundsModePreset
+  | DartsModePreset;
+
+// Default game presets
+export const DEFAULT_PRESETS: GamePreset[] = [
+  {
+    id: 'scala40',
+    name: 'Scala 40',
+    category: 'cards',
+    icon: '🃏',
+    mode: 'min',
+    targetScore: 101,
+    defaultPlayers: 2,
+    incrementValues: [5, 10, 15, 20, 25, 30],
+  },
+  {
+    id: 'burraco',
+    name: 'Burraco',
+    category: 'cards',
+    icon: '🎴',
+    mode: 'max',
+    targetScore: 2005,
+    defaultPlayers: 4,
+    incrementValues: [10, 20, 50, 100, 150, 200],
+  },
+  {
+    id: 'scopa',
+    name: 'Scopa',
+    category: 'cards',
+    icon: '🧹',
+    mode: 'rounds',
+    targetRounds: 2,
+    roundTargetScore: 21,
+    defaultPlayers: 2,
+    incrementValues: [1, 2, 3, 5, 10, 11],
+  },
+  {
+    id: 'briscola',
+    name: 'Briscola',
+    category: 'cards',
+    icon: '♠️',
+    mode: 'max',
+    targetScore: 11,
+    defaultPlayers: 2,
+    incrementValues: [1],
+  },
+  {
+    id: 'pinnacola',
+    name: 'Pinnacola',
+    category: 'cards',
+    icon: '🎯',
+    mode: 'max',
+    targetScore: 1500,
+    defaultPlayers: 4,
+    incrementValues: [10, 20, 50, 100, 150, 200],
+  },
+  {
+    id: 'poker',
+    name: 'Poker (Mani)',
+    category: 'cards',
+    icon: '🎰',
+    mode: 'rounds',
+    targetRounds: 5,
+    roundTargetScore: 10000,
+    defaultPlayers: 6,
+    incrementValues: [100, 500, 1000, 2000, 5000],
+  },
+  {
+    id: 'tennis',
+    name: 'Tennis (Set)',
+    category: 'sports',
+    icon: '🎾',
+    mode: 'rounds',
+    targetRounds: 2,
+    roundTargetScore: 6,
+    defaultPlayers: 2,
+    incrementValues: [1],
+  },
+  {
+    id: 'volleyball',
+    name: 'Pallavolo (Set)',
+    category: 'sports',
+    icon: '🏐',
+    mode: 'rounds',
+    targetRounds: 3,
+    roundTargetScore: 25,
+    defaultPlayers: 2,
+    incrementValues: [1, 2, 3, 5],
+  },
+  {
+    id: 'darts501',
+    name: 'Freccette 501',
+    category: 'other',
+    icon: '🎯',
+    mode: 'darts',
+    targetScore: 501,
+    defaultPlayers: 2,
+    incrementValues: [20, 40, 60, 80, 100, 120, 140, 160, 180],
+  },
+  {
+    id: 'darts301',
+    name: 'Freccette 301',
+    category: 'other',
+    icon: '🎯',
+    mode: 'darts',
+    targetScore: 301,
+    defaultPlayers: 2,
+    incrementValues: [20, 40, 60, 80, 100, 120, 140, 160, 180],
+  },
+];
+
+export const CATEGORY_LABELS: Record<PresetCategory, string> = {
+  cards: 'Giochi di Carte 🃏',
+  table: 'Giochi da Tavolo 🎲',
+  sports: 'Sport ⚽',
+  other: 'Altri 🎯',
+};
