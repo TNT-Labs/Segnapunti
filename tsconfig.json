@@ -31,11 +31,7 @@
   },
   "include": [
     "src/**/*",
-    "index.ts",
-    "*.ts",
-    "*.tsx",
-    "**/*.ts",
-    "**/*.tsx"
+    "index.ts"
   ],
   "exclude": [
     "node_modules",
@@ -43,6 +39,10 @@
     "ios",
     "web",
     "**/*.spec.ts",
-    "**/*.test.ts"
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "coverage",
+    "dist",
+    "build"
   ]
 }
