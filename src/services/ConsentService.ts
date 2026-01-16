@@ -1,34 +1,41 @@
 import {
   AdsConsent,
-  AdsConsentDebugGeography,
   AdsConsentStatus,
+  AdsConsentInfo,
 } from 'react-native-google-mobile-ads';
 
 /**
  * Service per gestire il consenso GDPR per la pubblicità personalizzata
  * Implementa le linee guida per la Consent Management Platform (CMP)
  */
+
+export type ConsentStatusName = 'OBTAINED' | 'NOT_REQUIRED' | 'REQUIRED' | 'UNKNOWN' | 'ERROR';
+
+export interface ConsentInitializeResult {
+  isRequired: boolean;
+  status: ConsentStatusName;
+  canRequestAds: boolean;
+}
+
+export interface ConsentFormResult {
+  status: ConsentStatusName;
+  canRequestAds: boolean;
+}
+
 class ConsentService {
-  constructor() {
-    this.consentInfo = null;
-    this.isInitialized = false;
-  }
+  private consentInfo: AdsConsentInfo | null = null;
+  private isInitialized: boolean = false;
 
   /**
    * Inizializza il servizio di consenso e verifica se è necessario richiedere il consenso
-   * @param {boolean} debugMode - Se true, forza la geografia EEA per il test
-   * @returns {Promise<{isRequired: boolean, status: string}>}
+   * @param debugMode - Se true, forza la geografia EEA per il test
+   * @returns Promise con informazioni sul consenso
    */
-  async initialize(debugMode = false) {
+  async initialize(debugMode: boolean = false): Promise<ConsentInitializeResult> {
     try {
-      // Configura il debug mode se richiesto (solo per test)
+      // Note: Debug geography configuration non disponibile in questa versione
       if (debugMode && __DEV__) {
-        await AdsConsent.setDebugGeography(
-          AdsConsentDebugGeography.EEA,
-        );
-        if (__DEV__) {
-          console.log('ConsentService: Debug mode attivo - simulazione geografica EEA');
-        }
+        console.log('ConsentService: Debug mode richiesto (non supportato in questa versione API)');
       }
 
       // Richiedi informazioni sul consenso
@@ -65,9 +72,9 @@ class ConsentService {
 
   /**
    * Mostra il form di consenso all'utente
-   * @returns {Promise<{status: string, canRequestAds: boolean}>}
+   * @returns Promise con il risultato del consenso
    */
-  async showConsentForm() {
+  async showConsentForm(): Promise<ConsentFormResult> {
     try {
       if (!this.isInitialized) {
         await this.initialize();
@@ -99,7 +106,7 @@ class ConsentService {
       if (__DEV__) {
         console.log('ConsentService: Mostro form di consenso');
       }
-      const result = await AdsConsent.showForm();
+      await AdsConsent.showForm();
 
       // Aggiorna le informazioni sul consenso
       this.consentInfo = await AdsConsent.requestInfoUpdate();
@@ -127,9 +134,8 @@ class ConsentService {
 
   /**
    * Resetta il consenso (utile per test o se l'utente vuole modificare le preferenze)
-   * @returns {Promise<void>}
    */
-  async resetConsent() {
+  async resetConsent(): Promise<void> {
     try {
       await AdsConsent.reset();
       this.consentInfo = null;
@@ -146,9 +152,8 @@ class ConsentService {
 
   /**
    * Verifica se è possibile richiedere annunci basandosi sullo stato del consenso
-   * @returns {boolean}
    */
-  _canRequestAds() {
+  private _canRequestAds(): boolean {
     if (!this.consentInfo) {
       return true; // Permetti annunci se non ci sono info (fallback sicuro)
     }
@@ -159,17 +164,14 @@ class ConsentService {
     // 1. Il consenso è stato ottenuto (OBTAINED)
     // 2. Il consenso non è richiesto (NOT_REQUIRED)
     return (
-      status === AdsConsentStatus.OBTAINED ||
-      status === AdsConsentStatus.NOT_REQUIRED
+      status === AdsConsentStatus.OBTAINED || status === AdsConsentStatus.NOT_REQUIRED
     );
   }
 
   /**
    * Ottiene il nome leggibile dello stato del consenso
-   * @param {number} status
-   * @returns {string}
    */
-  _getStatusName(status) {
+  private _getStatusName(status: AdsConsentStatus): ConsentStatusName {
     switch (status) {
       case AdsConsentStatus.OBTAINED:
         return 'OBTAINED';
@@ -185,9 +187,8 @@ class ConsentService {
 
   /**
    * Verifica se l'utente ha dato il consenso per annunci personalizzati
-   * @returns {boolean}
    */
-  canShowPersonalizedAds() {
+  canShowPersonalizedAds(): boolean {
     if (!this.consentInfo) {
       return false; // Fallback: annunci non personalizzati
     }
@@ -196,9 +197,8 @@ class ConsentService {
 
   /**
    * Ottiene lo stato corrente del consenso
-   * @returns {Object|null}
    */
-  getConsentInfo() {
+  getConsentInfo(): AdsConsentInfo | null {
     return this.consentInfo;
   }
 }

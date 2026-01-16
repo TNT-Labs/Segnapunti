@@ -10,14 +10,43 @@ import {TestIds} from 'react-native-google-mobile-ads';
  * - Non modificare gli Ad Unit IDs senza verificare su AdMob Console
  */
 
+export type ScreenName =
+  | 'GAME_SCREEN'
+  | 'HISTORY_SCREEN'
+  | 'PRESET_MANAGER_SCREEN'
+  | 'SETTINGS_SCREEN'
+  | 'ABOUT_SCREEN';
+
+export type BannerSize = 'small' | 'medium' | 'large' | 'full';
+
+export interface AdUnits {
+  GAME_SCREEN: string;
+  HISTORY_SCREEN: string;
+  PRESET_MANAGER_SCREEN: string;
+  SETTINGS_SCREEN: string;
+  ABOUT_SCREEN: string;
+}
+
+export interface AdConfig {
+  adUnitId: string;
+  size: BannerSize;
+}
+
+export interface AdConfigValidation {
+  isValid: boolean;
+  issues: string[];
+  mode: 'TEST' | 'PRODUCTION';
+  platform: string;
+}
+
 // Flag per determinare se usare test ads (solo in modalità sviluppo)
-const USE_TEST_ADS = __DEV__;
+const USE_TEST_ADS: boolean = __DEV__;
 
 /**
  * Ad Unit IDs di produzione per Android
  * Account: ca-app-pub-4302173868436591
  */
-const PRODUCTION_AD_UNITS_ANDROID = {
+const PRODUCTION_AD_UNITS_ANDROID: AdUnits = {
   GAME_SCREEN: 'ca-app-pub-4302173868436591/2924694505',
   HISTORY_SCREEN: 'ca-app-pub-4302173868436591/6124127045',
   PRESET_MANAGER_SCREEN: 'ca-app-pub-4302173868436591/1173463289',
@@ -30,7 +59,7 @@ const PRODUCTION_AD_UNITS_ANDROID = {
  * TODO: Sostituire con i veri Ad Unit IDs dopo averli creati su AdMob Console
  * Account iOS: TBD (attualmente usando test ID in app.json)
  */
-const PRODUCTION_AD_UNITS_IOS = {
+const PRODUCTION_AD_UNITS_IOS: AdUnits = {
   GAME_SCREEN: 'ca-app-pub-XXXXXXXXXXXXXXXX/YYYYYYYYYY',
   HISTORY_SCREEN: 'ca-app-pub-XXXXXXXXXXXXXXXX/YYYYYYYYYY',
   PRESET_MANAGER_SCREEN: 'ca-app-pub-XXXXXXXXXXXXXXXX/YYYYYYYYYY',
@@ -41,7 +70,7 @@ const PRODUCTION_AD_UNITS_IOS = {
 /**
  * Test Ad Unit IDs (usati solo in modalità sviluppo)
  */
-const TEST_AD_UNITS = {
+const TEST_AD_UNITS: AdUnits = {
   GAME_SCREEN: TestIds.BANNER,
   HISTORY_SCREEN: TestIds.BANNER,
   PRESET_MANAGER_SCREEN: TestIds.BANNER,
@@ -52,7 +81,7 @@ const TEST_AD_UNITS = {
 /**
  * Seleziona gli Ad Unit IDs appropriati in base alla piattaforma e modalità
  */
-const getAdUnits = () => {
+const getAdUnits = (): AdUnits => {
   if (USE_TEST_ADS) {
     if (__DEV__) {
       console.log('[AdConfig] Usando Test Ads (__DEV__ mode)');
@@ -74,13 +103,13 @@ const getAdUnits = () => {
 };
 
 // Esporta gli Ad Unit IDs attivi
-export const AD_UNITS = getAdUnits();
+export const AD_UNITS: AdUnits = getAdUnits();
 
 /**
  * Configurazione delle dimensioni dei banner per schermata
  * Valori possibili: 'small' (320x50), 'medium' (300x250), 'large' (320x100), 'full' (468x60)
  */
-export const AD_BANNER_SIZES = {
+export const AD_BANNER_SIZES: Record<ScreenName, BannerSize> = {
   GAME_SCREEN: 'small',
   HISTORY_SCREEN: 'medium',
   PRESET_MANAGER_SCREEN: 'small',
@@ -90,10 +119,10 @@ export const AD_BANNER_SIZES = {
 
 /**
  * Utility per ottenere la configurazione completa per un banner
- * @param {string} screenName - Nome della schermata (es. 'GAME_SCREEN')
- * @returns {Object} Oggetto con adUnitId e size
+ * @param screenName - Nome della schermata (es. 'GAME_SCREEN')
+ * @returns Oggetto con adUnitId e size, oppure null se non trovato
  */
-export const getAdConfig = screenName => {
+export const getAdConfig = (screenName: ScreenName): AdConfig | null => {
   if (!AD_UNITS[screenName]) {
     if (__DEV__) {
       console.error(`[AdConfig] Schermata non trovata: ${screenName}`);
@@ -109,10 +138,10 @@ export const getAdConfig = screenName => {
 
 /**
  * Verifica se gli Ad Unit IDs di produzione sono configurati correttamente
- * @returns {Object} Stato della configurazione
+ * @returns Stato della configurazione
  */
-export const validateAdConfig = () => {
-  const issues = [];
+export const validateAdConfig = (): AdConfigValidation => {
+  const issues: string[] = [];
 
   // Verifica iOS in produzione
   if (!USE_TEST_ADS && Platform.OS === 'ios') {

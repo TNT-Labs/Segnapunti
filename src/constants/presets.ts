@@ -1,5 +1,46 @@
+import { PresetCategory } from './colors';
+
+// Base properties common to all presets
+interface BasePreset {
+  id: string;
+  name: string;
+  category: PresetCategory;
+  icon: string;
+  defaultPlayers: number;
+  incrementValues: number[];
+}
+
+// Preset types based on game mode (discriminated union)
+interface MaxModePreset extends BasePreset {
+  mode: 'max';
+  targetScore: number;
+}
+
+interface MinModePreset extends BasePreset {
+  mode: 'min';
+  targetScore: number;
+}
+
+interface RoundsModePreset extends BasePreset {
+  mode: 'rounds';
+  targetRounds: number;
+  roundTargetScore: number;
+}
+
+interface DartsModePreset extends BasePreset {
+  mode: 'darts';
+  targetScore: number;
+}
+
+// Union type for all preset types
+export type GamePreset =
+  | MaxModePreset
+  | MinModePreset
+  | RoundsModePreset
+  | DartsModePreset;
+
 // Default game presets
-export const DEFAULT_PRESETS = [
+export const DEFAULT_PRESETS: GamePreset[] = [
   {
     id: 'scala40',
     name: 'Scala 40',
@@ -106,7 +147,7 @@ export const DEFAULT_PRESETS = [
   },
 ];
 
-export const CATEGORY_LABELS = {
+export const CATEGORY_LABELS: Record<PresetCategory, string> = {
   cards: 'Giochi di Carte 🃏',
   table: 'Giochi da Tavolo 🎲',
   sports: 'Sport ⚽',

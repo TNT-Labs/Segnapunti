@@ -11,18 +11,18 @@ module.exports = {
     '<rootDir>/ios/',
   ],
   collectCoverageFrom: [
-    'src/**/*.{js,jsx}',
-    '!src/**/*.test.{js,jsx}',
+    'src/**/*.{js,jsx,ts,tsx}',
+    '!src/**/*.test.{js,jsx,ts,tsx}',
     '!src/**/__tests__/**',
   ],
   coverageThreshold: {
-    './src/contexts/GameContext.js': {
+    './src/contexts/GameContext.ts': {
       statements: 60,
       branches: 50,
       functions: 60,
       lines: 60,
     },
-    './src/services/StorageService.js': {
+    './src/services/StorageService.ts': {
       statements: 60,
       branches: 50,
       functions: 60,

@@ -1,14 +1,32 @@
-import React, {createContext, useState, useEffect, useContext} from 'react';
+import React, {createContext, useState, useEffect, useContext, ReactNode} from 'react';
 import {useColorScheme} from 'react-native';
-import {COLORS} from '../constants/colors';
+import {COLORS, ThemeColors} from '../constants/colors';
 import StorageService from '../services/StorageService';
 
-const ThemeContext = createContext();
+// Interfaces and Types
 
-export const ThemeProvider = ({children}) => {
+interface Theme {
+  dark: boolean;
+  colors: ThemeColors;
+}
+
+interface ThemeContextValue {
+  theme: Theme;
+  isDark: boolean;
+  toggleDarkMode: () => Promise<void>;
+  isLoading: boolean;
+}
+
+interface ThemeProviderProps {
+  children: ReactNode;
+}
+
+const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
+
+export const ThemeProvider: React.FC<ThemeProviderProps> = ({children}) => {
   const systemColorScheme = useColorScheme();
-  const [isDark, setIsDark] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isDark, setIsDark] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   // Carica dark mode preference al mount
   useEffect(() => {
@@ -31,13 +49,13 @@ export const ThemeProvider = ({children}) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const toggleDarkMode = async () => {
+  const toggleDarkMode = async (): Promise<void> => {
     const newValue = !isDark;
     setIsDark(newValue);
     await StorageService.saveDarkMode(newValue);
   };
 
-  const theme = {
+  const theme: Theme = {
     dark: isDark,
     colors: isDark ? COLORS.dark : COLORS.light,
   };
@@ -49,7 +67,7 @@ export const ThemeProvider = ({children}) => {
   );
 };
 
-export const useTheme = () => {
+export const useTheme = (): ThemeContextValue => {
   const context = useContext(ThemeContext);
   if (!context) {
     throw new Error('useTheme must be used within ThemeProvider');

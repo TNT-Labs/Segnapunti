@@ -1,29 +1,29 @@
 import React, {useState} from 'react';
-import {View, Text, StyleSheet, TouchableOpacity, Modal, FlatList} from 'react-native';
+import {View, Text, StyleSheet, TouchableOpacity, Modal, FlatList, ListRenderItem} from 'react-native';
 import {useTranslation} from 'react-i18next';
 import {useTheme} from '../contexts/ThemeContext';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import i18nService from '../services/i18nService';
+import i18nService, {LanguageOption} from '../services/i18nService';
 
-const LanguageSelector = () => {
+const LanguageSelector: React.FC = () => {
   const {t, i18n} = useTranslation();
   const {theme} = useTheme();
-  const [modalVisible, setModalVisible] = useState(false);
+  const [modalVisible, setModalVisible] = useState<boolean>(false);
 
   const languages = i18nService.getAvailableLanguages();
   const currentLanguage = i18n.language || 'it';
 
-  const getCurrentLanguageName = () => {
+  const getCurrentLanguageName = (): string => {
     const lang = languages.find(l => l.code === currentLanguage);
     return lang ? `${lang.flag} ${lang.name}` : 'Italiano';
   };
 
-  const handleLanguageChange = async languageCode => {
-    await i18nService.changeLanguage(languageCode);
+  const handleLanguageChange = async (languageCode: string): Promise<void> => {
+    await i18nService.changeLanguage(languageCode as any);
     setModalVisible(false);
   };
 
-  const renderLanguageItem = ({item}) => {
+  const renderLanguageItem: ListRenderItem<LanguageOption> = ({item}) => {
     const isSelected = item.code === currentLanguage;
 
     return (

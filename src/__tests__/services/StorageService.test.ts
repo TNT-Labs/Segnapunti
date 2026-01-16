@@ -1,5 +1,6 @@
 import StorageService from '../../services/StorageService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import type {GameState, HistoricalGame, Settings, ExportedData} from '../../services/StorageService';
 
 // Mock AsyncStorage
 jest.mock('@react-native-async-storage/async-storage', () => ({
@@ -21,12 +22,14 @@ describe('StorageService', () => {
 
   describe('saveGameState', () => {
     test('persists game state data', async () => {
-      const gameState = {
+      const gameState: GameState = {
         players: [{id: '1', name: 'Alice', score: 0}],
-        isFinished: false,
+        isActive: true,
+        preset: {} as any,
+        startedAt: new Date().toISOString(),
       };
 
-      AsyncStorage.setItem.mockResolvedValue(null);
+      (AsyncStorage.setItem as jest.Mock).mockResolvedValue(null);
 
       const result = await StorageService.saveGameState(gameState);
 
@@ -38,9 +41,11 @@ describe('StorageService', () => {
     });
 
     test('returns false on error', async () => {
-      AsyncStorage.setItem.mockRejectedValue(new Error('Storage error'));
+      (AsyncStorage.setItem as jest.Mock).mockRejectedValue(
+        new Error('Storage error')
+      );
 
-      const result = await StorageService.saveGameState({});
+      const result = await StorageService.saveGameState({} as any);
 
       expect(result).toBe(false);
     });
@@ -48,12 +53,16 @@ describe('StorageService', () => {
 
   describe('loadGameState', () => {
     test('returns parsed game state when data exists', async () => {
-      const gameState = {
+      const gameState: GameState = {
         players: [{id: '1', name: 'Alice', score: 50}],
-        isFinished: false,
+        isActive: false,
+        preset: {} as any,
+        startedAt: new Date().toISOString(),
       };
 
-      AsyncStorage.getItem.mockResolvedValue(JSON.stringify(gameState));
+      (AsyncStorage.getItem as jest.Mock).mockResolvedValue(
+        JSON.stringify(gameState)
+      );
 
       const result = await StorageService.loadGameState();
 
@@ -62,7 +71,7 @@ describe('StorageService', () => {
     });
 
     test('returns null when no data exists', async () => {
-      AsyncStorage.getItem.mockResolvedValue(null);
+      (AsyncStorage.getItem as jest.Mock).mockResolvedValue(null);
 
       const result = await StorageService.loadGameState();
 
@@ -70,7 +79,7 @@ describe('StorageService', () => {
     });
 
     test('returns null on parse error', async () => {
-      AsyncStorage.getItem.mockResolvedValue('invalid json');
+      (AsyncStorage.getItem as jest.Mock).mockResolvedValue('invalid json');
 
       const result = await StorageService.loadGameState();
 
@@ -80,7 +89,7 @@ describe('StorageService', () => {
 
   describe('clearGameState', () => {
     test('removes game state from storage', async () => {
-      AsyncStorage.removeItem.mockResolvedValue(null);
+      (AsyncStorage.removeItem as jest.Mock).mockResolvedValue(null);
 
       const result = await StorageService.clearGameState();
 
@@ -93,55 +102,79 @@ describe('StorageService', () => {
 
   describe('addGameToHistory', () => {
     test('saves game to history', async () => {
-      const existingHistory = [
-        {id: '1', preset: {name: 'Briscola'}, timestamp: Date.now()},
+      const existingHistory: HistoricalGame[] = [
+        {
+          id: '1',
+          preset: {} as any,
+          players: [],
+          timestamp: new Date().toISOString(),
+          completed: true,
+        },
       ];
 
       const newGame = {
-        preset: {name: 'Scopa'},
+        preset: {} as any,
         players: [],
+        completed: true,
       };
 
-      AsyncStorage.getItem.mockResolvedValue(JSON.stringify(existingHistory));
-      AsyncStorage.setItem.mockResolvedValue(null);
+      (AsyncStorage.getItem as jest.Mock).mockResolvedValue(
+        JSON.stringify(existingHistory)
+      );
+      (AsyncStorage.setItem as jest.Mock).mockResolvedValue(null);
 
-      const result = await StorageService.addGameToHistory(newGame);
+      const result = await StorageService.addGameToHistory(newGame as any);
 
       expect(result).toBe(true);
       expect(AsyncStorage.setItem).toHaveBeenCalled();
 
       // Verify the history was updated
-      const callArgs = AsyncStorage.setItem.mock.calls[0];
-      const savedHistory = JSON.parse(callArgs[1]);
+      const callArgs = (AsyncStorage.setItem as jest.Mock).mock.calls[0];
+      const savedHistory = JSON.parse(callArgs[1]) as HistoricalGame[];
       expect(savedHistory.length).toBeGreaterThanOrEqual(1);
     });
 
     test('creates new history if none exists', async () => {
-      AsyncStorage.getItem.mockResolvedValue(null);
-      AsyncStorage.setItem.mockResolvedValue(null);
+      (AsyncStorage.getItem as jest.Mock).mockResolvedValue(null);
+      (AsyncStorage.setItem as jest.Mock).mockResolvedValue(null);
 
       const newGame = {
-        preset: {name: 'Scopa'},
+        preset: {} as any,
         players: [],
+        completed: true,
       };
 
-      const result = await StorageService.addGameToHistory(newGame);
+      const result = await StorageService.addGameToHistory(newGame as any);
 
       expect(result).toBe(true);
-      const callArgs = AsyncStorage.setItem.mock.calls[0];
-      const savedHistory = JSON.parse(callArgs[1]);
+      const callArgs = (AsyncStorage.setItem as jest.Mock).mock.calls[0];
+      const savedHistory = JSON.parse(callArgs[1]) as HistoricalGame[];
       expect(savedHistory).toHaveLength(1);
     });
   });
 
   describe('loadGameHistory', () => {
     test('returns parsed game history', async () => {
-      const history = [
-        {id: '1', preset: {name: 'Briscola'}, timestamp: Date.now()},
-        {id: '2', preset: {name: 'Scopa'}, timestamp: Date.now()},
+      const history: HistoricalGame[] = [
+        {
+          id: '1',
+          preset: {} as any,
+          players: [],
+          timestamp: new Date().toISOString(),
+          completed: true,
+        },
+        {
+          id: '2',
+          preset: {} as any,
+          players: [],
+          timestamp: new Date().toISOString(),
+          completed: true,
+        },
       ];
 
-      AsyncStorage.getItem.mockResolvedValue(JSON.stringify(history));
+      (AsyncStorage.getItem as jest.Mock).mockResolvedValue(
+        JSON.stringify(history)
+      );
 
       const result = await StorageService.loadGameHistory();
 
@@ -149,7 +182,7 @@ describe('StorageService', () => {
     });
 
     test('returns empty array when no history exists', async () => {
-      AsyncStorage.getItem.mockResolvedValue(null);
+      (AsyncStorage.getItem as jest.Mock).mockResolvedValue(null);
 
       const result = await StorageService.loadGameHistory();
 
@@ -159,20 +192,40 @@ describe('StorageService', () => {
 
   describe('removeGameFromHistory', () => {
     test('removes specific game from history', async () => {
-      const history = [
-        {id: '1', preset: {name: 'Briscola'}, timestamp: Date.now()},
-        {id: '2', preset: {name: 'Scopa'}, timestamp: Date.now()},
-        {id: '3', preset: {name: 'Tressette'}, timestamp: Date.now()},
+      const history: HistoricalGame[] = [
+        {
+          id: '1',
+          preset: {} as any,
+          players: [],
+          timestamp: new Date().toISOString(),
+          completed: true,
+        },
+        {
+          id: '2',
+          preset: {} as any,
+          players: [],
+          timestamp: new Date().toISOString(),
+          completed: true,
+        },
+        {
+          id: '3',
+          preset: {} as any,
+          players: [],
+          timestamp: new Date().toISOString(),
+          completed: true,
+        },
       ];
 
-      AsyncStorage.getItem.mockResolvedValue(JSON.stringify(history));
-      AsyncStorage.setItem.mockResolvedValue(null);
+      (AsyncStorage.getItem as jest.Mock).mockResolvedValue(
+        JSON.stringify(history)
+      );
+      (AsyncStorage.setItem as jest.Mock).mockResolvedValue(null);
 
       const result = await StorageService.removeGameFromHistory('2');
 
       expect(result).toBe(true);
-      const callArgs = AsyncStorage.setItem.mock.calls[0];
-      const updatedHistory = JSON.parse(callArgs[1]);
+      const callArgs = (AsyncStorage.setItem as jest.Mock).mock.calls[0];
+      const updatedHistory = JSON.parse(callArgs[1]) as HistoricalGame[];
       expect(updatedHistory).toHaveLength(2);
       expect(updatedHistory.find(g => g.id === '2')).toBeUndefined();
     });
@@ -180,7 +233,7 @@ describe('StorageService', () => {
 
   describe('clearGameHistory', () => {
     test('removes all game history', async () => {
-      AsyncStorage.setItem.mockResolvedValue(null);
+      (AsyncStorage.setItem as jest.Mock).mockResolvedValue(null);
 
       const result = await StorageService.clearGameHistory();
 
@@ -194,12 +247,25 @@ describe('StorageService', () => {
 
   describe('exportAllData', () => {
     test('exports all data with correct structure', async () => {
-      const gameState = {players: [], isFinished: false};
-      const gameHistory = [{id: '1', preset: {name: 'Briscola'}}];
-      const presets = [{id: 'custom1', name: 'My Game'}];
-      const settings = {darkMode: true};
+      const gameState: GameState = {
+        players: [],
+        isActive: false,
+        preset: {} as any,
+        startedAt: new Date().toISOString(),
+      };
+      const gameHistory: HistoricalGame[] = [
+        {
+          id: '1',
+          preset: {} as any,
+          players: [],
+          timestamp: new Date().toISOString(),
+          completed: true,
+        },
+      ];
+      const presets = [{id: 'custom1', name: 'My Game'} as any];
+      const settings: Settings = {darkMode: true, language: 'it', soundEnabled: true, vibrationEnabled: true};
 
-      AsyncStorage.getItem
+      (AsyncStorage.getItem as jest.Mock)
         .mockResolvedValueOnce(JSON.stringify(gameState))
         .mockResolvedValueOnce(JSON.stringify(gameHistory))
         .mockResolvedValueOnce(JSON.stringify(presets))
@@ -213,19 +279,19 @@ describe('StorageService', () => {
       expect(result).toHaveProperty('settings');
       expect(result).toHaveProperty('exportedAt');
       expect(result).toHaveProperty('version');
-      expect(result.version).toBe('1.0.0');
-      expect(result.gameState).toEqual(gameState);
+      expect(result?.version).toBe('1.0.0');
+      expect(result?.gameState).toEqual(gameState);
     });
 
     test('handles missing data gracefully', async () => {
-      AsyncStorage.getItem.mockResolvedValue(null);
+      (AsyncStorage.getItem as jest.Mock).mockResolvedValue(null);
 
       const result = await StorageService.exportAllData();
 
-      expect(result.gameState).toBeNull();
-      expect(result.gameHistory).toEqual([]);
-      expect(result.presets).toEqual([]);
-      expect(result.settings).toEqual({
+      expect(result?.gameState).toBeNull();
+      expect(result?.gameHistory).toEqual([]);
+      expect(result?.presets).toEqual([]);
+      expect(result?.settings).toEqual({
         darkMode: false,
         language: 'it',
         soundEnabled: true,
@@ -236,27 +302,32 @@ describe('StorageService', () => {
 
   describe('importAllData', () => {
     test('imports all data correctly', async () => {
-      const importData = {
-        gameState: {players: [], isFinished: false},
-        gameHistory: [{id: '1'}],
-        presets: [{id: 'custom1'}],
-        settings: {darkMode: true},
+      const importData: Partial<ExportedData> = {
+        gameState: {
+          players: [],
+          isActive: false,
+          preset: {} as any,
+          startedAt: new Date().toISOString(),
+        },
+        gameHistory: [{id: '1'} as any],
+        presets: [{id: 'custom1'} as any],
+        settings: {darkMode: true, language: 'it', soundEnabled: true, vibrationEnabled: true},
       };
 
-      AsyncStorage.setItem.mockResolvedValue(null);
+      (AsyncStorage.setItem as jest.Mock).mockResolvedValue(null);
 
       const result = await StorageService.importAllData(importData);
 
-      expect(result).toBe(true);
+      expect(result.success).toBe(true);
       expect(AsyncStorage.setItem).toHaveBeenCalledTimes(4);
     });
   });
 
   describe('Custom Presets', () => {
     test('saves custom presets', async () => {
-      const presets = [{id: 'custom1', name: 'My Game'}];
+      const presets = [{id: 'custom1', name: 'My Game'} as any];
 
-      AsyncStorage.setItem.mockResolvedValue(null);
+      (AsyncStorage.setItem as jest.Mock).mockResolvedValue(null);
 
       const result = await StorageService.savePresets(presets);
 
@@ -268,9 +339,11 @@ describe('StorageService', () => {
     });
 
     test('loads custom presets', async () => {
-      const presets = [{id: 'custom1', name: 'My Game'}];
+      const presets = [{id: 'custom1', name: 'My Game'} as any];
 
-      AsyncStorage.getItem.mockResolvedValue(JSON.stringify(presets));
+      (AsyncStorage.getItem as jest.Mock).mockResolvedValue(
+        JSON.stringify(presets)
+      );
 
       const result = await StorageService.loadPresets();
 
@@ -278,7 +351,7 @@ describe('StorageService', () => {
     });
 
     test('returns empty array when no presets exist', async () => {
-      AsyncStorage.getItem.mockResolvedValue(null);
+      (AsyncStorage.getItem as jest.Mock).mockResolvedValue(null);
 
       const result = await StorageService.loadPresets();
 
@@ -288,9 +361,14 @@ describe('StorageService', () => {
 
   describe('Settings', () => {
     test('saves settings', async () => {
-      const settings = {darkMode: true};
+      const settings: Settings = {
+        darkMode: true,
+        language: 'it',
+        soundEnabled: true,
+        vibrationEnabled: true,
+      };
 
-      AsyncStorage.setItem.mockResolvedValue(null);
+      (AsyncStorage.setItem as jest.Mock).mockResolvedValue(null);
 
       const result = await StorageService.saveSettings(settings);
 
@@ -302,9 +380,16 @@ describe('StorageService', () => {
     });
 
     test('loads settings', async () => {
-      const settings = {darkMode: true};
+      const settings: Settings = {
+        darkMode: true,
+        language: 'it',
+        soundEnabled: true,
+        vibrationEnabled: true,
+      };
 
-      AsyncStorage.getItem.mockResolvedValue(JSON.stringify(settings));
+      (AsyncStorage.getItem as jest.Mock).mockResolvedValue(
+        JSON.stringify(settings)
+      );
 
       const result = await StorageService.loadSettings();
 
@@ -312,7 +397,7 @@ describe('StorageService', () => {
     });
 
     test('returns default settings when none exist', async () => {
-      AsyncStorage.getItem.mockResolvedValue(null);
+      (AsyncStorage.getItem as jest.Mock).mockResolvedValue(null);
 
       const result = await StorageService.loadSettings();
 

@@ -12,9 +12,19 @@ import fr from '../locales/fr.json';
 import ar from '../locales/ar.json';
 import zh from '../locales/zh.json';
 
+export type SupportedLanguage = 'it' | 'en' | 'de' | 'es' | 'fr' | 'ar' | 'zh';
+
+export interface LanguageOption {
+  code: SupportedLanguage;
+  name: string;
+  flag: string;
+}
+
+const SUPPORTED_LANGUAGES: SupportedLanguage[] = ['it', 'en', 'de', 'es', 'fr', 'ar', 'zh'];
+
 // Get device language
-const getDeviceLanguage = () => {
-  let deviceLanguage = 'it'; // Default to Italian
+const getDeviceLanguage = (): SupportedLanguage => {
+  let deviceLanguage: string = 'it'; // Default to Italian
 
   try {
     if (Platform.OS === 'ios') {
@@ -30,8 +40,7 @@ const getDeviceLanguage = () => {
     deviceLanguage = deviceLanguage.split('_')[0].toLowerCase();
 
     // Check if language is supported
-    const supportedLanguages = ['it', 'en', 'de', 'es', 'fr', 'ar', 'zh'];
-    if (!supportedLanguages.includes(deviceLanguage)) {
+    if (!SUPPORTED_LANGUAGES.includes(deviceLanguage as SupportedLanguage)) {
       deviceLanguage = 'it'; // Fallback to Italian
     }
   } catch (error) {
@@ -41,14 +50,14 @@ const getDeviceLanguage = () => {
     deviceLanguage = 'it';
   }
 
-  return deviceLanguage;
+  return deviceLanguage as SupportedLanguage;
 };
 
 // Initialize i18next
-const initializeI18n = async () => {
+const initializeI18n = async (): Promise<boolean> => {
   try {
     // Try to load saved language preference
-    const savedLanguage = await StorageService.getItem(
+    const savedLanguage = await StorageService.getItem<SupportedLanguage>(
       '@segnapunti:language',
       null,
     );
@@ -90,7 +99,7 @@ const initializeI18n = async () => {
 };
 
 // Change language
-const changeLanguage = async lng => {
+const changeLanguage = async (lng: SupportedLanguage): Promise<boolean> => {
   try {
     await i18n.changeLanguage(lng);
     await StorageService.setItem('@segnapunti:language', lng);
@@ -109,12 +118,12 @@ const changeLanguage = async lng => {
 };
 
 // Get current language
-const getCurrentLanguage = () => {
-  return i18n.language || 'it';
+const getCurrentLanguage = (): SupportedLanguage => {
+  return (i18n.language || 'it') as SupportedLanguage;
 };
 
 // Get available languages
-const getAvailableLanguages = () => {
+const getAvailableLanguages = (): LanguageOption[] => {
   return [
     {code: 'it', name: 'Italiano', flag: '🇮🇹'},
     {code: 'en', name: 'English', flag: '🇬🇧'},

@@ -1,5 +1,27 @@
 // Theme colors for Segnapunti app
-export const COLORS = {
+
+export interface ThemeColors {
+  primary: string;
+  primaryDark: string;
+  primaryLight: string;
+  secondary: string;
+  background: string;
+  card: string;
+  text: string;
+  textSecondary: string;
+  border: string;
+  error: string;
+  success: string;
+  warning: string;
+  info: string;
+}
+
+export interface AppColors {
+  light: ThemeColors;
+  dark: ThemeColors;
+}
+
+export const COLORS: AppColors = {
   // Light theme
   light: {
     primary: '#4A148C',
@@ -34,16 +56,24 @@ export const COLORS = {
   },
 };
 
+export type GameMode = 'max' | 'min' | 'rounds' | 'darts';
+
+export type GameModeColors = Record<GameMode, string>;
+
 // Game mode colors
-export const GAME_MODE_COLORS = {
+export const GAME_MODE_COLORS: GameModeColors = {
   max: '#4CAF50',
   min: '#F44336',
   rounds: '#2196F3',
   darts: '#FF9800',
 };
 
+export type PresetCategory = 'cards' | 'table' | 'sports' | 'other';
+
+export type CategoryColors = Record<PresetCategory, string>;
+
 // Preset category colors
-export const CATEGORY_COLORS = {
+export const CATEGORY_COLORS: CategoryColors = {
   cards: '#E91E63',
   table: '#9C27B0',
   sports: '#3F51B5',
