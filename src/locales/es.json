@@ -1,0 +1,45 @@
+{
+  "common": {
+    "ok": "OK",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "close": "Cerrar",
+    "yes": "Sí",
+    "no": "No",
+    "error": "Error",
+    "success": "Éxito",
+    "loading": "Cargando..."
+  },
+  "settings": {
+    "title": "⚙️ Configuración",
+    "darkMode": "🌙 Modo Oscuro",
+    "language": "🌍 Idioma",
+    "newGame": "🎮 Nueva Partida",
+    "players": "👥 Jugadores",
+    "startGame": "🚀 Iniciar Partida"
+  },
+  "game": {
+    "title": "🎮 Partida",
+    "currentScores": "Puntuaciones Actuales",
+    "winner": "🏆 ¡Ganador!"
+  },
+  "history": {
+    "title": "📜 Historial"
+  },
+  "presets": {
+    "title": "🎲 Gestor de Presets"
+  },
+  "about": {
+    "title": "🃏 Contador de Puntos",
+    "footer": "Hecho con ❤️ por TNT Labs"
+  },
+  "languages": {
+    "it": "Italiano",
+    "en": "Inglés",
+    "de": "Alemán",
+    "es": "Español",
+    "fr": "Francés"
+  }
+}
