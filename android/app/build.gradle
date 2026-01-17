@@ -35,10 +35,12 @@ android {
 
         buildConfigField("boolean", "IS_NEW_ARCHITECTURE_ENABLED", "false")
 
-        // Commenta abiFilters per creare un APK universale con tutte le architetture
-        // ndk {
-        //     abiFilters "armeabi-v7a", "arm64-v8a", "x86", "x86_64"
-        // }
+        // NON specificare abiFilters per includere TUTTE le architetture
+        // Questo assicura che tutte le librerie native (incluso Hermes) siano incluse
+        ndk {
+            // abiFilters commentato intenzionalmente per APK universale
+            // abiFilters "armeabi-v7a", "arm64-v8a", "x86", "x86_64"
+        }
     }
 
     signingConfigs {
@@ -58,15 +60,13 @@ android {
         }
     }
 
-    // Configurazione splits per generare APK universale + splits per architettura
-    splits {
-        abi {
-            reset()
-            enable true
-            universalApk true  // Genera anche un APK universale con tutte le architetture
-            include "armeabi-v7a", "arm64-v8a", "x86", "x86_64"
-        }
-    }
+    // SPLITS COMPLETAMENTE DISABILITATI - APK universale unico
+    // splits {
+    //     abi {
+    //         reset()
+    //         enable false
+    //     }
+    // }
 
     buildTypes {
         debug {
@@ -74,10 +74,10 @@ android {
         }
         release {
             signingConfig signingConfigs.release
-            minifyEnabled enableProguardInReleaseBuilds
-            shrinkResources true
+            minifyEnabled false  // TEMPORANEAMENTE DISABILITATO per debug librerie native
+            shrinkResources false  // TEMPORANEAMENTE DISABILITATO per debug librerie native
             crunchPngs false  // Disabilita PNG crunching per evitare errori AAPT2 su Windows
-            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
+            // proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
         }
     }
 
