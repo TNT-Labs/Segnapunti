@@ -6,13 +6,20 @@ apply plugin: "com.google.gms.google-services"
 def projectRoot = rootDir.getAbsoluteFile().getParentFile().getAbsolutePath()
 
 react {
+    /* Directories */
     root = file(projectRoot)
     reactNativeDir = file("$projectRoot/node_modules/react-native")
     codegenDir = file("$projectRoot/node_modules/@react-native/codegen")
     cliFile = file("$projectRoot/node_modules/react-native/cli.js")
 
-    /* Abilita Hermes (raccomandato per React Native 0.76+) */
+    /* Hermes Engine - OBBLIGATORIO per React Native 0.76+ */
     hermesEnabled = true
+
+    /* Flags per il bundler */
+    bundleCommand = "bundle"
+
+    /* Evita problemi con variant produttivi */
+    debuggableVariants = ["debug"]
 }
 
 def enableProguardInReleaseBuilds = true
@@ -35,12 +42,8 @@ android {
 
         buildConfigField("boolean", "IS_NEW_ARCHITECTURE_ENABLED", "false")
 
-        // NON specificare abiFilters per includere TUTTE le architetture
-        // Questo assicura che tutte le librerie native (incluso Hermes) siano incluse
-        ndk {
-            // abiFilters commentato intenzionalmente per APK universale
-            // abiFilters "armeabi-v7a", "arm64-v8a", "x86", "x86_64"
-        }
+        // Configurazione NDK rimossa completamente per consentire
+        // l'inclusione automatica di tutte le architetture da gradle.properties
     }
 
     signingConfigs {
