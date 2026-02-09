@@ -103,14 +103,20 @@ android {
 }
 
 dependencies {
-    // React Native core - include automaticamente Hermes quando abilitato in react {}
+    // React Native core
     implementation("com.facebook.react:react-android")
 
     // Hermes Engine - SEMPRE incluso esplicitamente per React Native 0.76+
-    // Il plugin com.facebook.react gestisce la configurazione, ma l'implementazione
-    // deve essere dichiarata esplicitamente per garantire il linking corretto
+    // (non usare condizionale hermesEnabled.toBoolean() - causa errore di scope)
     implementation("com.facebook.react:hermes-android")
 
-    // Le dipendenze native sono gestite automaticamente dall'autolinking di React Native 0.76+
-    // Non è necessario dichiararle manualmente - il settings.gradle le include via autolinkLibrariesFromCommand()
+    // Moduli React Native - NECESSARI per il classpath Java
+    // L'autolinking in settings.gradle include i progetti, ma devono essere
+    // dichiarati qui come dependencies per essere compilati nel classpath dell'app
+    implementation project(':react-native-async-storage_async-storage')
+    implementation project(':react-native-gesture-handler')
+    implementation project(':react-native-google-mobile-ads')
+    implementation project(':react-native-safe-area-context')
+    implementation project(':react-native-screens')
+    implementation project(':react-native-vector-icons')
 }
