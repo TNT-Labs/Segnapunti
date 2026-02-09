@@ -218,11 +218,13 @@ function Invoke-GradleBuild {
     $androidPath = Join-Path $PSScriptRoot "android"
     Push-Location $androidPath
 
+    $buildResult = $false
+
     try {
         # Clean se richiesto
         if ($DoClean) {
             Write-Step "GRADLE" "Pulizia build precedente..."
-            & .\gradlew.bat clean
+            & .\gradlew.bat clean 2>&1 | ForEach-Object { Write-Host $_ }
             if ($LASTEXITCODE -ne 0) {
                 Write-Warning "Clean fallito, continuo comunque..."
             }
@@ -234,13 +236,15 @@ function Invoke-GradleBuild {
         Write-Host "Questo potrebbe richiedere alcuni minuti..." -ForegroundColor $WarningColor
         Write-Host ""
 
-        & .\gradlew.bat $Task --warning-mode all
+        & .\gradlew.bat $Task --warning-mode all 2>&1 | ForEach-Object { Write-Host $_ }
 
-        return $LASTEXITCODE -eq 0
+        $buildResult = ($LASTEXITCODE -eq 0)
     }
     finally {
         Pop-Location
     }
+
+    return $buildResult
 }
 
 function Get-OutputPath {
