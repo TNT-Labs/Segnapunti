@@ -41,6 +41,7 @@ android {
         versionName "1.0.7"  // Fix: Disable PNG crunching to avoid AAPT2 errors on Windows
 
         buildConfigField("boolean", "IS_NEW_ARCHITECTURE_ENABLED", "false")
+        buildConfigField("boolean", "IS_HERMES_ENABLED", "true")
 
         // Configurazione NDK rimossa completamente per consentire
         // l'inclusione automatica di tutte le architetture da gradle.properties
@@ -87,6 +88,7 @@ android {
     /* AGGIUNTA: Supporto Prefab per il linking delle librerie native */
     buildFeatures {
         prefab true
+        buildConfig true  // Necessario per generare BuildConfig.java con i campi custom
     }
 
     packagingOptions {
@@ -94,10 +96,18 @@ android {
         pickFirst 'lib/x86_64/libc++_shared.so'
         pickFirst 'lib/armeabi-v7a/libc++_shared.so'
         pickFirst 'lib/arm64-v8a/libc++_shared.so'
-        
-        // Assicura che le librerie non vengano compresse (fondamentale per alcuni dispositivi)
+
+        // Include tutte le librerie Hermes
+        pickFirst 'lib/x86/libhermes.so'
+        pickFirst 'lib/x86_64/libhermes.so'
+        pickFirst 'lib/armeabi-v7a/libhermes.so'
+        pickFirst 'lib/arm64-v8a/libhermes.so'
+
+        // Assicura che le librerie non vengano escluse
         jniLibs {
             useLegacyPackaging = true
+            // Non comprimere le librerie native - necessario per il caricamento dinamico
+            keepDebugSymbols += ['**/*.so']
         }
     }
 }
