@@ -40,8 +40,9 @@ android {
         versionCode 11  // Disabilita PNG crunching per fix AAPT2 su Windows
         versionName "1.0.7"  // Fix: Disable PNG crunching to avoid AAPT2 errors on Windows
 
-        buildConfigField("boolean", "IS_NEW_ARCHITECTURE_ENABLED", "false")
-        buildConfigField("boolean", "IS_HERMES_ENABLED", "true")
+        // Legge il valore da gradle.properties
+        buildConfigField("boolean", "IS_NEW_ARCHITECTURE_ENABLED", project.hasProperty("newArchEnabled") ? project.property("newArchEnabled") : "false")
+        buildConfigField("boolean", "IS_HERMES_ENABLED", project.hasProperty("hermesEnabled") ? project.property("hermesEnabled") : "true")
 
         // Configurazione NDK rimossa completamente per consentire
         // l'inclusione automatica di tutte le architetture da gradle.properties
@@ -112,12 +113,11 @@ android {
 }
 
 dependencies {
-    // React Native core
+    // React Native core - con New Architecture abilitata, gestisce Hermes automaticamente
     implementation("com.facebook.react:react-android")
 
-    // Hermes Engine - NECESSARIO per includere le librerie native .so
-    // In RN 0.76+, hermes-android fornisce libhermes.so che è richiesto da HermesExecutor
-    implementation("com.facebook.react:hermes-android")
+    // NON aggiungere hermes-android - causa conflitto con HermesExecutor legacy
+    // Con newArchEnabled=true, Hermes viene caricato tramite libreactnative.so
 
     // Moduli React Native - NECESSARI per il classpath Java
     implementation project(':react-native-async-storage_async-storage')
