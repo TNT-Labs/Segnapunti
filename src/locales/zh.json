@@ -12,6 +12,13 @@
     "success": "成功",
     "loading": "加载中..."
   },
+  "nav": {
+    "game": "游戏",
+    "newGame": "新建",
+    "history": "历史",
+    "presets": "预设",
+    "about": "关于"
+  },
   "settings": {
     "title": "⚙️ 设置",
     "darkMode": "🌙 深色模式",
@@ -45,7 +52,8 @@
     "gameInProgressMessage": "已经有一局游戏正在进行。您想放弃它并开始新游戏吗？",
     "newGameAction": "新游戏",
     "gameStarted": "游戏已开始！",
-    "gameStartedMessage": "祝您玩得开心！🎉"
+    "gameStartedMessage": "祝您玩得开心！🎉",
+    "appSettings": "应用设置"
   },
   "game": {
     "title": "🎮 游戏",
@@ -84,7 +92,24 @@
     "roundsInfo": "{{rounds}}回合 - 目标：{{target}}",
     "targetInfo": "目标：{{target}}",
     "roundsDescription": "{{rounds}}回合，目标分数{{target}}",
-    "targetDescription": "目标分数{{target}}"
+    "targetDescription": "目标分数{{target}}",
+    "loadError": "无法加载已保存的数据。数据可能已损坏。",
+    "bust": "爆了！",
+    "bustMessage": "{{playerName}}低于零分！分数保持在{{score}}。",
+    "undo": "撤销",
+    "undoHint": "撤销上次分数变更",
+    "currentRound": "第{{round}}回合",
+    "roundCompleted": "第{{round}}回合完成！",
+    "roundWinner": "{{playerName}}以{{score}}分赢得本回合！\n\n赢得的回合：\n{{standings}}",
+    "continueButton": "继续",
+    "roundLimitReached": "回合上限已达！",
+    "roundLimitWinner": "游戏已达到最大{{maxRounds}}回合。\n\n{{playerName}}以{{roundsWon}}回合获胜！",
+    "roundLimitDraw": "游戏已达到最大{{maxRounds}}回合。\n\n平局：\n{{players}}",
+    "roundsWonShort": "回合",
+    "draw": "平局！",
+    "drawMessage": "多名玩家拥有最低分（{{score}}）。继续比赛！\n\n{{players}}",
+    "alreadySaved": "已保存",
+    "alreadySavedMessage": "此游戏已保存到历史记录！"
   },
   "scoreModal": {
     "title": "添加分数",
@@ -103,7 +128,10 @@
       "invalidScore": "请输入有效的分数。",
       "invalidRange": "分数必须在{{min}}和{{max}}之间。"
     },
-    "invalidScoreTitle": "无效分数"
+    "invalidScoreTitle": "无效分数",
+    "quickAdd": "快速添加",
+    "quickSubtract": "快速减去",
+    "subtractPoints": "减去{{points}}分"
   },
   "history": {
     "title": "📜 历史记录",

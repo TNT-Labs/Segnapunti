@@ -12,6 +12,13 @@
     "success": "Successo",
     "loading": "Caricamento..."
   },
+  "nav": {
+    "game": "Partita",
+    "newGame": "Nuova",
+    "history": "Storico",
+    "presets": "Preset",
+    "about": "Info"
+  },
   "settings": {
     "title": "⚙️ Impostazioni",
     "darkMode": "🌙 Dark Mode",
@@ -45,7 +52,8 @@
     "gameInProgressMessage": "C'è già una partita in corso. Vuoi abbandonarla e iniziarne una nuova?",
     "newGameAction": "Nuova Partita",
     "gameStarted": "Partita Iniziata!",
-    "gameStartedMessage": "Buon divertimento! 🎉"
+    "gameStartedMessage": "Buon divertimento! 🎉",
+    "appSettings": "Impostazioni App"
   },
   "game": {
     "title": "🎮 Partita",
@@ -84,7 +92,24 @@
     "roundsInfo": "{{rounds}} rounds - Target: {{target}}",
     "targetInfo": "Target: {{target}}",
     "roundsDescription": "{{rounds}} rounds, punteggio target {{target}}",
-    "targetDescription": "Punteggio target {{target}}"
+    "targetDescription": "Punteggio target {{target}}",
+    "loadError": "Impossibile caricare i dati salvati. I dati potrebbero essere corrotti.",
+    "bust": "BUST!",
+    "bustMessage": "{{playerName}} e' andato sotto zero! Il punteggio rimane {{score}}.",
+    "undo": "Annulla",
+    "undoHint": "Annulla l'ultima modifica al punteggio",
+    "currentRound": "Round {{round}}",
+    "roundCompleted": "Round {{round}} Completato!",
+    "roundWinner": "{{playerName}} ha vinto il round con {{score}} punti!\n\nRounds vinti:\n{{standings}}",
+    "continueButton": "Continua",
+    "roundLimitReached": "Limite Round Raggiunto!",
+    "roundLimitWinner": "La partita ha raggiunto il limite massimo di {{maxRounds}} round.\n\n{{playerName}} vince con {{roundsWon}} round vinti!",
+    "roundLimitDraw": "La partita ha raggiunto il limite massimo di {{maxRounds}} round.\n\nPareggio tra:\n{{players}}",
+    "roundsWonShort": "round",
+    "draw": "Pareggio!",
+    "drawMessage": "Piu' giocatori hanno il punteggio piu' basso ({{score}}). Continuate a giocare!\n\n{{players}}",
+    "alreadySaved": "Gia' Salvata",
+    "alreadySavedMessage": "Questa partita e' gia' stata salvata nello storico!"
   },
   "scoreModal": {
     "title": "Aggiungi Punti",
@@ -103,7 +128,10 @@
       "invalidScore": "Inserisci un punteggio valido.",
       "invalidRange": "Il punteggio deve essere compreso tra {{min}} e {{max}}."
     },
-    "invalidScoreTitle": "Punteggio Non Valido"
+    "invalidScoreTitle": "Punteggio Non Valido",
+    "quickAdd": "Aggiungi rapido",
+    "quickSubtract": "Sottrai rapido",
+    "subtractPoints": "Sottrai {{points}} punti"
   },
   "history": {
     "title": "📜 Storico",

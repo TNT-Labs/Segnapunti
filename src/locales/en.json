@@ -12,6 +12,13 @@
     "success": "Success",
     "loading": "Loading..."
   },
+  "nav": {
+    "game": "Game",
+    "newGame": "New",
+    "history": "History",
+    "presets": "Presets",
+    "about": "About"
+  },
   "settings": {
     "title": "⚙️ Settings",
     "darkMode": "🌙 Dark Mode",
@@ -45,7 +52,8 @@
     "gameInProgressMessage": "There's already a game in progress. Do you want to abandon it and start a new one?",
     "newGameAction": "New Game",
     "gameStarted": "Game Started!",
-    "gameStartedMessage": "Have fun! 🎉"
+    "gameStartedMessage": "Have fun! 🎉",
+    "appSettings": "App Settings"
   },
   "game": {
     "title": "🎮 Game",
@@ -84,7 +92,24 @@
     "roundsInfo": "{{rounds}} rounds - Target: {{target}}",
     "targetInfo": "Target: {{target}}",
     "roundsDescription": "{{rounds}} rounds, target score {{target}}",
-    "targetDescription": "Target score {{target}}"
+    "targetDescription": "Target score {{target}}",
+    "loadError": "Unable to load saved data. Data might be corrupted.",
+    "bust": "BUST!",
+    "bustMessage": "{{playerName}} went below zero! Score stays at {{score}}.",
+    "undo": "Undo",
+    "undoHint": "Undo the last score change",
+    "currentRound": "Round {{round}}",
+    "roundCompleted": "Round {{round}} Complete!",
+    "roundWinner": "{{playerName}} won the round with {{score}} points!\n\nRounds won:\n{{standings}}",
+    "continueButton": "Continue",
+    "roundLimitReached": "Round Limit Reached!",
+    "roundLimitWinner": "The game reached the maximum of {{maxRounds}} rounds.\n\n{{playerName}} wins with {{roundsWon}} rounds won!",
+    "roundLimitDraw": "The game reached the maximum of {{maxRounds}} rounds.\n\nDraw between:\n{{players}}",
+    "roundsWonShort": "rounds",
+    "draw": "Draw!",
+    "drawMessage": "Multiple players have the lowest score ({{score}}). Keep playing!\n\n{{players}}",
+    "alreadySaved": "Already Saved",
+    "alreadySavedMessage": "This game has already been saved to history!"
   },
   "scoreModal": {
     "title": "Add Points",
@@ -103,7 +128,10 @@
       "invalidScore": "Enter a valid score.",
       "invalidRange": "Score must be between {{min}} and {{max}}."
     },
-    "invalidScoreTitle": "Invalid Score"
+    "invalidScoreTitle": "Invalid Score",
+    "quickAdd": "Quick add",
+    "quickSubtract": "Quick subtract",
+    "subtractPoints": "Subtract {{points}} points"
   },
   "history": {
     "title": "📜 History",

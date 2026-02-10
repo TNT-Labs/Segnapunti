@@ -87,8 +87,7 @@ const ScoreModal: React.FC<ScoreModalProps> = ({
             {t('scoreModal.title')}
           </Text>
           <Text
-            style={[styles.subtitle, {color: theme.colors.textSecondary}]}
-            accessibilityRole="text">
+            style={[styles.subtitle, {color: theme.colors.textSecondary}]}>
             {t('scoreModal.playerName', {name: playerName})}
           </Text>
 
@@ -112,24 +111,42 @@ const ScoreModal: React.FC<ScoreModalProps> = ({
             autoFocus
           />
 
-          {incrementValues && (
-            <View style={styles.quickButtons}>
-              {incrementValues.map(value => (
-                <TouchableOpacity
-                  key={value}
-                  accessible={true}
-                  accessibilityLabel={t('scoreModal.addPoints', {points: value})}
-                  accessibilityHint={t('scoreModal.addPointsHint', {points: value})}
-                  accessibilityRole="button"
-                  style={[
-                    styles.quickButton,
-                    {backgroundColor: theme.colors.primary},
-                  ]}
-                  onPress={() => handleQuickScore(value)}>
-                  <Text style={styles.quickButtonText}>+{value}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
+          {incrementValues && incrementValues.length > 0 && (
+            <>
+              <Text style={[styles.sectionLabel, {color: theme.colors.textSecondary}]}>
+                {t('scoreModal.quickAdd')}
+              </Text>
+              <View style={styles.quickButtons}>
+                {incrementValues.map(value => (
+                  <TouchableOpacity
+                    key={`add-${value}`}
+                    accessible={true}
+                    accessibilityLabel={t('scoreModal.addPoints', {points: value})}
+                    accessibilityRole="button"
+                    style={[styles.quickButton, {backgroundColor: theme.colors.success}]}
+                    onPress={() => handleQuickScore(value)}>
+                    <Text style={styles.quickButtonText}>+{value}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              <Text style={[styles.sectionLabel, {color: theme.colors.textSecondary}]}>
+                {t('scoreModal.quickSubtract')}
+              </Text>
+              <View style={styles.quickButtons}>
+                {incrementValues.map(value => (
+                  <TouchableOpacity
+                    key={`sub-${value}`}
+                    accessible={true}
+                    accessibilityLabel={t('scoreModal.subtractPoints', {points: value})}
+                    accessibilityRole="button"
+                    style={[styles.quickButton, {backgroundColor: theme.colors.error}]}
+                    onPress={() => handleQuickScore(-value)}>
+                    <Text style={styles.quickButtonText}>-{value}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </>
           )}
 
           <View style={styles.actions}>
@@ -177,21 +194,23 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   title: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: 'bold',
-    marginBottom: 8,
+    marginBottom: 4,
     textAlign: 'center',
   },
   subtitle: {
     fontSize: 16,
-    marginBottom: 20,
+    marginBottom: 16,
     textAlign: 'center',
   },
   sectionLabel: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '600',
     marginBottom: 8,
     textAlign: 'center',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   input: {
     height: 50,
@@ -200,29 +219,31 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     fontSize: 18,
     marginBottom: 16,
+    textAlign: 'center',
   },
   quickButtons: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 8,
-    marginBottom: 20,
+    marginBottom: 16,
     justifyContent: 'center',
   },
   quickButton: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 14,
     paddingVertical: 10,
     borderRadius: 8,
-    minWidth: 60,
+    minWidth: 56,
   },
   quickButtonText: {
     color: '#FFFFFF',
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '600',
     textAlign: 'center',
   },
   actions: {
     flexDirection: 'row',
     gap: 12,
+    marginTop: 4,
   },
   button: {
     flex: 1,

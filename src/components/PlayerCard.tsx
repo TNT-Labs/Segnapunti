@@ -20,13 +20,19 @@ interface Player {
 
 interface PlayerCardProps {
   player: Player;
+  position?: number;
+  isLeading?: boolean;
   onAddScore: (playerId: string) => void;
   onSubtractScore: (playerId: string) => void;
   showActions?: boolean;
 }
 
+const POSITION_COLORS = ['#FFD700', '#C0C0C0', '#CD7F32'];
+
 const PlayerCard: React.FC<PlayerCardProps> = ({
   player,
+  position,
+  isLeading = false,
   onAddScore,
   onSubtractScore,
   showActions = true,
@@ -34,25 +40,37 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
   const {t} = useTranslation();
   const {theme} = useTheme();
 
+  const positionColor = position && position <= 3 ? POSITION_COLORS[position - 1] : theme.colors.textSecondary;
+
   return (
     <View
-      style={[styles.container, {backgroundColor: theme.colors.card}]}
+      style={[
+        styles.container,
+        {backgroundColor: theme.colors.card},
+        isLeading && {borderLeftWidth: 3, borderLeftColor: theme.colors.success},
+      ]}
       accessible={true}
       accessibilityLabel={player.roundsWon !== undefined
         ? t('playerCard.playerWithRoundsLabel', {playerName: player.name, score: player.score, roundsWon: player.roundsWon})
         : t('playerCard.playerLabel', {playerName: player.name, score: player.score})}>
+      {position && (
+        <View style={styles.positionContainer}>
+          <Text style={[styles.positionText, {color: positionColor}]}>
+            {position}
+          </Text>
+        </View>
+      )}
       <View style={styles.leftSection}>
         <Text
           style={[styles.playerName, {color: theme.colors.text}]}
-          accessibilityRole="text">
+          numberOfLines={1}>
           {player.name}
         </Text>
         {player.roundsWon !== undefined && (
           <Text
             style={[styles.rounds, {color: theme.colors.textSecondary}]}
-            accessibilityRole="text"
             accessibilityLabel={t('playerCard.roundsLabel', {roundsWon: player.roundsWon})}>
-            🏆 {t('playerCard.rounds')}: {player.roundsWon}
+            {t('playerCard.rounds')}: {player.roundsWon}
           </Text>
         )}
       </View>
@@ -60,7 +78,6 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
       <View style={styles.rightSection}>
         <Text
           style={[styles.score, {color: theme.colors.primary}]}
-          accessibilityRole="text"
           accessibilityLabel={t('playerCard.scoreLabel', {score: player.score})}>
           {player.score}
         </Text>
@@ -82,9 +99,9 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
               accessibilityLabel={t('playerCard.addPoints', {playerName: player.name})}
               accessibilityHint={t('playerCard.addPointsHint')}
               accessibilityRole="button"
-              style={[styles.button, {backgroundColor: theme.colors.success}]}
+              style={[styles.button, styles.addButton, {backgroundColor: theme.colors.success}]}
               onPress={() => onAddScore(player.id)}>
-              <Icon name="plus" size={20} color="#FFFFFF" />
+              <Icon name="plus" size={22} color="#FFFFFF" />
             </TouchableOpacity>
           </View>
         )}
@@ -96,27 +113,35 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 16,
+    padding: 14,
     borderRadius: 12,
-    marginBottom: 12,
+    marginBottom: 10,
     elevation: 2,
     shadowColor: '#000',
     shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
     shadowRadius: 4,
   },
+  positionContainer: {
+    width: 28,
+    alignItems: 'center',
+    marginRight: 10,
+  },
+  positionText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
   leftSection: {
     flex: 1,
   },
   playerName: {
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: '600',
-    marginBottom: 4,
+    marginBottom: 2,
   },
   rounds: {
-    fontSize: 14,
+    fontSize: 13,
   },
   rightSection: {
     flexDirection: 'row',
@@ -126,7 +151,7 @@ const styles = StyleSheet.create({
   score: {
     fontSize: 28,
     fontWeight: 'bold',
-    minWidth: 60,
+    minWidth: 55,
     textAlign: 'right',
   },
   actions: {
@@ -139,6 +164,11 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  addButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
   },
 });
 
