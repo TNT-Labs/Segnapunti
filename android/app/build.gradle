@@ -113,12 +113,10 @@ android {
 }
 
 dependencies {
-    // React Native core
+    // React Native core - IN RN 0.76+ include già Hermes integrato
+    // NON aggiungere com.facebook.react:hermes-android separatamente!
+    // La dipendenza legacy porta HermesExecutor che cerca libhermes_executor.so (non esiste più)
     implementation("com.facebook.react:react-android")
-
-    // Hermes Engine - SEMPRE incluso esplicitamente per React Native 0.76+
-    // (non usare condizionale hermesEnabled.toBoolean() - causa errore di scope)
-    implementation("com.facebook.react:hermes-android")
 
     // Moduli React Native - NECESSARI per il classpath Java
     // L'autolinking in settings.gradle include i progetti, ma devono essere
