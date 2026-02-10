@@ -24,6 +24,10 @@ react {
 
 def enableProguardInReleaseBuilds = true
 
+// Legge i valori da gradle.properties
+def isNewArchEnabled = project.hasProperty("newArchEnabled") ? project.property("newArchEnabled").toString().toBoolean() : false
+def isHermesEnabled = project.hasProperty("hermesEnabled") ? project.property("hermesEnabled").toString().toBoolean() : true
+
 android {
     ndkVersion rootProject.ext.ndkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
@@ -37,12 +41,12 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
 
         // VERSION SYNC - MUST INCREMENT for each Play Store release
-        versionCode 11  // Disabilita PNG crunching per fix AAPT2 su Windows
-        versionName "1.0.7"  // Fix: Disable PNG crunching to avoid AAPT2 errors on Windows
+        versionCode 11
+        versionName "1.0.7"
 
-        // Legge il valore da gradle.properties
-        buildConfigField("boolean", "IS_NEW_ARCHITECTURE_ENABLED", project.hasProperty("newArchEnabled") ? project.property("newArchEnabled") : "false")
-        buildConfigField("boolean", "IS_HERMES_ENABLED", project.hasProperty("hermesEnabled") ? project.property("hermesEnabled") : "true")
+        // Configurazione New Architecture e Hermes
+        buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", isNewArchEnabled.toString()
+        buildConfigField "boolean", "IS_HERMES_ENABLED", isHermesEnabled.toString()
 
         // Configurazione NDK rimossa completamente per consentire
         // l'inclusione automatica di tutte le architetture da gradle.properties
