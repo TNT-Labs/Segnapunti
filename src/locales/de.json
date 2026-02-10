@@ -12,6 +12,13 @@
     "success": "Erfolg",
     "loading": "Laden..."
   },
+  "nav": {
+    "game": "Spiel",
+    "newGame": "Neu",
+    "history": "Verlauf",
+    "presets": "Vorlagen",
+    "about": "Info"
+  },
   "settings": {
     "title": "⚙️ Einstellungen",
     "darkMode": "🌙 Dunkler Modus",
@@ -45,7 +52,8 @@
     "gameInProgressMessage": "Es läuft bereits ein Spiel. Möchtest du es abbrechen und ein neues starten?",
     "newGameAction": "Neues Spiel",
     "gameStarted": "Spiel gestartet!",
-    "gameStartedMessage": "Viel Spaß! 🎉"
+    "gameStartedMessage": "Viel Spaß! 🎉",
+    "appSettings": "App-Einstellungen"
   },
   "game": {
     "title": "🎮 Spiel",
@@ -84,7 +92,24 @@
     "roundsInfo": "{{rounds}} Runden - Ziel: {{target}}",
     "targetInfo": "Ziel: {{target}}",
     "roundsDescription": "{{rounds}} Runden, Zielpunktzahl {{target}}",
-    "targetDescription": "Zielpunktzahl {{target}}"
+    "targetDescription": "Zielpunktzahl {{target}}",
+    "loadError": "Gespeicherte Daten konnten nicht geladen werden. Die Daten sind moeglicherweise beschaedigt.",
+    "bust": "BUST!",
+    "bustMessage": "{{playerName}} ist unter Null gefallen! Punktzahl bleibt bei {{score}}.",
+    "undo": "Rueckgaengig",
+    "undoHint": "Letzte Punktaenderung rueckgaengig machen",
+    "currentRound": "Runde {{round}}",
+    "roundCompleted": "Runde {{round}} abgeschlossen!",
+    "roundWinner": "{{playerName}} hat die Runde mit {{score}} Punkten gewonnen!\n\nGewonnene Runden:\n{{standings}}",
+    "continueButton": "Weiter",
+    "roundLimitReached": "Rundenlimit erreicht!",
+    "roundLimitWinner": "Das Spiel hat das Maximum von {{maxRounds}} Runden erreicht.\n\n{{playerName}} gewinnt mit {{roundsWon}} gewonnenen Runden!",
+    "roundLimitDraw": "Das Spiel hat das Maximum von {{maxRounds}} Runden erreicht.\n\nUnentschieden zwischen:\n{{players}}",
+    "roundsWonShort": "Runden",
+    "draw": "Unentschieden!",
+    "drawMessage": "Mehrere Spieler haben die niedrigste Punktzahl ({{score}}). Weiterspielen!\n\n{{players}}",
+    "alreadySaved": "Bereits gespeichert",
+    "alreadySavedMessage": "Dieses Spiel wurde bereits im Verlauf gespeichert!"
   },
   "scoreModal": {
     "title": "Punkte hinzufügen",
@@ -103,7 +128,10 @@
       "invalidScore": "Gib eine gültige Punktzahl ein.",
       "invalidRange": "Die Punktzahl muss zwischen {{min}} und {{max}} liegen."
     },
-    "invalidScoreTitle": "Ungültige Punktzahl"
+    "invalidScoreTitle": "Ungültige Punktzahl",
+    "quickAdd": "Schnell hinzufuegen",
+    "quickSubtract": "Schnell abziehen",
+    "subtractPoints": "{{points}} Punkte abziehen"
   },
   "history": {
     "title": "📜 Verlauf",

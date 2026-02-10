@@ -12,6 +12,13 @@
     "success": "Succès",
     "loading": "Chargement..."
   },
+  "nav": {
+    "game": "Partie",
+    "newGame": "Nouvelle",
+    "history": "Historique",
+    "presets": "Presets",
+    "about": "Info"
+  },
   "settings": {
     "title": "⚙️ Paramètres",
     "darkMode": "🌙 Mode Sombre",
@@ -45,7 +52,8 @@
     "gameInProgressMessage": "Il y a déjà une partie en cours. Voulez-vous l'abandonner et en commencer une nouvelle ?",
     "newGameAction": "Nouvelle Partie",
     "gameStarted": "Partie Démarrée !",
-    "gameStartedMessage": "Amusez-vous bien ! 🎉"
+    "gameStartedMessage": "Amusez-vous bien ! 🎉",
+    "appSettings": "Parametres de l'App"
   },
   "game": {
     "title": "🎮 Partie",
@@ -84,7 +92,24 @@
     "roundsInfo": "{{rounds}} manches - Objectif : {{target}}",
     "targetInfo": "Objectif : {{target}}",
     "roundsDescription": "{{rounds}} manches, score cible {{target}}",
-    "targetDescription": "Score cible {{target}}"
+    "targetDescription": "Score cible {{target}}",
+    "loadError": "Impossible de charger les donnees sauvegardees. Les donnees sont peut-etre corrompues.",
+    "bust": "BUST!",
+    "bustMessage": "{{playerName}} est passe sous zero! Le score reste a {{score}}.",
+    "undo": "Annuler",
+    "undoHint": "Annuler le dernier changement de score",
+    "currentRound": "Manche {{round}}",
+    "roundCompleted": "Manche {{round}} Terminee!",
+    "roundWinner": "{{playerName}} a gagne la manche avec {{score}} points!\n\nManches gagnees:\n{{standings}}",
+    "continueButton": "Continuer",
+    "roundLimitReached": "Limite de Manches Atteinte!",
+    "roundLimitWinner": "La partie a atteint le maximum de {{maxRounds}} manches.\n\n{{playerName}} gagne avec {{roundsWon}} manches gagnees!",
+    "roundLimitDraw": "La partie a atteint le maximum de {{maxRounds}} manches.\n\nEgalite entre:\n{{players}}",
+    "roundsWonShort": "manches",
+    "draw": "Egalite!",
+    "drawMessage": "Plusieurs joueurs ont le score le plus bas ({{score}}). Continuez a jouer!\n\n{{players}}",
+    "alreadySaved": "Deja Sauvegardee",
+    "alreadySavedMessage": "Cette partie a deja ete sauvegardee dans l'historique!"
   },
   "scoreModal": {
     "title": "Ajouter des Points",
@@ -103,7 +128,10 @@
       "invalidScore": "Entrez un score valide.",
       "invalidRange": "Le score doit être compris entre {{min}} et {{max}}."
     },
-    "invalidScoreTitle": "Score Non Valide"
+    "invalidScoreTitle": "Score Non Valide",
+    "quickAdd": "Ajout rapide",
+    "quickSubtract": "Soustraction rapide",
+    "subtractPoints": "Soustraire {{points}} points"
   },
   "history": {
     "title": "📜 Historique",

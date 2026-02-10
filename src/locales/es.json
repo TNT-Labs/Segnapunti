@@ -12,6 +12,13 @@
     "success": "Éxito",
     "loading": "Cargando..."
   },
+  "nav": {
+    "game": "Partida",
+    "newGame": "Nueva",
+    "history": "Historial",
+    "presets": "Presets",
+    "about": "Info"
+  },
   "settings": {
     "title": "⚙️ Configuración",
     "darkMode": "🌙 Modo Oscuro",
@@ -45,7 +52,8 @@
     "gameInProgressMessage": "Ya hay una partida en curso. ¿Quieres abandonarla e iniciar una nueva?",
     "newGameAction": "Nueva Partida",
     "gameStarted": "¡Partida Iniciada!",
-    "gameStartedMessage": "¡Que te diviertas! 🎉"
+    "gameStartedMessage": "¡Que te diviertas! 🎉",
+    "appSettings": "Ajustes de la App"
   },
   "game": {
     "title": "🎮 Partida",
@@ -84,7 +92,24 @@
     "roundsInfo": "{{rounds}} rondas - Objetivo: {{target}}",
     "targetInfo": "Objetivo: {{target}}",
     "roundsDescription": "{{rounds}} rondas, puntuación objetivo {{target}}",
-    "targetDescription": "Puntuación objetivo {{target}}"
+    "targetDescription": "Puntuación objetivo {{target}}",
+    "loadError": "No se pudieron cargar los datos guardados. Los datos pueden estar danados.",
+    "bust": "BUST!",
+    "bustMessage": "{{playerName}} fue por debajo de cero! La puntuacion se mantiene en {{score}}.",
+    "undo": "Deshacer",
+    "undoHint": "Deshacer el ultimo cambio de puntuacion",
+    "currentRound": "Ronda {{round}}",
+    "roundCompleted": "Ronda {{round}} Completada!",
+    "roundWinner": "{{playerName}} gano la ronda con {{score}} puntos!\n\nRondas ganadas:\n{{standings}}",
+    "continueButton": "Continuar",
+    "roundLimitReached": "Limite de Rondas Alcanzado!",
+    "roundLimitWinner": "El juego alcanzo el maximo de {{maxRounds}} rondas.\n\n{{playerName}} gana con {{roundsWon}} rondas ganadas!",
+    "roundLimitDraw": "El juego alcanzo el maximo de {{maxRounds}} rondas.\n\nEmpate entre:\n{{players}}",
+    "roundsWonShort": "rondas",
+    "draw": "Empate!",
+    "drawMessage": "Varios jugadores tienen la puntuacion mas baja ({{score}}). Sigan jugando!\n\n{{players}}",
+    "alreadySaved": "Ya Guardada",
+    "alreadySavedMessage": "Esta partida ya ha sido guardada en el historial!"
   },
   "scoreModal": {
     "title": "Añadir Puntos",
@@ -103,7 +128,10 @@
       "invalidScore": "Introduce una puntuación válida.",
       "invalidRange": "La puntuación debe estar entre {{min}} y {{max}}."
     },
-    "invalidScoreTitle": "Puntuación No Válida"
+    "invalidScoreTitle": "Puntuación No Válida",
+    "quickAdd": "Agregar rapido",
+    "quickSubtract": "Restar rapido",
+    "subtractPoints": "Restar {{points}} puntos"
   },
   "history": {
     "title": "📜 Historial",

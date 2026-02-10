@@ -24,30 +24,30 @@ const SUPPORTED_LANGUAGES: SupportedLanguage[] = ['it', 'en', 'de', 'es', 'fr', 
 
 // Get device language
 const getDeviceLanguage = (): SupportedLanguage => {
-  let deviceLanguage: string = 'it'; // Default to Italian
+  let deviceLanguage: string = 'en'; // Default to English
 
   try {
     if (Platform.OS === 'ios') {
       deviceLanguage =
         NativeModules.SettingsManager?.settings?.AppleLocale ||
         NativeModules.SettingsManager?.settings?.AppleLanguages?.[0] ||
-        'it';
+        'en';
     } else {
-      deviceLanguage = NativeModules.I18nManager?.localeIdentifier || 'it';
+      deviceLanguage = NativeModules.I18nManager?.localeIdentifier || 'en';
     }
 
-    // Extract language code (e.g., "it_IT" -> "it")
-    deviceLanguage = deviceLanguage.split('_')[0].toLowerCase();
+    // Extract language code (e.g., "it_IT" -> "it", "en-US" -> "en")
+    deviceLanguage = deviceLanguage.split(/[_-]/)[0].toLowerCase();
 
     // Check if language is supported
     if (!SUPPORTED_LANGUAGES.includes(deviceLanguage as SupportedLanguage)) {
-      deviceLanguage = 'it'; // Fallback to Italian
+      deviceLanguage = 'en'; // Fallback to English
     }
   } catch (error) {
     if (__DEV__) {
       console.error('Error detecting device language:', error);
     }
-    deviceLanguage = 'it';
+    deviceLanguage = 'en';
   }
 
   return deviceLanguage as SupportedLanguage;
@@ -76,7 +76,7 @@ const initializeI18n = async (): Promise<boolean> => {
         zh: {translation: zh},
       },
       lng: languageToUse,
-      fallbackLng: 'it',
+      fallbackLng: 'en',
       interpolation: {
         escapeValue: false, // React already handles XSS
       },
@@ -119,7 +119,7 @@ const changeLanguage = async (lng: SupportedLanguage): Promise<boolean> => {
 
 // Get current language
 const getCurrentLanguage = (): SupportedLanguage => {
-  return (i18n.language || 'it') as SupportedLanguage;
+  return (i18n.language || 'en') as SupportedLanguage;
 };
 
 // Get available languages

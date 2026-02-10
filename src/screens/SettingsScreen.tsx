@@ -31,7 +31,6 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({navigation, route}) => {
 
   const allPresets = getAllPresets();
 
-  // Gestisce preset passato dalla navigazione
   useEffect(() => {
     if (route.params?.selectedPreset) {
       setSelectedPreset(route.params.selectedPreset);
@@ -40,8 +39,6 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({navigation, route}) => {
 
   useEffect(() => {
     if (selectedPreset) {
-      // Inizializza array giocatori con nomi di default
-      // Assicurati di avere almeno 2 giocatori
       const numPlayers = Math.max(2, selectedPreset.defaultPlayers || 2);
       const names = Array.from(
         {length: numPlayers},
@@ -93,7 +90,6 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({navigation, route}) => {
 
     const validNames = playerNames.filter(name => name.trim() !== '');
 
-    // Validazione numero giocatori
     const MIN_PLAYERS = 2;
     const MAX_PLAYERS = 8;
 
@@ -113,7 +109,6 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({navigation, route}) => {
       return;
     }
 
-    // Verifica nomi duplicati
     const uniqueNames = new Set(validNames.map(name => name.trim().toLowerCase()));
     if (uniqueNames.size !== validNames.length) {
       Alert.alert(t('common.error'), t('settings.errors.duplicateNames'));
@@ -138,9 +133,7 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({navigation, route}) => {
       );
     } else {
       await startNewGame(selectedPreset, validNames);
-      Alert.alert(t('settings.gameStarted'), t('settings.gameStartedMessage'), [
-        {text: t('common.ok'), onPress: () => navigation.navigate('Game')},
-      ]);
+      navigation.navigate('Game');
     }
   };
 
@@ -148,41 +141,8 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({navigation, route}) => {
     <ScrollView
       style={[styles.container, {backgroundColor: theme.colors.background}]}
       contentContainerStyle={styles.content}>
-      <Text
-        style={[styles.title, {color: theme.colors.text}]}
-        accessibilityRole="header">
-        {t('settings.title')}
-      </Text>
 
-      {/* Language Selector */}
-      <LanguageSelector />
-
-      {/* Dark Mode Toggle */}
-      <View style={[styles.section, {backgroundColor: theme.colors.card}]}>
-        <View style={styles.row}>
-          <Text
-            style={[styles.label, {color: theme.colors.text}]}
-            accessibilityRole="text">
-            {t('settings.darkMode')}
-          </Text>
-          <Switch
-            accessible={true}
-            accessibilityLabel={isDark ? t('settings.darkModeActive') : t('settings.darkModeInactive')}
-            accessibilityHint={t('settings.darkModeHint')}
-            accessibilityRole="switch"
-            value={isDark}
-            onValueChange={toggleDarkMode}
-          />
-        </View>
-      </View>
-
-      <AdBanner
-        size={AD_BANNER_SIZES.SETTINGS_SCREEN}
-        style={styles.adBanner}
-        adUnitId={AD_UNITS.SETTINGS_SCREEN}
-      />
-
-      {/* Nuova Partita */}
+      {/* Game Setup Section - PRIMARY */}
       <Text
         style={[styles.sectionTitle, {color: theme.colors.text}]}
         accessibilityRole="header">
@@ -254,6 +214,9 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({navigation, route}) => {
             <View
               key={index}
               style={[styles.playerInput, {backgroundColor: theme.colors.card}]}>
+              <View style={[styles.playerNumber, {backgroundColor: theme.colors.primary + '20'}]}>
+                <Text style={[styles.playerNumberText, {color: theme.colors.primary}]}>{index + 1}</Text>
+              </View>
               <TextInput
                 accessible={true}
                 accessibilityLabel={t('settings.playerName', {number: index + 1})}
@@ -269,8 +232,9 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({navigation, route}) => {
                 placeholderTextColor={theme.colors.textSecondary}
                 value={name}
                 onChangeText={text => handlePlayerNameChange(index, text)}
+                selectTextOnFocus
               />
-              {playerNames.length > 1 && (
+              {playerNames.length > 2 && (
                 <TouchableOpacity
                   accessible={true}
                   accessibilityLabel={t('settings.removePlayer', {name: name || t('settings.playerName', {number: index + 1})})}
@@ -278,7 +242,7 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({navigation, route}) => {
                   accessibilityRole="button"
                   style={[styles.removeButton, {backgroundColor: theme.colors.error}]}
                   onPress={() => handleRemovePlayer(index)}>
-                  <Icon name="minus" size={20} color="#FFFFFF" />
+                  <Icon name="close" size={16} color="#FFFFFF" />
                 </TouchableOpacity>
               )}
             </View>
@@ -294,10 +258,47 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({navigation, route}) => {
             accessibilityRole="button"
             style={[styles.startButton, {backgroundColor: theme.colors.success}]}
             onPress={handleStartGame}>
+            <Icon name="play-circle" size={22} color="#FFFFFF" style={{marginRight: 8}} />
             <Text style={styles.startButtonText}>{t('settings.startGame')}</Text>
           </TouchableOpacity>
         </>
       )}
+
+      {/* App Settings Section - SECONDARY */}
+      <View style={styles.settingsDivider}>
+        <View style={[styles.dividerLine, {backgroundColor: theme.colors.border}]} />
+        <Text style={[styles.dividerText, {color: theme.colors.textSecondary}]}>
+          {t('settings.appSettings')}
+        </Text>
+        <View style={[styles.dividerLine, {backgroundColor: theme.colors.border}]} />
+      </View>
+
+      {/* Language Selector */}
+      <LanguageSelector />
+
+      {/* Dark Mode Toggle */}
+      <View style={[styles.section, {backgroundColor: theme.colors.card}]}>
+        <View style={styles.row}>
+          <Text
+            style={[styles.label, {color: theme.colors.text}]}>
+            {t('settings.darkMode')}
+          </Text>
+          <Switch
+            accessible={true}
+            accessibilityLabel={isDark ? t('settings.darkModeActive') : t('settings.darkModeInactive')}
+            accessibilityHint={t('settings.darkModeHint')}
+            accessibilityRole="switch"
+            value={isDark}
+            onValueChange={toggleDarkMode}
+          />
+        </View>
+      </View>
+
+      <AdBanner
+        size={AD_BANNER_SIZES.SETTINGS_SCREEN}
+        style={styles.adBanner}
+        adUnitId={AD_UNITS.SETTINGS_SCREEN}
+      />
     </ScrollView>
   );
 };
@@ -305,8 +306,7 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({navigation, route}) => {
 const styles = StyleSheet.create({
   container: {flex: 1},
   content: {padding: 16, paddingBottom: 32},
-  title: {fontSize: 28, fontWeight: 'bold', marginBottom: 20},
-  sectionTitle: {fontSize: 20, fontWeight: '600', marginTop: 16, marginBottom: 12},
+  sectionTitle: {fontSize: 20, fontWeight: '600', marginTop: 8, marginBottom: 12},
   section: {
     padding: 16,
     borderRadius: 12,
@@ -341,32 +341,63 @@ const styles = StyleSheet.create({
   playerInput: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 12,
+    padding: 10,
     borderRadius: 12,
     marginBottom: 8,
     gap: 8,
+  },
+  playerNumber: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  playerNumberText: {
+    fontSize: 14,
+    fontWeight: 'bold',
   },
   input: {
     fontSize: 16,
     padding: 4,
   },
   removeButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
     justifyContent: 'center',
     alignItems: 'center',
   },
   startButton: {
+    flexDirection: 'row',
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
+    justifyContent: 'center',
     marginTop: 16,
+    elevation: 3,
   },
   startButtonText: {
     color: '#FFFFFF',
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  settingsDivider: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 28,
+    marginBottom: 16,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+  },
+  dividerText: {
+    fontSize: 13,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginHorizontal: 12,
   },
 });
 

@@ -7,6 +7,8 @@ import AdBanner from '../components/AdBanner';
 import {AD_UNITS, AD_BANNER_SIZES} from '../config/adConfig';
 import type {AboutScreenProps} from '../navigation/AppNavigator';
 
+const APP_VERSION = '1.0.7';
+
 const AboutScreen: React.FC<AboutScreenProps> = () => {
   const {t} = useTranslation();
   const {theme} = useTheme();
@@ -32,6 +34,7 @@ const AboutScreen: React.FC<AboutScreenProps> = () => {
   return (
     <View style={[styles.container, {backgroundColor: theme.colors.background}]}>
       <View style={styles.content}>
+        <Icon name="cards-playing" size={64} color={theme.colors.primary} style={styles.appIcon} />
         <Text
           style={[styles.title, {color: theme.colors.text}]}
           accessibilityRole="header">
@@ -39,13 +42,11 @@ const AboutScreen: React.FC<AboutScreenProps> = () => {
         </Text>
         <Text
           style={[styles.version, {color: theme.colors.textSecondary}]}
-          accessibilityRole="text"
-          accessibilityLabel={t('about.version', {version: '1.0.6'})}>
-          v1.0.6
+          accessibilityLabel={t('about.version', {version: APP_VERSION})}>
+          v{APP_VERSION}
         </Text>
         <Text
-          style={[styles.subtitle, {color: theme.colors.textSecondary}]}
-          accessibilityRole="text">
+          style={[styles.subtitle, {color: theme.colors.textSecondary}]}>
           {t('about.subtitle')}
         </Text>
 
@@ -86,8 +87,7 @@ const AboutScreen: React.FC<AboutScreenProps> = () => {
         />
 
         <Text
-          style={[styles.footer, {color: theme.colors.textSecondary}]}
-          accessibilityRole="text">
+          style={[styles.footer, {color: theme.colors.textSecondary}]}>
           {t('about.footer')}
         </Text>
       </View>
@@ -98,9 +98,10 @@ const AboutScreen: React.FC<AboutScreenProps> = () => {
 const styles = StyleSheet.create({
   container: {flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20},
   content: {width: '100%', maxWidth: 400, alignItems: 'center'},
-  title: {fontSize: 32, fontWeight: 'bold', marginBottom: 10},
-  version: {fontSize: 16, marginBottom: 20},
-  subtitle: {fontSize: 16, textAlign: 'center', marginBottom: 40},
+  appIcon: {marginBottom: 12},
+  title: {fontSize: 32, fontWeight: 'bold', marginBottom: 6},
+  version: {fontSize: 16, marginBottom: 16},
+  subtitle: {fontSize: 16, textAlign: 'center', marginBottom: 40, lineHeight: 22},
   linksContainer: {width: '100%', marginBottom: 40},
   linkButton: {
     flexDirection: 'row',

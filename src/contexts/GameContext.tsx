@@ -1,8 +1,14 @@
-import React, {createContext, useState, useEffect, useContext, ReactNode} from 'react';
+import React, {createContext, useState, useEffect, useContext, useRef, ReactNode} from 'react';
 import {Alert} from 'react-native';
+import i18next from 'i18next';
 import StorageService from '../services/StorageService';
 import {DEFAULT_PRESETS} from '../constants/presets';
 import {GamePreset} from '../constants/presets';
+
+// Helper to get translations in non-component code
+const t = (key: string, options?: Record<string, any>): string => {
+  return i18next.t(key, options) as string;
+};
 
 // Interfaces and Types
 
@@ -33,6 +39,13 @@ export interface GameState {
 
 export type {GamePreset};
 
+interface ScoreHistoryEntry {
+  playerId: string;
+  previousScore: number;
+  scoreChange: number;
+  timestamp: number;
+}
+
 interface GameContextValue {
   // State
   gameState: GameState | null;
@@ -41,10 +54,12 @@ interface GameContextValue {
   gameHistory: any[];
   customPresets: GamePreset[];
   isLoading: boolean;
+  canUndo: boolean;
 
   // Game actions
   startNewGame: (preset: GamePreset, playerNames: string[]) => Promise<void>;
   updatePlayerScore: (playerId: string, scoreChange: number) => Promise<void>;
+  undoLastScore: () => Promise<void>;
   endGame: (winner: Player) => Promise<void>;
   saveGameToHistory: () => Promise<boolean>;
   resetGame: () => Promise<void>;
@@ -65,27 +80,26 @@ interface GameProviderProps {
 
 const GameContext = createContext<GameContextValue | undefined>(undefined);
 
-// Generatore di ID univoci
 const generateUniqueId = (prefix: string = 'id'): string => {
   return `${prefix}_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
 };
 
 export const GameProvider: React.FC<GameProviderProps> = ({children}) => {
-  // Game state
   const [gameState, setGameState] = useState<GameState | null>(null);
   const [players, setPlayers] = useState<Player[]>([]);
   const [currentPreset, setCurrentPreset] = useState<GamePreset | null>(null);
   const [gameHistory, setGameHistory] = useState<any[]>([]);
   const [customPresets, setCustomPresets] = useState<GamePreset[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const scoreHistory = useRef<ScoreHistoryEntry[]>([]);
 
-  // Carica dati al mount
+  const canUndo = scoreHistory.current.length > 0;
+
   useEffect(() => {
     const loadAllData = async () => {
       try {
         setIsLoading(true);
 
-        // Carica stato partita
         const savedGame = await StorageService.loadGameState();
         if (savedGame) {
           setGameState(savedGame as any);
@@ -93,11 +107,9 @@ export const GameProvider: React.FC<GameProviderProps> = ({children}) => {
           setCurrentPreset(savedGame.preset || null);
         }
 
-        // Carica storico
         const history = await StorageService.loadGameHistory();
         setGameHistory(history);
 
-        // Carica preset personalizzati
         const presets = await StorageService.loadPresets();
         setCustomPresets(presets);
 
@@ -106,9 +118,9 @@ export const GameProvider: React.FC<GameProviderProps> = ({children}) => {
           console.error('Error loading game data:', error);
         }
         Alert.alert(
-          'Errore Caricamento',
-          'Impossibile caricare i dati salvati. I dati potrebbero essere corrotti.',
-          [{text: 'OK'}]
+          t('common.error'),
+          t('game.loadError'),
+          [{text: t('common.ok')}]
         );
       } finally {
         setIsLoading(false);
@@ -140,6 +152,7 @@ export const GameProvider: React.FC<GameProviderProps> = ({children}) => {
       currentRound: preset.mode === 'rounds' ? 1 : undefined,
     };
 
+    scoreHistory.current = [];
     setGameState(newGameState);
     setPlayers(newPlayers);
     setCurrentPreset(preset);
@@ -147,19 +160,32 @@ export const GameProvider: React.FC<GameProviderProps> = ({children}) => {
   };
 
   const updatePlayerScore = async (playerId: string, scoreChange: number): Promise<void> => {
-    const updatedPlayers = players.map(player => {
-      if (player.id === playerId) {
-        let newScore = player.score + scoreChange;
+    const player = players.find(p => p.id === playerId);
+    if (player) {
+      scoreHistory.current.push({
+        playerId,
+        previousScore: player.score,
+        scoreChange,
+        timestamp: Date.now(),
+      });
+    }
 
-        // Gestione modalità darts (non può andare sotto 0)
+    const updatedPlayers = players.map(p => {
+      if (p.id === playerId) {
+        let newScore = p.score + scoreChange;
+
         if (currentPreset!.mode === 'darts' && newScore < 0) {
-          Alert.alert('BUST!', `${player.name} è andato sotto zero! Il punteggio rimane ${player.score}.`);
-          return {...player, score: player.score, bustFlag: true};
+          Alert.alert(
+            t('game.bust'),
+            t('game.bustMessage', {playerName: p.name, score: p.score})
+          );
+          scoreHistory.current.pop();
+          return {...p, score: p.score, bustFlag: true};
         }
 
-        return {...player, score: newScore, bustFlag: false};
+        return {...p, score: newScore, bustFlag: false};
       }
-      return player;
+      return p;
     });
 
     setPlayers(updatedPlayers);
@@ -172,24 +198,41 @@ export const GameProvider: React.FC<GameProviderProps> = ({children}) => {
     setGameState(updatedGameState);
     await StorageService.saveGameState(updatedGameState as any);
 
-    // Per modalità rounds, controlla se qualcuno ha vinto il round
     if (currentPreset!.mode === 'rounds') {
       await checkRoundCompletion(updatedPlayers);
     } else {
-      // Controlla condizione vittoria per altre modalità
       await checkWinCondition(updatedPlayers);
     }
   };
 
-  // Controlla se un round è stato completato (modalità rounds)
+  const undoLastScore = async (): Promise<void> => {
+    if (scoreHistory.current.length === 0) return;
+
+    const lastEntry = scoreHistory.current.pop()!;
+    const updatedPlayers = players.map(p => {
+      if (p.id === lastEntry.playerId) {
+        return {...p, score: lastEntry.previousScore};
+      }
+      return p;
+    });
+
+    setPlayers(updatedPlayers);
+
+    const updatedGameState: GameState = {
+      ...gameState!,
+      players: updatedPlayers,
+    };
+
+    setGameState(updatedGameState);
+    await StorageService.saveGameState(updatedGameState as any);
+  };
+
   const checkRoundCompletion = async (currentPlayers: Player[]): Promise<void> => {
     const preset = currentPreset as Extract<GamePreset, {mode: 'rounds'}>;
 
-    // Trova il vincitore del round
     const roundWinner = currentPlayers.find(p => p.score >= preset.roundTargetScore);
 
     if (roundWinner) {
-      // Salva i punteggi del round per tutti i giocatori
       const updatedPlayers = currentPlayers.map(player => {
         const newRoundsHistory: Round[] = [...(player.rounds || []), {
           roundNumber: gameState!.currentRound!,
@@ -200,7 +243,7 @@ export const GameProvider: React.FC<GameProviderProps> = ({children}) => {
           ...player,
           rounds: newRoundsHistory,
           roundsWon: player.id === roundWinner.id ? (player.roundsWon! + 1) : player.roundsWon!,
-          score: 0, // Reset score per il prossimo round
+          score: 0,
         };
       });
 
@@ -214,44 +257,48 @@ export const GameProvider: React.FC<GameProviderProps> = ({children}) => {
       setGameState(updatedGameState);
       await StorageService.saveGameState(updatedGameState as any);
 
-      // Controlla se è stato raggiunto il limite massimo di round
-      const maxRounds = preset.targetRounds * 3; // Limite: 3x i round target
+      const maxRounds = preset.targetRounds * 3;
       const hasReachedMaxRounds = updatedGameState.currentRound! > maxRounds;
 
       if (hasReachedMaxRounds) {
-        // Termina la partita per timeout, vince chi ha più round
         const maxRoundsWon = Math.max(...updatedPlayers.map(p => p.roundsWon!));
         const playersWithMaxRounds = updatedPlayers.filter(p => p.roundsWon === maxRoundsWon);
 
         if (playersWithMaxRounds.length === 1) {
-          // Un vincitore chiaro
           Alert.alert(
-            'Limite Round Raggiunto!',
-            `La partita ha raggiunto il limite massimo di ${maxRounds} round.\n\n🏆 ${playersWithMaxRounds[0].name} vince con ${maxRoundsWon} round vinti!`,
-            [{text: 'OK'}]
+            t('game.roundLimitReached'),
+            t('game.roundLimitWinner', {
+              maxRounds,
+              playerName: playersWithMaxRounds[0].name,
+              roundsWon: maxRoundsWon,
+            }),
+            [{text: t('common.ok')}]
           );
           await endGame(playersWithMaxRounds[0]);
         } else {
-          // Pareggio
           Alert.alert(
-            'Pareggio!',
-            `La partita ha raggiunto il limite massimo di ${maxRounds} round.\n\nPareggio tra:\n${playersWithMaxRounds.map(p => `${p.name} (${p.roundsWon} round)`).join('\n')}`,
-            [{text: 'OK'}]
+            t('game.draw'),
+            t('game.roundLimitDraw', {
+              maxRounds,
+              players: playersWithMaxRounds.map(p => `${p.name} (${p.roundsWon} ${t('game.roundsWonShort')})`).join('\n'),
+            }),
+            [{text: t('common.ok')}]
           );
-          // Termina comunque la partita con il primo giocatore in pareggio come "vincitore"
           await endGame(playersWithMaxRounds[0]);
         }
         return;
       }
 
-      // Notifica il vincitore del round
       Alert.alert(
-        `Round ${gameState!.currentRound} Completato!`,
-        `🏆 ${roundWinner.name} ha vinto il round con ${roundWinner.score} punti!\n\nRounds vinti:\n${updatedPlayers.map(p => `${p.name}: ${p.roundsWon}`).join('\n')}`,
-        [{text: 'Continua'}]
+        t('game.roundCompleted', {round: gameState!.currentRound}),
+        t('game.roundWinner', {
+          playerName: roundWinner.name,
+          score: roundWinner.score,
+          standings: updatedPlayers.map(p => `${p.name}: ${p.roundsWon}`).join('\n'),
+        }),
+        [{text: t('game.continueButton')}]
       );
 
-      // Controlla se qualcuno ha vinto la partita
       await checkWinCondition(updatedPlayers);
     }
   };
@@ -265,37 +312,32 @@ export const GameProvider: React.FC<GameProviderProps> = ({children}) => {
 
     switch (preset.mode) {
       case 'max':
-        // Vince chi raggiunge per primo il punteggio target
         winner = currentPlayers.find(p => p.score >= preset.targetScore);
         break;
       case 'min':
-        // Quando qualcuno supera il target, vince chi ha il punteggio PIÙ BASSO
         const hasExceeded = currentPlayers.some(p => p.score >= preset.targetScore);
         if (hasExceeded) {
-          // Trova il punteggio più basso
           const lowestScore = Math.min(...currentPlayers.map(p => p.score));
-          // Trova tutti i giocatori con quel punteggio
           const playersWithLowestScore = currentPlayers.filter(p => p.score === lowestScore);
 
-          // Se c'è un solo giocatore con il punteggio più basso, ha vinto
           if (playersWithLowestScore.length === 1) {
             winner = playersWithLowestScore[0];
           } else {
-            // Pareggio: mostra alert e continua a giocare
             Alert.alert(
-              'Pareggio!',
-              `Più giocatori hanno il punteggio più basso (${lowestScore}). Continuate a giocare per determinare il vincitore!\n\n${playersWithLowestScore.map(p => p.name).join(', ')}`,
-              [{text: 'OK'}]
+              t('game.draw'),
+              t('game.drawMessage', {
+                score: lowestScore,
+                players: playersWithLowestScore.map(p => p.name).join(', '),
+              }),
+              [{text: t('common.ok')}]
             );
           }
         }
         break;
       case 'darts':
-        // Vince chi arriva esattamente a 0
         winner = currentPlayers.find(p => p.score === 0);
         break;
       case 'rounds':
-        // Vince chi raggiunge per primo il numero di round target
         const roundsPreset = preset as Extract<GamePreset, {mode: 'rounds'}>;
         winner = currentPlayers.find(p => p.roundsWon! >= roundsPreset.targetRounds);
         break;
@@ -315,15 +357,18 @@ export const GameProvider: React.FC<GameProviderProps> = ({children}) => {
     };
 
     setGameState(finishedGame);
+    scoreHistory.current = [];
     await StorageService.saveGameState(finishedGame as any);
   };
 
   const saveGameToHistory = async (): Promise<boolean> => {
     if (!gameState || !gameState.isFinished) return false;
 
-    // Previeni duplicati controllando se questa partita è già stata salvata
     if (gameState.isSaved) {
-      Alert.alert('Già Salvata', 'Questa partita è già stata salvata nello storico!');
+      Alert.alert(
+        t('game.alreadySaved'),
+        t('game.alreadySavedMessage')
+      );
       return false;
     }
 
@@ -332,7 +377,6 @@ export const GameProvider: React.FC<GameProviderProps> = ({children}) => {
       const updatedHistory = await StorageService.loadGameHistory();
       setGameHistory(updatedHistory);
 
-      // Marca la partita come salvata
       const savedGameState: GameState = {
         ...gameState,
         isSaved: true,
@@ -345,7 +389,7 @@ export const GameProvider: React.FC<GameProviderProps> = ({children}) => {
       if (__DEV__) {
         console.error('Error saving game to history:', error);
       }
-      Alert.alert('Errore', 'Impossibile salvare la partita nello storico.');
+      Alert.alert(t('common.error'), t('game.gameSaveError'));
       return false;
     }
   };
@@ -354,6 +398,7 @@ export const GameProvider: React.FC<GameProviderProps> = ({children}) => {
     setGameState(null);
     setPlayers([]);
     setCurrentPreset(null);
+    scoreHistory.current = [];
     await StorageService.clearGameState();
   };
 
@@ -389,26 +434,24 @@ export const GameProvider: React.FC<GameProviderProps> = ({children}) => {
   };
 
   const value: GameContextValue = {
-    // State
     gameState,
     players,
     currentPreset,
     gameHistory,
     customPresets,
     isLoading,
+    canUndo,
 
-    // Game actions
     startNewGame,
     updatePlayerScore,
+    undoLastScore,
     endGame,
     saveGameToHistory,
     resetGame,
 
-    // History actions
     removeGameFromHistory,
     clearHistory,
 
-    // Preset actions
     getAllPresets,
     addCustomPreset,
     removeCustomPreset,
