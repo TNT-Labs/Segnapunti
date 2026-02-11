@@ -120,9 +120,10 @@ dependencies {
     // React Native core
     implementation("com.facebook.react:react-android")
 
-    // Hermes Engine - fornisce le librerie native necessarie (.so)
-    // Con New Architecture, non usa più HermesExecutor ma serve per le librerie
-    implementation("com.facebook.react:hermes-android")
+    // Hermes Engine - DEVE essere la stessa versione di react-android (0.76.7)
+    // Usa debugImplementation/releaseImplementation per assicurare inclusione corretta
+    debugImplementation("com.facebook.react:hermes-android:0.76.7-debug")
+    releaseImplementation("com.facebook.react:hermes-android:0.76.7-release")
 
     // Moduli React Native - NECESSARI per il classpath Java
     implementation project(':react-native-async-storage_async-storage')
