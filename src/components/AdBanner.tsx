@@ -104,24 +104,8 @@ const AdBanner: React.FC<AdBannerProps> = ({size = 'small', adUnitId, style}) =>
     );
   }
 
-  // Mostra loading indicator durante il caricamento
-  if (loadingState === 'loading') {
-    return (
-      <View
-        style={[
-          styles.container,
-          styles.loadingContainer,
-          {height: getPlaceholderHeight()},
-          style,
-        ]}
-        accessible={true}
-        accessibilityLabel="Caricamento banner pubblicitario"
-        accessibilityRole="progressbar">
-        <ActivityIndicator size="small" color="#999" />
-      </View>
-    );
-  }
-
+  // Renderizza sempre BannerAd in modo che possa caricarsi e chiamare onAdLoaded.
+  // L'ActivityIndicator viene mostrato in overlay finché il caricamento non è completo.
   return (
     <View
       style={[styles.container, style]}
@@ -132,12 +116,20 @@ const AdBanner: React.FC<AdBannerProps> = ({size = 'small', adUnitId, style}) =>
         unitId={adUnitId}
         size={getBannerSize()}
         requestOptions={{
-          // Richiedi solo annunci non personalizzati se l'utente non ha dato il consenso
           requestNonPersonalizedAdsOnly: !canShowPersonalizedAds,
         }}
         onAdLoaded={handleAdLoaded}
         onAdFailedToLoad={handleAdFailedToLoad}
       />
+      {loadingState === 'loading' && (
+        <View
+          style={[styles.loadingOverlay, {height: getPlaceholderHeight()}]}
+          accessible={true}
+          accessibilityLabel="Caricamento banner pubblicitario"
+          accessibilityRole="progressbar">
+          <ActivityIndicator size="small" color="#999" />
+        </View>
+      )}
     </View>
   );
 };
@@ -152,9 +144,14 @@ const styles = StyleSheet.create({
   placeholder: {
     backgroundColor: 'transparent',
   },
-  loadingContainer: {
+  loadingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: 'transparent',
   },
 });
 
