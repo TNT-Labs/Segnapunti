@@ -91,9 +91,7 @@ android {
         }
     }
 
-    /* AGGIUNTA: Supporto Prefab per il linking delle librerie native */
     buildFeatures {
-        prefab true
         buildConfig true  // Necessario per generare BuildConfig.java con i campi custom
     }
 
@@ -123,10 +121,10 @@ dependencies {
     // React Native core
     implementation("com.facebook.react:react-android")
 
-    // Hermes Engine - DEVE essere la stessa versione di react-android (0.76.7)
-    // Usa debugImplementation/releaseImplementation per assicurare inclusione corretta
-    debugImplementation("com.facebook.react:hermes-android:0.76.7-debug")
-    releaseImplementation("com.facebook.react:hermes-android:0.76.7-release")
+    // Hermes Engine - versione gestita dal BOM del react-native-gradle-plugin.
+    // NON usare le varianti -debug/-release: sono AAR separati che non includono
+    // libhermes_executor.so (necessaria per Old Architecture). L'AAR base include tutto.
+    implementation("com.facebook.react:hermes-android")
 
     // Moduli React Native - NECESSARI per il classpath Java
     implementation project(':react-native-async-storage_async-storage')
