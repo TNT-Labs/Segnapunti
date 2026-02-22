@@ -117,6 +117,21 @@ android {
     }
 }
 
+// Fix: externalNativeBuildClean crasha quando le directory codegen JNI delle librerie
+// non esistono ancora (vengono pulite PRIMA che CMake possa riconfigurare).
+// Soluzione: disabilitare il task CMake-based e rimpiazzarlo con una semplice
+// cancellazione di .cxx, che forza una riconfigurazione pulita al prossimo build.
+afterEvaluate {
+    tasks.matching { it.name.startsWith("externalNativeBuildClean") }.configureEach {
+        enabled = false
+    }
+    tasks.named("clean").configure {
+        doFirst {
+            delete "${project.projectDir}/.cxx"
+        }
+    }
+}
+
 dependencies {
     // React Native core
     implementation("com.facebook.react:react-android")
