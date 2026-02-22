@@ -119,21 +119,24 @@ android {
 
 // Fix: externalNativeBuildClean crasha quando le directory codegen JNI delle librerie
 // non esistono ancora (vengono pulite PRIMA che CMake possa riconfigurare).
-// tasks.configureEach intercetta anche i task registrati lazily da AGP 8.x.
-tasks.configureEach { task ->
-    if (task.name.startsWith("externalNativeBuildClean")) {
-        task.enabled = false
+// gradle.taskGraph.whenReady intercetta i task dopo che il grafo è completamente
+// risolto, inclusi quelli registrati lazily da AGP 8.x.
+gradle.taskGraph.whenReady { graph ->
+    graph.allTasks.each { task ->
+        if (task.name.startsWith("externalNativeBuildClean")) {
+            task.enabled = false
+        }
     }
 }
 
-// Task dedicato per pulire .cxx, eseguito come parte di clean
-task deleteCxxCache(type: Delete) {
+// Cancella .cxx direttamente come parte del task clean
+tasks.register("deleteCxxCache", Delete) {
     delete "${project.projectDir}/.cxx"
 }
 
-afterEvaluate {
+project.afterEvaluate {
     tasks.named("clean").configure {
-        dependsOn deleteCxxCache
+        dependsOn "deleteCxxCache"
     }
 }
 
