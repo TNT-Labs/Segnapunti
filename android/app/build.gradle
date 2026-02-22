@@ -109,10 +109,12 @@ android {
         pickFirst 'lib/armeabi-v7a/libhermes.so'
         pickFirst 'lib/arm64-v8a/libhermes.so'
 
-        // Android 15: NON usare useLegacyPackaging
-        // Le librerie vengono caricate direttamente dall'APK
+        // RICHIESTO per HyperOS/MIUI: estrae le .so su disco durante l'installazione.
+        // Senza questo, il kernel di MIUI blocca il caricamento diretto dall'APK
+        // e SoLoader fallisce con "library not found" per libreact_featureflagsjni.so
+        // e altre librerie native di React Native New Architecture.
         jniLibs {
-            // keepDebugSymbols non necessario per release
+            useLegacyPackaging = true
         }
     }
 }
