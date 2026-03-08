@@ -156,6 +156,21 @@ project.afterEvaluate {
     tasks.named("clean").configure {
         dependsOn "deleteCxxCache"
     }
+
+    // Assicura che il task di autolinking (che genera rncli.cpp e rncli.h) venga eseguito
+    // PRIMA della configurazione CMake. Necessario perché la cache Gradle può contenere
+    // output obsoleti (senza rncli.h/rncli.cpp) se jni/ è stato aggiunto a un progetto
+    // esistente. Usa un match case-insensitive per coprire eventuali varianti del nome.
+    tasks.configureEach { cmakeTask ->
+        if (cmakeTask.name.startsWith("configureCMake") || cmakeTask.name.startsWith("buildCMake")) {
+            tasks.matching { autolinkTask ->
+                autolinkTask.name.toLowerCase().contains("packagelist") ||
+                autolinkTask.name.toLowerCase().contains("autolinking")
+            }.each { autolinkTask ->
+                cmakeTask.dependsOn(autolinkTask)
+            }
+        }
+    }
 }
 
 dependencies {

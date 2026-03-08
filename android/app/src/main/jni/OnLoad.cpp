@@ -2,7 +2,15 @@
 #include <DefaultTurboModuleManagerDelegate.h>
 #include <fbjni/fbjni.h>
 #include <react/renderer/componentregistry/ComponentDescriptorProviderRegistry.h>
-#include <rncli.h>
+
+// rncli.h è generato dalla task di autolinking Gradle (build/generated/autolinking/src/main/jni/).
+// Usiamo forward declarations per evitare la dipendenza a compile-time dal file generato:
+// la cache Gradle può contenere una versione obsoleta (senza rncli.h) se jni/ è stato
+// aggiunto a un progetto esistente. I simboli sono risolti al link-time da rncli.cpp
+// che ReactNative-application.cmake include come sorgente del target segnapunti.
+void rncli_init();
+void rncli_registerProviders(
+    std::shared_ptr<facebook::react::ComponentDescriptorProviderRegistry const>);
 
 namespace facebook {
 namespace react {
