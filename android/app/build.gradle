@@ -49,8 +49,23 @@ android {
         buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", isNewArchEnabled.toString()
         buildConfigField "boolean", "IS_HERMES_ENABLED", isHermesEnabled.toString()
 
-        // Configurazione NDK rimossa completamente per consentire
-        // l'inclusione automatica di tutte le architetture da gradle.properties
+        // Configurazione CMake per la New Architecture:
+        // -DANDROID_STL=c++_shared usa la libc++ condivisa (richiesta da React Native).
+        externalNativeBuild {
+            cmake {
+                arguments "-DANDROID_STL=c++_shared"
+            }
+        }
+    }
+
+    // Punta al CMakeLists.txt dell'app che include ReactNative-application.cmake.
+    // Questo fa compilare libreact_featureflagsjni.so e le altre librerie JNI
+    // della New Architecture. Senza questo blocco, il build CMake non viene eseguito
+    // e le librerie native non sono presenti nell'APK → UnsatisfiedLinkError a runtime.
+    externalNativeBuild {
+        cmake {
+            path "src/main/jni/CMakeLists.txt"
+        }
     }
 
     signingConfigs {
