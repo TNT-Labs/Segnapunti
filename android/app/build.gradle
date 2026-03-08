@@ -107,12 +107,15 @@ android {
         pickFirst 'lib/armeabi-v7a/libhermes.so'
         pickFirst 'lib/arm64-v8a/libhermes.so'
 
-        // RICHIESTO per HyperOS/MIUI: estrae le .so su disco durante l'installazione.
-        // Senza questo, il kernel di MIUI blocca il caricamento diretto dall'APK
-        // e SoLoader fallisce con "library not found" per libreact_featureflagsjni.so
-        // e altre librerie native di React Native New Architecture.
+        // RICHIESTO per HyperOS/MIUI: forza estrazione delle .so su disco durante l'installazione.
+        // useLegacyPackaging = false → .so compresse nell'APK (DEFLATE).
+        // Con libs compresse il Package Manager DEVE estrarre su disco (non può caricare
+        // direttamente un file deflated), ignorando qualsiasi restrizione HyperOS/MIUI.
+        // useLegacyPackaging = true (default legacy) → .so non compresse nell'APK:
+        // HyperOS 2.0 le vede "accessibili" e bypassa extractNativeLibs="true",
+        // poi blocca il mapping diretto dall'APK → UnsatisfiedLinkError.
         jniLibs {
-            useLegacyPackaging = true
+            useLegacyPackaging = false
         }
     }
 }
