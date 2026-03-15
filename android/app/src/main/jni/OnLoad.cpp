@@ -2,7 +2,26 @@
 #include <DefaultTurboModuleManagerDelegate.h>
 #include <fbjni/fbjni.h>
 #include <react/renderer/componentregistry/ComponentDescriptorProviderRegistry.h>
-#include <rncli.h>
+
+// Forward declarations per i simboli generati dall'autolinking (rncli.cpp).
+// Non includiamo rncli.h perché il task di autolinking può girare FROM-CACHE
+// e non rigenerare il file su disco.
+// JavaTurboModule::InitParams è già disponibile tramite DefaultTurboModuleManagerDelegate.h.
+
+namespace facebook {
+namespace react {
+
+// rncli_ModuleProvider usa JavaTurboModule::InitParams (firma corretta per RN 0.76).
+std::shared_ptr<TurboModule> rncli_ModuleProvider(
+    const std::string& moduleName,
+    const JavaTurboModule::InitParams& params);
+
+} // namespace react
+} // namespace facebook
+
+// rncli_registerProviders è nel namespace globale.
+void rncli_registerProviders(
+    std::shared_ptr<facebook::react::ComponentDescriptorProviderRegistry const> registry);
 
 namespace facebook {
 namespace react {
@@ -12,15 +31,14 @@ void registerComponents(
   rncli_registerProviders(registry);
 }
 
-// Provider per moduli C++ puri (nessuno in questo progetto).
+// Provider C++ puri: nessuno in questo progetto.
 std::shared_ptr<TurboModule> cxxModuleProvider(
     const std::string& /*name*/,
     const std::shared_ptr<CallInvoker>& /*jsInvoker*/) {
   return nullptr;
 }
 
-// Provider per moduli Java/Kotlin via autolinking.
-// javaModuleProvider accetta JavaTurboModule::InitParams (non shared_ptr<CallInvoker>).
+// Provider Java/Kotlin via autolinking.
 std::shared_ptr<TurboModule> javaModuleProvider(
     const std::string& name,
     const JavaTurboModule::InitParams& params) {
