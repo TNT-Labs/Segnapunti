@@ -31,6 +31,20 @@ void registerComponents(
   rncli_registerProviders(registry);
 }
 
+// Provider per moduli C++ puri (nessuno in questo progetto).
+std::shared_ptr<TurboModule> cxxModuleProvider(
+    const std::string& /*name*/,
+    const std::shared_ptr<CallInvoker>& /*jsInvoker*/) {
+  return nullptr;
+}
+
+// Provider per moduli Java/Kotlin via autolinking.
+std::shared_ptr<TurboModule> javaModuleProvider(
+    const std::string& name,
+    const std::shared_ptr<CallInvoker>& jsInvoker) {
+  return rncli_ModuleProvider(name, jsInvoker);
+}
+
 } // namespace react
 } // namespace facebook
 
@@ -38,15 +52,17 @@ void registerComponents(
 // Inizializza la New Architecture (Fabric + TurboModules) per React Native 0.76.
 //
 // API corretta per RN 0.76:
-// - DefaultTurboModuleManagerDelegate::moduleProvidersFromEntryPoint (function pointer statico)
+// - DefaultTurboModuleManagerDelegate::cxxModuleProvider (function pointer statico)
+// - DefaultTurboModuleManagerDelegate::javaModuleProvider (function pointer statico)
 // - DefaultComponentsRegistry::registerComponentDescriptorsFromEntryPoint (function pointer statico)
-// Il vecchio pattern setManagerProvider() è stato rimosso in RN 0.76.
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void*) {
   return facebook::jni::initialize(vm, [] {
-    facebook::react::DefaultTurboModuleManagerDelegate::
-        moduleProvidersFromEntryPoint = facebook::react::rncli_ModuleProvider;
+    facebook::react::DefaultTurboModuleManagerDelegate::cxxModuleProvider =
+        &facebook::react::cxxModuleProvider;
+    facebook::react::DefaultTurboModuleManagerDelegate::javaModuleProvider =
+        &facebook::react::javaModuleProvider;
     facebook::react::DefaultComponentsRegistry::
         registerComponentDescriptorsFromEntryPoint =
-            facebook::react::registerComponents;
+            &facebook::react::registerComponents;
   });
 }
